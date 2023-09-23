@@ -1,16 +1,19 @@
+import { Request } from 'express';
 import mongoose from 'mongoose';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import { GraphqlTypeBuilder } from './graphql-schema-builder';
 import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
 import { Apollo } from './apollo';
-import { DryerConfig } from './type';
+import { DryerConfig, Model } from './type';
 
-export class Dryer {
-    private constructor(private readonly config: DryerConfig) {}
+export class Dryer<ModelCollection> {
+    private constructor(private readonly config: DryerConfig<any, any>) {}
 
-    public static init(config: DryerConfig) {
-        return new Dryer(config);
+    public static init<ModelCollection, Context>(config: DryerConfig<ModelCollection, Context>) {
+        return new Dryer<ModelCollection>(config);
     }
+
+    public readonly models: { [key in keyof ModelCollection]: Model<ModelCollection[key]> } = {} as any;
 
     public async start() {
         await this.config?.beforeApplicationInit?.();
@@ -28,6 +31,7 @@ export class Dryer {
                 graphql: prebuiltGraphqlSchemaTypes,
                 definition: modelDefinition,
             };
+            this.models[name] = model;
 
             mutationFields = {
                 ...mutationFields,
@@ -46,7 +50,13 @@ export class Dryer {
             mutationFields,
             queryFields,
             port: this.config.port,
-            appendContext: this.config.appendContext,
+            getContext: async (req: Request) => {
+                const additional = await this.config.appendContext?.(req, this.models);
+                return {
+                    ...additional,
+                    models: this.models,
+                }
+            },
         });
         await this.config?.afterApplicationInit?.();
     }

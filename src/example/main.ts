@@ -21,16 +21,22 @@ class User {
     updatedAt: Date;
 }
 
+interface AdditionalContext {
+    userId: string;
+};
+
 async function start() {
-    const dryer = Dryer.init({
+    const dryer = Dryer.init<{ User }, AdditionalContext>({
         modelDefinitions: {
             User,
         },
         beforeApplicationInit: () => console.log('beforeApplicationInit'),
         afterApplicationInit: () => console.log('afterApplicationInit'),
         mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dryer?directConnection',
-        port: Number(process.env.PORT || 3000),
-        appendContext: () => ({ userId: '1', email: 'foo@example.com' }),
+        port: Number(process.env.PORT || 4000),
+        appendContext: (_req, _models) => {
+            return { userId: '123' };
+        },
     });
 
     dryer.start();

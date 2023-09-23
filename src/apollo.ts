@@ -15,12 +15,12 @@ export class Apollo {
         queryFields,
         mutationFields,
         port,
-        appendContext,
+        getContext,
     }: {
         queryFields: graphql.GraphQLFieldConfigMap<any, any>;
         mutationFields: graphql.GraphQLFieldConfigMap<any, any>;
         port: number;
-        appendContext?: ContextFunction<any>;
+        getContext: Function;
     }) {
         const query = new graphql.GraphQLObjectType({
             name: 'Query',
@@ -50,10 +50,7 @@ export class Apollo {
             bodyParser.json(),
             expressMiddleware(server, {
                 context: async ({ req }) => {
-                    if (appendContext) {
-                        return await appendContext(req);
-                    }
-                    return {};
+                    return await getContext(req);
                 },
             }),
         );
