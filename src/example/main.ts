@@ -32,7 +32,7 @@ async function start() {
         },
         beforeApplicationInit: () => console.log('beforeApplicationInit'),
         afterApplicationInit: () => console.log('afterApplicationInit'),
-        mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dryer?directConnection',
+        mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dryer?directConnection=true',
         port: Number(process.env.PORT || 4000),
         appendContext: (_req, _models) => {
             return { userId: '123' };
