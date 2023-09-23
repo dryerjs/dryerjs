@@ -4,7 +4,7 @@ import { Api } from './type';
 export class GetApi implements Api {
     constructor(private model: any, private ctx: any) {}
 
-    public get endpoint() {
+    public getEndpoint() {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0].toLowerCase());
         return {
             [key]: {

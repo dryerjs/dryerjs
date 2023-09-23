@@ -4,7 +4,7 @@ import { Api } from './type';
 export class UpdateApi implements Api {
     constructor(private model: any, private ctx: any) {}
 
-    public get endpoint() {
+    public getEndpoint() {
         return {
             [`update${this.model.name}`]: {
                 type: this.model.graphql.output,

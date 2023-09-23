@@ -3,7 +3,7 @@ import { Api } from './type';
 export class CreateApi implements Api {
     constructor(private model: any, private ctx: any) {}
 
-    public get endpoint() {
+    public getEndpoint() {
         return {
             [`create${this.model.name}`]: {
                 type: this.model.graphql.output,

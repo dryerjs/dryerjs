@@ -38,14 +38,14 @@ export class Dryer {
 
             mutationFields = {
                 ...mutationFields,
-                ...new CreateApi(model, {}).endpoint,
-                ...new UpdateApi(model, {}).endpoint,
-                ...new DeleteApi(model, {}).endpoint,
+                ...new CreateApi(model, {}).getEndpoint(),
+                ...new UpdateApi(model, {}).getEndpoint(),
+                ...new DeleteApi(model, {}).getEndpoint(),
             };
             queryFields = {
                 ...queryFields,
-                ...new GetApi(model, {}).endpoint,
-                ...new ListApi(model, {}).endpoint,
+                ...new GetApi(model, {}).getEndpoint(),
+                ...new ListApi(model, {}).getEndpoint(),
             };
         }
         await mongoose.connect(this.config.mongoUri);
