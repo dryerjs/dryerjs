@@ -1,10 +1,11 @@
+import { ModelDefinition } from './type';
+
 export class MongooseSchemaBuilder {
-    public static build(classDefinition: any) {
-        const instance = new classDefinition();
+    public static build(modelDefinition: ModelDefinition) {
+        const instance = new modelDefinition();
 
         const result = {};
 
-        // Traverse through the properties and access their types
         for (const propertyName in instance) {
             const propertyValue = instance[propertyName];
             const typeConfig = {
