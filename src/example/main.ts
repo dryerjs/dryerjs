@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Dryer, Property } from '..';
+import { Dryer, Property } from 'dryerjs';
 
 class User {
     @Property()
@@ -30,6 +30,7 @@ async function start() {
         afterApplicationInit: () => console.log('afterApplicationInit'),
         mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dryer?directConnection',
         port: Number(process.env.PORT || 3000),
+        appendContext: () => ({ userId: '1', email: 'foo@example.com' }),
     });
 
     dryer.start();

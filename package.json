@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node src/example/main.ts",
+    "start": "nodemon --exec ts-node -r tsconfig-paths/register src/example/main.ts",
     "format": "prettier 'src/**/*.ts' -w",
     "format:ci": "prettier 'src/**/*.ts' -l"
   },
@@ -18,6 +18,7 @@
     "dotenv": "16.3.1",
     "nodemon": "3.0.1",
     "prettier": "2.8.8",
+    "tsconfig-paths": "4.2.0",
     "typescript": "5.2.2"
   },
   "dependencies": {

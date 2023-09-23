@@ -6,6 +6,7 @@ import http from 'http';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as graphql from 'graphql';
+import { ContextFunction } from './type';
 
 export class Apollo {
     constructor() {}
@@ -14,10 +15,12 @@ export class Apollo {
         queryFields,
         mutationFields,
         port,
+        appendContext,
     }: {
         queryFields: graphql.GraphQLFieldConfigMap<any, any>;
         mutationFields: graphql.GraphQLFieldConfigMap<any, any>;
         port: number;
+        appendContext?: ContextFunction<any>;
     }) {
         const query = new graphql.GraphQLObjectType({
             name: 'Query',
@@ -42,7 +45,18 @@ export class Apollo {
         });
         await server.start();
 
-        app.use(cors(), bodyParser.json(), expressMiddleware(server));
+        app.use(
+            cors(),
+            bodyParser.json(),
+            expressMiddleware(server, {
+                context: async ({ req }) => {
+                    if (appendContext) {
+                        return await appendContext(req);
+                    }
+                    return {};
+                },
+            }),
+        );
 
         await new Promise<void>(resolve => {
             httpServer.listen({ port }, () => {

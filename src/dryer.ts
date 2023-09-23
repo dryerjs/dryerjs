@@ -3,17 +3,10 @@ import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import { GraphqlTypeBuilder } from './graphql-schema-builder';
 import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
 import { Apollo } from './apollo';
-
-interface DryerConfig {
-    modelDefinitions: { [key: string]: any };
-    beforeApplicationInit?: Function;
-    afterApplicationInit?: Function;
-    mongoUri: string;
-    port: number;
-}
+import { DryerConfig } from './type';
 
 export class Dryer {
-    private constructor(private config: DryerConfig) {}
+    private constructor(private readonly config: DryerConfig) {}
 
     public static init(config: DryerConfig) {
         return new Dryer(config);
@@ -53,6 +46,7 @@ export class Dryer {
             mutationFields,
             queryFields,
             port: this.config.port,
+            appendContext: this.config.appendContext,
         });
         await this.config?.afterApplicationInit?.();
     }

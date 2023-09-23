@@ -9,13 +9,15 @@ export class MongooseSchemaBuilder {
         const result = {};
 
         for (const property of CachedPropertiesByModel.getPropertiesByModel(modelDefinition.name)) {
-        if (property === 'id') continue;
+            if (property === 'id') continue;
             const typeConfig = {
                 String,
                 Date,
                 Number,
             };
-            result[property] = { type: typeConfig[Reflect.getMetadata('design:type', instance, property).name] };
+            result[property] = {
+                type: typeConfig[Reflect.getMetadata('design:type', instance, property).name],
+            };
         }
 
         return new Schema(result, {
