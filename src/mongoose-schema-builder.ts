@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
+import { CachedPropertiesByModel } from './property';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition) {
@@ -7,15 +8,14 @@ export class MongooseSchemaBuilder {
 
         const result = {};
 
-        for (const propertyName in instance) {
-            if (propertyName === 'id') continue;
-            const propertyValue = instance[propertyName];
+        for (const property of CachedPropertiesByModel.getPropertiesByModel(modelDefinition.name)) {
+        if (property === 'id') continue;
             const typeConfig = {
                 String,
                 Date,
                 Number,
             };
-            result[propertyName] = { type: typeConfig[propertyValue.name] };
+            result[property] = { type: typeConfig[Reflect.getMetadata('design:type', instance, property).name] };
         }
 
         return new Schema(result, {

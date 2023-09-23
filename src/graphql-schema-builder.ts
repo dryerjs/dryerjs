@@ -1,5 +1,6 @@
 import * as graphql from 'graphql';
 import { AnyClass, ModelDefinition } from './type';
+import { CachedPropertiesByModel } from './property';
 
 export class GraphqlTypeBuilder {
     static build(modelDefinition: ModelDefinition) {
@@ -15,9 +16,9 @@ export class GraphqlTypeBuilder {
         fn: (property: string, typeInClass: AnyClass) => void,
     ) {
         const instance = new modelDefinition();
-        for (const propertyName in instance) {
-            const typeInClass = instance[propertyName];
-            fn(propertyName, typeInClass);
+        for (const property of CachedPropertiesByModel.getPropertiesByModel(modelDefinition.name)) {
+            const typeInClass = Reflect.getMetadata('design:type', instance, property);
+            fn(property, typeInClass);
         }
     }
 
