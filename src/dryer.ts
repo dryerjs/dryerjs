@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import { GraphqlTypeBuilder } from './graphql-schema-builder';
-import { CreateApi, GetApi } from './apis';
+import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
 import { Apollo } from './apollo';
 
 interface DryerConfig {
@@ -36,10 +36,17 @@ export class Dryer {
                 definition: modelDefinition,
             };
 
-            const createApi = new CreateApi(model, {});
-            const getApi = new GetApi(model, {});
-            mutationFields = { ...mutationFields, ...createApi.endpoint };
-            queryFields = { ...queryFields, ...getApi.endpoint };
+            mutationFields = {
+                ...mutationFields,
+                ...new CreateApi(model, {}).endpoint,
+                ...new UpdateApi(model, {}).endpoint,
+                ...new DeleteApi(model, {}).endpoint,
+            };
+            queryFields = {
+                ...queryFields,
+                ...new GetApi(model, {}).endpoint,
+                ...new ListApi(model, {}).endpoint,
+            };
         }
         await mongoose.connect(this.config.mongoUri);
         await Apollo.start({

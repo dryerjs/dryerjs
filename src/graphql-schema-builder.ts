@@ -6,6 +6,7 @@ export class GraphqlTypeBuilder {
         return {
             output: this.getOutputType(modelDefinition),
             create: this.getCreateInputType(modelDefinition),
+            update: this.getUpdateInputType(modelDefinition),
         };
     }
 
@@ -45,6 +46,26 @@ export class GraphqlTypeBuilder {
         };
 
         this.traverse(modelDefinition, (propertyName, typeInClass) => {
+            if (propertyName === 'id') return;
+            const typeConfig = {
+                String: graphql.GraphQLString,
+                Date: graphql.GraphQLString,
+                Number: graphql.GraphQLInt,
+            };
+            result.fields[propertyName] = { type: typeConfig[typeInClass.name] };
+        });
+
+        return new graphql.GraphQLInputObjectType(result);
+    }
+
+    private static getUpdateInputType(modelDefinition: ModelDefinition) {
+        const result = {
+            name: `Update${modelDefinition.name}Input`,
+            fields: {},
+        };
+
+        this.traverse(modelDefinition, (propertyName, typeInClass) => {
+            if (propertyName === 'id') return;
             const typeConfig = {
                 String: graphql.GraphQLString,
                 Date: graphql.GraphQLString,
