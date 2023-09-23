@@ -1,3 +1,4 @@
+import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
 
 export class MongooseSchemaBuilder {
@@ -7,6 +8,7 @@ export class MongooseSchemaBuilder {
         const result = {};
 
         for (const propertyName in instance) {
+            if (propertyName === 'id') continue;
             const propertyValue = instance[propertyName];
             const typeConfig = {
                 String,
@@ -16,6 +18,14 @@ export class MongooseSchemaBuilder {
             result[propertyName] = { type: typeConfig[propertyValue.name] };
         }
 
-        return result;
+        return new Schema(result, {
+            virtuals: {
+                id: {
+                    get: function () {
+                        return this._id.toString();
+                    },
+                },
+            },
+        });
     }
 }
