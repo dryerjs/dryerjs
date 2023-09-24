@@ -31,11 +31,11 @@ export class Dryer<ModelCollection> {
                 db: dbModel,
                 graphql: prebuiltGraphqlSchemaTypes,
                 definition: modelDefinition,
-                inContext: inContext({
-                    name: modelDefinition.name,
-                    db: dbModel,
-                }) as any,
+                inContext: {} as any,
             };
+
+            model.inContext = inContext(model) as any;
+
             this.models[name] = model;
 
             mutationFields = {
