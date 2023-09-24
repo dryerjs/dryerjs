@@ -1,3 +1,4 @@
+import * as graphql from 'graphql';
 import { CachedPropertiesByModel, MetadataKey } from '../property';
 import { Api, Model } from '../type';
 
@@ -8,7 +9,7 @@ export class CreateApi implements Api {
         return {
             [`create${this.model.name}`]: {
                 type: this.model.graphql.output,
-                args: { input: { type: this.model.graphql.create } },
+                args: { input: { type: new graphql.GraphQLNonNull(this.model.graphql.create) } },
                 resolve: async (_parent: any, { input }, context: any) => {
                     await this.validate(input, context);
                     const transformedInput = await this.transform(input, context);

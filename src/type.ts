@@ -24,7 +24,7 @@ export type Model<T> = {
     name: string;
     db: mongoose.Model<T>;
     graphql: {
-        output: graphql.GraphQLObjectType;
+        output: graphql.GraphQLNonNull<graphql.GraphQLObjectType>;
         create: graphql.GraphQLInputObjectType;
         update: graphql.GraphQLInputObjectType;
     };

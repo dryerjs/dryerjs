@@ -40,7 +40,7 @@ export class GraphqlTypeBuilder {
             result.fields[propertyName] = { type: typeConfig[typeInClass.name] };
         });
 
-        return new graphql.GraphQLObjectType(result);
+        return new graphql.GraphQLNonNull(new graphql.GraphQLObjectType(result));
     }
 
     private static getCreateInputType(modelDefinition: ModelDefinition) {

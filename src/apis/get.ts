@@ -10,7 +10,7 @@ export class GetApi implements Api {
         return {
             [key]: {
                 type: this.model.graphql.output,
-                args: { id: { type: graphql.GraphQLString } },
+                args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }, context: any) => {
                     const result = await this.model.db.findById(id);
                     if (!result) throw new Error(`No ${this.model.name} found with id ${id}`);

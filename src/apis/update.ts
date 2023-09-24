@@ -9,7 +9,10 @@ export class UpdateApi implements Api {
         return {
             [`update${this.model.name}`]: {
                 type: this.model.graphql.output,
-                args: { id: { type: graphql.GraphQLString }, input: { type: this.model.graphql.update } },
+                args: {
+                    id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
+                    input: { type: new graphql.GraphQLNonNull(this.model.graphql.update) },
+                },
                 resolve: async (_parent: any, { input, id }, context: any) => {
                     await this.validate(input, context);
                     const transformedInput = await this.transform(input, context);

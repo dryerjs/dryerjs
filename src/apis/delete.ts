@@ -4,8 +4,8 @@ import { Api, Model } from '../type';
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
     fields: {
-        deleted: { type: graphql.GraphQLBoolean },
-        id: { type: graphql.GraphQLString },
+        deleted: { type: new graphql.GraphQLNonNull(graphql.GraphQLBoolean) },
+        id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
     },
 });
 
@@ -16,7 +16,7 @@ export class DeleteApi implements Api {
         return {
             [`delete${this.model.name}`]: {
                 type: deleteResponse,
-                args: { id: { type: graphql.GraphQLString } },
+                args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }, _context: any) => {
                     await this.model.db.findByIdAndDelete(id);
                     return { deleted: true, id };
