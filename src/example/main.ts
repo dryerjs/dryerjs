@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import * as graphql from 'graphql';
 import {
     Dryer,
     ExcludeOnInput,
@@ -11,6 +12,7 @@ import {
     TransformOnOutput,
     Validate,
     ExcludeOnDatabase,
+    GraphQLType,
 } from 'dryerjs';
 
 class User {
@@ -43,6 +45,7 @@ class User {
 
     @Property()
     @NullableOnOutput()
+    @GraphQLType(graphql.GraphQLInt)
     yearOfBirth?: number;
 
     @Property()

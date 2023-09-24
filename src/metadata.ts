@@ -15,6 +15,7 @@ export enum MetadataKey {
     NotNullOnCreate = 'NotNullOnCreate',
     NotNullOnUpdate = 'NotNullOnUpdate',
     NullableOnOutput = 'NullableOnOutput',
+    GraphQLType = 'GraphQLType',
 }
 
 export class CachedPropertiesByModel {
@@ -181,6 +182,17 @@ export function NullableOnOutput() {
             target.constructor.name,
             MetadataKey.NullableOnOutput,
             propertyKey,
+        );
+    };
+}
+
+export function GraphQLType(type: any) {
+    return function (target: any, propertyKey: string) {
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.GraphQLType,
+            propertyKey,
+            type,
         );
     };
 }
