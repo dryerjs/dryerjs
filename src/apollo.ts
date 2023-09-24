@@ -6,7 +6,6 @@ import http from 'http';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as graphql from 'graphql';
-import { ContextFunction } from './type';
 
 export class Apollo {
     constructor() {}

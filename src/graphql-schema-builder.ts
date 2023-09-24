@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { AnyClass, ModelDefinition } from './type';
-import { CachedPropertiesByModel, MetadataKey } from './property';
+import { CachedPropertiesByModel, MetadataKey } from './metadata';
 
 export class GraphqlTypeBuilder {
     static build(modelDefinition: ModelDefinition) {

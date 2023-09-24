@@ -1,3 +1,3 @@
 export * from './type';
-export * from './property';
+export * from './metadata';
 export * from './dryer';

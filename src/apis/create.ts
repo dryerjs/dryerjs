@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { CachedPropertiesByModel, MetadataKey } from '../property';
+import { CachedPropertiesByModel, MetadataKey } from '../metadata';
 import { Api, Model } from '../type';
 
 export class CreateApi implements Api {

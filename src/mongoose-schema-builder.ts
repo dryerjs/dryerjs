@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
-import { CachedPropertiesByModel, MetadataKey } from './property';
+import { CachedPropertiesByModel, MetadataKey } from './metadata';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition) {

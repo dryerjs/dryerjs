@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { Api, Model } from '../type';
-import { CachedPropertiesByModel, MetadataKey } from '../property';
+import { CachedPropertiesByModel, MetadataKey } from '../metadata';
 
 export class UpdateApi implements Api {
     constructor(private model: Model<any>) {}
