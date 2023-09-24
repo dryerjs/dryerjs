@@ -5,6 +5,7 @@ import { GraphqlTypeBuilder } from './graphql-schema-builder';
 import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
 import { Apollo } from './apollo';
 import { DryerConfig, Model } from './type';
+import { inContext } from './services';
 
 export class Dryer<ModelCollection> {
     private constructor(private readonly config: DryerConfig<any, any>) {}
@@ -25,11 +26,15 @@ export class Dryer<ModelCollection> {
             const mongooseSchema = MongooseSchemaBuilder.build(modelDefinition);
             const dbModel = mongoose.model(modelDefinition.name, mongooseSchema as any);
             const prebuiltGraphqlSchemaTypes = GraphqlTypeBuilder.build(modelDefinition);
-            const model = {
+            const model: Model<any> = {
                 name: modelDefinition.name,
                 db: dbModel,
                 graphql: prebuiltGraphqlSchemaTypes,
                 definition: modelDefinition,
+                inContext: inContext({
+                    name: modelDefinition.name,
+                    db: dbModel,
+                }) as any,
             };
             this.models[name] = model;
 

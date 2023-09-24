@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import * as graphql from 'graphql';
+import { inContext } from 'services';
 
 export type ModelDefinition<T = any> = new (...args: any[]) => T;
 
@@ -29,6 +30,15 @@ export type Model<T> = {
         update: graphql.GraphQLInputObjectType;
     };
     definition: AnyClass;
+    inContext: (context: any) => {
+        create(input: Partial<T>): Promise<T>;
+        update(id: string, input: Partial<T>): Promise<T>;
+        get(id: string): Promise<T | null>;
+        getOrThrow(id: string): Promise<T>;
+        delete(id: string): Promise<void>;
+        output(raw: T): Promise<T>;
+        list(skip: number, take: number): Promise<T[]>;
+    };
 };
 
 export type ApiEndpoint = graphql.GraphQLFieldConfigMap<any, any>;

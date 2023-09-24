@@ -17,8 +17,8 @@ export class DeleteApi implements Api {
             [`delete${this.model.name}`]: {
                 type: deleteResponse,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
-                resolve: async (_parent, { id }, _context: any) => {
-                    await this.model.db.findByIdAndDelete(id);
+                resolve: async (_parent, { id }, context: any) => {
+                    await this.model.inContext(context).delete(id);
                     return { deleted: true, id };
                 },
             },

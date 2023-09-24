@@ -10,8 +10,8 @@ export class ListApi implements Api {
             [key]: {
                 type: new graphql.GraphQLList(this.model.graphql.output),
                 args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
-                resolve: async (_parent, { skip, take }, _context: any) => {
-                    const result = await this.model.db.find().skip(skip).limit(take);
+                resolve: async (_parent, { skip, take }, context: any) => {
+                    const result = await this.model.inContext(context).list(skip, take);
                     return result;
                 },
             },

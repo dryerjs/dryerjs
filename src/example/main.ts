@@ -29,7 +29,12 @@ class User {
     })
     @Validate((email: string) => {
         if (email.includes('@')) return;
-        throw new Error('Invalid email');
+        throw new graphql.GraphQLError(`Invalid email ${email}`, {
+            extensions: {
+                code: 'BAD_REQUEST',
+                http: { status: 400 },
+            },
+        });
     })
     @NotNullOnCreate()
     email: string;
