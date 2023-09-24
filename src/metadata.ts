@@ -33,7 +33,7 @@ export class CachedPropertiesByModel {
         modelName: string,
         metaKey: MetadataKey,
         fieldName: string,
-        value: any = undefined,
+        value: any = true,
     ): void {
         if (this.propertiesByModel[modelName] === undefined) {
             this.propertiesByModel[modelName] = {};
@@ -101,46 +101,42 @@ export function Validate(fn: (field: any, object: any, ctx: any) => any) {
     };
 }
 
-export function ExcludeOnOutput(fn: (field: any, object: any, ctx: any) => any) {
+export function ExcludeOnOutput() {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
             MetadataKey.ExcludeOnOutput,
             propertyKey,
-            fn,
         );
     };
 }
 
-export function ExcludeOnInput(fn: (field: any, object: any, ctx: any) => any) {
+export function ExcludeOnInput() {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
             MetadataKey.ExcludeOnInput,
             propertyKey,
-            fn,
         );
     };
 }
 
-export function ExcludeOnCreate(fn: (field: any, object: any, ctx: any) => any) {
+export function ExcludeOnCreate() {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
             MetadataKey.ExcludeOnCreate,
             propertyKey,
-            fn,
         );
     };
 }
 
-export function ExcludeOnUpdate(fn: (field: any, object: any, ctx: any) => any) {
+export function ExcludeOnUpdate() {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
             MetadataKey.ExcludeOnUpdate,
             propertyKey,
-            fn,
         );
     };
 }

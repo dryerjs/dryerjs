@@ -32,6 +32,15 @@ export class GraphqlTypeBuilder {
         };
 
         this.traverse(modelDefinition, (propertyName, typeInClass) => {
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnOutput,
+                    propertyName,
+                )
+            )   {
+                return;
+            }
             const typeConfig = {
                 String: graphql.GraphQLString,
                 Date: graphql.GraphQLString,
@@ -50,7 +59,24 @@ export class GraphqlTypeBuilder {
         };
 
         this.traverse(modelDefinition, (propertyName, typeInClass) => {
-            if (propertyName === 'id') return;
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnCreate,
+                    propertyName,
+                )
+            )   {
+                return;
+            }
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnInput,
+                    propertyName,
+                )
+            )   {
+                return;
+            }
             const typeConfig = {
                 String: graphql.GraphQLString,
                 Date: graphql.GraphQLString,
@@ -69,7 +95,24 @@ export class GraphqlTypeBuilder {
         };
 
         this.traverse(modelDefinition, (propertyName, typeInClass) => {
-            if (propertyName === 'id') return;
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnUpdate,
+                    propertyName,
+                )
+            )   {
+                return;
+            }
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnInput,
+                    propertyName,
+                )
+            )   {
+                return;
+            }
             const typeConfig = {
                 String: graphql.GraphQLString,
                 Date: graphql.GraphQLString,

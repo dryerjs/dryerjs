@@ -1,11 +1,22 @@
 import 'dotenv/config';
-import { Dryer, Property, TransformOnInput, TransformOnOutput, Validate } from 'dryerjs';
+import {
+    Dryer,
+    ExcludeOnInput,
+    ExcludeOnOutput,
+    ExcludeOnUpdate,
+    Property,
+    TransformOnCreate,
+    TransformOnOutput,
+    Validate,
+} from 'dryerjs';
 
 class User {
+    @ExcludeOnInput()
     @Property()
     id: string;
 
     @Property()
+    @ExcludeOnUpdate()
     @TransformOnOutput((_user: User, email: string, ctx: AdditionalContext) => {
         if (ctx.role === 'admin') return email;
         return `***@${email.split('@')[1]}`;
@@ -18,18 +29,22 @@ class User {
     email: string;
 
     @Property()
-    @TransformOnInput((userInput: User, password: string) => {
+    @ExcludeOnUpdate()
+    @TransformOnCreate((userInput: User, password: string) => {
         const passwordHash = require('crypto').createHash('md5').update(password).digest('hex');
         return `${userInput.email}:${passwordHash}`;
     })
+    @ExcludeOnOutput()
     password: string;
 
     @Property()
     yearOfBirth: number;
 
+    @ExcludeOnInput()
     @Property()
     createdAt: Date;
 
+    @ExcludeOnInput()
     @Property()
     updatedAt: Date;
 }
