@@ -55,7 +55,7 @@ export function Property() {
     };
 }
 
-export function TransformOnOutput(fn: (field: any, object: any, ctx: any) => any) {
+export function TransformOnOutput(fn: (fieldValue: any, ctx: any, object: any) => any) {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
@@ -66,7 +66,7 @@ export function TransformOnOutput(fn: (field: any, object: any, ctx: any) => any
     };
 }
 
-export function TransformOnInput(fn: (field: any, object: any, ctx: any) => any) {
+export function TransformOnInput(fn: (fieldValue: any, ctx: any, object: any) => any) {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
@@ -77,7 +77,7 @@ export function TransformOnInput(fn: (field: any, object: any, ctx: any) => any)
     };
 }
 
-export function TransformOnCreate(fn: (field: any, object: any, ctx: any) => any) {
+export function TransformOnCreate(fn: (fieldValue: any, ctx: any, object: any) => any) {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
@@ -88,7 +88,7 @@ export function TransformOnCreate(fn: (field: any, object: any, ctx: any) => any
     };
 }
 
-export function TransformOnUpdate(fn: (field: any, object: any, ctx: any) => any) {
+export function TransformOnUpdate(fn: (fieldValue: any, ctx: any, object: any) => any) {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
@@ -99,7 +99,7 @@ export function TransformOnUpdate(fn: (field: any, object: any, ctx: any) => any
     };
 }
 
-export function Validate(fn: (field: any, object: any, ctx: any) => any) {
+export function Validate(fn: (fieldValue: any, ctx: any, object: any) => any) {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.Validate, propertyKey, fn);
     };

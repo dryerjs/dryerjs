@@ -31,7 +31,7 @@ export class CreateApi implements Api {
                 property,
             );
             if (!validateFn) continue;
-            await validateFn(input, input[property], context);
+            await validateFn(input[property], context, input);
         }
     }
 
@@ -59,7 +59,7 @@ export class CreateApi implements Api {
             );
             const transformFn = transformOnCreateFn || transformOnInputFn;
             if (!transformFn) continue;
-            input[property] = await transformFn(input, input[property], context);
+            input[property] = await transformFn(input[property], context, input);
         }
         return input;
     }

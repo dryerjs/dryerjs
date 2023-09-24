@@ -31,7 +31,7 @@ export class GetApi implements Api {
                 property,
             );
             if (!transformFn) continue;
-            output[property] = await transformFn(output, output[property], context);
+            output[property] = await transformFn(output[property], context, output);
         }
         return output;
     }

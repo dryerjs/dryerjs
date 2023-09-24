@@ -20,12 +20,11 @@ class User {
 
     @Property()
     @ExcludeOnUpdate()
-    @TransformOnOutput((_user: User, email: string, ctx: AdditionalContext) => {
+    @TransformOnOutput((email: string, ctx: AdditionalContext) => {
         if (ctx.role === 'admin') return email;
         return `***@${email.split('@')[1]}`;
     })
-    @Validate((_user: User, email: string) => {
-        console.log('validate email', email);
+    @Validate((email: string) => {
         if (email.includes('@')) return;
         throw new Error('Invalid email');
     })
@@ -35,7 +34,7 @@ class User {
     @Property()
     @ExcludeOnUpdate()
     @NotNullOnCreate()
-    @TransformOnCreate((userInput: User, password: string) => {
+    @TransformOnCreate((password: string, _ctx: AdditionalContext, userInput: User) => {
         const passwordHash = require('crypto').createHash('md5').update(password).digest('hex');
         return `${userInput.email}:${passwordHash}`;
     })
@@ -83,7 +82,3 @@ async function start() {
 }
 
 start();
-function RequiredOnCreate(): (target: User, propertyKey: "email") => void {
-    throw new Error('Function not implemented.');
-}
-
