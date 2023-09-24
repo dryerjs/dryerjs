@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Api } from './type';
 
 export class ListApi implements Api {
-    constructor(private model: any, private ctx: any) {}
+    constructor(private model: any) {}
 
     public getEndpoint() {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0].toLowerCase()).concat('s');

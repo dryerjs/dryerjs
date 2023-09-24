@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
-import { CachedPropertiesByModel } from './property';
+import { CachedPropertiesByModel, MetadataKey } from './property';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition) {
@@ -8,7 +8,10 @@ export class MongooseSchemaBuilder {
 
         const result = {};
 
-        for (const property of CachedPropertiesByModel.getPropertiesByModel(modelDefinition.name)) {
+        for (const property in CachedPropertiesByModel.getPropertiesByModel(
+            modelDefinition.name,
+            MetadataKey.DesignType,
+        )) {
             if (property === 'id') continue;
             const typeConfig = {
                 String,

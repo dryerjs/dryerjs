@@ -1,14 +1,22 @@
 import 'dotenv/config';
-import { Dryer, Property } from 'dryerjs';
+import { Dryer, Property, TransformOnInput, TransformOnOutput } from 'dryerjs';
 
 class User {
     @Property()
     id: string;
 
     @Property()
+    @TransformOnOutput((_user: User, email: string, ctx: AdditionalContext) => {
+        if (ctx.role === 'admin') return email;
+        return `***@${email.split('@')[1]}`;
+    })
     email: string;
 
     @Property()
+    @TransformOnInput((userInput: User, password: string) => {
+        const passwordHash = require('crypto').createHash('md5').update(password).digest('hex');
+        return `${userInput.email}:${passwordHash}`;
+    })
     password: string;
 
     @Property()
@@ -23,7 +31,8 @@ class User {
 
 interface AdditionalContext {
     userId: string;
-};
+    role: string;
+}
 
 async function start() {
     const dryer = Dryer.init<{ User }, AdditionalContext>({
@@ -35,7 +44,7 @@ async function start() {
         mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/dryer?directConnection=true',
         port: Number(process.env.PORT || 4000),
         appendContext: (_req, _models) => {
-            return { userId: '123' };
+            return { userId: '123', role: 'user' };
         },
     });
 

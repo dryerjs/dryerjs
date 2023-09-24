@@ -10,7 +10,7 @@ const deleteResponse = new graphql.GraphQLObjectType({
 });
 
 export class DeleteApi implements Api {
-    constructor(private model: any, private ctx: any) {}
+    constructor(private model: any) {}
 
     public getEndpoint() {
         return {

@@ -35,14 +35,14 @@ export class Dryer<ModelCollection> {
 
             mutationFields = {
                 ...mutationFields,
-                ...new CreateApi(model, {}).getEndpoint(),
-                ...new UpdateApi(model, {}).getEndpoint(),
-                ...new DeleteApi(model, {}).getEndpoint(),
+                ...new CreateApi(model).getEndpoint(),
+                ...new UpdateApi(model).getEndpoint(),
+                ...new DeleteApi(model).getEndpoint(),
             };
             queryFields = {
                 ...queryFields,
-                ...new GetApi(model, {}).getEndpoint(),
-                ...new ListApi(model, {}).getEndpoint(),
+                ...new GetApi(model).getEndpoint(),
+                ...new ListApi(model).getEndpoint(),
             };
         }
         await mongoose.connect(this.config.mongoUri);
@@ -55,7 +55,7 @@ export class Dryer<ModelCollection> {
                 return {
                     ...additional,
                     models: this.models,
-                }
+                };
             },
         });
         await this.config?.afterApplicationInit?.();
