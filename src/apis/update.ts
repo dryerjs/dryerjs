@@ -15,7 +15,8 @@ export class UpdateApi implements Api {
                 },
                 resolve: async (_parent: any, { input, id }, context: any) => {
                     await this.validate(input, context);
-                    const transformedInput = await this.transform(input, context);
+                    const defaultAppliedInput = await this.setDefault(input, context);
+                    const transformedInput = await this.transform(defaultAppliedInput, context);
                     const result = await this.model.db.findByIdAndUpdate(id, transformedInput, {
                         new: true,
                     });
@@ -39,6 +40,35 @@ export class UpdateApi implements Api {
             if (!validateFn) continue;
             await validateFn(input[property], context, input);
         }
+    }
+
+    private async setDefault(input: any, context: any) {
+        const properties = {};
+        [MetadataKey.DefaultOnUpdate, MetadataKey.DefaultOnInput].forEach(metaKey => {
+            Object.keys(CachedPropertiesByModel.getPropertiesByModel(this.model.name, metaKey)).forEach(
+                (property: string) => {
+                    properties[property] = true;
+                },
+            );
+        });
+
+        for (const property in properties) {
+            if (input[property] !== null && input[property] !== undefined) continue;
+            const defaultOnUpdateFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.DefaultOnUpdate,
+                property,
+            );
+            const defaultOnInputFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.DefaultOnInput,
+                property,
+            );
+            const defaultFn = defaultOnUpdateFn || defaultOnInputFn;
+            if (!defaultFn) continue;
+            input[property] = await defaultFn(context, input);
+        }
+        return input;
     }
 
     private async transform(input: any, context: any) {

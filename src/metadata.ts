@@ -7,6 +7,10 @@ export enum MetadataKey {
     TransformOnCreate = 'TransformOnCreate',
     TransformOnUpdate = 'TransformOnUpdate',
     Validate = 'Validate',
+    DefaultOnInput = 'DefaultOnInput',
+    DefaultOnCreate = 'DefaultOnCreate',
+    DefaultOnUpdate = 'DefaultOnUpdate',
+    DefaultOnOutput = 'DefaultOnOutput',
     ExcludeOnOutput = 'ExcludeOnOutput',
     ExcludeOnInput = 'ExcludeOnInput',
     ExcludeOnCreate = 'ExcludeOnCreate',
@@ -94,6 +98,50 @@ export function TransformOnUpdate(fn: (fieldValue: any, ctx: any, object: any) =
         CachedPropertiesByModel.addField(
             target.constructor.name,
             MetadataKey.TransformOnUpdate,
+            propertyKey,
+            fn,
+        );
+    };
+}
+
+export function DefaultOnOutput(fn: (ctx: any, object: any) => any) {
+    return function (target: any, propertyKey: string) {
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.DefaultOnOutput,
+            propertyKey,
+            fn,
+        );
+    };
+}
+
+export function DefaultOnInput(fn: (ctx: any, object: any) => any) {
+    return function (target: any, propertyKey: string) {
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.DefaultOnInput,
+            propertyKey,
+            fn,
+        );
+    };
+}
+
+export function DefaultOnCreate(fn: (ctx: any, object: any) => any) {
+    return function (target: any, propertyKey: string) {
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.DefaultOnCreate,
+            propertyKey,
+            fn,
+        );
+    };
+}
+
+export function DefaultOnUpdate(fn: (ctx: any, object: any) => any) {
+    return function (target: any, propertyKey: string) {
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.DefaultOnUpdate,
             propertyKey,
             fn,
         );

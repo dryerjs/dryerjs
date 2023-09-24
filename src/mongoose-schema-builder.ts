@@ -40,6 +40,7 @@ export class MongooseSchemaBuilder {
                     },
                 },
             },
+            timestamps: true,
         });
     }
 }

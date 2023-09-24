@@ -12,7 +12,8 @@ export class CreateApi implements Api {
                 args: { input: { type: new graphql.GraphQLNonNull(this.model.graphql.create) } },
                 resolve: async (_parent: any, { input }, context: any) => {
                     await this.validate(input, context);
-                    const transformedInput = await this.transform(input, context);
+                    const defaultAppliedInput = await this.setDefault(input, context);
+                    const transformedInput = await this.transform(defaultAppliedInput, context);
                     return this.model.db.create(transformedInput);
                 },
             },
@@ -33,6 +34,35 @@ export class CreateApi implements Api {
             if (!validateFn) continue;
             await validateFn(input[property], context, input);
         }
+    }
+
+    private async setDefault(input: any, context: any) {
+        const properties = {};
+        [MetadataKey.DefaultOnCreate, MetadataKey.DefaultOnInput].forEach(metaKey => {
+            Object.keys(CachedPropertiesByModel.getPropertiesByModel(this.model.name, metaKey)).forEach(
+                (property: string) => {
+                    properties[property] = true;
+                },
+            );
+        });
+
+        for (const property in properties) {
+            if (input[property] !== null && input[property] !== undefined) continue;
+            const defaultOnCreateFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.DefaultOnCreate,
+                property,
+            );
+            const defaultOnInputFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.DefaultOnInput,
+                property,
+            );
+            const defaultFn = defaultOnCreateFn || defaultOnInputFn;
+            if (!defaultFn) continue;
+            input[property] = await defaultFn(context, input);
+        }
+        return input;
     }
 
     private async transform(input: any, context: any) {

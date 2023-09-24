@@ -14,10 +14,28 @@ export class GetApi implements Api {
                 resolve: async (_parent, { id }, context: any) => {
                     const result = await this.model.db.findById(id);
                     if (!result) throw new Error(`No ${this.model.name} found with id ${id}`);
-                    return await this.transform(result, context);
+                    const defaultAppliedResult = await this.setDefault(result, context);
+                    return await this.transform(defaultAppliedResult, context);
                 },
             },
         };
+    }
+
+    private async setDefault(output: any, context: any) {
+        for (const property in CachedPropertiesByModel.getPropertiesByModel(
+            this.model.name,
+            MetadataKey.DefaultOnOutput,
+        ) || {}) {
+            if (output[property] !== null && output[property] !== undefined) continue;
+            const defaultFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.DefaultOnOutput,
+                property,
+            );
+            if (!defaultFn) continue;
+            output[property] = await defaultFn(output[property], context, output);
+        }
+        return output;
     }
 
     private async transform(output: any, context: any) {

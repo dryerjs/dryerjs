@@ -13,6 +13,7 @@ import {
     Validate,
     ExcludeOnDatabase,
     GraphQLType,
+    DefaultOnOutput,
 } from 'dryerjs';
 
 class User {
@@ -46,6 +47,7 @@ class User {
     @Property()
     @NullableOnOutput()
     @GraphQLType(graphql.GraphQLInt)
+    @DefaultOnOutput(() => 1990)
     yearOfBirth?: number;
 
     @Property()
