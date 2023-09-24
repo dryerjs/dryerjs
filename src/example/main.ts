@@ -10,6 +10,7 @@ import {
     TransformOnCreate,
     TransformOnOutput,
     Validate,
+    ExcludeOnDatabase,
 } from 'dryerjs';
 
 class User {
@@ -44,6 +45,11 @@ class User {
     @Property()
     @NullableOnOutput()
     yearOfBirth?: number;
+
+    @Property()
+    @ExcludeOnOutput()
+    @ExcludeOnDatabase()
+    requestId?: string;
 
     @ExcludeOnInput()
     @Property()

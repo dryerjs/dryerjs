@@ -18,6 +18,15 @@ export class MongooseSchemaBuilder {
                 Date,
                 Number,
             };
+            if (
+                CachedPropertiesByModel.getMetadataValue(
+                    modelDefinition.name,
+                    MetadataKey.ExcludeOnDatabase,
+                    property,
+                )
+            ) {
+                continue;
+            }
             result[property] = {
                 type: typeConfig[Reflect.getMetadata('design:type', instance, property).name],
             };

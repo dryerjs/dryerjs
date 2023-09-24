@@ -11,7 +11,7 @@ export enum MetadataKey {
     ExcludeOnInput = 'ExcludeOnInput',
     ExcludeOnCreate = 'ExcludeOnCreate',
     ExcludeOnUpdate = 'ExcludeOnUpdate',
-    ExcludeDatabase = 'ExcludeDatabase',
+    ExcludeOnDatabase = 'ExcludeOnDatabase',
     NotNullOnCreate = 'NotNullOnCreate',
     NotNullOnUpdate = 'NotNullOnUpdate',
     NullableOnOutput = 'NullableOnOutput',
@@ -165,11 +165,11 @@ export function NotNullOnUpdate() {
     };
 }
 
-export function ExcludeDatabase() {
+export function ExcludeOnDatabase() {
     return function (target: any, propertyKey: string) {
         CachedPropertiesByModel.addField(
             target.constructor.name,
-            MetadataKey.ExcludeDatabase,
+            MetadataKey.ExcludeOnDatabase,
             propertyKey,
         );
     };
