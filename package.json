@@ -18,6 +18,7 @@
     "dotenv": "16.3.1",
     "nodemon": "3.0.1",
     "prettier": "2.8.8",
+    "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.2.2"
   },
