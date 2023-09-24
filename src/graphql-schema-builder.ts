@@ -38,7 +38,7 @@ export class GraphqlTypeBuilder {
                     MetadataKey.ExcludeOnOutput,
                     propertyName,
                 )
-            )   {
+            ) {
                 return;
             }
             const typeConfig = {
@@ -46,7 +46,15 @@ export class GraphqlTypeBuilder {
                 Date: graphql.GraphQLString,
                 Number: graphql.GraphQLInt,
             };
-            result.fields[propertyName] = { type: typeConfig[typeInClass.name] };
+            const isNullable = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.NullableOnOutput,
+                propertyName,
+            );
+            const type = isNullable
+                ? typeConfig[typeInClass.name]
+                : new graphql.GraphQLNonNull(typeConfig[typeInClass.name]);
+            result.fields[propertyName] = { type };
         });
 
         return new graphql.GraphQLNonNull(new graphql.GraphQLObjectType(result));
@@ -65,7 +73,7 @@ export class GraphqlTypeBuilder {
                     MetadataKey.ExcludeOnCreate,
                     propertyName,
                 )
-            )   {
+            ) {
                 return;
             }
             if (
@@ -74,7 +82,7 @@ export class GraphqlTypeBuilder {
                     MetadataKey.ExcludeOnInput,
                     propertyName,
                 )
-            )   {
+            ) {
                 return;
             }
             const typeConfig = {
@@ -82,7 +90,15 @@ export class GraphqlTypeBuilder {
                 Date: graphql.GraphQLString,
                 Number: graphql.GraphQLInt,
             };
-            result.fields[propertyName] = { type: typeConfig[typeInClass.name] };
+            const isNotNull = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.NotNullOnCreate,
+                propertyName,
+            );
+            const type = isNotNull
+                ? new graphql.GraphQLNonNull(typeConfig[typeInClass.name])
+                : typeConfig[typeInClass.name];
+            result.fields[propertyName] = { type };
         });
 
         return new graphql.GraphQLInputObjectType(result);
@@ -101,7 +117,7 @@ export class GraphqlTypeBuilder {
                     MetadataKey.ExcludeOnUpdate,
                     propertyName,
                 )
-            )   {
+            ) {
                 return;
             }
             if (
@@ -110,7 +126,7 @@ export class GraphqlTypeBuilder {
                     MetadataKey.ExcludeOnInput,
                     propertyName,
                 )
-            )   {
+            ) {
                 return;
             }
             const typeConfig = {
@@ -118,7 +134,15 @@ export class GraphqlTypeBuilder {
                 Date: graphql.GraphQLString,
                 Number: graphql.GraphQLInt,
             };
-            result.fields[propertyName] = { type: typeConfig[typeInClass.name] };
+            const isNotNull = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.NotNullOnUpdate,
+                propertyName,
+            );
+            const type = isNotNull
+                ? new graphql.GraphQLNonNull(typeConfig[typeInClass.name])
+                : typeConfig[typeInClass.name];
+            result.fields[propertyName] = { type };
         });
 
         return new graphql.GraphQLInputObjectType(result);

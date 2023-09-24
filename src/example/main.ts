@@ -4,7 +4,9 @@ import {
     ExcludeOnInput,
     ExcludeOnOutput,
     ExcludeOnUpdate,
+    NullableOnOutput,
     Property,
+    NotNullOnCreate,
     TransformOnCreate,
     TransformOnOutput,
     Validate,
@@ -26,10 +28,12 @@ class User {
         if (email.includes('@')) return;
         throw new Error('Invalid email');
     })
+    @NotNullOnCreate()
     email: string;
 
     @Property()
     @ExcludeOnUpdate()
+    @NotNullOnCreate()
     @TransformOnCreate((userInput: User, password: string) => {
         const passwordHash = require('crypto').createHash('md5').update(password).digest('hex');
         return `${userInput.email}:${passwordHash}`;
@@ -38,7 +42,8 @@ class User {
     password: string;
 
     @Property()
-    yearOfBirth: number;
+    @NullableOnOutput()
+    yearOfBirth?: number;
 
     @ExcludeOnInput()
     @Property()
@@ -72,3 +77,7 @@ async function start() {
 }
 
 start();
+function RequiredOnCreate(): (target: User, propertyKey: "email") => void {
+    throw new Error('Function not implemented.');
+}
+
