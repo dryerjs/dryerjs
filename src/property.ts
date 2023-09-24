@@ -64,56 +64,83 @@ export function TransformOnOutput(fn: (field: any, object: any, ctx: any) => any
 
 export function TransformOnInput(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.TransformOnInput, propertyKey);
-        Reflect.defineMetadata(MetadataKey.TransformOnInput, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.TransformOnInput,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function TransformOnCreate(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.TransformOnCreate, propertyKey);
-        Reflect.defineMetadata(MetadataKey.TransformOnCreate, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.TransformOnCreate,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function TransformOnUpdate(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.TransformOnUpdate, propertyKey);
-        Reflect.defineMetadata(MetadataKey.TransformOnUpdate, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.TransformOnUpdate,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function Validate(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.Validate, propertyKey);
-        Reflect.defineMetadata(MetadataKey.Validate, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.Validate, propertyKey, fn);
     };
 }
 
 export function ExcludeOnOutput(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnOutput, propertyKey);
-        Reflect.defineMetadata(MetadataKey.ExcludeOnOutput, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.ExcludeOnOutput,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function ExcludeOnInput(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnInput, propertyKey);
-        Reflect.defineMetadata(MetadataKey.ExcludeOnInput, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.ExcludeOnInput,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function ExcludeOnCreate(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnCreate, propertyKey);
-        Reflect.defineMetadata(MetadataKey.ExcludeOnCreate, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.ExcludeOnCreate,
+            propertyKey,
+            fn,
+        );
     };
 }
 
 export function ExcludeOnUpdate(fn: (field: any, object: any, ctx: any) => any) {
     return function (target: any, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnUpdate, propertyKey);
-        Reflect.defineMetadata(MetadataKey.ExcludeOnUpdate, fn, target, propertyKey);
+        CachedPropertiesByModel.addField(
+            target.constructor.name,
+            MetadataKey.ExcludeOnUpdate,
+            propertyKey,
+            fn,
+        );
     };
 }

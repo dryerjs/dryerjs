@@ -1,8 +1,8 @@
 import * as graphql from 'graphql';
-import { Api } from './type';
+import { Api, Model } from '../type';
 
 export class ListApi implements Api {
-    constructor(private model: any) {}
+    constructor(private model: Model<any>) {}
 
     public getEndpoint() {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0].toLowerCase()).concat('s');

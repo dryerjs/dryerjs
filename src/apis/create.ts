@@ -1,7 +1,8 @@
-import { Api } from './type';
+import { CachedPropertiesByModel, MetadataKey } from '../property';
+import { Api, Model } from '../type';
 
 export class CreateApi implements Api {
-    constructor(private model: any) {}
+    constructor(private model: Model<any>) {}
 
     public getEndpoint() {
         return {
@@ -18,28 +19,47 @@ export class CreateApi implements Api {
     }
 
     private async validate(input: any, context: any) {
-        const properties = this.model.properties;
-        for (const property of properties) {
+        for (const property in CachedPropertiesByModel.getPropertiesByModel(
+            this.model.name,
+            MetadataKey.Validate,
+        ) || {}) {
             if (input[property] === undefined) continue;
-            const validateFn = Reflect.getMetadata('validate', this.model, property);
+            const validateFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.Validate,
+                property,
+            );
             if (!validateFn) continue;
-            await validateFn(input[property], input, context);
+            await validateFn(input, input[property], context);
         }
     }
 
     private async transform(input: any, context: any) {
-        const properties = this.model.properties;
-        const transformedInput = {};
-        for (const property of properties) {
-            const transformOnCreate = Reflect.getMetadata('transformOnCreate', this.model, property);
-            const transformOnInput = Reflect.getMetadata('transformOnInput', this.model, property);
-            const transformFn = transformOnCreate || transformOnInput;
-            if (!transformFn) {
-                transformedInput[property] = input[property];
-                continue;
-            }
-            transformedInput[property] = await transformFn(input[property], input, context);
+        const properties = {};
+        [MetadataKey.TransformOnCreate, MetadataKey.TransformOnInput].forEach(metaKey => {
+            Object.keys(CachedPropertiesByModel.getPropertiesByModel(this.model.name, metaKey)).forEach(
+                (property: string) => {
+                    properties[property] = true;
+                },
+            );
+        });
+
+        for (const property in properties) {
+            if (input[property] === undefined) continue;
+            const transformOnCreateFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.TransformOnCreate,
+                property,
+            );
+            const transformOnInputFn = CachedPropertiesByModel.getMetadataValue(
+                this.model.name,
+                MetadataKey.TransformOnInput,
+                property,
+            );
+            const transformFn = transformOnCreateFn || transformOnInputFn;
+            if (!transformFn) continue;
+            input[property] = await transformFn(input, input[property], context);
         }
-        return transformedInput;
+        return input;
     }
 }

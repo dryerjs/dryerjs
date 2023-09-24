@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { Api } from './type';
+import { Api, Model } from '../type';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -10,7 +10,7 @@ const deleteResponse = new graphql.GraphQLObjectType({
 });
 
 export class DeleteApi implements Api {
-    constructor(private model: any) {}
+    constructor(private model: Model<any>) {}
 
     public getEndpoint() {
         return {

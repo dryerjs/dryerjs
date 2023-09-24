@@ -1,9 +1,9 @@
 import * as graphql from 'graphql';
-import { Api } from './type';
+import { Api, Model } from '../type';
 import { CachedPropertiesByModel, MetadataKey } from '../property';
 
 export class GetApi implements Api {
-    constructor(private model: any) {}
+    constructor(private model: Model<any>) {}
 
     public getEndpoint() {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0].toLowerCase());
@@ -30,10 +30,7 @@ export class GetApi implements Api {
                 MetadataKey.TransformOnOutput,
                 property,
             );
-            console.log('transformFn', transformFn, property);
-            if (!transformFn) {
-                continue;
-            }
+            if (!transformFn) continue;
             output[property] = await transformFn(output, output[property], context);
         }
         return output;

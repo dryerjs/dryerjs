@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Dryer, Property, TransformOnInput, TransformOnOutput } from 'dryerjs';
+import { Dryer, Property, TransformOnInput, TransformOnOutput, Validate } from 'dryerjs';
 
 class User {
     @Property()
@@ -9,6 +9,11 @@ class User {
     @TransformOnOutput((_user: User, email: string, ctx: AdditionalContext) => {
         if (ctx.role === 'admin') return email;
         return `***@${email.split('@')[1]}`;
+    })
+    @Validate((_user: User, email: string) => {
+        console.log('validate email', email);
+        if (email.includes('@')) return;
+        throw new Error('Invalid email');
     })
     email: string;
 
