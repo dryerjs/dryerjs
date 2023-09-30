@@ -148,19 +148,17 @@ describe('Example app', () => {
                 variables: { userId: firstUserId },
             });
 
-            await dryer.makeFailRequest(
-                {
-                    query: `
+            await dryer.makeFailRequest({
+                query: `
                     query User($userId: String!) {
                         user(id: $userId) {
                             yearOfBirth
                         }
                     }
                 `,
-                    variables: { userId: firstUserId },
-                    errorMessageMustContains: 'No User found with id',
-                },
-            );
+                variables: { userId: firstUserId },
+                errorMessageMustContains: 'No User found with id',
+            });
         });
     });
 

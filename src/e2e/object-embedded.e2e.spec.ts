@@ -48,7 +48,7 @@ describe('Object embedded feature works', () => {
                     director: {
                         name: 'Director 1',
                         nationality: 'Nationality 1',
-                    }
+                    },
                 },
                 {
                     name: 'Movie 2',
@@ -85,7 +85,7 @@ describe('Object embedded feature works', () => {
                 `,
             });
 
-            console.log(allMovies);
+            expect(allMovies.movies).toHaveLength(2);
         });
     });
 
