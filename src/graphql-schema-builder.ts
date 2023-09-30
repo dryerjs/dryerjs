@@ -7,37 +7,13 @@ import {
     GraphQLBoolean,
     GraphQLEnumType,
 } from 'graphql';
-import { AnyClass, ModelDefinition } from './type';
-import { CachedPropertiesByModel, MetadataKey } from './metadata';
+import { ModelDefinition } from './type';
+import { MetadataKey, TraversedProperty, inspect } from './metadata';
 
 const enumTypeCached = {};
 
-class TraversedProperty {
-    constructor(
-        private modelDefinition: ModelDefinition,
-        public name: string,
-        public typeInClass: AnyClass,
-    ) {}
-
-    public getMetadataValue(key: MetadataKey) {
-        return CachedPropertiesByModel.getMetadataValue(this.modelDefinition.name, key, this.name);
-    }
-}
-
 abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}
-
-    private traverse(fn: (property: TraversedProperty) => void) {
-        const instance = new this.modelDefinition();
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            this.modelDefinition.name,
-            MetadataKey.DesignType,
-        )) {
-            const typeInClass = Reflect.getMetadata(MetadataKey.DesignType, instance, property);
-            const traversedProperty = new TraversedProperty(this.modelDefinition, property, typeInClass);
-            fn(traversedProperty);
-        }
-    }
 
     protected abstract getName(): string;
     protected abstract isExcludedField(traversedProperty: TraversedProperty): boolean;
@@ -50,14 +26,16 @@ abstract class BaseTypeBuilder {
             fields: {},
         };
 
-        this.traverse(traversedProperty => {
-            if (this.isExcludedField(traversedProperty)) return;
-            const isNullable = this.isNullableField(traversedProperty);
-            const type = this.getTypeForOneField(traversedProperty, isNullable);
-            if (!type) return;
+        inspect(this.modelDefinition)
+            .getProperties()
+            .forEach(traversedProperty => {
+                if (this.isExcludedField(traversedProperty)) return;
+                const isNullable = this.isNullableField(traversedProperty);
+                const type = this.getTypeForOneField(traversedProperty, isNullable);
+                if (!type) return;
 
-            result.fields[traversedProperty.name] = { type };
-        });
+                result.fields[traversedProperty.name] = { type };
+            });
 
         if (this.useAs === 'input') return new GraphQLInputObjectType(result);
         if (this.useAs === 'output') return new GraphQLObjectType(result);
