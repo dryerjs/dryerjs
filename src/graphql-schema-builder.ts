@@ -6,6 +6,8 @@ import {
     GraphQLFloat,
     GraphQLBoolean,
     GraphQLEnumType,
+    GraphQLInt,
+    GraphQLList,
 } from 'graphql';
 import { ModelDefinition } from './type';
 import { MetadataKey, TraversedProperty, inspect } from './metadata';
@@ -138,16 +140,61 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
     protected useAs: 'input' | 'output' = 'input';
 }
 
+class PaginationTypeBuilder extends BaseTypeBuilder {
+    constructor(
+        modelDefinition: ModelDefinition,
+        private outputType: GraphQLObjectType,
+    ) {
+        super(modelDefinition);
+    }
+
+    public getType() {
+        const result = {
+            name: this.getName(),
+            fields: {
+                docs: { type: new GraphQLList(this.outputType) },
+                totalDocs: { type: GraphQLInt },
+                page: { type: GraphQLInt },
+                limit: { type: GraphQLInt },
+                hasPrevPage: { type: GraphQLBoolean },
+                hasNextPage: { type: GraphQLBoolean },
+                totalPages: { type: GraphQLInt },
+            },
+        };
+
+        return new GraphQLObjectType(result);
+    }
+
+    protected isExcludedField(traversedProperty: TraversedProperty) {
+        return traversedProperty.getMetadataValue(MetadataKey.ExcludeOnUpdate);
+    }
+
+    protected isNullableField(traversedProperty: TraversedProperty) {
+        return !traversedProperty.getMetadataValue(MetadataKey.RequiredOnUpdate);
+    }
+
+    protected getName() {
+        return `${this.modelDefinition.name}Pagination`;
+    }
+
+    protected useAs: 'input' | 'output' = 'output';
+}
+
 export class GraphqlTypeBuilder {
     static build(modelDefinition: ModelDefinition) {
         const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const paginationOutput = new PaginationTypeBuilder(
+            modelDefinition,
+            output,
+        ).getType() as GraphQLObjectType;
         return {
             output,
             nonNullOutput: new GraphQLNonNull(output),
             create,
             update,
+            paginationOutput,
         };
     }
 }

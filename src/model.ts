@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import { ModelDefinition } from './type';
 import { GraphqlTypeBuilder } from './graphql-schema-builder';
@@ -13,13 +14,14 @@ import {
 
 export class Model<T = any> {
     public readonly name: string;
-    public readonly db: mongoose.Model<T>;
+    public readonly db: mongoose.PaginateModel<T>;
     public readonly graphql: ReturnType<typeof GraphqlTypeBuilder.build>;
 
     constructor(public readonly definition: ModelDefinition<T>) {
         const mongooseSchema = MongooseSchemaBuilder.build(definition);
+        mongooseSchema.plugin(mongoosePaginate);
         this.name = definition.name;
-        this.db = mongoose.model<T>(definition.name, mongooseSchema);
+        this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
         this.graphql = GraphqlTypeBuilder.build(definition);
     }
 
