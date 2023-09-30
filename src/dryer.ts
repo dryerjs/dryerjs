@@ -1,12 +1,11 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
-import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
+import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi, GetAllApi } from './apis';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
 import { Model } from './model';
 import { CachedPropertiesByModel } from './metadata';
-import { GetAllApi } from 'apis/get-all';
 
 export type ContextFunction<Context> = (
     req: express.Request,

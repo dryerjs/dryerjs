@@ -70,6 +70,26 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "ofType": null,
         },
       },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "getAllUsers",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null,
+            },
+          },
+        },
+      },
     ],
     "inputFields": null,
     "interfaces": [],
@@ -292,9 +312,13 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "kind": "LIST",
           "name": null,
           "ofType": {
-            "kind": "OBJECT",
-            "name": "User",
-            "ofType": null,
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null,
+            },
           },
         },
       },
@@ -732,15 +756,15 @@ exports[`Example app Generate correct graphql schema 1`] = `
 exports[`Example app User CRUD works Happy path works 1`] = `
 [
   {
-    "email": "foo@example1.com",
+    "email": "***@example1.com",
     "yearOfBirth": 2001,
   },
   {
-    "email": "bar@example2.com",
+    "email": "***@example2.com",
     "yearOfBirth": 2002,
   },
   {
-    "email": "baz@example3.com",
+    "email": "***@example3.com",
     "yearOfBirth": 1990,
   },
 ]

@@ -1,6 +1,16 @@
 import { EmbeddedProperty, ExcludeOnInput, NullableOnOutput, Property, RequiredOnCreate } from 'dryerjs';
 import { DryerTest } from './utils';
 
+type PaginatedType<T> = {
+    docs: T[];
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+};
+
 class Director {
     @Property()
     name: string;
@@ -36,6 +46,7 @@ describe('Object embedded feature works', () => {
 
     describe('User CRUD works', () => {
         let allMovies: Movie[];
+        let paginatedMovies: PaginatedType<Movie>;
 
         beforeAll(async () => {
             const movieInputs = [
@@ -67,6 +78,23 @@ describe('Object embedded feature works', () => {
             const allMoviesResponse = await dryer.makeSuccessRequest({
                 query: `
                     query Movies {
+                        getAllMovies {
+                            id
+                            name
+                            director {
+                                name
+                                nationality
+                            }
+                        }
+                    }
+                `,
+            });
+
+            allMovies = allMoviesResponse.getAllMovies;
+
+            const paginatedMoviesResponse = await dryer.makeSuccessRequest({
+                query: `
+                    query Movies {
                         movies {
                             docs {
                                 id
@@ -75,13 +103,19 @@ describe('Object embedded feature works', () => {
                                     name
                                     nationality
                                 }
-                            }
+                            },
+                            totalDocs
+                            totalPages
+                            page
+                            limit
+                            hasNextPage
+                            hasPrevPage
                         }
                     }
                 `,
             });
 
-            allMovies = allMoviesResponse.movies;
+            paginatedMovies = paginatedMoviesResponse.movies;
         });
 
         it('should show movies with directors', async () => {
@@ -143,6 +177,28 @@ describe('Object embedded feature works', () => {
                 },
             });
             expect(firstUpdateResponse.updateMovie.director).toEqual(null);
+        });
+
+        it("should be able to get a pagination object with the movies' directors", async () => {
+            expect(paginatedMovies.docs.map(movie => ({ ...movie, id: undefined }))).toEqual([
+                {
+                    name: 'Movie 1',
+                    director: {
+                        name: 'Director 1',
+                        nationality: 'Nationality 1',
+                    },
+                },
+                {
+                    name: 'Movie 2',
+                    director: null,
+                },
+            ]);
+            expect(paginatedMovies.totalDocs).toEqual(2);
+            expect(paginatedMovies.totalPages).toEqual(1);
+            expect(paginatedMovies.page).toEqual(1);
+            expect(paginatedMovies.limit).toEqual(10);
+            expect(paginatedMovies.hasNextPage).toEqual(false);
+            expect(paginatedMovies.hasPrevPage).toEqual(false);
         });
     });
 

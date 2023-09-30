@@ -7,6 +7,7 @@ import {
     GraphQLBoolean,
     GraphQLEnumType,
     GraphQLInt,
+    GraphQLList,
 } from 'graphql';
 import { ModelDefinition } from './type';
 import { MetadataKey, TraversedProperty, inspect } from './metadata';
@@ -161,7 +162,7 @@ export class GraphqlTypeBuilder {
         const result = {
             name: `${modelDefinition.name}Pagination`,
             fields: {
-                docs: { type: nonNullOutput },
+                docs: { type: new GraphQLList(nonNullOutput) },
                 totalDocs: { type: GraphQLInt },
                 page: { type: GraphQLInt },
                 limit: { type: GraphQLInt },
