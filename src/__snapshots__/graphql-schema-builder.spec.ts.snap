@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GraphqlTypeBuilder should build a graphql schema 1`] = `
+{
+  "create": "CreateTestModelDefinitionInput",
+  "nonNullOutput": "TestModelDefinition!",
+  "output": "TestModelDefinition",
+  "paginationOutput": "TestModelDefinitionPagination",
+  "update": "UpdateTestModelDefinitionInput",
+}
+`;

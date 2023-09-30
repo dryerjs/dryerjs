@@ -76,24 +76,26 @@ describe('Example app', () => {
                 query: `
                     query Users {
                         users {
-                            id
-                            email
-                            yearOfBirth
-                            createdAt
-                            updatedAt
+                            docs {
+                                id
+                                email
+                                yearOfBirth
+                                createdAt
+                                updatedAt
+                            }
                         }
                     }
                 `,
             });
 
-            const comparableUsers = allUsersResponse.users.map(({ email, yearOfBirth }) => ({
+            const comparableUsers = allUsersResponse.users.docs.map(({ email, yearOfBirth }) => ({
                 email,
                 yearOfBirth,
             }));
             expect(comparableUsers).toMatchSnapshot();
 
             // get user by id
-            const firstUserId = allUsersResponse.users[0].id;
+            const firstUserId = allUsersResponse.users.docs[0].id;
             const firstUserResponse = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {

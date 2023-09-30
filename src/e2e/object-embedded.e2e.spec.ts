@@ -68,11 +68,13 @@ describe('Object embedded feature works', () => {
                 query: `
                     query Movies {
                         movies {
-                            id
-                            name
-                            director {
+                            docs {
+                                id
                                 name
-                                nationality
+                                director {
+                                    name
+                                    nationality
+                                }
                             }
                         }
                     }
