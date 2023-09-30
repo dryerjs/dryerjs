@@ -1,19 +1,11 @@
 import { getIntrospectionQuery } from 'graphql';
-import * as request from 'supertest';
 import { User, dryerConfig as exampleDryerConfig } from '../example/app';
-import { Dryer } from '../dryer';
+import { DryerTest } from './utils';
+import { CachedPropertiesByModel } from '../metadata';
 
-export const dryer = Dryer.init({
+export const dryer = DryerTest.init({
     ...exampleDryerConfig,
-    beforeApplicationInit: undefined,
-    afterApplicationInit: undefined,
-    mongoUri: process.env.E2E_MONGO_URI || 'mongodb://127.0.0.1:27017/dryer-e2e?directConnection=true',
-    port: 0,
 });
-
-const makeGraphqlRequest = async (input: { query: string; variables?: object }) => {
-    return request(dryer.expressApp).post('/').send(input);
-};
 
 describe('Example app', () => {
     beforeAll(async () => {
@@ -67,7 +59,7 @@ describe('Example app', () => {
             ];
 
             for (const userInput of userInputs) {
-                await makeGraphqlRequest({
+                await dryer.makeSuccessRequest({
                     query: `
                         mutation CreateUser($input: CreateUserInput!) {
                             createUser(input: $input) {
@@ -81,7 +73,7 @@ describe('Example app', () => {
         });
 
         it('Happy path works', async () => {
-            const allUsersResponse = await makeGraphqlRequest({
+            const allUsersResponse = await dryer.makeSuccessRequest({
                 query: `
                     query Users {
                         users {
@@ -95,15 +87,15 @@ describe('Example app', () => {
                 `,
             });
 
-            const comparableUsers = allUsersResponse.body.data.users.map(({ email, yearOfBirth }) => ({
+            const comparableUsers = allUsersResponse.users.map(({ email, yearOfBirth }) => ({
                 email,
                 yearOfBirth,
             }));
             expect(comparableUsers).toMatchSnapshot();
 
             // get user by id
-            const firstUserId = allUsersResponse.body.data.users[0].id;
-            const firstUserResponse = await makeGraphqlRequest({
+            const firstUserId = allUsersResponse.users[0].id;
+            const firstUserResponse = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {
                         user(id: $userId) {
@@ -113,11 +105,11 @@ describe('Example app', () => {
                 `,
                 variables: { userId: firstUserId },
             });
-            expect(firstUserResponse.body.data.user.id).toEqual(firstUserId);
+            expect(firstUserResponse.user.id).toEqual(firstUserId);
 
             // update user by id
             const newYearOfBirthForUser1 = 1999;
-            await makeGraphqlRequest({
+            await dryer.makeSuccessRequest({
                 query: `
                     mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
                         updateUser(id: $userId, input: $input) {
@@ -131,7 +123,7 @@ describe('Example app', () => {
                 },
             });
 
-            const firstUserResponseAfterUpdated = await makeGraphqlRequest({
+            const firstUserResponseAfterUpdated = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {
                         user(id: $userId) {
@@ -141,10 +133,10 @@ describe('Example app', () => {
                 `,
                 variables: { userId: firstUserId },
             });
-            expect(firstUserResponseAfterUpdated.body.data.user.yearOfBirth).toEqual(newYearOfBirthForUser1);
+            expect(firstUserResponseAfterUpdated.user.yearOfBirth).toEqual(newYearOfBirthForUser1);
 
             // delete user
-            await makeGraphqlRequest({
+            await dryer.makeSuccessRequest({
                 query: `
                     mutation DeleteUser($userId: String!) {
                         deleteUser(id: $userId) {
@@ -156,7 +148,7 @@ describe('Example app', () => {
                 variables: { userId: firstUserId },
             });
 
-            const firstUserResponseAfterDeleted = await makeGraphqlRequest({
+            await dryer.makeFailRequest({
                 query: `
                     query User($userId: String!) {
                         user(id: $userId) {
@@ -165,14 +157,14 @@ describe('Example app', () => {
                     }
                 `,
                 variables: { userId: firstUserId },
+                errorMessageMustContains: 'No User found with id',
             });
-            expect(firstUserResponseAfterDeleted.body.data).toEqual(null);
-            expect(firstUserResponseAfterDeleted.body.errors[0].message).toContain('No User found with id');
         });
     });
 
     afterAll(async () => {
         await dryer.model(User).db.deleteMany({});
+        CachedPropertiesByModel.cleanOnTest();
         await dryer.stop();
     });
 });

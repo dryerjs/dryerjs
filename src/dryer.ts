@@ -21,7 +21,7 @@ export interface DryerConfig<Context> {
 }
 
 export class Dryer<Context> {
-    private constructor(private readonly config: DryerConfig<Context>) {}
+    protected constructor(private readonly config: DryerConfig<Context>) {}
 
     public static init<Context>(config: DryerConfig<Context>) {
         return new Dryer(config);
