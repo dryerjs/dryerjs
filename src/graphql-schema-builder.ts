@@ -32,8 +32,6 @@ abstract class BaseTypeBuilder {
                 if (this.isExcludedField(traversedProperty)) return;
                 const isNullable = this.isNullableField(traversedProperty);
                 const type = this.getTypeForOneField(traversedProperty, isNullable);
-                if (!type) return;
-
                 result.fields[traversedProperty.name] = { type };
             });
 
