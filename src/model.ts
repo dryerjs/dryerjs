@@ -32,16 +32,16 @@ export class Model<T = any> {
                 return await UpdateService.update<T, Context>(id, input, context, this);
             },
             delete: async (id: string) => {
-                return await DeleteService.delete(id, context, this);
+                return await DeleteService.delete<T, Context>(id, context, this);
             },
             get: async (id: string): Promise<T | null> => {
-                return await GetService.get(id, context, this);
+                return await GetService.get<T, Context>(id, context, this);
             },
             getOrThrow: async (id: string): Promise<T> => {
-                return await GetService.getOrThrow(id, context, this);
+                return await GetService.getOrThrow<T, Context>(id, context, this);
             },
             list: async (skip: number, take: number) => {
-                return await ListService.list(skip, take, context, this);
+                return await ListService.list<T, Context>(skip, take, context, this);
             },
             output: async (raw: T): Promise<T> => {
                 return await OutputService.output<T, Context>(raw, context, this);
