@@ -6,6 +6,7 @@ import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
 import { Model } from './model';
 import { CachedPropertiesByModel } from './metadata';
+import { GetAllApi } from 'apis/get-all';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -57,6 +58,7 @@ export class Dryer<Context> {
                 ...queryFields,
                 ...new GetApi(model).getEndpoint(),
                 ...new ListApi(model).getEndpoint(),
+                ...new GetAllApi(model).getEndpoint(),
             };
         }
         this.mongoose = await mongoose.connect(this.config.mongoUri);

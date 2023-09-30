@@ -7,7 +7,6 @@ import {
     GraphQLBoolean,
     GraphQLEnumType,
     GraphQLInt,
-    GraphQLList,
 } from 'graphql';
 import { ModelDefinition } from './type';
 import { MetadataKey, TraversedProperty, inspect } from './metadata';
@@ -140,19 +139,29 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
     protected useAs: 'input' | 'output' = 'input';
 }
 
-class PaginationTypeBuilder extends BaseTypeBuilder {
-    constructor(
-        modelDefinition: ModelDefinition,
-        private outputType: GraphQLObjectType,
-    ) {
-        super(modelDefinition);
+export class GraphqlTypeBuilder {
+    static build(modelDefinition: ModelDefinition) {
+        const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
+        const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const nonNullOutput = new GraphQLNonNull(output);
+        return {
+            output,
+            nonNullOutput,
+            create,
+            update,
+            paginationOutput: this.getPaginationOutputType(modelDefinition, nonNullOutput),
+        };
     }
 
-    public getType() {
+    private static getPaginationOutputType(
+        modelDefinition: ModelDefinition,
+        nonNullOutput: GraphQLNonNull<GraphQLObjectType<ModelDefinition, any>>,
+    ) {
         const result = {
-            name: this.getName(),
+            name: `${modelDefinition.name}Pagination`,
             fields: {
-                docs: { type: new GraphQLList(this.outputType) },
+                docs: { type: nonNullOutput },
                 totalDocs: { type: GraphQLInt },
                 page: { type: GraphQLInt },
                 limit: { type: GraphQLInt },
@@ -161,40 +170,6 @@ class PaginationTypeBuilder extends BaseTypeBuilder {
                 totalPages: { type: GraphQLInt },
             },
         };
-
         return new GraphQLObjectType(result);
-    }
-
-    protected isExcludedField(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetadataValue(MetadataKey.ExcludeOnUpdate);
-    }
-
-    protected isNullableField(traversedProperty: TraversedProperty) {
-        return !traversedProperty.getMetadataValue(MetadataKey.RequiredOnUpdate);
-    }
-
-    protected getName() {
-        return `${this.modelDefinition.name}Pagination`;
-    }
-
-    protected useAs: 'input' | 'output' = 'output';
-}
-
-export class GraphqlTypeBuilder {
-    static build(modelDefinition: ModelDefinition) {
-        const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
-        const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
-        const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
-        const paginationOutput = new PaginationTypeBuilder(
-            modelDefinition,
-            output,
-        ).getType() as GraphQLObjectType;
-        return {
-            output,
-            nonNullOutput: new GraphQLNonNull(output),
-            create,
-            update,
-            paginationOutput,
-        };
     }
 }

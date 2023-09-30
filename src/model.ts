@@ -10,6 +10,7 @@ import {
     GetService,
     ListService,
     OutputService,
+    GetAllService,
 } from './services';
 
 export class Model<T = any> {
@@ -44,6 +45,9 @@ export class Model<T = any> {
             },
             list: async (skip: number, take: number) => {
                 return await ListService.list<T, Context>(skip, take, context, this);
+            },
+            getAll: async () => {
+                return await GetAllService.getAll(context, this);
             },
             output: async (raw: T): Promise<T> => {
                 return await OutputService.output<T, Context>(raw, context, this);
