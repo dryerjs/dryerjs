@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
-import { MetadataKey, inspect } from './metadata';
+import { MetaKey, inspect } from './metadata';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition, isRoot = true) {
@@ -11,7 +11,7 @@ export class MongooseSchemaBuilder {
         for (const property of inspect(modelDefinition).getProperties()) {
             if (property.name === 'id') continue;
 
-            if (property.getMetadataValue(MetadataKey.ExcludeOnDatabase)) {
+            if (property.getMetaValue(MetaKey.ExcludeOnDatabase)) {
                 continue;
             }
             const typeConfig = {
@@ -21,14 +21,14 @@ export class MongooseSchemaBuilder {
                 Boolean,
             };
 
-            const designType = Reflect.getMetadata(MetadataKey.DesignType, instance, property.name);
-            const isEmbedded = typeof property.getMetadataValue(MetadataKey.Embedded) === 'function';
+            const designType = Reflect.getMetadata(MetaKey.DesignType, instance, property.name);
+            const isEmbedded = typeof property.getMetaValue(MetaKey.Embedded) === 'function';
             if (isEmbedded) {
                 result[property.name] = this.build(designType, false);
                 continue;
             }
 
-            const enumInObject = property.getMetadataValue(MetadataKey.Enum);
+            const enumInObject = property.getMetaValue(MetaKey.Enum);
             if (enumInObject) {
                 const enumValue = Object.values(enumInObject)[0];
                 result[property.name] = { type: typeConfig[designType.name], enum: enumValue };

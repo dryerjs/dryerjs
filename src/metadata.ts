@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-export enum MetadataKey {
+export enum MetaKey {
     DesignType = 'design:type',
     TransformOnOutput = 'TransformOnOutput',
     TransformOnCreate = 'TransformOnCreate',
@@ -23,33 +23,29 @@ export enum MetadataKey {
 
 type TargetClass = any;
 type AnyEnum = { [key: string]: any };
-type MetadataValue = any;
+type MetaValue = any;
 
-export class CachedPropertiesByModel {
+export class Metadata {
     private static propertiesByModel: {
-        [modelName: string]: { [metaKey: string]: { [fieldName: string]: MetadataValue } };
+        [modelName: string]: { [metaKey: string]: { [fieldName: string]: MetaValue } };
     } = {};
 
     public static getPropertiesByModel(
         modelName: string,
-        metaKey: MetadataKey,
-    ): { [fieldName: string]: MetadataValue } {
+        metaKey: MetaKey,
+    ): { [fieldName: string]: MetaValue } {
         return this.propertiesByModel[modelName][metaKey] || {};
     }
 
-    public static getMetadataValue(
-        modelName: string,
-        metaKey: MetadataKey,
-        fieldName: string,
-    ): MetadataValue {
+    public static getMetaValue(modelName: string, metaKey: MetaKey, fieldName: string): MetaValue {
         return this.propertiesByModel[modelName]?.[metaKey]?.[fieldName];
     }
 
     public static addField(
         modelName: string,
-        metaKey: MetadataKey,
+        metaKey: MetaKey,
         fieldName: string,
-        value: MetadataValue = true,
+        value: MetaValue = true,
     ): void {
         if (this.propertiesByModel[modelName] === undefined) {
             this.propertiesByModel[modelName] = {};
@@ -67,18 +63,13 @@ export class CachedPropertiesByModel {
 
 export function Property(options: { enum?: AnyEnum } = {}) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.DesignType, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.DesignType, propertyKey);
         if (options.enum) {
             if (Object.keys(options.enum).length !== 1) {
                 const message = `Enum should be defined as an object. Example: @Property({ enum: { UserStatus })`;
                 throw new Error(message);
             }
-            CachedPropertiesByModel.addField(
-                target.constructor.name,
-                MetadataKey.Enum,
-                propertyKey,
-                options.enum,
-            );
+            Metadata.addField(target.constructor.name, MetaKey.Enum, propertyKey, options.enum);
         }
     };
 }
@@ -86,12 +77,7 @@ export function Property(options: { enum?: AnyEnum } = {}) {
 export function EmbeddedProperty(options: { type: TargetClass }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.Embedded,
-            propertyKey,
-            options.type,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.Embedded, propertyKey, options.type);
     };
 }
 
@@ -99,12 +85,7 @@ type TransformFunction = (fieldValue: any, ctx: any, object: any) => any;
 
 export function TransformOnOutput(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.TransformOnOutput,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.TransformOnOutput, propertyKey, fn);
     };
 }
 
@@ -117,23 +98,13 @@ export function TransformOnInput(fn: TransformFunction) {
 
 export function TransformOnCreate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.TransformOnCreate,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.TransformOnCreate, propertyKey, fn);
     };
 }
 
 export function TransformOnUpdate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.TransformOnUpdate,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.TransformOnUpdate, propertyKey, fn);
     };
 }
 
@@ -141,12 +112,7 @@ type DefaultFunction = (ctx: any, object: any) => any;
 
 export function DefaultOnOutput(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.DefaultOnOutput,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.DefaultOnOutput, propertyKey, fn);
     };
 }
 
@@ -159,23 +125,13 @@ export function DefaultOnInput(fn: DefaultFunction) {
 
 export function DefaultOnCreate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.DefaultOnCreate,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.DefaultOnCreate, propertyKey, fn);
     };
 }
 
 export function DefaultOnUpdate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(
-            target.constructor.name,
-            MetadataKey.DefaultOnUpdate,
-            propertyKey,
-            fn,
-        );
+        Metadata.addField(target.constructor.name, MetaKey.DefaultOnUpdate, propertyKey, fn);
     };
 }
 
@@ -183,13 +139,13 @@ type ValidateFunction = (fieldValue: any, ctx: any, object: any) => any;
 
 export function Validate(fn: ValidateFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.Validate, propertyKey, fn);
+        Metadata.addField(target.constructor.name, MetaKey.Validate, propertyKey, fn);
     };
 }
 
 export function ExcludeOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnOutput, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnOutput, propertyKey);
     };
 }
 
@@ -202,43 +158,43 @@ export function ExcludeOnInput() {
 
 export function ExcludeOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnCreate, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnCreate, propertyKey);
     };
 }
 
 export function ExcludeOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnUpdate, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnUpdate, propertyKey);
     };
 }
 
 export function RequiredOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.RequiredOnCreate, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.RequiredOnCreate, propertyKey);
     };
 }
 
 export function RequiredOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.RequiredOnUpdate, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.RequiredOnUpdate, propertyKey);
     };
 }
 
 export function ExcludeOnDatabase() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.ExcludeOnDatabase, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey);
     };
 }
 
 export function NullableOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.NullableOnOutput, propertyKey);
+        Metadata.addField(target.constructor.name, MetaKey.NullableOnOutput, propertyKey);
     };
 }
 
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
-        CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.GraphQLType, propertyKey, type);
+        Metadata.addField(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
     };
 }
 
@@ -249,12 +205,12 @@ export class TraversedProperty {
         public typeInClass: any,
     ) {}
 
-    public getMetadataValue(key: MetadataKey) {
-        return CachedPropertiesByModel.getMetadataValue(this.modelDefinition.name, key, this.name);
+    public getMetaValue(key: MetaKey) {
+        return Metadata.getMetaValue(this.modelDefinition.name, key, this.name);
     }
 
     public getEmbeddedModelDefinition() {
-        const result = this.getMetadataValue(MetadataKey.Embedded);
+        const result = this.getMetaValue(MetaKey.Embedded);
         if (result === undefined) {
             throw new Error(`Property ${this.name} is not an embedded property`);
         }
@@ -268,20 +224,17 @@ export function inspect(modelDefinition: any) {
     const instance = modelDefinition[INSTANCE_KEY];
 
     return {
-        getProperties(metaKey: MetadataKey = MetadataKey.DesignType) {
+        getProperties(metaKey: MetaKey = MetaKey.DesignType) {
             const result: TraversedProperty[] = [];
-            for (const property in CachedPropertiesByModel.getPropertiesByModel(
-                modelDefinition.name,
-                metaKey,
-            )) {
-                const typeInClass = Reflect.getMetadata(MetadataKey.DesignType, instance, property);
+            for (const property in Metadata.getPropertiesByModel(modelDefinition.name, metaKey)) {
+                const typeInClass = Reflect.getMetadata(MetaKey.DesignType, instance, property);
                 const traversedProperty = new TraversedProperty(modelDefinition, property, typeInClass);
                 result.push(traversedProperty);
             }
             return result;
         },
         getEmbeddedProperties(): TraversedProperty[] {
-            return this.getProperties(MetadataKey.Embedded);
+            return this.getProperties(MetaKey.Embedded);
         },
     };
 }

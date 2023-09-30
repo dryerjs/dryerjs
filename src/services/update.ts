@@ -1,5 +1,5 @@
 import { Model } from '../model';
-import { MetadataKey } from '../metadata';
+import { MetaKey } from '../metadata';
 import { OutputService } from './output';
 import { ObjectProcessor } from './object-processor';
 
@@ -14,13 +14,13 @@ export class UpdateService {
             obj: input,
             context,
             modelDefinition: model.definition,
-            metadataKey: MetadataKey.DefaultOnUpdate,
+            MetaKey: MetaKey.DefaultOnUpdate,
         });
         const transformedInput = await ObjectProcessor.setDefault({
             obj: defaultAppliedInput,
             context,
             modelDefinition: model.definition,
-            metadataKey: MetadataKey.TransformOnUpdate,
+            MetaKey: MetaKey.TransformOnUpdate,
         });
         const result = await model.db.findByIdAndUpdate(id, transformedInput, {
             new: true,

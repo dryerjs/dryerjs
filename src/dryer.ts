@@ -5,7 +5,7 @@ import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
 import { Model } from './model';
-import { CachedPropertiesByModel } from './metadata';
+import { Metadata } from './metadata';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -88,7 +88,7 @@ export class Dryer<Context> {
     }
 
     public async stop() {
-        CachedPropertiesByModel.cleanOnTest();
+        Metadata.cleanOnTest();
         await this.mongoose.connection.close();
         await this.apolloServer.stop();
     }

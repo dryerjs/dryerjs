@@ -1,4 +1,4 @@
-import { MetadataKey, inspect } from '../metadata';
+import { MetaKey, inspect } from '../metadata';
 import { ModelDefinition } from '../type';
 
 export class ObjectProcessor {
@@ -11,9 +11,9 @@ export class ObjectProcessor {
         context: Context;
         modelDefinition: ModelDefinition<T>;
     }) {
-        for (const property of inspect(modelDefinition).getProperties(MetadataKey.Validate)) {
+        for (const property of inspect(modelDefinition).getProperties(MetaKey.Validate)) {
             if (input[property.name] === undefined) continue;
-            const validateFn = property.getMetadataValue(MetadataKey.Validate);
+            const validateFn = property.getMetaValue(MetaKey.Validate);
             await validateFn(input[property.name], context, input);
         }
 
@@ -31,7 +31,7 @@ export class ObjectProcessor {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        metadataKey: MetadataKey;
+        MetaKey: MetaKey;
     }): Promise<T> {
         return (await this.setDefaultPartial(input)) as T;
     }
@@ -40,12 +40,12 @@ export class ObjectProcessor {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        metadataKey: MetadataKey;
+        MetaKey: MetaKey;
     }) {
-        const { obj, context, modelDefinition, metadataKey } = input;
-        for (const property of inspect(modelDefinition).getProperties(metadataKey)) {
+        const { obj, context, modelDefinition, MetaKey } = input;
+        for (const property of inspect(modelDefinition).getProperties(MetaKey)) {
             if (obj[property.name] !== null && obj[property.name] !== undefined) continue;
-            const defaultFn = property.getMetadataValue(metadataKey);
+            const defaultFn = property.getMetaValue(MetaKey);
             obj[property.name] = await defaultFn(context, obj);
         }
 
@@ -55,7 +55,7 @@ export class ObjectProcessor {
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
-                metadataKey,
+                MetaKey,
             });
             obj[property.name] = embeddedValue;
         }
@@ -66,7 +66,7 @@ export class ObjectProcessor {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        metadataKey: MetadataKey;
+        MetaKey: MetaKey;
     }): Promise<T> {
         return (await this.transformPartial(input)) as T;
     }
@@ -75,12 +75,12 @@ export class ObjectProcessor {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        metadataKey: MetadataKey;
+        MetaKey: MetaKey;
     }) {
-        const { obj, context, modelDefinition, metadataKey } = input;
-        for (const property of inspect(modelDefinition).getProperties(metadataKey)) {
+        const { obj, context, modelDefinition, MetaKey } = input;
+        for (const property of inspect(modelDefinition).getProperties(MetaKey)) {
             if (obj[property.name] === null && obj[property.name] === undefined) continue;
-            const transformFn = property.getMetadataValue(metadataKey);
+            const transformFn = property.getMetaValue(MetaKey);
             obj[property.name] = await transformFn(obj[property.name], context, obj);
         }
 
@@ -90,7 +90,7 @@ export class ObjectProcessor {
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
-                metadataKey,
+                MetaKey,
             });
             obj[property.name] = embeddedValue;
         }

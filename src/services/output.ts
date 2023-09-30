@@ -1,4 +1,4 @@
-import { MetadataKey } from '../metadata';
+import { MetaKey } from '../metadata';
 import { Model } from '../model';
 import { ObjectProcessor } from './object-processor';
 
@@ -12,13 +12,13 @@ export class OutputService {
             obj: leanValue,
             context,
             modelDefinition: model.definition,
-            metadataKey: MetadataKey.DefaultOnOutput,
+            MetaKey: MetaKey.DefaultOnOutput,
         });
         return await ObjectProcessor.transform<T, Context>({
             obj: defaultAppliedResult,
             context,
             modelDefinition: model.definition,
-            metadataKey: MetadataKey.TransformOnOutput,
+            MetaKey: MetaKey.TransformOnOutput,
         });
     }
 }
