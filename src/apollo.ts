@@ -1,15 +1,13 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import express from 'express';
-import http from 'http';
-import cors from 'cors';
-import bodyParser from 'body-parser';
+import * as express from 'express';
+import * as http from 'http';
+import * as cors from 'cors';
+import * as bodyParser from 'body-parser';
 import * as graphql from 'graphql';
 
 export class Apollo {
-    constructor() {}
-
     static async start({
         queryFields,
         mutationFields,
@@ -19,7 +17,7 @@ export class Apollo {
         queryFields: graphql.GraphQLFieldConfigMap<any, any>;
         mutationFields: graphql.GraphQLFieldConfigMap<any, any>;
         port: number;
-        getContext: Function;
+        getContext: (req: express.Request) => any;
     }) {
         const query = new graphql.GraphQLObjectType({
             name: 'Query',
@@ -57,13 +55,6 @@ export class Apollo {
         await new Promise<void>(resolve => {
             httpServer.listen({ port }, () => {
                 console.log(`🚀 Server ready at PORT=${port}`);
-                process.on('SIGINT', () => {
-                    console.log('Received SIGINT. Shutting down gracefully...');
-                    server.stop().then(() => {
-                        console.log('Server stopped.');
-                        process.exit(0); // Exit the process
-                    });
-                });
                 resolve();
             });
         });
