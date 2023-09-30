@@ -59,6 +59,10 @@ export class CachedPropertiesByModel {
         }
         this.propertiesByModel[modelName][metaKey][fieldName] = value;
     }
+
+    public static cleanOnTest() {
+        this.propertiesByModel = {};
+    }
 }
 
 export function Property(options: { enum?: AnyEnum } = {}) {

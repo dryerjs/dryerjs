@@ -1,5 +1,5 @@
-import { ModelDefinition } from '../type';
 import { CachedPropertiesByModel, MetadataKey } from '../metadata';
+import { ModelDefinition } from '../type';
 import { Model } from '../model';
 import { OutputService } from './output';
 
