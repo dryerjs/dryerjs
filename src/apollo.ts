@@ -54,7 +54,9 @@ export class Apollo {
 
         await new Promise<void>(resolve => {
             httpServer.listen({ port }, () => {
-                console.log(`🚀 Server ready at PORT=${port}`);
+                if (process.env.NODE_ENV !== 'test') {
+                    console.log(`🚀 Server ready at PORT=${port}`);
+                }
                 resolve();
             });
         });
