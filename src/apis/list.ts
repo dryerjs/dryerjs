@@ -9,9 +9,9 @@ export class ListApi<T, Context> implements Api {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0].toLowerCase()).concat('s');
         return {
             [key]: {
-                type: new graphql.GraphQLList(this.model.graphql.nonNullOutput),
+                type: this.model.graphql.paginationOutput,
                 args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
-                resolve: async (_parent, { skip, take }, context: Context) => {
+                resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
                     const result = await this.model.inContext(context).list(skip, take);
                     return result;
                 },

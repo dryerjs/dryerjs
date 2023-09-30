@@ -1,6 +1,6 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
-import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
+import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi, GetAllApi } from './apis';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
@@ -57,6 +57,7 @@ export class Dryer<Context> {
                 ...queryFields,
                 ...new GetApi(model).getEndpoint(),
                 ...new ListApi(model).getEndpoint(),
+                ...new GetAllApi(model).getEndpoint(),
             };
         }
         this.mongoose = await mongoose.connect(this.config.mongoUri);

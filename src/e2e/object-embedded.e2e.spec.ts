@@ -67,7 +67,7 @@ describe('Object embedded feature works', () => {
             const allMoviesResponse = await dryer.makeSuccessRequest({
                 query: `
                     query Movies {
-                        movies {
+                        allMovies {
                             id
                             name
                             director {
@@ -79,7 +79,7 @@ describe('Object embedded feature works', () => {
                 `,
             });
 
-            allMovies = allMoviesResponse.movies;
+            allMovies = allMoviesResponse.allMovies;
         });
 
         it('should show movies with directors', async () => {

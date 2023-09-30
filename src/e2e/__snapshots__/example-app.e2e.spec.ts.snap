@@ -65,6 +65,18 @@ exports[`Example app Generate correct graphql schema 1`] = `
         "isDeprecated": false,
         "name": "users",
         "type": {
+          "kind": "OBJECT",
+          "name": "UserPagination",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "allUsers",
+        "type": {
           "kind": "LIST",
           "name": null,
           "ofType": {
@@ -284,6 +296,109 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": null,
     "kind": "ENUM",
     "name": "UserStatus",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "docs",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null,
+            },
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "totalDocs",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "page",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "limit",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "hasPrevPage",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "hasNextPage",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "totalPages",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "UserPagination",
     "possibleTypes": null,
   },
   {
@@ -653,4 +768,29 @@ exports[`Example app User CRUD works Happy path works 1`] = `
     "yearOfBirth": 1990,
   },
 ]
+`;
+
+exports[`Example app User CRUD works Happy path works 2`] = `
+{
+  "docs": [
+    {
+      "email": "***@example1.com",
+      "yearOfBirth": 2001,
+    },
+    {
+      "email": "***@example2.com",
+      "yearOfBirth": 2002,
+    },
+    {
+      "email": "***@example3.com",
+      "yearOfBirth": 1990,
+    },
+  ],
+  "hasNextPage": false,
+  "hasPrevPage": false,
+  "limit": 10,
+  "page": 1,
+  "totalDocs": 3,
+  "totalPages": 1,
+}
 `;

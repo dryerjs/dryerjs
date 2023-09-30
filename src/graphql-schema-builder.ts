@@ -6,6 +6,8 @@ import {
     GraphQLFloat,
     GraphQLBoolean,
     GraphQLEnumType,
+    GraphQLInt,
+    GraphQLList,
 } from 'graphql';
 import { ModelDefinition } from './type';
 import { MetadataKey, TraversedProperty, inspect } from './metadata';
@@ -143,11 +145,32 @@ export class GraphqlTypeBuilder {
         const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const nonNullOutput = new GraphQLNonNull(output);
         return {
             output,
-            nonNullOutput: new GraphQLNonNull(output),
+            nonNullOutput,
             create,
             update,
+            paginationOutput: this.getPaginationOutputType(modelDefinition, nonNullOutput),
         };
+    }
+
+    private static getPaginationOutputType(
+        modelDefinition: ModelDefinition,
+        nonNullOutput: GraphQLNonNull<GraphQLObjectType<ModelDefinition, any>>,
+    ) {
+        const result = {
+            name: `${modelDefinition.name}Pagination`,
+            fields: {
+                docs: { type: new GraphQLList(nonNullOutput) },
+                totalDocs: { type: GraphQLInt },
+                page: { type: GraphQLInt },
+                limit: { type: GraphQLInt },
+                hasPrevPage: { type: GraphQLBoolean },
+                hasNextPage: { type: GraphQLBoolean },
+                totalPages: { type: GraphQLInt },
+            },
+        };
+        return new GraphQLObjectType(result);
     }
 }

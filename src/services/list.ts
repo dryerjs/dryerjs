@@ -2,8 +2,16 @@ import { Model } from '../model';
 import { OutputService } from './output';
 
 export class ListService {
-    public static async list<T, Context>(skip: number, take: number, context: Context, model: Model<T>) {
-        const items = await model.db.find().skip(skip).limit(take);
-        return await Promise.all(items.map(item => OutputService.output(item, context, model)));
+    public static async list<T, Context>(
+        skip: number = 0,
+        take: number = 10,
+        context: Context,
+        model: Model<T>,
+    ) {
+        const result = await model.db.paginate({}, { page: skip, limit: take });
+        return {
+            ...result,
+            docs: await Promise.all(result.docs.map(doc => OutputService.output(doc, context, model))),
+        };
     }
 }
