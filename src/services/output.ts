@@ -65,6 +65,21 @@ export class OutputService {
             );
             output[property] = await transformFn(output[property], context, output);
         }
+
+        for (const property in CachedPropertiesByModel.getPropertiesByModel(
+            modelDefinition.name,
+            MetadataKey.Embedded,
+        )) {
+            if (output[property] === null || output[property] === undefined) continue;
+            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.Embedded,
+                property,
+            );
+            const embeddedValue = await this.transform(output[property], context, embeddedModelDefinition);
+            output[property] = embeddedValue;
+        }
+
         return output;
     }
 }
