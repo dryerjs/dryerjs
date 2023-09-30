@@ -769,3 +769,28 @@ exports[`Example app User CRUD works Happy path works 1`] = `
   },
 ]
 `;
+
+exports[`Example app User CRUD works Happy path works 2`] = `
+{
+  "docs": [
+    {
+      "email": "***@example1.com",
+      "yearOfBirth": 2001,
+    },
+    {
+      "email": "***@example2.com",
+      "yearOfBirth": 2002,
+    },
+    {
+      "email": "***@example3.com",
+      "yearOfBirth": 1990,
+    },
+  ],
+  "hasNextPage": false,
+  "hasPrevPage": false,
+  "limit": 10,
+  "page": 1,
+  "totalDocs": 3,
+  "totalPages": 1,
+}
+`;

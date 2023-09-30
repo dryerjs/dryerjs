@@ -74,6 +74,27 @@ describe('Example app', () => {
         it('Happy path works', async () => {
             const allUsersResponse = await dryer.makeSuccessRequest({
                 query: `
+                    query GetAllUsers {
+                        getAllUsers {
+                            id
+                            email
+                            yearOfBirth
+                            createdAt
+                            updatedAt
+                        }
+                    }
+                `,
+            });
+
+            const comparableUsers = allUsersResponse.getAllUsers.map(({ email, yearOfBirth }) => ({
+                email,
+                yearOfBirth,
+            }));
+            expect(comparableUsers).toMatchSnapshot();
+
+            // get users with pagination
+            const paginatedUsers = await dryer.makeSuccessRequest({
+                query: `
                     query Users {
                         users {
                             docs {
@@ -83,19 +104,27 @@ describe('Example app', () => {
                                 createdAt
                                 updatedAt
                             }
+                            totalDocs
+                            limit
+                            page
+                            totalPages
+                            hasPrevPage
+                            hasNextPage
                         }
                     }
                 `,
             });
 
-            const comparableUsers = allUsersResponse.users.docs.map(({ email, yearOfBirth }) => ({
-                email,
-                yearOfBirth,
-            }));
-            expect(comparableUsers).toMatchSnapshot();
+            expect({
+                ...paginatedUsers.users,
+                docs: paginatedUsers.users.docs.map(({ email, yearOfBirth }) => ({
+                    email,
+                    yearOfBirth,
+                })),
+            }).toMatchSnapshot();
 
             // get user by id
-            const firstUserId = allUsersResponse.users.docs[0].id;
+            const firstUserId = allUsersResponse.getAllUsers[0].id;
             const firstUserResponse = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {
