@@ -120,10 +120,13 @@ describe('Object embedded feature works', () => {
                 `,
                 variables: {
                     input: { director: { name: 'updated name', nationality: null } },
-                    updateMovieId: firstMovie.id
+                    updateMovieId: firstMovie.id,
                 },
             });
-            expect(firstUpdateResponse.updateMovie.director).toEqual({ name: 'updated name', nationality: null });
+            expect(firstUpdateResponse.updateMovie.director).toEqual({
+                name: 'updated name',
+                nationality: null,
+            });
         });
 
         it('should be able to remove embedded values by setting it to null', async () => {
@@ -141,7 +144,7 @@ describe('Object embedded feature works', () => {
                 `,
                 variables: {
                     input: { director: null },
-                    updateMovieId: firstMovie.id
+                    updateMovieId: firstMovie.id,
                 },
             });
             expect(firstUpdateResponse.updateMovie.director).toEqual(null);
