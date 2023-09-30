@@ -89,13 +89,10 @@ abstract class BaseTypeBuilder {
                 enumTypeCached[enumName] ??
                 new GraphQLEnumType({
                     name: enumName,
-                    values: Object.keys(enumValues).reduce(
-                        (values, key) => {
-                            values[key] = { value: enumValues[key] };
-                            return values;
-                        },
-                        {},
-                    ),
+                    values: Object.keys(enumValues).reduce((values, key) => {
+                        values[key] = { value: enumValues[key] };
+                        return values;
+                    }, {}),
                 });
 
             return enumTypeCached[enumName];
@@ -111,7 +108,9 @@ abstract class BaseTypeBuilder {
             return new this.constructor(traversedProperty.typeInClass).getType();
         }
 
-        throw new Error(`Invalid type for field ${traversedProperty.name}. You can override it with @GraphQLType(/* type */)`);
+        throw new Error(
+            `Invalid type for field ${traversedProperty.name}. You can override it with @GraphQLType(/* type */)`,
+        );
     }
 }
 
