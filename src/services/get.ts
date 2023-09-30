@@ -1,15 +1,15 @@
 import * as graphql from 'graphql';
-import { Model } from '../type';
+import { Model } from '../model';
 import { OutputService } from './output';
 
 export class GetService {
-    public static async get(id: string, context: any, model: Model<any>) {
+    public static async get<T, Context>(id: string, context: Context, model: Model<T>) {
         const result = await model.db.findById(id);
-        return OutputService.output(result, context, model);
+        return OutputService.output<T, Context>(result, context, model);
     }
 
-    public static async getOrThrow(id: string, context: any, model: Model<any>) {
-        const result = await model.db.findById(id);
+    public static async getOrThrow<T, Context>(id: string, context: Context, model: Model<T>) {
+        const result = await this.get(id, context, model);
         if (!result) {
             throw new graphql.GraphQLError(`No ${model.name} found with id ${id}`, {
                 extensions: {
@@ -18,6 +18,6 @@ export class GetService {
                 },
             });
         }
-        return OutputService.output(result, context, model);
+        return result;
     }
 }

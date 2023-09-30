@@ -1,5 +1,6 @@
 import * as graphql from 'graphql';
-import { Api, Model } from '../type';
+import { Api } from '../type';
+import { Model } from '../model';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -9,15 +10,15 @@ const deleteResponse = new graphql.GraphQLObjectType({
     },
 });
 
-export class DeleteApi implements Api {
-    constructor(private model: Model<any>) {}
+export class DeleteApi<T, Context> implements Api {
+    constructor(private model: Model<T>) {}
 
     public getEndpoint() {
         return {
             [`delete${this.model.name}`]: {
                 type: deleteResponse,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
-                resolve: async (_parent, { id }, context: any) => {
+                resolve: async (_parent, { id }: { id: string }, context: Context) => {
                     await this.model.inContext(context).delete(id);
                     return { deleted: true, id };
                 },

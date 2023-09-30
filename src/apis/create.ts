@@ -1,15 +1,16 @@
 import * as graphql from 'graphql';
-import { Api, Model } from '../type';
+import { Api } from '../type';
+import { Model } from '../model';
 
-export class CreateApi implements Api {
-    constructor(private model: Model<any>) {}
+export class CreateApi<T, Context> implements Api {
+    constructor(private model: Model<T>) {}
 
     public getEndpoint() {
         return {
             [`create${this.model.name}`]: {
-                type: this.model.graphql.output,
+                type: this.model.graphql.nonNullOutput,
                 args: { input: { type: new graphql.GraphQLNonNull(this.model.graphql.create) } },
-                resolve: async (_parent: any, { input }, context: any) => {
+                resolve: async (_parent: any, { input }: { input: Partial<T> }, context: Context) => {
                     return this.model.inContext(context).create(input);
                 },
             },

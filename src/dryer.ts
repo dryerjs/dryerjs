@@ -1,42 +1,50 @@
-import { Request } from 'express';
+import * as express from 'express';
 import mongoose from 'mongoose';
-import { MongooseSchemaBuilder } from './mongoose-schema-builder';
-import { GraphqlTypeBuilder } from './graphql-schema-builder';
 import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi } from './apis';
 import { Apollo } from './apollo';
-import { DryerConfig, Model } from './type';
-import { inContext } from './services';
+import { ModelDefinition } from './type';
+import { ApolloServer } from '@apollo/server';
+import { Model } from './model';
 
-export class Dryer<ModelCollection> {
-    private constructor(private readonly config: DryerConfig<any, any>) {}
+export type ContextFunction<Context> = (
+    req: express.Request,
+    dryer: Dryer<Context>,
+) => Context | Promise<Context>;
 
-    public static init<ModelCollection, Context>(config: DryerConfig<ModelCollection, Context>) {
-        return new Dryer<ModelCollection>(config);
+export interface DryerConfig<Context> {
+    modelDefinitions: ModelDefinition[];
+    beforeApplicationInit?: () => void | Promise<void>;
+    afterApplicationInit?: () => void | Promise<void>;
+    mongoUri: string;
+    port: number;
+    appendContext?: ContextFunction<Context>;
+}
+
+export class Dryer<Context> {
+    private constructor(private readonly config: DryerConfig<Context>) {}
+
+    public static init<Context>(config: DryerConfig<Context>) {
+        return new Dryer(config);
     }
 
-    public readonly models: { [key in keyof ModelCollection]: Model<ModelCollection[key]> } = {} as any;
+    public apolloServer: ApolloServer;
+    public expressApp: express.Express;
+    private mongoose: mongoose.Mongoose;
+
+    private readonly models: { [key: string]: Model } = {};
+
+    public model<T>(modelDefinition: ModelDefinition<T>): Model<T> {
+        return this.models[modelDefinition.name];
+    }
 
     public async start() {
         await this.config?.beforeApplicationInit?.();
         let mutationFields = {};
         let queryFields = {};
 
-        for (const name in this.config.modelDefinitions) {
-            const modelDefinition = this.config.modelDefinitions[name];
-            const mongooseSchema = MongooseSchemaBuilder.build(modelDefinition);
-            const dbModel = mongoose.model(modelDefinition.name, mongooseSchema as any);
-            const prebuiltGraphqlSchemaTypes = GraphqlTypeBuilder.build(modelDefinition);
-            const model: Model<any> = {
-                name: modelDefinition.name,
-                db: dbModel,
-                graphql: prebuiltGraphqlSchemaTypes,
-                definition: modelDefinition,
-                inContext: {} as any,
-            };
-
-            model.inContext = inContext(model) as any;
-
-            this.models[name] = model;
+        for (const modelDefinition of this.config.modelDefinitions) {
+            const model = new Model(modelDefinition);
+            this.models[modelDefinition.name] = model;
 
             mutationFields = {
                 ...mutationFields,
@@ -50,19 +58,35 @@ export class Dryer<ModelCollection> {
                 ...new ListApi(model).getEndpoint(),
             };
         }
-        await mongoose.connect(this.config.mongoUri);
-        await Apollo.start({
+        this.mongoose = await mongoose.connect(this.config.mongoUri);
+        const { apolloServer, expressApp } = await Apollo.start({
             mutationFields,
             queryFields,
             port: this.config.port,
-            getContext: async (req: Request) => {
-                const additional = await this.config.appendContext?.(req, this.models);
+            getContext: async (req: express.Request) => {
+                const additional = await this.config.appendContext?.(req, this);
                 return {
                     ...additional,
                     models: this.models,
                 };
             },
         });
+        this.apolloServer = apolloServer;
+        this.expressApp = expressApp;
         await this.config?.afterApplicationInit?.();
+        /* istanbul ignore next */
+        const onStopSignal = () => {
+            console.log('Received SIGINT. Shutting down gracefully...');
+            this.stop().then(() => {
+                console.log('Server stopped.');
+                process.exit(0); // Exit the process
+            });
+        };
+        process.on('SIGINT', onStopSignal);
+    }
+
+    public async stop() {
+        await this.mongoose.connection.close();
+        await this.apolloServer.stop();
     }
 }

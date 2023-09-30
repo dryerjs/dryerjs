@@ -1,0 +1,43 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - '*'
+env:
+    CI: true
+    node: '16.20'
+
+jobs:
+    ci:
+      name: CI
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Use Node.js ${{ env.node }}
+          uses: actions/setup-node@v3
+          with:
+              node-version: ${{ env.node }}
+        - uses: actions/cache@v3
+          id: npm-cache
+          with:
+              path: 'node_modules'
+              key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+              restore-keys: |
+                  ${{ runner.os }}-npm-
+        - name: Install
+          if: steps.npm-cache.outputs.cache-hit != 'true'
+          run: npm install
+        - name: Format
+          run: npm run format:ci
+        - name: Lint
+          run: npm run lint:ci
+        - name: Build
+          run: npm run build
+        - name: Start MongoDB
+          uses: supercharge/mongodb-github-action@1.10.0
+        - name: Test
+          run: npm run test:cov

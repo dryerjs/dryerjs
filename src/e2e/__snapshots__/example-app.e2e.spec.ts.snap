@@ -1,0 +1,656 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Example app Generate correct graphql schema 1`] = `
+[
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "user",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "User",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "skip",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null,
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "take",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null,
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "users",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null,
+            },
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "Query",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "id",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "email",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "yearOfBirth",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "lastLoggedInAt",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "createdAt",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "phone",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "Phone",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "status",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "ENUM",
+            "name": "UserStatus",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "updatedAt",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "User",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "phoneNumber",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "countryPrefix",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "Phone",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": [
+      {
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "ACTIVE",
+      },
+      {
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "INACTIVE",
+      },
+    ],
+    "fields": null,
+    "inputFields": null,
+    "interfaces": null,
+    "kind": "ENUM",
+    "name": "UserStatus",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "CreateUserInput",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "createUser",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "User",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "UpdateUserInput",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "updateUser",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "User",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "deleteUser",
+        "type": {
+          "kind": "OBJECT",
+          "name": "DeleteResponse",
+          "ofType": null,
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "Mutation",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "email",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "password",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "yearOfBirth",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "requestId",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "phone",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "CreatePhoneInput",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "status",
+        "type": {
+          "kind": "ENUM",
+          "name": "UserStatus",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "CreateUserInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "phoneNumber",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "countryPrefix",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "CreatePhoneInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "yearOfBirth",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "requestId",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "phone",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdatePhoneInput",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "status",
+        "type": {
+          "kind": "ENUM",
+          "name": "UserStatus",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UpdateUserInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "phoneNumber",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "countryPrefix",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UpdatePhoneInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "deleted",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "Boolean",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "id",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "DeleteResponse",
+    "possibleTypes": null,
+  },
+]
+`;
+
+exports[`Example app User CRUD works Happy path works 1`] = `
+[
+  {
+    "email": "***@example1.com",
+    "yearOfBirth": 2001,
+  },
+  {
+    "email": "***@example2.com",
+    "yearOfBirth": 2002,
+  },
+  {
+    "email": "***@example3.com",
+    "yearOfBirth": 1990,
+  },
+]
+`;

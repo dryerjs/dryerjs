@@ -3,7 +3,7 @@ import { ModelDefinition } from './type';
 import { CachedPropertiesByModel, MetadataKey } from './metadata';
 
 export class MongooseSchemaBuilder {
-    public static build(modelDefinition: ModelDefinition) {
+    public static build(modelDefinition: ModelDefinition, isRoot = true) {
         const instance = new modelDefinition();
 
         const result = {};
@@ -13,11 +13,7 @@ export class MongooseSchemaBuilder {
             MetadataKey.DesignType,
         )) {
             if (property === 'id') continue;
-            const typeConfig = {
-                String,
-                Date,
-                Number,
-            };
+
             if (
                 CachedPropertiesByModel.getMetadataValue(
                     modelDefinition.name,
@@ -27,20 +23,39 @@ export class MongooseSchemaBuilder {
             ) {
                 continue;
             }
-            result[property] = {
-                type: typeConfig[Reflect.getMetadata('design:type', instance, property).name],
+            const typeConfig = {
+                String,
+                Date,
+                Number,
+                Boolean,
             };
+
+            const designType = Reflect.getMetadata(MetadataKey.DesignType, instance, property);
+            const isEmbedded = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.Embedded,
+                property,
+            );
+            if (isEmbedded) {
+                result[property] = this.build(designType, false);
+                continue;
+            }
+
+            const enumInObject = CachedPropertiesByModel.getMetadataValue(
+                modelDefinition.name,
+                MetadataKey.Enum,
+                property,
+            );
+            if (enumInObject) {
+                const enumValue = Object.values(enumInObject)[0];
+                result[property] = { type: typeConfig[designType.name], enum: enumValue };
+                continue;
+            }
+
+            result[property] = { type: typeConfig[designType.name] };
+            continue;
         }
 
-        return new Schema(result, {
-            virtuals: {
-                id: {
-                    get: function () {
-                        return this._id.toString();
-                    },
-                },
-            },
-            timestamps: true,
-        });
+        return new Schema(result, isRoot ? { timestamps: true } : {});
     }
 }
