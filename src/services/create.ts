@@ -1,4 +1,4 @@
-import { CachedPropertiesByModel, MetadataKey } from '../metadata';
+import { inspect, MetadataKey } from '../metadata';
 import { ModelDefinition } from '../type';
 import { Model } from '../model';
 import { OutputService } from './output';
@@ -17,30 +17,15 @@ export class CreateService {
         context: Context,
         modelDefinition: ModelDefinition<T>,
     ) {
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Validate,
-        )) {
-            if (input[property] === undefined) continue;
-            const validateFn = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Validate,
-                property,
-            );
-            await validateFn(input[property], context, input);
+        for (const property of inspect(modelDefinition).getProperties(MetadataKey.Validate)) {
+            if (input[property.name] === undefined) continue;
+            const validateFn = property.getMetadataValue(MetadataKey.Validate);
+            await validateFn(input[property.name], context, input);
         }
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Embedded,
-        )) {
-            if (input[property] === undefined) continue;
-            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
-            );
-            await this.validate(input[property], context, embeddedModelDefinition);
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (input[property.name] === undefined) continue;
+            await this.validate(input[property.name], context, property.getEmbeddedModelDefinition());
         }
     }
 
@@ -49,31 +34,20 @@ export class CreateService {
         context: Context,
         modelDefinition: ModelDefinition<T>,
     ) {
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.DefaultOnCreate,
-        )) {
-            if (input[property] !== null && input[property] !== undefined) continue;
-            const defaultFn = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.DefaultOnCreate,
-                property,
-            );
-            input[property] = await defaultFn(context, input);
+        for (const property of inspect(modelDefinition).getProperties(MetadataKey.DefaultOnCreate)) {
+            if (input[property.name] !== null && input[property.name] !== undefined) continue;
+            const defaultFn = property.getMetadataValue(MetadataKey.DefaultOnCreate);
+            input[property.name] = await defaultFn(context, input);
         }
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Embedded,
-        )) {
-            if (input[property] === undefined) continue;
-            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (input[property.name] === undefined) continue;
+            const embeddedValue = await this.setDefault(
+                input[property.name],
+                context,
+                property.getEmbeddedModelDefinition(),
             );
-            const embeddedValue = await this.setDefault(input[property], context, embeddedModelDefinition);
-            input[property] = embeddedValue;
+            input[property.name] = embeddedValue;
         }
         return input;
     }
@@ -83,31 +57,20 @@ export class CreateService {
         context: Context,
         modelDefinition: ModelDefinition<T>,
     ) {
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.TransformOnCreate,
-        )) {
-            if (input[property] === null || input[property] === undefined) continue;
-            const transformFn = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.TransformOnCreate,
-                property,
-            );
-            input[property] = await transformFn(input[property], context, input);
+        for (const property of inspect(modelDefinition).getProperties(MetadataKey.TransformOnCreate)) {
+            if (input[property.name] === null || input[property.name] === undefined) continue;
+            const transformFn = property.getMetadataValue(MetadataKey.TransformOnCreate);
+            input[property.name] = await transformFn(input[property.name], context, input);
         }
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Embedded,
-        )) {
-            if (input[property] === null || input[property] === undefined) continue;
-            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (input[property.name] === null || input[property.name] === undefined) continue;
+            const embeddedValue = await this.transform(
+                input[property.name],
+                context,
+                property.getEmbeddedModelDefinition(),
             );
-            const embeddedValue = await this.transform(input[property], context, embeddedModelDefinition);
-            input[property] = embeddedValue;
+            input[property.name] = embeddedValue;
         }
 
         return input;

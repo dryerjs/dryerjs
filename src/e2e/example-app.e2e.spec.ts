@@ -1,7 +1,6 @@
 import { getIntrospectionQuery } from 'graphql';
 import { User, dryerConfig as exampleDryerConfig } from '../example/app';
 import { DryerTest } from './utils';
-import { CachedPropertiesByModel } from '../metadata';
 
 export const dryer = DryerTest.init({
     ...exampleDryerConfig,
@@ -164,7 +163,6 @@ describe('Example app', () => {
 
     afterAll(async () => {
         await dryer.model(User).db.deleteMany({});
-        CachedPropertiesByModel.cleanOnTest();
         await dryer.stop();
     });
 });

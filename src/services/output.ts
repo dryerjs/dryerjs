@@ -1,5 +1,5 @@
 import { Model } from '../model';
-import { CachedPropertiesByModel, MetadataKey } from '../metadata';
+import { MetadataKey, inspect } from '../metadata';
 import { ModelDefinition } from '../type';
 
 export class OutputService {
@@ -18,31 +18,20 @@ export class OutputService {
         context: Context,
         modelDefinition: ModelDefinition<T>,
     ) {
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.DefaultOnOutput,
-        )) {
-            if (output[property] !== null && output[property] !== undefined) continue;
-            const defaultFn = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.DefaultOnOutput,
-                property,
-            );
-            output[property] = await defaultFn(output[property], context, output);
+        for (const property of inspect(modelDefinition).getProperties(MetadataKey.DefaultOnOutput)) {
+            if (output[property.name] !== null && output[property.name] !== undefined) continue;
+            const defaultFn = property.getMetadataValue(MetadataKey.DefaultOnOutput);
+            output[property.name] = await defaultFn(output[property.name], context, output);
         }
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Embedded,
-        )) {
-            if (output[property] === null || output[property] === undefined) continue;
-            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (output[property.name] === null || output[property.name] === undefined) continue;
+            const embeddedValue = await this.setDefault(
+                output[property.name],
+                context,
+                property.getEmbeddedModelDefinition(),
             );
-            const embeddedValue = await this.setDefault(output[property], context, embeddedModelDefinition);
-            output[property] = embeddedValue;
+            output[property.name] = embeddedValue;
         }
 
         return output;
@@ -53,31 +42,20 @@ export class OutputService {
         context: Context,
         modelDefinition: ModelDefinition<T>,
     ) {
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.TransformOnOutput,
-        )) {
-            if (output[property] === null && output[property] === undefined) continue;
-            const transformFn = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.TransformOnOutput,
-                property,
-            );
-            output[property] = await transformFn(output[property], context, output);
+        for (const property of inspect(modelDefinition).getProperties(MetadataKey.TransformOnOutput)) {
+            if (output[property.name] === null && output[property.name] === undefined) continue;
+            const transformFn = property.getMetadataValue(MetadataKey.TransformOnOutput);
+            output[property.name] = await transformFn(output[property.name], context, output);
         }
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.Embedded,
-        )) {
-            if (output[property] === null || output[property] === undefined) continue;
-            const embeddedModelDefinition = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (output[property.name] === null || output[property.name] === undefined) continue;
+            const embeddedValue = await this.transform(
+                output[property.name],
+                context,
+                property.getEmbeddedModelDefinition(),
             );
-            const embeddedValue = await this.transform(output[property], context, embeddedModelDefinition);
-            output[property] = embeddedValue;
+            output[property.name] = embeddedValue;
         }
 
         return output;

@@ -241,3 +241,47 @@ export function GraphQLType(type: any) {
         CachedPropertiesByModel.addField(target.constructor.name, MetadataKey.GraphQLType, propertyKey, type);
     };
 }
+
+export class TraversedProperty {
+    constructor(
+        private modelDefinition: any,
+        public name: string,
+        public typeInClass: any,
+    ) {}
+
+    public getMetadataValue(key: MetadataKey) {
+        return CachedPropertiesByModel.getMetadataValue(this.modelDefinition.name, key, this.name);
+    }
+
+    public getEmbeddedModelDefinition() {
+        const result = this.getMetadataValue(MetadataKey.Embedded);
+        if (result === undefined) {
+            throw new Error(`Property ${this.name} is not an embedded property`);
+        }
+        return result;
+    }
+}
+
+export function inspect(modelDefinition: any) {
+    const INSTANCE_KEY = '__inspectable_instance';
+    modelDefinition[INSTANCE_KEY] = modelDefinition[INSTANCE_KEY] || new modelDefinition();
+    const instance = modelDefinition[INSTANCE_KEY];
+
+    return {
+        getProperties(metaKey: MetadataKey = MetadataKey.DesignType) {
+            const result: TraversedProperty[] = [];
+            for (const property in CachedPropertiesByModel.getPropertiesByModel(
+                modelDefinition.name,
+                metaKey,
+            )) {
+                const typeInClass = Reflect.getMetadata(MetadataKey.DesignType, instance, property);
+                const traversedProperty = new TraversedProperty(modelDefinition, property, typeInClass);
+                result.push(traversedProperty);
+            }
+            return result;
+        },
+        getEmbeddedProperties(): TraversedProperty[] {
+            return this.getProperties(MetadataKey.Embedded);
+        },
+    };
+}

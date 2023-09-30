@@ -1,11 +1,4 @@
-import {
-    CachedPropertiesByModel,
-    EmbeddedProperty,
-    ExcludeOnInput,
-    NullableOnOutput,
-    Property,
-    RequiredOnCreate,
-} from 'dryerjs';
+import { EmbeddedProperty, ExcludeOnInput, NullableOnOutput, Property, RequiredOnCreate } from 'dryerjs';
 import { DryerTest } from './utils';
 
 class Director {
@@ -154,6 +147,5 @@ describe('Object embedded feature works', () => {
     afterAll(async () => {
         await dryer.model(Movie).db.deleteMany({});
         await dryer.stop();
-        CachedPropertiesByModel.cleanOnTest();
     });
 });

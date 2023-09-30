@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
-import { CachedPropertiesByModel, MetadataKey } from './metadata';
+import { MetadataKey, inspect } from './metadata';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition, isRoot = true) {
@@ -8,19 +8,10 @@ export class MongooseSchemaBuilder {
 
         const result = {};
 
-        for (const property in CachedPropertiesByModel.getPropertiesByModel(
-            modelDefinition.name,
-            MetadataKey.DesignType,
-        )) {
-            if (property === 'id') continue;
+        for (const property of inspect(modelDefinition).getProperties()) {
+            if (property.name === 'id') continue;
 
-            if (
-                CachedPropertiesByModel.getMetadataValue(
-                    modelDefinition.name,
-                    MetadataKey.ExcludeOnDatabase,
-                    property,
-                )
-            ) {
+            if (property.getMetadataValue(MetadataKey.ExcludeOnDatabase)) {
                 continue;
             }
             const typeConfig = {
@@ -30,29 +21,21 @@ export class MongooseSchemaBuilder {
                 Boolean,
             };
 
-            const designType = Reflect.getMetadata(MetadataKey.DesignType, instance, property);
-            const isEmbedded = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Embedded,
-                property,
-            );
+            const designType = Reflect.getMetadata(MetadataKey.DesignType, instance, property.name);
+            const isEmbedded = typeof property.getMetadataValue(MetadataKey.Embedded) === 'function';
             if (isEmbedded) {
-                result[property] = this.build(designType, false);
+                result[property.name] = this.build(designType, false);
                 continue;
             }
 
-            const enumInObject = CachedPropertiesByModel.getMetadataValue(
-                modelDefinition.name,
-                MetadataKey.Enum,
-                property,
-            );
+            const enumInObject = property.getMetadataValue(MetadataKey.Enum);
             if (enumInObject) {
                 const enumValue = Object.values(enumInObject)[0];
-                result[property] = { type: typeConfig[designType.name], enum: enumValue };
+                result[property.name] = { type: typeConfig[designType.name], enum: enumValue };
                 continue;
             }
 
-            result[property] = { type: typeConfig[designType.name] };
+            result[property.name] = { type: typeConfig[designType.name] };
             continue;
         }
 
