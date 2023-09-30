@@ -4,4 +4,4 @@ export * from './get';
 export * from './list';
 export * from './output';
 export * from './update';
-export * from './get-all'
+export * from './get-all';

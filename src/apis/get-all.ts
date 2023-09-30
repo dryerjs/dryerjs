@@ -8,7 +8,7 @@ export class GetAllApi<T, Context> implements Api {
     public getEndpoint() {
         const key = this.model.name.replace(this.model.name[0], this.model.name[0]).concat('s');
         return {
-            [`getAll${key}`]: {
+            [`all${key}`]: {
                 type: new graphql.GraphQLList(this.model.graphql.nonNullOutput),
                 resolve: async (_parent, _, context: Context) => {
                     const items = await this.model.inContext(context).getAll();

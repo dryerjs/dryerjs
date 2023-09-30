@@ -75,7 +75,7 @@ exports[`Example app Generate correct graphql schema 1`] = `
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,
-        "name": "getAllUsers",
+        "name": "allUsers",
         "type": {
           "kind": "LIST",
           "name": null,

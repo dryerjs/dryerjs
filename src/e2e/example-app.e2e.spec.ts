@@ -75,7 +75,7 @@ describe('Example app', () => {
             const allUsersResponse = await dryer.makeSuccessRequest({
                 query: `
                     query GetAllUsers {
-                        getAllUsers {
+                        allUsers {
                             id
                             email
                             yearOfBirth
@@ -86,7 +86,7 @@ describe('Example app', () => {
                 `,
             });
 
-            const comparableUsers = allUsersResponse.getAllUsers.map(({ email, yearOfBirth }) => ({
+            const comparableUsers = allUsersResponse.allUsers.map(({ email, yearOfBirth }) => ({
                 email,
                 yearOfBirth,
             }));
@@ -124,7 +124,7 @@ describe('Example app', () => {
             }).toMatchSnapshot();
 
             // get user by id
-            const firstUserId = allUsersResponse.getAllUsers[0].id;
+            const firstUserId = allUsersResponse.allUsers[0].id;
             const firstUserResponse = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {
