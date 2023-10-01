@@ -31,7 +31,7 @@ To get started with DryerJS, follow these steps:
             "emitDecoratorMetadata": true,
             "experimentalDecorators": true
         }
-    }' >> tsconfig.json &&
+    }' >> tsconfig.json
    ```
 
 3. Install DryerJS as a dependency in your project
