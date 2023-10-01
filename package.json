@@ -7,6 +7,10 @@
   "files": [
     "dist/**/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vanpho93/dryerjs.git"
+  },
   "scripts": {
     "start": "nodemon --exec ts-node -r tsconfig-paths/register -r dotenv/config ./src/example/main.ts",
     "format": "prettier 'src/**/*.ts' -w",
@@ -23,7 +27,8 @@
     "clean-cov": "rm -rf coverage",
     "collect-cov": "mv coverage/unit/coverage-final.json coverage/unit.json && mv coverage/e2e/coverage-final.json coverage/e2e.json",
     "merge-cov": "nyc report -t coverage --report-dir coverage --reporter=text-summary --reporter=lcov",
-    "show-cov": "open coverage/lcov-report/index.html"
+    "show-cov": "open coverage/lcov-report/index.html",
+    "semantic-release": "semantic-release"
   },
   "keywords": [
     "graphql",
@@ -34,7 +39,7 @@
     "server"
   ],
   "author": "vanpho93",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@shelf/jest-mongodb": "4.1.7",
     "@types/body-parser": "1.19.3",
@@ -56,7 +61,8 @@
     "ts-jest": "29.1.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "semantic-release": "^22.0.5"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
