@@ -227,10 +227,10 @@ export function inspect(modelDefinition: any) {
     return {
         getProperties(metaKey: MetaKey = MetaKey.DesignType) {
             const result: TraversedProperty[] = [];
-            for (const property in Metadata.getPropertiesByModel(modelDefinition.name, metaKey)) {
-                const typeInClass = Reflect.getMetadata(MetaKey.DesignType, instance, property);
-                const traversedProperty = new TraversedProperty(modelDefinition, property, typeInClass);
-                result.push(traversedProperty);
+            for (const propertyName in Metadata.getPropertiesByModel(modelDefinition.name, metaKey)) {
+                const typeInClass = Reflect.getMetadata(MetaKey.DesignType, instance, propertyName);
+                const property = new TraversedProperty(modelDefinition, propertyName, typeInClass);
+                result.push(property);
             }
             return result;
         },
