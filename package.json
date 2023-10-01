@@ -2,7 +2,11 @@
   "name": "dryerjs",
   "version": "0.0.1",
   "description": "A platform for building GraphQL APIs with TypeScript and MongoDB in a declarative way.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "start": "nodemon --exec ts-node -r tsconfig-paths/register -r dotenv/config ./src/example/main.ts",
     "format": "prettier 'src/**/*.ts' -w",
@@ -54,12 +58,9 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "@apollo/server": "4.9.3",
     "body-parser": "1.20.2",
     "cors": "2.8.5",
     "express": "4.18.2",
-    "graphql": "16.8.1",
-    "mongoose": "7.5.2",
     "mongoose-paginate-v2": "^1.7.4",
     "reflect-metadata": "0.1.13"
   },
@@ -95,5 +96,10 @@
       "json",
       "html"
     ]
+  },
+  "peerDependencies": {
+    "@apollo/server": "^4.9.3",
+    "graphql": "^16.8.1",
+    "mongoose": "^7.5.3"
   }
 }
