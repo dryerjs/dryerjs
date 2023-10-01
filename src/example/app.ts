@@ -28,6 +28,7 @@ export class Address {
     streetAddress: string;
 
     @Property()
+    @DefaultOnOutput(() => '000')
     postalCode: string;
 }
 
