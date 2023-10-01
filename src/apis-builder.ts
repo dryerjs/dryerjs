@@ -9,7 +9,7 @@ const deleteResponse = new graphql.GraphQLObjectType({
     },
 });
 
-export class ApiBuilder {
+export class ApisBuilder {
     public static build<T, Context>(model: Model<T>) {
         const queryFields = {
             ...this.getOne<T, Context>(model),

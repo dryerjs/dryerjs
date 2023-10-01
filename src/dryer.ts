@@ -4,7 +4,7 @@ import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
 import { Model } from './model';
-import { ApiBuilder } from './api-builder';
+import { ApisBuilder } from './apis-builder';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -46,7 +46,7 @@ export class Dryer<Context> {
             const model = new Model(modelDefinition);
             this.models[modelDefinition.name] = model;
 
-            const apis = ApiBuilder.build(model);
+            const apis = ApisBuilder.build(model);
             mutationFields = {
                 ...mutationFields,
                 ...apis.mutationFields,
