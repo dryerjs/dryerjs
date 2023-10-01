@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false
+  },
   "exclude": ["**/*.spec.ts", "src/example", "src/e2e"]
 }
