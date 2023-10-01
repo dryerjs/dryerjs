@@ -9,7 +9,6 @@ on:
             - '*'
 env:
     CI: true
-    node: '16.20'
 
 jobs:
     ci:
@@ -17,10 +16,10 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - name: Use Node.js ${{ env.node }}
+        - name: Setup Node.js
           uses: actions/setup-node@v3
           with:
-              node-version: ${{ env.node }}
+            node-version: "lts/*"
         - uses: actions/cache@v3
           id: npm-cache
           with:
