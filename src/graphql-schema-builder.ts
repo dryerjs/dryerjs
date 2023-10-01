@@ -161,7 +161,7 @@ export class GraphqlTypeBuilder {
         nonNullOutput: GraphQLNonNull<GraphQLObjectType<ModelDefinition, any>>,
     ) {
         const result = {
-            name: `${modelDefinition.name}Paginated`,
+            name: `Paginated${modelDefinition.name}s`,
             fields: {
                 docs: { type: new GraphQLList(nonNullOutput) },
                 totalDocs: { type: GraphQLInt },
