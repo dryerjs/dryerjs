@@ -1,6 +1,7 @@
+import * as util from '../util';
 import { getIntrospectionQuery } from 'graphql';
 import { User, dryerConfig as exampleDryerConfig } from '../example/app';
-import { DryerTest } from './util';
+import { DryerTest } from './dryer-test';
 
 export const dryer = DryerTest.init({
     ...exampleDryerConfig,
@@ -90,25 +91,18 @@ describe('Example app', () => {
         });
 
         it('allUsers query works', async () => {
-            const comparableUsers = allUsers.map(({ email, yearOfBirth }) => ({
-                email,
-                yearOfBirth,
-            }));
-            expect(comparableUsers).toMatchSnapshot();
+            expect(util.deepOmit(allUsers, ['id', 'createdAt', 'updatedAt'])).toMatchSnapshot();
         });
 
         it('users query works', async () => {
             // get users with pagination
             const { paginateUsers } = await dryer.makeSuccessRequest({
                 query: `
-                    query PaginatedUsers\ {
+                    query PaginatedUsers {
                         paginateUsers {
                             docs {
-                                id
                                 email
                                 yearOfBirth
-                                createdAt
-                                updatedAt
                             }
                             totalDocs
                             limit
@@ -121,13 +115,7 @@ describe('Example app', () => {
                 `,
             });
 
-            expect({
-                ...paginateUsers,
-                docs: paginateUsers.docs.map(({ email, yearOfBirth }) => ({
-                    email,
-                    yearOfBirth,
-                })),
-            }).toMatchSnapshot();
+            expect(paginateUsers).toMatchSnapshot();
         });
 
         it('get one user query works', async () => {

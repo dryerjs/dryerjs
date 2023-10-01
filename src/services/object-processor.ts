@@ -20,6 +20,19 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isUndefined(input[property.name])) continue;
+            const isEmbeddedArray = property.typeInClass.name === 'Array';
+            if (isEmbeddedArray) {
+                await Promise.all(
+                    input[property.name].map((item: any) =>
+                        this.validate({
+                            input: item,
+                            context,
+                            modelDefinition: property.getEmbeddedModelDefinition(),
+                        }),
+                    ),
+                );
+                continue;
+            }
             await this.validate({
                 input: input[property.name],
                 context,
@@ -52,6 +65,21 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isNil(obj[property.name])) continue;
+            const isEmbeddedArray = property.typeInClass.name === 'Array';
+            if (isEmbeddedArray) {
+                const embeddedValue = await Promise.all(
+                    obj[property.name].map((item: any) =>
+                        this.setDefault({
+                            obj: item,
+                            context,
+                            modelDefinition: property.getEmbeddedModelDefinition(),
+                            metaKey,
+                        }),
+                    ),
+                );
+                obj[property.name] = embeddedValue;
+                continue;
+            }
             const embeddedValue = await this.setDefault({
                 obj: obj[property.name],
                 context,
@@ -87,6 +115,21 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isNil(obj[property.name])) continue;
+            const isEmbeddedArray = property.typeInClass.name === 'Array';
+            if (isEmbeddedArray) {
+                const embeddedValue = await Promise.all(
+                    obj[property.name].map((item: any) =>
+                        this.transform({
+                            obj: item,
+                            context,
+                            modelDefinition: property.getEmbeddedModelDefinition(),
+                            metaKey,
+                        }),
+                    ),
+                );
+                obj[property.name] = embeddedValue;
+                continue;
+            }
             const embeddedValue = await this.transform({
                 obj: obj[property.name],
                 context,

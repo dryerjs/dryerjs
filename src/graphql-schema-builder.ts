@@ -19,8 +19,8 @@ export abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}
 
     protected abstract getName(): string;
-    protected abstract isExcluded(traversedProperty: TraversedProperty): boolean;
-    protected abstract isNullable(traversedProperty: TraversedProperty): boolean;
+    protected abstract isExcluded(property: TraversedProperty): boolean;
+    protected abstract isNullable(property: TraversedProperty): boolean;
     protected abstract useAs: 'input' | 'output';
 
     public getType() {
@@ -31,11 +31,11 @@ export abstract class BaseTypeBuilder {
 
         inspect(this.modelDefinition)
             .getProperties()
-            .forEach(traversedProperty => {
-                if (this.isExcluded(traversedProperty)) return;
-                const isNullable = this.isNullable(traversedProperty);
-                const type = this.getTypeForOneProperty(traversedProperty, isNullable);
-                result.fields[traversedProperty.name] = { type };
+            .forEach(property => {
+                if (this.isExcluded(property)) return;
+                const isNullable = this.isNullable(property);
+                const type = this.getPropertyType(property, isNullable);
+                result.fields[property.name] = { type };
             });
 
         if (this.useAs === 'input') return new GraphQLInputObjectType(result);
@@ -44,16 +44,16 @@ export abstract class BaseTypeBuilder {
         throw new Error('Invalid useAs');
     }
 
-    private getTypeForOneProperty(traversedProperty: TraversedProperty, nullable: boolean) {
-        const baseType = this.getBaseTypeForProperty(traversedProperty);
+    private getPropertyType(property: TraversedProperty, nullable: boolean) {
+        const baseType = this.getPropertyBaseType(property);
         return nullable ? baseType : new GraphQLNonNull(baseType);
     }
 
-    private getBaseTypeForProperty(traversedProperty: TraversedProperty) {
-        const overrideType = traversedProperty.getMetaValue(MetaKey.GraphQLType);
+    private getPropertyBaseType(property: TraversedProperty) {
+        const overrideType = property.getMetaValue(MetaKey.GraphQLType);
         if (util.isObject(overrideType)) return overrideType;
 
-        const enumInObject = traversedProperty.getMetaValue(MetaKey.Enum);
+        const enumInObject = property.getMetaValue(MetaKey.Enum);
         if (util.isObject(enumInObject)) {
             const enumName = Object.keys(enumInObject)[0];
             const enumValues = enumInObject[enumName];
@@ -77,18 +77,20 @@ export abstract class BaseTypeBuilder {
             Boolean: GraphQLBoolean,
         };
 
-        const scalarBaseType = typeConfig[traversedProperty.typeInClass.name];
+        const scalarBaseType = typeConfig[property.typeInClass.name];
         if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
-        const isEmbedded = traversedProperty.getMetaValue(MetaKey.Embedded);
+        const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
         if (isEmbedded) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            return new this.constructor(traversedProperty.typeInClass).getType();
+            const subType = new this.constructor(property.getMetaValue(MetaKey.Embedded)).getType();
+            const isEmbeddedArray = property.typeInClass.name === 'Array';
+            return isEmbeddedArray ? new GraphQLList(subType) : subType;
         }
 
         throw new Error(
-            `Invalid type for property ${traversedProperty.name}. You can override it with @GraphQLType(/* type */)`,
+            `Invalid type for property ${property.name}. You can override it with @GraphQLType(/* type */)`,
         );
     }
 }
@@ -98,12 +100,12 @@ class OutputTypeBuilder extends BaseTypeBuilder {
         return this.modelDefinition.name;
     }
 
-    protected isExcluded(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetaValue(MetaKey.ExcludeOnOutput);
+    protected isExcluded(property: TraversedProperty) {
+        return property.getMetaValue(MetaKey.ExcludeOnOutput);
     }
 
-    protected isNullable(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetaValue(MetaKey.NullableOnOutput);
+    protected isNullable(property: TraversedProperty) {
+        return property.getMetaValue(MetaKey.NullableOnOutput);
     }
 
     protected useAs: 'input' | 'output' = 'output';
@@ -114,12 +116,12 @@ class CreateInputTypeBuilder extends BaseTypeBuilder {
         return `Create${this.modelDefinition.name}Input`;
     }
 
-    protected isExcluded(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetaValue(MetaKey.ExcludeOnCreate);
+    protected isExcluded(property: TraversedProperty) {
+        return property.getMetaValue(MetaKey.ExcludeOnCreate);
     }
 
-    protected isNullable(traversedProperty: TraversedProperty) {
-        return !traversedProperty.getMetaValue(MetaKey.RequiredOnCreate);
+    protected isNullable(property: TraversedProperty) {
+        return !property.getMetaValue(MetaKey.RequiredOnCreate);
     }
 
     protected useAs: 'input' | 'output' = 'input';
@@ -130,12 +132,12 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
         return `Update${this.modelDefinition.name}Input`;
     }
 
-    protected isExcluded(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetaValue(MetaKey.ExcludeOnUpdate);
+    protected isExcluded(property: TraversedProperty) {
+        return property.getMetaValue(MetaKey.ExcludeOnUpdate);
     }
 
-    protected isNullable(traversedProperty: TraversedProperty) {
-        return !traversedProperty.getMetaValue(MetaKey.RequiredOnUpdate);
+    protected isNullable(property: TraversedProperty) {
+        return !property.getMetaValue(MetaKey.RequiredOnUpdate);
     }
 
     protected useAs: 'input' | 'output' = 'input';

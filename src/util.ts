@@ -17,3 +17,24 @@ export const isString = (value: any): value is string => typeof value === 'strin
 export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
     return value != null && !isNaN(value as any) ? value : defaultValue;
 };
+
+export const deepOmit = (object: any, omitKeys: string[]) => {
+    if (typeof object !== 'object' || object === null) {
+        return object;
+    }
+
+    const result = Array.isArray(object) ? [] : {};
+
+    for (const key in object) {
+        if (object.hasOwnProperty(key) && !omitKeys.includes(key)) {
+            if (typeof object[key] === 'object' && object[key] !== null) {
+                // Recursively omit keys from nested objects
+                result[key] = deepOmit(object[key], omitKeys);
+            } else {
+                result[key] = object[key];
+            }
+        }
+    }
+
+    return result;
+};

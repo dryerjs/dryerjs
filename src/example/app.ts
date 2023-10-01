@@ -19,6 +19,19 @@ import {
     EmbeddedProperty,
 } from 'dryerjs';
 
+export class Address {
+    @ExcludeOnInput()
+    @Property()
+    id: string;
+
+    @Property()
+    streetAddress: string;
+
+    @Property()
+    @DefaultOnOutput(() => '000')
+    postalCode: string;
+}
+
 export class Phone {
     @Property()
     @Validate((phoneNumber: string) => {
@@ -116,6 +129,9 @@ export class User {
 
     @EmbeddedProperty({ type: Phone })
     phone: Phone;
+
+    @EmbeddedProperty({ type: Address })
+    addresses: Address[];
 
     @Property({ enum: { UserStatus } })
     status: UserStatus;

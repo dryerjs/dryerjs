@@ -5,8 +5,6 @@ import * as util from './util';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition, isRoot = true) {
-        const instance = new modelDefinition();
-
         const result = {};
 
         for (const property of inspect(modelDefinition).getProperties()) {
@@ -15,6 +13,16 @@ export class MongooseSchemaBuilder {
             if (property.getMetaValue(MetaKey.ExcludeOnDatabase)) {
                 continue;
             }
+
+            const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
+            if (isEmbedded) {
+                const isEmbeddedArray = property.typeInClass.name === 'Array';
+                const subSchema = this.build(property.getMetaValue(MetaKey.Embedded), false);
+                result[property.name] = isEmbeddedArray ? [subSchema] : subSchema;
+                continue;
+            }
+
+            const enumInObject = property.getMetaValue(MetaKey.Enum);
             const typeConfig = {
                 String,
                 Date,
@@ -22,21 +30,13 @@ export class MongooseSchemaBuilder {
                 Boolean,
             };
 
-            const designType = Reflect.getMetadata(MetaKey.DesignType, instance, property.name);
-            const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
-            if (isEmbedded) {
-                result[property.name] = this.build(designType, false);
-                continue;
-            }
-
-            const enumInObject = property.getMetaValue(MetaKey.Enum);
             if (util.isObject(enumInObject)) {
                 const enumValue = Object.values(enumInObject)[0];
-                result[property.name] = { type: typeConfig[designType.name], enum: enumValue };
+                result[property.name] = { type: typeConfig[property.typeInClass.name], enum: enumValue };
                 continue;
             }
 
-            result[property.name] = { type: typeConfig[designType.name] };
+            result[property.name] = { type: typeConfig[property.typeInClass.name] };
             continue;
         }
 

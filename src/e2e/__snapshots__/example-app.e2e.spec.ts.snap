@@ -247,6 +247,26 @@ exports[`Example app Generate correct graphql schema 1`] = `
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,
+        "name": "addresses",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "LIST",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "Address",
+              "ofType": null,
+            },
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
         "name": "status",
         "type": {
           "kind": "NON_NULL",
@@ -322,6 +342,65 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": [],
     "kind": "OBJECT",
     "name": "Phone",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "id",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "streetAddress",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "postalCode",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "Address",
     "possibleTypes": null,
   },
   {
@@ -630,6 +709,20 @@ exports[`Example app Generate correct graphql schema 1`] = `
       {
         "defaultValue": null,
         "description": null,
+        "name": "addresses",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "INPUT_OBJECT",
+            "name": "CreateAddressInput",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
         "name": "status",
         "type": {
           "kind": "ENUM",
@@ -682,6 +775,37 @@ exports[`Example app Generate correct graphql schema 1`] = `
       {
         "defaultValue": null,
         "description": null,
+        "name": "streetAddress",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "postalCode",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "CreateAddressInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
         "name": "yearOfBirth",
         "type": {
           "kind": "SCALAR",
@@ -707,6 +831,20 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "kind": "INPUT_OBJECT",
           "name": "UpdatePhoneInput",
           "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "addresses",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "INPUT_OBJECT",
+            "name": "UpdateAddressInput",
+            "ofType": null,
+          },
         },
       },
       {
@@ -754,6 +892,37 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": null,
     "kind": "INPUT_OBJECT",
     "name": "UpdatePhoneInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "streetAddress",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "postalCode",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UpdateAddressInput",
     "possibleTypes": null,
   },
   {
