@@ -1,10 +1,10 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
-import { CreateApi, DeleteApi, GetApi, PaginateApi, UpdateApi, GetAllApi } from './apis';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
 import { Model } from './model';
+import { ApiBuilder } from './api-builder';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -46,17 +46,14 @@ export class Dryer<Context> {
             const model = new Model(modelDefinition);
             this.models[modelDefinition.name] = model;
 
+            const apis = ApiBuilder.build(model);
             mutationFields = {
                 ...mutationFields,
-                ...new CreateApi(model).getEndpoint(),
-                ...new UpdateApi(model).getEndpoint(),
-                ...new DeleteApi(model).getEndpoint(),
+                ...apis.mutationFields,
             };
             queryFields = {
                 ...queryFields,
-                ...new GetApi(model).getEndpoint(),
-                ...new PaginateApi(model).getEndpoint(),
-                ...new GetAllApi(model).getEndpoint(),
+                ...apis.queryFields,
             };
         }
         this.mongoose = await mongoose.connect(this.config.mongoUri);
