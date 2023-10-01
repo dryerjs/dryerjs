@@ -7,9 +7,9 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": false,
     "target": "ES2021",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "./dist",
-    "baseUrl": "./src",
+    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -19,7 +19,9 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "dryerjs": ["index.ts"],
+      "dryerjs": ["./src/index.ts"],
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts", "src/example", "src/e2e"]
 }
