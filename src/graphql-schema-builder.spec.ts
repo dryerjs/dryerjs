@@ -11,7 +11,7 @@ describe('GraphQLSchemaBuilder', () => {
             }
             const [phoneProperty] = inspect(TestUser).getProperties();
             try {
-                BaseTypeBuilder.prototype['getBaseTypeForProperty'](phoneProperty);
+                BaseTypeBuilder.prototype['getPropertyBaseType'](phoneProperty);
                 fail('Should throw error');
             } catch (error) {
                 expect(error.message).toContain('Invalid type for property');

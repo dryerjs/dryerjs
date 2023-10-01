@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Object embedded feature works User CRUD works should show authors with books 1`] = `
+[
+  {
+    "books": [
+      {
+        "name": "Book 1",
+        "publishedYear": 2000,
+      },
+      {
+        "name": "Book 2",
+        "publishedYear": 0,
+      },
+    ],
+    "name": "Author 1",
+  },
+  {
+    "books": [],
+    "name": "Author 2",
+  },
+]
+`;
