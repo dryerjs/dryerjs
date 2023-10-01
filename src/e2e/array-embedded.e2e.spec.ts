@@ -2,6 +2,7 @@ import * as graphql from 'graphql';
 import {
     DefaultOnInput,
     EmbeddedProperty,
+    ExcludeOnCreate,
     ExcludeOnInput,
     NullableOnOutput,
     Property,
@@ -13,7 +14,7 @@ import * as util from '../util';
 import { DryerTest } from './dryer-test';
 
 class Book {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -118,50 +119,39 @@ describe('Object embedded feature works', () => {
             expect(util.deepOmit(allAuthors, ['id'])).toMatchSnapshot();
         });
 
-        // it('should be able to update embedded values', async () => {
-        //     const firstAuthor = allAuthors[0];
-        //     const firstUpdateResponse = await dryer.makeSuccessRequest({
-        //         query: `
-        //             mutation UpdateAuthor($updateAuthorId: String!, $input: UpdateAuthorInput!) {
-        //                 updateAuthor(id: $updateAuthorId, input: $input) {
-        //                     books {
-        //                         nationality
-        //                         name
-        //                     }
-        //                 }
-        //             }
-        //         `,
-        //         variables: {
-        //             input: { books: [{ name: 'updated name', nationality: null }] },
-        //             updateAuthorId: firstAuthor.id,
-        //         },
-        //     });
-        //     expect(firstUpdateResponse.updateAuthor.books).toEqual({
-        //         name: 'updated name',
-        //         nationality: null,
-        //     });
-        // });
-
-        // it('should be able to remove embedded values by setting it to null', async () => {
-        //     const firstAuthor = allAuthors[0];
-        //     const firstUpdateResponse = await dryer.makeSuccessRequest({
-        //         query: `
-        //             mutation UpdateAuthor($updateAuthorId: String!, $input: UpdateAuthorInput!) {
-        //                 updateAuthor(id: $updateAuthorId, input: $input) {
-        //                     books {
-        //                         nationality
-        //                         name
-        //                     }
-        //                 }
-        //             }
-        //         `,
-        //         variables: {
-        //             input: { books: null },
-        //             updateAuthorId: firstAuthor.id,
-        //         },
-        //     });
-        //     expect(firstUpdateResponse.updateAuthor.books).toEqual(null);
-        // });
+        it('should be able to update books', async () => {
+            const firstAuthor = allAuthors[0];
+            const firstBook = firstAuthor.books[0];
+            const firstUpdateResponse = await dryer.makeSuccessRequest({
+                query: `
+                    mutation UpdateAuthor($updateAuthorId: String!, $input: UpdateAuthorInput!) {
+                        updateAuthor(id: $updateAuthorId, input: $input) {
+                            books {
+                                id
+                                name
+                                publishedYear
+                            }
+                        }
+                    }
+                `,
+                variables: {
+                    input: {
+                        books: [
+                            {
+                                ...firstBook,
+                                publishedYear: 1999,
+                            },
+                        ],
+                    },
+                    updateAuthorId: firstAuthor.id,
+                },
+            });
+            expect(firstUpdateResponse.updateAuthor.books[0]).toEqual({
+                id: firstBook.id,
+                name: 'Book 1',
+                publishedYear: 1999,
+            });
+        });
     });
 
     afterAll(async () => {
