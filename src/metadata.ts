@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import * as util from './util';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -47,10 +48,10 @@ export class Metadata {
         fieldName: string,
         value: MetaValue = true,
     ): void {
-        if (this.propertiesByModel[modelName] === undefined) {
+        if (util.isUndefined(this.propertiesByModel[modelName])) {
             this.propertiesByModel[modelName] = {};
         }
-        if (this.propertiesByModel[modelName][metaKey] === undefined) {
+        if (util.isUndefined(this.propertiesByModel[modelName][metaKey])) {
             this.propertiesByModel[modelName][metaKey] = {};
         }
         this.propertiesByModel[modelName][metaKey][fieldName] = value;
@@ -64,7 +65,7 @@ export class Metadata {
 export function Property(options: { enum?: AnyEnum } = {}) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addField(target.constructor.name, MetaKey.DesignType, propertyKey);
-        if (options.enum) {
+        if (util.isNotNullObject(options.enum)) {
             if (Object.keys(options.enum).length !== 1) {
                 const message = `Enum should be defined as an object. Example: @Property({ enum: { UserStatus })`;
                 throw new Error(message);
@@ -211,7 +212,7 @@ export class TraversedProperty {
 
     public getEmbeddedModelDefinition() {
         const result = this.getMetaValue(MetaKey.Embedded);
-        if (result === undefined) {
+        if (util.isUndefined(result)) {
             throw new Error(`Property ${this.name} is not an embedded property`);
         }
         return result;

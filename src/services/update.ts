@@ -1,3 +1,5 @@
+import * as graphql from 'graphql';
+import * as util from '../util';
 import { Model } from '../model';
 import { MetaKey } from '../metadata';
 import { OutputService } from './output';
@@ -25,8 +27,13 @@ export class UpdateService {
         const result = await model.db.findByIdAndUpdate(id, transformedInput, {
             new: true,
         });
-        if (!result) {
-            throw new Error('Not found');
+        if (util.isNil(result)) {
+            throw new graphql.GraphQLError(`No ${model.name} found with id ${id}`, {
+                extensions: {
+                    code: 'NOT_FOUND',
+                    http: { status: 404 },
+                },
+            });
         }
         return await OutputService.output<T, Context>(result, context, model);
     }

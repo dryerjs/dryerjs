@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 import { ModelDefinition } from './type';
 import { MetaKey, inspect } from './metadata';
+import * as util from './util';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition, isRoot = true) {
@@ -22,14 +23,14 @@ export class MongooseSchemaBuilder {
             };
 
             const designType = Reflect.getMetadata(MetaKey.DesignType, instance, property.name);
-            const isEmbedded = typeof property.getMetaValue(MetaKey.Embedded) === 'function';
+            const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
             if (isEmbedded) {
                 result[property.name] = this.build(designType, false);
                 continue;
             }
 
             const enumInObject = property.getMetaValue(MetaKey.Enum);
-            if (enumInObject) {
+            if (util.isObject(enumInObject)) {
                 const enumValue = Object.values(enumInObject)[0];
                 result[property.name] = { type: typeConfig[designType.name], enum: enumValue };
                 continue;

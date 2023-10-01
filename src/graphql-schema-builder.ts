@@ -9,12 +9,13 @@ import {
     GraphQLInt,
     GraphQLList,
 } from 'graphql';
+import * as util from './util';
 import { ModelDefinition } from './type';
 import { MetaKey, TraversedProperty, inspect } from './metadata';
 
 const enumTypeCached = {};
 
-abstract class BaseTypeBuilder {
+export abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}
 
     protected abstract getName(): string;
@@ -50,16 +51,10 @@ abstract class BaseTypeBuilder {
 
     private getBaseTypeForField(traversedProperty: TraversedProperty) {
         const overrideType = traversedProperty.getMetaValue(MetaKey.GraphQLType);
-        if (overrideType) return overrideType;
+        if (util.isObject(overrideType)) return overrideType;
 
-        const typeConfig = {
-            String: GraphQLString,
-            Date: GraphQLString,
-            Number: GraphQLFloat,
-            Boolean: GraphQLBoolean,
-        };
         const enumInObject = traversedProperty.getMetaValue(MetaKey.Enum);
-        if (enumInObject) {
+        if (util.isObject(enumInObject)) {
             const enumName = Object.keys(enumInObject)[0];
             const enumValues = enumInObject[enumName];
 
@@ -75,9 +70,15 @@ abstract class BaseTypeBuilder {
 
             return enumTypeCached[enumName];
         }
+        const typeConfig = {
+            String: GraphQLString,
+            Date: GraphQLString,
+            Number: GraphQLFloat,
+            Boolean: GraphQLBoolean,
+        };
 
         const scalarBaseType = typeConfig[traversedProperty.typeInClass.name];
-        if (scalarBaseType) return scalarBaseType;
+        if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
         const isEmbedded = traversedProperty.getMetaValue(MetaKey.Embedded);
         if (isEmbedded) {

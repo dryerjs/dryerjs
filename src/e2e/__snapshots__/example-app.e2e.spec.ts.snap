@@ -1,5 +1,54 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Example app CRUD works allUsers query works 1`] = `
+[
+  {
+    "email": "***@example1.com",
+    "yearOfBirth": 2001,
+  },
+  {
+    "email": "***@example2.com",
+    "yearOfBirth": 2002,
+  },
+  {
+    "email": "***@example3.com",
+    "yearOfBirth": 1990,
+  },
+]
+`;
+
+exports[`Example app CRUD works get one user query works 1`] = `
+{
+  "email": "***@example1.com",
+  "yearOfBirth": 2001,
+}
+`;
+
+exports[`Example app CRUD works users query works 1`] = `
+{
+  "docs": [
+    {
+      "email": "***@example1.com",
+      "yearOfBirth": 2001,
+    },
+    {
+      "email": "***@example2.com",
+      "yearOfBirth": 2002,
+    },
+    {
+      "email": "***@example3.com",
+      "yearOfBirth": 1990,
+    },
+  ],
+  "hasNextPage": false,
+  "hasPrevPage": false,
+  "limit": 10,
+  "page": 1,
+  "totalDocs": 3,
+  "totalPages": 1,
+}
+`;
+
 exports[`Example app Generate correct graphql schema 1`] = `
 [
   {
@@ -751,46 +800,4 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "possibleTypes": null,
   },
 ]
-`;
-
-exports[`Example app User CRUD works Happy path works 1`] = `
-[
-  {
-    "email": "***@example1.com",
-    "yearOfBirth": 2001,
-  },
-  {
-    "email": "***@example2.com",
-    "yearOfBirth": 2002,
-  },
-  {
-    "email": "***@example3.com",
-    "yearOfBirth": 1990,
-  },
-]
-`;
-
-exports[`Example app User CRUD works Happy path works 2`] = `
-{
-  "docs": [
-    {
-      "email": "***@example1.com",
-      "yearOfBirth": 2001,
-    },
-    {
-      "email": "***@example2.com",
-      "yearOfBirth": 2002,
-    },
-    {
-      "email": "***@example3.com",
-      "yearOfBirth": 1990,
-    },
-  ],
-  "hasNextPage": false,
-  "hasPrevPage": false,
-  "limit": 10,
-  "page": 1,
-  "totalDocs": 3,
-  "totalPages": 1,
-}
 `;
