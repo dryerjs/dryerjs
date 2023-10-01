@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vanpho93/dryerjs.git"
+    "url": "git+https://github.com/vanpho93/dryerjs.git"
   },
   "scripts": {
     "start": "nodemon --exec ts-node -r tsconfig-paths/register -r dotenv/config ./src/example/main.ts",
@@ -41,6 +41,8 @@
   "author": "vanpho93",
   "license": "MIT",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@shelf/jest-mongodb": "4.1.7",
     "@types/body-parser": "1.19.3",
     "@types/cors": "2.8.14",
@@ -57,19 +59,19 @@
     "nodemon": "3.0.1",
     "nyc": "15.1.0",
     "prettier": "^3.0.3",
+    "semantic-release": "^22.0.5",
     "supertest": "6.3.3",
     "ts-jest": "29.1.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.2.2",
-    "semantic-release": "^22.0.5"
+    "typescript": "5.2.2"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
-    "mongoose": "^7.5.3",
     "body-parser": "1.20.2",
     "cors": "2.8.5",
     "express": "4.18.2",
+    "mongoose": "^7.5.3",
     "mongoose-paginate-v2": "^1.7.4",
     "reflect-metadata": "0.1.13"
   },
