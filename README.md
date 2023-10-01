@@ -1,5 +1,9 @@
 # DryerJS
 
+[![codecov](https://codecov.io/gh/vanpho93/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/vanpho93/dryerjs)
+[![Build Status]( https://github.com/vanpho93/dryerjs/workflows/CI/badge.svg)](https://github.com/vanpho93/dryerjs/actions)
+[![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
+
 DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
 
 ## Features
@@ -59,16 +63,14 @@ To get started with DryerJS, follow these steps:
 3. Create dryer instance and start server
     ```typescript
     export const dryerConfig: DryerConfig<{ User }, any> = {
-        modelDefinitions: {
-            User,
-        },
-        mongoUri: process.env.MONGO_URI,
-        port: process.env.PORT,
+        modelDefinitions: [User],
+        mongoUri: 'mongodb://127.0.0.1:27017/test',
+        port: 3000,
     };
     const dryer = new Dryer(dryerConfig);
     dryer.start();
     ```
-4. Open browser and go to [http://localhost:PORT](http://localhost:PORT) to see the GraphQL playground
+4. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground
 
 ## Documentation
 
