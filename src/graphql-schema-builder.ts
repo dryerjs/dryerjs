@@ -80,11 +80,16 @@ export abstract class BaseTypeBuilder {
         const scalarBaseType = typeConfig[traversedProperty.typeInClass.name];
         if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
-        const isEmbedded = traversedProperty.getMetaValue(MetaKey.Embedded);
+        const isEmbedded = util.isFunction(traversedProperty.getMetaValue(MetaKey.Embedded));
         if (isEmbedded) {
+            const isEmbeddedArray = traversedProperty.typeInClass.name === 'Array';
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            return new this.constructor(traversedProperty.typeInClass).getType();
+            const subType = new this.constructor(traversedProperty.getMetaValue(MetaKey.Embedded)).getType();
+            if (isEmbeddedArray) {
+                return new GraphQLList(subType);
+            }
+            return subType;
         }
 
         throw new Error(
