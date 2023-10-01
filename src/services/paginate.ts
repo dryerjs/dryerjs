@@ -2,8 +2,8 @@ import * as util from '../util';
 import { Model } from '../model';
 import { OutputService } from './output';
 
-export class ListService {
-    public static async list<T, Context>(
+export class PaginateService {
+    public static async paginate<T, Context>(
         skip: number | undefined,
         take: number | undefined,
         context: Context,

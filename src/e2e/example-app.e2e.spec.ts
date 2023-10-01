@@ -99,10 +99,10 @@ describe('Example app', () => {
 
         it('users query works', async () => {
             // get users with pagination
-            const paginatedUsers = await dryer.makeSuccessRequest({
+            const { paginateUsers } = await dryer.makeSuccessRequest({
                 query: `
-                    query Users {
-                        users {
+                    query PaginatedUsers\ {
+                        paginateUsers {
                             docs {
                                 id
                                 email
@@ -122,8 +122,8 @@ describe('Example app', () => {
             });
 
             expect({
-                ...paginatedUsers.users,
-                docs: paginatedUsers.users.docs.map(({ email, yearOfBirth }) => ({
+                ...paginateUsers,
+                docs: paginateUsers.docs.map(({ email, yearOfBirth }) => ({
                     email,
                     yearOfBirth,
                 })),

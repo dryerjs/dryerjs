@@ -152,16 +152,16 @@ export class GraphqlTypeBuilder {
             nonNullOutput,
             create,
             update,
-            paginationOutput: this.getPaginationOutputType(modelDefinition, nonNullOutput),
+            paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
         };
     }
 
-    private static getPaginationOutputType(
+    private static getPaginatedOutputType(
         modelDefinition: ModelDefinition,
         nonNullOutput: GraphQLNonNull<GraphQLObjectType<ModelDefinition, any>>,
     ) {
         const result = {
-            name: `${modelDefinition.name}Pagination`,
+            name: `Paginated${modelDefinition.name}s`,
             fields: {
                 docs: { type: new GraphQLList(nonNullOutput) },
                 totalDocs: { type: GraphQLInt },

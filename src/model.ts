@@ -8,7 +8,7 @@ import {
     UpdateService,
     DeleteService,
     GetService,
-    ListService,
+    PaginateService,
     OutputService,
     GetAllService,
 } from './services';
@@ -43,8 +43,8 @@ export class Model<T = any> {
             getOrThrow: async (id: string): Promise<T> => {
                 return await GetService.getOrThrow<T, Context>(id, context, this);
             },
-            list: async (skip: number, take: number) => {
-                return await ListService.list<T, Context>(skip, take, context, this);
+            paginate: async (skip: number, take: number) => {
+                return await PaginateService.paginate<T, Context>(skip, take, context, this);
             },
             getAll: async () => {
                 return await GetAllService.getAll(context, this);
