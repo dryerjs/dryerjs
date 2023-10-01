@@ -112,10 +112,10 @@ exports[`Example app Generate correct graphql schema 1`] = `
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,
-        "name": "users",
+        "name": "paginateUsers",
         "type": {
           "kind": "OBJECT",
-          "name": "UserPagination",
+          "name": "UserPaginated",
           "ofType": null,
         },
       },
@@ -447,7 +447,7 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "inputFields": null,
     "interfaces": [],
     "kind": "OBJECT",
-    "name": "UserPagination",
+    "name": "UserPaginated",
     "possibleTypes": null,
   },
   {

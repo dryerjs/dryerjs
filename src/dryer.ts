@@ -1,6 +1,6 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
-import { CreateApi, DeleteApi, GetApi, ListApi, UpdateApi, GetAllApi } from './apis';
+import { CreateApi, DeleteApi, GetApi, PaginateApi, UpdateApi, GetAllApi } from './apis';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
@@ -55,7 +55,7 @@ export class Dryer<Context> {
             queryFields = {
                 ...queryFields,
                 ...new GetApi(model).getEndpoint(),
-                ...new ListApi(model).getEndpoint(),
+                ...new PaginateApi(model).getEndpoint(),
                 ...new GetAllApi(model).getEndpoint(),
             };
         }
