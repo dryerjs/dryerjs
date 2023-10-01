@@ -9,12 +9,13 @@ import {
     GraphQLInt,
     GraphQLList,
 } from 'graphql';
+import * as util from './util';
 import { ModelDefinition } from './type';
-import { MetadataKey, TraversedProperty, inspect } from './metadata';
+import { MetaKey, TraversedProperty, inspect } from './metadata';
 
 const enumTypeCached = {};
 
-abstract class BaseTypeBuilder {
+export abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}
 
     protected abstract getName(): string;
@@ -49,17 +50,11 @@ abstract class BaseTypeBuilder {
     }
 
     private getBaseTypeForField(traversedProperty: TraversedProperty) {
-        const overrideType = traversedProperty.getMetadataValue(MetadataKey.GraphQLType);
-        if (overrideType) return overrideType;
+        const overrideType = traversedProperty.getMetaValue(MetaKey.GraphQLType);
+        if (util.isObject(overrideType)) return overrideType;
 
-        const typeConfig = {
-            String: GraphQLString,
-            Date: GraphQLString,
-            Number: GraphQLFloat,
-            Boolean: GraphQLBoolean,
-        };
-        const enumInObject = traversedProperty.getMetadataValue(MetadataKey.Enum);
-        if (enumInObject) {
+        const enumInObject = traversedProperty.getMetaValue(MetaKey.Enum);
+        if (util.isObject(enumInObject)) {
             const enumName = Object.keys(enumInObject)[0];
             const enumValues = enumInObject[enumName];
 
@@ -75,11 +70,17 @@ abstract class BaseTypeBuilder {
 
             return enumTypeCached[enumName];
         }
+        const typeConfig = {
+            String: GraphQLString,
+            Date: GraphQLString,
+            Number: GraphQLFloat,
+            Boolean: GraphQLBoolean,
+        };
 
         const scalarBaseType = typeConfig[traversedProperty.typeInClass.name];
-        if (scalarBaseType) return scalarBaseType;
+        if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
-        const isEmbedded = traversedProperty.getMetadataValue(MetadataKey.Embedded);
+        const isEmbedded = traversedProperty.getMetaValue(MetaKey.Embedded);
         if (isEmbedded) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -98,11 +99,11 @@ class OutputTypeBuilder extends BaseTypeBuilder {
     }
 
     protected isExcludedField(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetadataValue(MetadataKey.ExcludeOnOutput);
+        return traversedProperty.getMetaValue(MetaKey.ExcludeOnOutput);
     }
 
     protected isNullableField(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetadataValue(MetadataKey.NullableOnOutput);
+        return traversedProperty.getMetaValue(MetaKey.NullableOnOutput);
     }
 
     protected useAs: 'input' | 'output' = 'output';
@@ -114,11 +115,11 @@ class CreateInputTypeBuilder extends BaseTypeBuilder {
     }
 
     protected isExcludedField(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetadataValue(MetadataKey.ExcludeOnCreate);
+        return traversedProperty.getMetaValue(MetaKey.ExcludeOnCreate);
     }
 
     protected isNullableField(traversedProperty: TraversedProperty) {
-        return !traversedProperty.getMetadataValue(MetadataKey.RequiredOnCreate);
+        return !traversedProperty.getMetaValue(MetaKey.RequiredOnCreate);
     }
 
     protected useAs: 'input' | 'output' = 'input';
@@ -130,11 +131,11 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
     }
 
     protected isExcludedField(traversedProperty: TraversedProperty) {
-        return traversedProperty.getMetadataValue(MetadataKey.ExcludeOnUpdate);
+        return traversedProperty.getMetaValue(MetaKey.ExcludeOnUpdate);
     }
 
     protected isNullableField(traversedProperty: TraversedProperty) {
-        return !traversedProperty.getMetadataValue(MetadataKey.RequiredOnUpdate);
+        return !traversedProperty.getMetaValue(MetaKey.RequiredOnUpdate);
     }
 
     protected useAs: 'input' | 'output' = 'input';

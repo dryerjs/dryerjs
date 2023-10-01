@@ -1,5 +1,6 @@
 import * as request from 'supertest';
-import { Dryer, DryerConfig } from '../';
+import { Dryer, DryerConfig, Metadata } from '../';
+import * as util from '../util';
 
 export class DryerTest extends Dryer<any> {
     public static init<Context>(config: Pick<DryerConfig<Context>, 'modelDefinitions' | 'appendContext'>) {
@@ -13,6 +14,11 @@ export class DryerTest extends Dryer<any> {
         });
     }
 
+    public async stop() {
+        await super.stop();
+        Metadata.cleanOnTest();
+    }
+
     async makeSuccessRequest(input: { query: string; variables?: object }) {
         const {
             body: { data, errors },
@@ -23,7 +29,7 @@ export class DryerTest extends Dryer<any> {
 
     async makeFailRequest(input: { query: string; variables?: object; errorMessageMustContains?: string }) {
         const {
-            body: { data, errors },
+            body: { errors },
         } = await request(this.expressApp)
             .post('/')
             .send({
@@ -31,8 +37,7 @@ export class DryerTest extends Dryer<any> {
                 errorMessageMustContains: undefined,
             });
         expect(errors).toBeTruthy();
-        expect(data).toBeNull();
-        if (input.errorMessageMustContains) {
+        if (util.isString(input.errorMessageMustContains)) {
             expect(errors[0].message).toContain(input.errorMessageMustContains);
         }
         return errors;

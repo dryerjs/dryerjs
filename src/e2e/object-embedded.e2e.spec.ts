@@ -1,5 +1,5 @@
 import { EmbeddedProperty, ExcludeOnInput, NullableOnOutput, Property, RequiredOnCreate } from 'dryerjs';
-import { DryerTest } from './utils';
+import { DryerTest } from './util';
 
 class Director {
     @Property()

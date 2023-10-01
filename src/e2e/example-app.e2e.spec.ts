@@ -1,6 +1,6 @@
 import { getIntrospectionQuery } from 'graphql';
 import { User, dryerConfig as exampleDryerConfig } from '../example/app';
-import { DryerTest } from './utils';
+import { DryerTest } from './util';
 
 export const dryer = DryerTest.init({
     ...exampleDryerConfig,
@@ -36,7 +36,9 @@ describe('Example app', () => {
         expect(types).toMatchSnapshot();
     });
 
-    describe('User CRUD works', () => {
+    describe('CRUD works', () => {
+        let allUsers: User[] = [];
+        let firstUserId: string;
         beforeAll(async () => {
             const userInputs = [
                 {
@@ -69,9 +71,7 @@ describe('Example app', () => {
                     variables: { input: userInput },
                 });
             }
-        });
 
-        it('Happy path works', async () => {
             const allUsersResponse = await dryer.makeSuccessRequest({
                 query: `
                     query GetAllUsers {
@@ -85,13 +85,19 @@ describe('Example app', () => {
                     }
                 `,
             });
+            allUsers = allUsersResponse.allUsers;
+            firstUserId = allUsers[0].id;
+        });
 
-            const comparableUsers = allUsersResponse.allUsers.map(({ email, yearOfBirth }) => ({
+        it('allUsers query works', async () => {
+            const comparableUsers = allUsers.map(({ email, yearOfBirth }) => ({
                 email,
                 yearOfBirth,
             }));
             expect(comparableUsers).toMatchSnapshot();
+        });
 
+        it('users query works', async () => {
             // get users with pagination
             const paginatedUsers = await dryer.makeSuccessRequest({
                 query: `
@@ -122,21 +128,24 @@ describe('Example app', () => {
                     yearOfBirth,
                 })),
             }).toMatchSnapshot();
+        });
 
-            // get user by id
-            const firstUserId = allUsersResponse.allUsers[0].id;
+        it('get one user query works', async () => {
             const firstUserResponse = await dryer.makeSuccessRequest({
                 query: `
                     query User($userId: String!) {
                         user(id: $userId) {
-                            id
+                            email
+                            yearOfBirth
                         }
                     }
                 `,
                 variables: { userId: firstUserId },
             });
-            expect(firstUserResponse.user.id).toEqual(firstUserId);
+            expect(firstUserResponse.user).toMatchSnapshot();
+        });
 
+        it('update user mutation works', async () => {
             // update user by id
             const newYearOfBirthForUser1 = 1999;
             await dryer.makeSuccessRequest({
@@ -164,7 +173,9 @@ describe('Example app', () => {
                 variables: { userId: firstUserId },
             });
             expect(firstUserResponseAfterUpdated.user.yearOfBirth).toEqual(newYearOfBirthForUser1);
+        });
 
+        it('delete user mutation works', async () => {
             // delete user
             await dryer.makeSuccessRequest({
                 query: `
@@ -177,18 +188,78 @@ describe('Example app', () => {
                 `,
                 variables: { userId: firstUserId },
             });
+        });
 
-            await dryer.makeFailRequest({
-                query: `
-                    query User($userId: String!) {
-                        user(id: $userId) {
-                            yearOfBirth
+        describe('not found cases work', () => {
+            const notFoundId = '000000000000000000000000';
+
+            it('get one', async () => {
+                await dryer.makeFailRequest({
+                    query: `
+                        query User($userId: String!) {
+                            user(id: $userId) {
+                                email
+                                yearOfBirth
+                                createdAt
+                                updatedAt
+                            }
                         }
-                    }
-                `,
-                variables: { userId: firstUserId },
-                errorMessageMustContains: 'No User found with id',
+                    `,
+                    variables: { userId: notFoundId },
+                    errorMessageMustContains: 'No User found with id',
+                });
             });
+
+            it('update', async () => {
+                await dryer.makeFailRequest({
+                    query: `
+                        mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
+                            updateUser(id: $userId, input: $input) {
+                                id
+                            }
+                        }
+                    `,
+                    variables: {
+                        input: { yearOfBirth: 1999 },
+                        userId: notFoundId,
+                    },
+                    errorMessageMustContains: 'No User found with id',
+                });
+            });
+
+            it('delete', async () => {
+                await dryer.makeFailRequest({
+                    query: `
+                        mutation DeleteUser($userId: String!) {
+                            deleteUser(id: $userId) {
+                                id
+                                deleted
+                            }
+                        }
+                    `,
+                    variables: { userId: notFoundId },
+                    errorMessageMustContains: 'No User found with id',
+                });
+            });
+        });
+    });
+
+    describe('inContext works', () => {
+        let user: User;
+        beforeAll(async () => {
+            user = await dryer.model(User).db.create({
+                email: 'test@test.test',
+                password: '',
+            });
+        });
+        it('get', async () => {
+            const foundUser = await dryer.model(User).inContext({}).get(user.id);
+            expect(foundUser?.email).toContain('@test.test');
+        });
+
+        it('output', async () => {
+            const outputtedUser = await dryer.model(User).inContext({}).output(user);
+            expect(outputtedUser.email).toEqual('***@test.test');
         });
     });
 
