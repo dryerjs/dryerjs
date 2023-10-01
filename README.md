@@ -19,13 +19,11 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 
 To get started with DryerJS, follow these steps:
 
-1. Install DryerJS as a dependency in your project:
+1. Init working directory with typescript:
 
    ```bash
-    mkdir my-project &&
-    cd my-project &&
     npm init -y &&
-    npm install typescript ts-node nodemon --save-dev &&
+    npm install typescript ts-node --save-dev &&
     npm install dryerjs &&
     echo '{
         "compilerOptions": {
@@ -33,10 +31,15 @@ To get started with DryerJS, follow these steps:
             "experimentalDecorators": true
         }
     }' >> tsconfig.json &&
-    touch main.ts
    ```
 
-2. Declare a model and start server in `main.ts`:
+3. Install DryerJS as a dependency in your project
+
+   ```bash
+   npm install dryerjs
+   ```
+
+3. Declare a model and init DryerJS in `main.ts`:
     ```typescript
     import { Dryer, Property } from 'dryerjs';
 
@@ -61,12 +64,14 @@ To get started with DryerJS, follow these steps:
     }).start();
     ```
 
-3. Start server
+4. Start server
     ```bash
     npm run env -- ts-node main.ts
     ```
 
-3. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground
+5. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground.
+
+6. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/vanpho93/dryerjs/tree/master/src/example/app.ts).
 
 ## Documentation
 
@@ -121,10 +126,9 @@ To run end-to-end tests, use the following command:
 
 To update snapshots for end-to-end tests, use the following command:
 
-
-    ```bash
-    npm run test:e2e -- --updateSnapshot
-    ```
+   ```bash
+   npm run test:e2e -- --updateSnapshot
+   ```
 
 ## License
 
