@@ -23,6 +23,8 @@ To get started with DryerJS, follow these steps:
 1. Init working directory with typescript:
 
    ```bash
+    mkdir my-project &&
+    cd my-project &&
     npm init -y &&
     npm install typescript ts-node --save-dev &&
     npm install dryerjs &&
@@ -31,7 +33,8 @@ To get started with DryerJS, follow these steps:
             "emitDecoratorMetadata": true,
             "experimentalDecorators": true
         }
-    }' >> tsconfig.json
+    }' >> tsconfig.json &&
+    touch main.ts
    ```
 
 3. Install DryerJS as a dependency in your project
@@ -85,10 +88,6 @@ We welcome contributions to DryerJS! If you find a bug or have a feature request
 ## Development Guide
 
 To contribute to the development of "DryerJS" or work on your own projects using this library, follow these steps:
-
-### Prerequisites
-
-1. **MongoDB**: Ensure you have MongoDB installed and running on your local machine. You can download and install it from the [MongoDB website](https://www.mongodb.com/try/download/community).
 
 ### Set Up Your Environment
 
