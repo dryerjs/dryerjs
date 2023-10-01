@@ -32,7 +32,7 @@ export class ObjectProcessor {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        MetaKey: MetaKey;
+        metaKey: MetaKey;
     }): Promise<T> {
         return (await this.setDefaultPartial(input)) as T;
     }
@@ -41,12 +41,12 @@ export class ObjectProcessor {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        MetaKey: MetaKey;
+        metaKey: MetaKey;
     }) {
-        const { obj, context, modelDefinition, MetaKey } = input;
-        for (const property of inspect(modelDefinition).getProperties(MetaKey)) {
+        const { obj, context, modelDefinition, metaKey } = input;
+        for (const property of inspect(modelDefinition).getProperties(metaKey)) {
             if (util.isNotNil(obj[property.name])) continue;
-            const defaultFn = property.getMetaValue(MetaKey);
+            const defaultFn = property.getMetaValue(metaKey);
             obj[property.name] = await defaultFn(context, obj);
         }
 
@@ -56,7 +56,7 @@ export class ObjectProcessor {
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
-                MetaKey,
+                metaKey,
             });
             obj[property.name] = embeddedValue;
         }
@@ -67,7 +67,7 @@ export class ObjectProcessor {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        MetaKey: MetaKey;
+        metaKey: MetaKey;
     }): Promise<T> {
         return (await this.transformPartial(input)) as T;
     }
@@ -76,12 +76,12 @@ export class ObjectProcessor {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
-        MetaKey: MetaKey;
+        metaKey: MetaKey;
     }) {
-        const { obj, context, modelDefinition, MetaKey } = input;
-        for (const property of inspect(modelDefinition).getProperties(MetaKey)) {
+        const { obj, context, modelDefinition, metaKey } = input;
+        for (const property of inspect(modelDefinition).getProperties(metaKey)) {
             if (util.isNil(obj[property.name])) continue;
-            const transformFn = property.getMetaValue(MetaKey);
+            const transformFn = property.getMetaValue(metaKey);
             obj[property.name] = await transformFn(obj[property.name], context, obj);
         }
 
@@ -91,7 +91,7 @@ export class ObjectProcessor {
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
-                MetaKey,
+                metaKey,
             });
             obj[property.name] = embeddedValue;
         }

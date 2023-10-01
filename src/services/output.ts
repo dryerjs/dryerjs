@@ -9,13 +9,13 @@ export class OutputService {
             obj: this.lean(rawValue),
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.DefaultOnOutput,
+            metaKey: MetaKey.DefaultOnOutput,
         });
         return await ObjectProcessor.transform<T, Context>({
             obj: defaultAppliedResult,
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.TransformOnOutput,
+            metaKey: MetaKey.TransformOnOutput,
         });
     }
 

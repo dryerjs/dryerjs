@@ -10,13 +10,13 @@ export class CreateService {
             obj: input,
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.DefaultOnCreate,
+            metaKey: MetaKey.DefaultOnCreate,
         });
         const transformedInput = await ObjectProcessor.transform({
             obj: defaultAppliedInput,
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.TransformOnCreate,
+            metaKey: MetaKey.TransformOnCreate,
         });
         const value = await model.db.create(transformedInput);
         return await OutputService.output<T, Context>(value, context, model);

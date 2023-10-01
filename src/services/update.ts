@@ -16,13 +16,13 @@ export class UpdateService {
             obj: input,
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.DefaultOnUpdate,
+            metaKey: MetaKey.DefaultOnUpdate,
         });
         const transformedInput = await ObjectProcessor.setDefault({
             obj: defaultAppliedInput,
             context,
             modelDefinition: model.definition,
-            MetaKey: MetaKey.TransformOnUpdate,
+            metaKey: MetaKey.TransformOnUpdate,
         });
         const result = await model.db.findByIdAndUpdate(id, transformedInput, {
             new: true,
