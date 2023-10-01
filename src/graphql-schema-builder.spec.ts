@@ -11,10 +11,10 @@ describe('GraphQLSchemaBuilder', () => {
             }
             const [phoneProperty] = inspect(TestUser).getProperties();
             try {
-                BaseTypeBuilder.prototype['getBaseTypeForField'](phoneProperty);
+                BaseTypeBuilder.prototype['getBaseTypeForProperty'](phoneProperty);
                 fail('Should throw error');
             } catch (error) {
-                expect(error.message).toContain('Invalid type for field');
+                expect(error.message).toContain('Invalid type for property');
             }
         });
     });
