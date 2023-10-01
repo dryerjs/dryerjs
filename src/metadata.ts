@@ -28,24 +28,24 @@ type MetaValue = any;
 
 export class Metadata {
     private static propertiesByModel: {
-        [modelName: string]: { [metaKey: string]: { [fieldName: string]: MetaValue } };
+        [modelName: string]: { [metaKey: string]: { [property: string]: MetaValue } };
     } = {};
 
     public static getPropertiesByModel(
         modelName: string,
         metaKey: MetaKey,
-    ): { [fieldName: string]: MetaValue } {
+    ): { [property: string]: MetaValue } {
         return this.propertiesByModel[modelName][metaKey] || {};
     }
 
-    public static getMetaValue(modelName: string, metaKey: MetaKey, fieldName: string): MetaValue {
-        return this.propertiesByModel[modelName]?.[metaKey]?.[fieldName];
+    public static getMetaValue(modelName: string, metaKey: MetaKey, property: string): MetaValue {
+        return this.propertiesByModel[modelName]?.[metaKey]?.[property];
     }
 
-    public static addField(
+    public static addProperty(
         modelName: string,
         metaKey: MetaKey,
-        fieldName: string,
+        property: string,
         value: MetaValue = true,
     ): void {
         if (util.isUndefined(this.propertiesByModel[modelName])) {
@@ -54,7 +54,7 @@ export class Metadata {
         if (util.isUndefined(this.propertiesByModel[modelName][metaKey])) {
             this.propertiesByModel[modelName][metaKey] = {};
         }
-        this.propertiesByModel[modelName][metaKey][fieldName] = value;
+        this.propertiesByModel[modelName][metaKey][property] = value;
     }
 
     public static cleanOnTest() {
@@ -64,13 +64,13 @@ export class Metadata {
 
 export function Property(options: { enum?: AnyEnum } = {}) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.DesignType, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.DesignType, propertyKey);
         if (util.isNotNullObject(options.enum)) {
             if (Object.keys(options.enum).length !== 1) {
                 const message = `Enum should be defined as an object. Example: @Property({ enum: { UserStatus })`;
                 throw new Error(message);
             }
-            Metadata.addField(target.constructor.name, MetaKey.Enum, propertyKey, options.enum);
+            Metadata.addProperty(target.constructor.name, MetaKey.Enum, propertyKey, options.enum);
         }
     };
 }
@@ -78,15 +78,15 @@ export function Property(options: { enum?: AnyEnum } = {}) {
 export function EmbeddedProperty(options: { type: TargetClass }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
-        Metadata.addField(target.constructor.name, MetaKey.Embedded, propertyKey, options.type);
+        Metadata.addProperty(target.constructor.name, MetaKey.Embedded, propertyKey, options.type);
     };
 }
 
-type TransformFunction = (fieldValue: any, ctx: any, object: any) => any;
+type TransformFunction = (value: any, ctx: any, object: any) => any;
 
 export function TransformOnOutput(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.TransformOnOutput, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnOutput, propertyKey, fn);
     };
 }
 
@@ -99,13 +99,13 @@ export function TransformOnInput(fn: TransformFunction) {
 
 export function TransformOnCreate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.TransformOnCreate, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnCreate, propertyKey, fn);
     };
 }
 
 export function TransformOnUpdate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.TransformOnUpdate, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnUpdate, propertyKey, fn);
     };
 }
 
@@ -113,7 +113,7 @@ type DefaultFunction = (ctx: any, object: any) => any;
 
 export function DefaultOnOutput(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.DefaultOnOutput, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnOutput, propertyKey, fn);
     };
 }
 
@@ -126,27 +126,27 @@ export function DefaultOnInput(fn: DefaultFunction) {
 
 export function DefaultOnCreate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.DefaultOnCreate, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnCreate, propertyKey, fn);
     };
 }
 
 export function DefaultOnUpdate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.DefaultOnUpdate, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnUpdate, propertyKey, fn);
     };
 }
 
-type ValidateFunction = (fieldValue: any, ctx: any, object: any) => any;
+type ValidateFunction = (value: any, ctx: any, object: any) => any;
 
 export function Validate(fn: ValidateFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.Validate, propertyKey, fn);
+        Metadata.addProperty(target.constructor.name, MetaKey.Validate, propertyKey, fn);
     };
 }
 
 export function ExcludeOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnOutput, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnOutput, propertyKey);
     };
 }
 
@@ -159,43 +159,43 @@ export function ExcludeOnInput() {
 
 export function ExcludeOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnCreate, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnCreate, propertyKey);
     };
 }
 
 export function ExcludeOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnUpdate, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnUpdate, propertyKey);
     };
 }
 
 export function RequiredOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.RequiredOnCreate, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.RequiredOnCreate, propertyKey);
     };
 }
 
 export function RequiredOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.RequiredOnUpdate, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.RequiredOnUpdate, propertyKey);
     };
 }
 
 export function ExcludeOnDatabase() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey);
     };
 }
 
 export function NullableOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.NullableOnOutput, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.NullableOnOutput, propertyKey);
     };
 }
 
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addField(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
+        Metadata.addProperty(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
     };
 }
 

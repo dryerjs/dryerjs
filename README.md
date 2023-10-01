@@ -22,55 +22,51 @@ To get started with DryerJS, follow these steps:
 1. Install DryerJS as a dependency in your project:
 
    ```bash
-   npm install dryerjs
+    mkdir my-project &&
+    cd my-project &&
+    npm init -y &&
+    npm install typescript ts-node nodemon --save-dev &&
+    npm install dryerjs &&
+    echo '{
+        "compilerOptions": {
+            "emitDecoratorMetadata": true,
+            "experimentalDecorators": true
+        }
+    }' >> tsconfig.json &&
+    touch main.ts
    ```
 
-2. Declare a model and start server
+2. Declare a model and start server in `main.ts`:
     ```typescript
+    import { Dryer, Property } from 'dryerjs';
+
     export class User {
-        @ExcludeOnInput()
         @Property()
         id: string;
 
         @Property()
-        @ExcludeOnUpdate()
-        @Validate((email: string) => {
-            if (email.includes('@')) return;
-            throw new graphql.GraphQLError(`Invalid email ${email}`, {
-                extensions: {
-                    code: 'BAD_REQUEST',
-                    http: { status: 400 },
-                },
-            });
-        })
-        @RequiredOnCreate()
         email: string;
 
         @Property()
-        @ExcludeOnUpdate()
-        @RequiredOnCreate()
-        @ExcludeOnOutput()
         password: string;
 
-        @ExcludeOnInput()
         @Property()
-        @TransformOnOutput((date: Date) => date.toISOString())
-        @GraphQLType(graphql.GraphQLString)
-        createdAt: Date;
+        name: string;
     }
-    ```
 
-3. Create dryer instance and start server
-    ```typescript
-    export const dryerConfig: DryerConfig<{ User }, any> = {
+    Dryer.init({
         modelDefinitions: [User],
         mongoUri: 'mongodb://127.0.0.1:27017/test',
         port: 3000,
-    };
-    const dryer = new Dryer(dryerConfig);
-    dryer.start();
+    }).start();
     ```
-4. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground
+
+3. Start server
+    ```bash
+    npm run env -- ts-node main.ts
+    ```
+
+3. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground
 
 ## Documentation
 

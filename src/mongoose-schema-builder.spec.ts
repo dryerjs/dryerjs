@@ -9,7 +9,7 @@ class TestModelDefinition {
     public name: string;
 
     @ExcludeOnDatabase()
-    public excludedField: string;
+    public excluded: string;
 
     @Property()
     public createdAt: Date;

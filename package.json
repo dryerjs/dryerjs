@@ -58,6 +58,8 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
+    "@apollo/server": "^4.9.3",
+    "mongoose": "^7.5.3",
     "body-parser": "1.20.2",
     "cors": "2.8.5",
     "express": "4.18.2",
@@ -96,10 +98,5 @@
       "json",
       "html"
     ]
-  },
-  "peerDependencies": {
-    "@apollo/server": "^4.9.3",
-    "graphql": "^16.8.1",
-    "mongoose": "^7.5.3"
   }
 }
