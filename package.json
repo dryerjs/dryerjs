@@ -1,6 +1,6 @@
 {
   "name": "dryerjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A platform for building GraphQL APIs with TypeScript and MongoDB in a declarative way.",
   "main": "dist/index.js",
   "type": "commonjs",
