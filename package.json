@@ -17,7 +17,7 @@
     "format:ci": "prettier 'src/**/*.ts' -l",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint:ci": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings=0",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "jest",
     "e2e": "npm run test:e2e",
     "test:watch": "NODE_ENV=test jest --watch",

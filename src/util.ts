@@ -37,4 +37,4 @@ export const deepOmit = (object: any, omitKeys: string[]) => {
     }
 
     return result;
-}
+};

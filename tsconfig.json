@@ -22,6 +22,5 @@
       "dryerjs": ["./src/index.ts"],
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["**/*.spec.ts", "src/example", "src/e2e"]
+  "include": ["src/**/*"]
 }
