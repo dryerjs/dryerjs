@@ -207,9 +207,20 @@ export function GraphQLType(type: any) {
     };
 }
 
+<<<<<<< HEAD
 export function DatabaseType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.DatabaseType, propertyKey, type);
+=======
+export function Schema(options?: SchemaOptions) {
+    return function (target: TargetClass) {
+        if (options?.excludeApis) {
+            const excludeApis = Array.isArray(options?.excludeApis)
+                ? options.excludeApis
+                : [options.excludeApis];
+            target.excludeApis = excludeApis.map(api => util.getApiName(target.name, api));
+        }
+>>>>>>> 449749f (feat: use type for api name)
     };
 }
 

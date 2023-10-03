@@ -5,6 +5,8 @@ import { Typer } from './typer';
 import { Property } from './property';
 import { inspect } from './inspect';
 import { GraphQLFieldConfigMap } from './shared';
+import { ApiType } from './type';
+import { getApiName } from './util';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -51,9 +53,13 @@ export class ApisBuilder {
         };
     }
 
+    private static isExclude<T>(model: Model<T>, name: string) {
+        return model.definition.excludeApis?.includes(name);
+    }
+
     private static getOne<T, Context>(model: Model<T>) {
         const name = util.toCamelCase(model.name)
-        if (model.definition.excludeApis?.includes(name)) return {};
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
@@ -66,8 +72,8 @@ export class ApisBuilder {
     }
 
     private static getAll<T, Context>(model: Model<T>) {
-        const name = `all${util.plural(model.name)}`;
-        if (model.definition.excludeApis?.includes(name)) return {};
+        const name = getApiName(model.name, ApiType.GetAll);
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: new graphql.GraphQLList(Typer.get(model.definition).nonNullOutput),
@@ -79,8 +85,8 @@ export class ApisBuilder {
     }
 
     private static paginate<T, Context>(model: Model<T>) {
-        const name = `paginate${util.plural(model.name)}`;
-        if (model.definition.excludeApis?.includes(name)) return {};
+        const name = getApiName(model.name, ApiType.List);
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: Typer.get(model.definition).paginatedOutput,
@@ -94,8 +100,8 @@ export class ApisBuilder {
     }
 
     private static create<T, Context>(model: Model<T>) {
-        const name = `create${model.name}`;
-        if (model.definition.excludeApis?.includes(name)) return {};
+        const name = getApiName(model.name, ApiType.Create);
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
@@ -108,8 +114,8 @@ export class ApisBuilder {
     }
 
     private static update<T, Context>(model: Model<T>) {
-        const name = `update${model.name}`;
-        if (model.definition.excludeApis?.includes(name)) return {};
+        const name = getApiName(model.name, ApiType.Update);
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
@@ -129,8 +135,8 @@ export class ApisBuilder {
     }
 
     private static delete<T, Context>(model: Model<T>) {
-        const name = `delete${model.name}`;
-        if (model.definition.excludeApis?.includes(name)) return {};
+        const name = getApiName(model.name, ApiType.Delete);
+        if (this.isExclude(model, name)) return {};
         return {
             [name]: {
                 type: deleteResponse,

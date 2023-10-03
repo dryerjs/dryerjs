@@ -1,4 +1,10 @@
-export { plural, singular } from 'pluralize';
+import { plural, singular } from 'pluralize';
+import { ApiType } from './type';
+
+export {
+    plural,
+    singular
+}
 
 export const isNil = (value: any): value is null | undefined => value === null || value === undefined;
 
@@ -50,3 +56,21 @@ export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperC
 export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
 
 export const last = <T>(array: T[]) => array[array.length - 1];
+export const getApiName = (modelName: string, apiType: ApiType): string => {
+    switch (apiType) {
+        case ApiType.Create:
+            return `create${modelName}`;
+        case ApiType.Update:
+            return `update${modelName}`;
+        case ApiType.Delete:
+            return `delete${modelName}`;
+        case ApiType.GetOne:
+            return toCamelCase(modelName);
+        case ApiType.GetAll:
+            return `all${plural(modelName)}`;
+        case ApiType.List:
+            return `paginate${plural(modelName)}`;
+        default:
+    }
+    throw new Error(`Unknown api type ${apiType}`);
+};
