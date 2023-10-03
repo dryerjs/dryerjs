@@ -2,6 +2,7 @@ import mongoose, { FilterQuery } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import { ModelDefinition, NonPrimitiveArrayKeyOf } from './shared';
+import { BaseModelDefinition } from './type';
 import {
     CreateService,
     UpdateService,
@@ -21,11 +22,14 @@ export class Model<T = any> {
     public readonly name: string;
     public readonly db: mongoose.PaginateModel<T>;
 
-    constructor(public readonly definition: ModelDefinition<T>) {
+    public readonly excludeApis: string[];
+
+    constructor(public readonly definition: ModelDefinition<T> & BaseModelDefinition) {
         const mongooseSchema = MongooseSchemaBuilder.build(definition);
         mongooseSchema.plugin(mongoosePaginate);
         this.name = definition.name;
         this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
+        this.excludeApis = definition.excludeApis ?? [];
     }
 
     public inContext<Context>(context: Context) {
