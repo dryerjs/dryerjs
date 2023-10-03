@@ -49,9 +49,7 @@ describe('ExcludeApis feature works', () => {
         };
 
         const response = await dryer.makeFailRequest({ query, variables });
-        expect(response[0].message).toContain(
-            `Unknown type "CreateMovieInput".`,
-        );
+        expect(response[0].message).toContain(`Unknown type "CreateMovieInput".`);
     });
 
     it('updateMovie is not generated', async () => {
@@ -68,9 +66,7 @@ describe('ExcludeApis feature works', () => {
         };
 
         const response = await dryer.makeFailRequest({ query, variables });
-        expect(response[0].message).toContain(
-            `Unknown type "UpdateMovieInput".`,
-        );
+        expect(response[0].message).toContain(`Unknown type "UpdateMovieInput".`);
     });
 
     it('deleteMovie is not generated', async () => {
@@ -87,7 +83,7 @@ describe('ExcludeApis feature works', () => {
 
         const response = await dryer.makeFailRequest({ query, variables });
         expect(response[0].message).toContain(`Cannot query field "deleteMovie"`);
-    })
+    });
 
     it('allMovies is not generated', async () => {
         const query = `
