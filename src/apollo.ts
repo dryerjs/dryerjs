@@ -6,6 +6,7 @@ import * as http from 'http';
 import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as graphql from 'graphql';
+import { GraphQLFieldConfigMap } from './shared';
 
 export class Apollo {
     static async start({
@@ -14,8 +15,8 @@ export class Apollo {
         port,
         getContext,
     }: {
-        queryFields: graphql.GraphQLFieldConfigMap<any, any>;
-        mutationFields: graphql.GraphQLFieldConfigMap<any, any>;
+        queryFields: GraphQLFieldConfigMap;
+        mutationFields: GraphQLFieldConfigMap;
         port: number;
         getContext: (req: express.Request) => any;
     }) {

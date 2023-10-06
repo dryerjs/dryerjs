@@ -1,5 +1,24 @@
-import { EmbeddedProperty, ExcludeOnInput, NullableOnOutput, Property, RequiredOnCreate } from 'dryerjs';
-import { DryerTest } from './dryer-test';
+import {
+    EmbeddedProperty,
+    ExcludeOnInput,
+    NullableOnOutput,
+    Property,
+    RequiredOnCreate,
+    TransformOnInput,
+} from 'dryerjs';
+import { DryerTest } from '../dryer-test';
+
+enum MovieTag {
+    ACTION = 'ACTION',
+    COMEDY = 'COMEDY',
+    DRAMA = 'DRAMA',
+}
+
+enum DirectorLevel {
+    ONE = 1,
+    TWO = 2,
+    THREE = 3,
+}
 
 class Director {
     @Property()
@@ -8,6 +27,9 @@ class Director {
     @Property()
     @NullableOnOutput()
     nationality: string;
+
+    @Property({ enum: { DirectorLevel } })
+    level: DirectorLevel;
 }
 
 class Movie {
@@ -22,6 +44,12 @@ class Movie {
     @Property()
     @RequiredOnCreate()
     name: string;
+
+    @Property({ enum: { MovieTag } })
+    @TransformOnInput((tags: MovieTag[]) => {
+        return [...new Set(tags)];
+    })
+    movieTags: MovieTag[];
 }
 
 export const dryer = DryerTest.init({
@@ -31,7 +59,6 @@ export const dryer = DryerTest.init({
 describe('Object embedded feature works', () => {
     beforeAll(async () => {
         await dryer.start();
-        await dryer.model(Movie).db.deleteMany({});
     });
 
     describe('User CRUD works', () => {
@@ -48,6 +75,7 @@ describe('Object embedded feature works', () => {
                 },
                 {
                     name: 'Movie 2',
+                    movieTags: [MovieTag.ACTION, MovieTag.ACTION, MovieTag.DRAMA],
                 },
             ];
 
@@ -74,6 +102,7 @@ describe('Object embedded feature works', () => {
                                 name
                                 nationality
                             }
+                            movieTags
                         }
                     }
                 `,
@@ -90,10 +119,12 @@ describe('Object embedded feature works', () => {
                         name: 'Director 1',
                         nationality: 'Nationality 1',
                     },
+                    movieTags: [],
                 },
                 {
                     name: 'Movie 2',
                     director: null,
+                    movieTags: [MovieTag.ACTION, MovieTag.DRAMA],
                 },
             ]);
         });
@@ -145,7 +176,6 @@ describe('Object embedded feature works', () => {
     });
 
     afterAll(async () => {
-        await dryer.model(Movie).db.deleteMany({});
         await dryer.stop();
     });
 });

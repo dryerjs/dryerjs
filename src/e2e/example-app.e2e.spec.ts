@@ -57,6 +57,7 @@ describe('Example app', () => {
                 {
                     email: 'baz@example3.com',
                     password: 'Example@3',
+                    tags: ['TAG1', ' TAG2 '],
                 },
             ];
 
@@ -80,6 +81,7 @@ describe('Example app', () => {
                             id
                             email
                             yearOfBirth
+                            tags
                             createdAt
                             updatedAt
                         }
@@ -163,6 +165,35 @@ describe('Example app', () => {
             expect(firstUserResponseAfterUpdated.user.yearOfBirth).toEqual(newYearOfBirthForUser1);
         });
 
+        it('update user mutation works for scalar arrays', async () => {
+            // update user by id
+            await dryer.makeSuccessRequest({
+                query: `
+                    mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
+                        updateUser(id: $userId, input: $input) {
+                            id
+                        }
+                    }
+                `,
+                variables: {
+                    input: { tags: [' Tag3 '] },
+                    userId: firstUserId,
+                },
+            });
+
+            const firstUserResponseAfterUpdated = await dryer.makeSuccessRequest({
+                query: `
+                    query User($userId: String!) {
+                        user(id: $userId) {
+                            tags
+                        }
+                    }
+                `,
+                variables: { userId: firstUserId },
+            });
+            expect(firstUserResponseAfterUpdated.user.tags).toEqual(['tag3']);
+        });
+
         it('delete user mutation works', async () => {
             // delete user
             await dryer.makeSuccessRequest({
@@ -194,7 +225,7 @@ describe('Example app', () => {
                         }
                     `,
                     variables: { userId: notFoundId },
-                    errorMessageMustContains: 'No User found with id',
+                    errorMessageMustContains: 'No user found with id',
                 });
             });
 
@@ -211,7 +242,7 @@ describe('Example app', () => {
                         input: { yearOfBirth: 1999 },
                         userId: notFoundId,
                     },
-                    errorMessageMustContains: 'No User found with id',
+                    errorMessageMustContains: 'No user found with id',
                 });
             });
 
@@ -226,7 +257,7 @@ describe('Example app', () => {
                         }
                     `,
                     variables: { userId: notFoundId },
-                    errorMessageMustContains: 'No User found with id',
+                    errorMessageMustContains: 'No user found with id',
                 });
             });
         });

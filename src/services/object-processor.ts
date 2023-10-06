@@ -1,6 +1,7 @@
 import * as util from '../util';
-import { MetaKey, inspect } from '../metadata';
-import { ModelDefinition } from '../type';
+import { MetaKey } from '../metadata';
+import { ModelDefinition } from '../shared';
+import { inspect } from '../inspect';
 
 export class ObjectProcessor {
     public static async validate<T, Context>({
@@ -20,8 +21,7 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isUndefined(input[property.name])) continue;
-            const isEmbeddedArray = property.typeInClass.name === 'Array';
-            if (isEmbeddedArray) {
+            if (property.isArray()) {
                 await Promise.all(
                     input[property.name].map((item: any) =>
                         this.validate({
@@ -65,8 +65,7 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isNil(obj[property.name])) continue;
-            const isEmbeddedArray = property.typeInClass.name === 'Array';
-            if (isEmbeddedArray) {
+            if (property.isArray()) {
                 const embeddedValue = await Promise.all(
                     obj[property.name].map((item: any) =>
                         this.setDefault({
@@ -115,8 +114,7 @@ export class ObjectProcessor {
 
         for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
             if (util.isNil(obj[property.name])) continue;
-            const isEmbeddedArray = property.typeInClass.name === 'Array';
-            if (isEmbeddedArray) {
+            if (property.isArray()) {
                 const embeddedValue = await Promise.all(
                     obj[property.name].map((item: any) =>
                         this.transform({

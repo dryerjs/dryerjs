@@ -1,7 +1,8 @@
 import { Schema } from 'mongoose';
-import { ModelDefinition } from './type';
-import { MetaKey, inspect } from './metadata';
+import { ModelDefinition } from './shared';
+import { MetaKey } from './metadata';
 import * as util from './util';
+import { inspect } from './inspect';
 
 export class MongooseSchemaBuilder {
     public static build(modelDefinition: ModelDefinition, isRoot = true) {
@@ -16,13 +17,11 @@ export class MongooseSchemaBuilder {
 
             const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
             if (isEmbedded) {
-                const isEmbeddedArray = property.typeInClass.name === 'Array';
                 const subSchema = this.build(property.getMetaValue(MetaKey.Embedded), false);
-                result[property.name] = isEmbeddedArray ? [subSchema] : subSchema;
+                result[property.name] = property.isArray() ? [subSchema] : subSchema;
                 continue;
             }
 
-            const enumInObject = property.getMetaValue(MetaKey.Enum);
             const typeConfig = {
                 String,
                 Date,
@@ -30,14 +29,23 @@ export class MongooseSchemaBuilder {
                 Boolean,
             };
 
+            const scalarArrayType = property.isArray() && property.getMetaValue(MetaKey.ScalarArrayType);
+            if (scalarArrayType) {
+                result[property.name] = [typeConfig[scalarArrayType.name]];
+                continue;
+            }
+
+            const enumInObject = property.getMetaValue(MetaKey.Enum);
             if (util.isObject(enumInObject)) {
                 const enumValue = Object.values(enumInObject)[0];
-                result[property.name] = { type: typeConfig[property.typeInClass.name], enum: enumValue };
+                const StringOrNumber = util.isEnumOfNumbers(enumValue) ? Number : String;
+                result[property.name] = property.isArray()
+                    ? { type: [StringOrNumber], enum: enumValue }
+                    : { type: StringOrNumber, enum: enumValue };
                 continue;
             }
 
             result[property.name] = { type: typeConfig[property.typeInClass.name] };
-            continue;
         }
 
         return new Schema(result, isRoot ? { timestamps: true } : {});

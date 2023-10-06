@@ -1,7 +1,8 @@
-import { BaseTypeBuilder } from './graphql-schema-builder';
-import { Property, inspect } from './metadata';
+import { BaseTypeBuilder } from './typer';
+import { inspect } from './inspect';
+import { Property } from './metadata';
 
-describe('GraphQLSchemaBuilder', () => {
+describe('Typer', () => {
     describe('BaseTypeBuilder', () => {
         it('Given non scalar property with @Property instead of @EmbeddedProperty should throw error', () => {
             class TestPhone {}

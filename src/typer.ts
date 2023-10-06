@@ -10,17 +10,17 @@ import {
     GraphQLList,
 } from 'graphql';
 import * as util from './util';
-import { ModelDefinition } from './type';
-import { MetaKey, TraversedProperty, inspect } from './metadata';
-
-const enumTypeCached = {};
+import { ModelDefinition } from './shared';
+import { MetaKey } from './metadata';
+import { Property } from './property';
+import { inspect } from './inspect';
 
 export abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}
 
     protected abstract getName(): string;
-    protected abstract isExcluded(property: TraversedProperty): boolean;
-    protected abstract isNullable(property: TraversedProperty): boolean;
+    protected abstract isExcluded(property: Property): boolean;
+    protected abstract isNullable(property: Property): boolean;
     protected abstract useAs: 'input' | 'output';
 
     public getType() {
@@ -44,32 +44,15 @@ export abstract class BaseTypeBuilder {
         throw new Error('Invalid useAs');
     }
 
-    private getPropertyType(property: TraversedProperty, nullable: boolean) {
+    private getPropertyType(property: Property, nullable: boolean) {
         const baseType = this.getPropertyBaseType(property);
         return nullable ? baseType : new GraphQLNonNull(baseType);
     }
 
-    private getPropertyBaseType(property: TraversedProperty) {
+    private getPropertyBaseType(property: Property) {
         const overrideType = property.getMetaValue(MetaKey.GraphQLType);
         if (util.isObject(overrideType)) return overrideType;
 
-        const enumInObject = property.getMetaValue(MetaKey.Enum);
-        if (util.isObject(enumInObject)) {
-            const enumName = Object.keys(enumInObject)[0];
-            const enumValues = enumInObject[enumName];
-
-            enumTypeCached[enumName] =
-                enumTypeCached[enumName] ??
-                new GraphQLEnumType({
-                    name: enumName,
-                    values: Object.keys(enumValues).reduce((values, key) => {
-                        values[key] = { value: enumValues[key] };
-                        return values;
-                    }, {}),
-                });
-
-            return enumTypeCached[enumName];
-        }
         const typeConfig = {
             String: GraphQLString,
             Date: GraphQLString,
@@ -77,16 +60,45 @@ export abstract class BaseTypeBuilder {
             Boolean: GraphQLBoolean,
         };
 
+        const isScalarArrayType =
+            property.isArray() && util.isFunction(property.getMetaValue(MetaKey.ScalarArrayType));
+        if (isScalarArrayType) {
+            return new GraphQLList(typeConfig[property.getMetaValue(MetaKey.ScalarArrayType).name]);
+        }
+
+        const enumInObject = property.getMetaValue(MetaKey.Enum);
+        if (util.isObject(enumInObject)) {
+            const cacheKey = '__graphql_enum_type__';
+            const enumName = Object.keys(enumInObject)[0];
+            const enumValues = enumInObject[enumName];
+
+            enumInObject[cacheKey] =
+                enumInObject[cacheKey] ??
+                new GraphQLEnumType({
+                    name: enumName,
+                    values: Object.keys(enumValues)
+                        .filter(key => !'0123456789'.includes(key)) // support enum for numbers
+                        .reduce((values, key) => {
+                            values[key] = { value: enumValues[key] };
+                            return values;
+                        }, {}),
+                });
+
+            return property.isArray() ? new GraphQLList(enumInObject[cacheKey]) : enumInObject[cacheKey];
+        }
+
         const scalarBaseType = typeConfig[property.typeInClass.name];
         if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
         const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
         if (isEmbedded) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const subType = new this.constructor(property.getMetaValue(MetaKey.Embedded)).getType();
-            const isEmbeddedArray = property.typeInClass.name === 'Array';
-            return isEmbeddedArray ? new GraphQLList(subType) : subType;
+            const { create, update, output } = Typer.get(property.getMetaValue(MetaKey.Embedded));
+            const subType = (() => {
+                if (this.useAs === 'output') return output;
+                if (this.useAs === 'input' && this.getName().startsWith('Create')) return create;
+                return update;
+            })();
+            return property.isArray() ? new GraphQLList(subType) : subType;
         }
 
         throw new Error(
@@ -100,11 +112,11 @@ class OutputTypeBuilder extends BaseTypeBuilder {
         return this.modelDefinition.name;
     }
 
-    protected isExcluded(property: TraversedProperty) {
+    protected isExcluded(property: Property) {
         return property.getMetaValue(MetaKey.ExcludeOnOutput);
     }
 
-    protected isNullable(property: TraversedProperty) {
+    protected isNullable(property: Property) {
         return property.getMetaValue(MetaKey.NullableOnOutput);
     }
 
@@ -116,11 +128,11 @@ class CreateInputTypeBuilder extends BaseTypeBuilder {
         return `Create${this.modelDefinition.name}Input`;
     }
 
-    protected isExcluded(property: TraversedProperty) {
+    protected isExcluded(property: Property) {
         return property.getMetaValue(MetaKey.ExcludeOnCreate);
     }
 
-    protected isNullable(property: TraversedProperty) {
+    protected isNullable(property: Property) {
         return !property.getMetaValue(MetaKey.RequiredOnCreate);
     }
 
@@ -132,30 +144,34 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
         return `Update${this.modelDefinition.name}Input`;
     }
 
-    protected isExcluded(property: TraversedProperty) {
+    protected isExcluded(property: Property) {
         return property.getMetaValue(MetaKey.ExcludeOnUpdate);
     }
 
-    protected isNullable(property: TraversedProperty) {
+    protected isNullable(property: Property) {
         return !property.getMetaValue(MetaKey.RequiredOnUpdate);
     }
 
     protected useAs: 'input' | 'output' = 'input';
 }
 
-export class GraphqlTypeBuilder {
-    static build(modelDefinition: ModelDefinition) {
+export class Typer {
+    static get(modelDefinition: ModelDefinition) {
+        const cacheKey = '__graphql_type_builder__';
+        if (modelDefinition[cacheKey]) return modelDefinition[cacheKey];
         const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const nonNullOutput = new GraphQLNonNull(output);
-        return {
+        const result = {
             output,
             nonNullOutput,
             create,
             update,
             paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
         };
+        modelDefinition[cacheKey] = result;
+        return result;
     }
 
     private static getPaginatedOutputType(
@@ -163,7 +179,7 @@ export class GraphqlTypeBuilder {
         nonNullOutput: GraphQLNonNull<GraphQLObjectType<ModelDefinition, any>>,
     ) {
         const result = {
-            name: `Paginated${modelDefinition.name}s`,
+            name: `Paginated${util.plural(modelDefinition.name)}`,
             fields: {
                 docs: { type: new GraphQLList(nonNullOutput) },
                 totalDocs: { type: GraphQLInt },

@@ -114,6 +114,19 @@ export class User {
     @TransformOnInput((requestId: string) => `${requestId}-${new Date().toISOString()}`)
     requestId?: string;
 
+    @Property({ type: String })
+    @Validate((tags: string[]) => {
+        if (tags.length < 4) return;
+        throw new graphql.GraphQLError('Too many tags', {
+            extensions: {
+                code: 'BAD_REQUEST',
+                http: { status: 400 },
+            },
+        });
+    })
+    @TransformOnInput((tags: string[]) => tags.map(tag => tag.trim().toLowerCase()))
+    tags: string[];
+
     @ExcludeOnInput()
     @Property()
     @TransformOnOutput((date: Date) => date.toISOString())

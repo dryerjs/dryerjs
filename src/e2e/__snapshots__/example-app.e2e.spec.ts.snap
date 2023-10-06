@@ -4,14 +4,20 @@ exports[`Example app CRUD works allUsers query works 1`] = `
 [
   {
     "email": "***@example1.com",
+    "tags": [],
     "yearOfBirth": 2001,
   },
   {
     "email": "***@example2.com",
+    "tags": [],
     "yearOfBirth": 2002,
   },
   {
     "email": "***@example3.com",
+    "tags": [
+      "tag1",
+      "tag2",
+    ],
     "yearOfBirth": 1990,
   },
 ]
@@ -139,6 +145,86 @@ exports[`Example app Generate correct graphql schema 1`] = `
           },
         },
       },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "userAddress",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "Address",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "allUserAddresses",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": {
+              "kind": "OBJECT",
+              "name": "Address",
+              "ofType": null,
+            },
+          },
+        },
+      },
     ],
     "inputFields": null,
     "interfaces": [],
@@ -192,6 +278,26 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "kind": "SCALAR",
           "name": "Int",
           "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "tags",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "LIST",
+            "name": null,
+            "ofType": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null,
+            },
+          },
         },
       },
       {
@@ -636,6 +742,151 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "ofType": null,
         },
       },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "CreateAddressInput",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "createUserAddress",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "Address",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "UpdateAddressInput",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "updateUserAddress",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "OBJECT",
+            "name": "Address",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "deleteUserAddress",
+        "type": {
+          "kind": "OBJECT",
+          "name": "DeleteResponse",
+          "ofType": null,
+        },
+      },
     ],
     "inputFields": null,
     "interfaces": [],
@@ -694,6 +945,20 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "kind": "SCALAR",
           "name": "String",
           "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "tags",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
         },
       },
       {
@@ -821,6 +1086,20 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "kind": "SCALAR",
           "name": "String",
           "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "tags",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
         },
       },
       {
