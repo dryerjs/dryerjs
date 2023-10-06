@@ -1,3 +1,5 @@
+export { plural, singular } from 'pluralize';
+
 export const isNil = (value: any): value is null | undefined => value === null || value === undefined;
 
 export const isNotNil = (value: any) => !isNil(value);
@@ -16,6 +18,10 @@ export const isString = (value: any): value is string => typeof value === 'strin
 
 export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
     return value != null && !isNaN(value as any) ? value : defaultValue;
+};
+
+export const isEnumOfNumbers = (enumObject: any) => {
+    return Object.values(enumObject).some((value: string) => '0123456789'.includes(value));
 };
 
 export const deepOmit = (object: any, omitKeys: string[]) => {
@@ -38,3 +44,9 @@ export const deepOmit = (object: any, omitKeys: string[]) => {
 
     return result;
 };
+
+export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperCase());
+
+export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
+
+export const last = <T>(array: T[]) => array[array.length - 1];

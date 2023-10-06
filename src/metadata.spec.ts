@@ -1,4 +1,5 @@
-import { MetaKey, Property, RequiredOnUpdate, inspect } from './metadata';
+import { inspect } from './inspect';
+import { MetaKey, Property, RequiredOnUpdate } from './metadata';
 
 describe('Metadata', () => {
     it('invalid enum input should throw error', () => {

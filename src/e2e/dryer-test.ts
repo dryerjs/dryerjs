@@ -15,11 +15,23 @@ export class DryerTest extends Dryer<any> {
     }
 
     public async stop() {
+        await this.cleanDatabase();
         await super.stop();
         Metadata.cleanOnTest();
     }
 
-    async makeSuccessRequest(input: { query: string; variables?: object }) {
+    public async start() {
+        await super.start();
+        await this.cleanDatabase();
+    }
+
+    private async cleanDatabase() {
+        for (const model of Object.values(this.models)) {
+            await model.db.deleteMany({});
+        }
+    }
+
+    public async makeSuccessRequest(input: { query: string; variables?: object }) {
         const {
             body: { data, errors },
         } = await request(this.expressApp).post('/').send(input);
@@ -27,7 +39,11 @@ export class DryerTest extends Dryer<any> {
         return data;
     }
 
-    async makeFailRequest(input: { query: string; variables?: object; errorMessageMustContains?: string }) {
+    public async makeFailRequest(input: {
+        query: string;
+        variables?: object;
+        errorMessageMustContains?: string;
+    }) {
         const {
             body: { errors },
         } = await request(this.expressApp)

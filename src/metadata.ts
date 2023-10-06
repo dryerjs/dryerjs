@@ -20,6 +20,7 @@ export enum MetaKey {
     GraphQLType = 'GraphQLType',
     Enum = 'Enum',
     Embedded = 'Embedded',
+    ScalarArrayType = 'ScalarArrayType',
 }
 
 type TargetClass = any;
@@ -62,7 +63,7 @@ export class Metadata {
     }
 }
 
-export function Property(options: { enum?: AnyEnum } = {}) {
+export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.DesignType, propertyKey);
         if (util.isNotNullObject(options.enum)) {
@@ -71,6 +72,9 @@ export function Property(options: { enum?: AnyEnum } = {}) {
                 throw new Error(message);
             }
             Metadata.addProperty(target.constructor.name, MetaKey.Enum, propertyKey, options.enum);
+        }
+        if (util.isFunction(options.type)) {
+            Metadata.addProperty(target.constructor.name, MetaKey.ScalarArrayType, propertyKey, options.type);
         }
     };
 }
@@ -196,46 +200,5 @@ export function NullableOnOutput() {
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
-    };
-}
-
-export class TraversedProperty {
-    constructor(
-        private modelDefinition: any,
-        public name: string,
-        public typeInClass: any,
-    ) {}
-
-    public getMetaValue(key: MetaKey) {
-        return Metadata.getMetaValue(this.modelDefinition.name, key, this.name);
-    }
-
-    public getEmbeddedModelDefinition() {
-        const result = this.getMetaValue(MetaKey.Embedded);
-        if (util.isUndefined(result)) {
-            throw new Error(`Property ${this.name} is not an embedded property`);
-        }
-        return result;
-    }
-}
-
-export function inspect(modelDefinition: any) {
-    const INSTANCE_KEY = '__inspectable_instance';
-    modelDefinition[INSTANCE_KEY] = modelDefinition[INSTANCE_KEY] || new modelDefinition();
-    const instance = modelDefinition[INSTANCE_KEY];
-
-    return {
-        getProperties(metaKey: MetaKey = MetaKey.DesignType) {
-            const result: TraversedProperty[] = [];
-            for (const propertyName in Metadata.getPropertiesByModel(modelDefinition.name, metaKey)) {
-                const typeInClass = Reflect.getMetadata(MetaKey.DesignType, instance, propertyName);
-                const property = new TraversedProperty(modelDefinition, propertyName, typeInClass);
-                result.push(property);
-            }
-            return result;
-        },
-        getEmbeddedProperties(): TraversedProperty[] {
-            return this.getProperties(MetaKey.Embedded);
-        },
     };
 }

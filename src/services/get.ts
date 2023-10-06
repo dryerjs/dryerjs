@@ -1,7 +1,7 @@
-import * as graphql from 'graphql';
 import { Model } from '../model';
 import { OutputService } from './output';
 import * as util from '../util';
+import * as must from './must';
 
 export class GetService {
     public static async get<T, Context>(id: string, context: Context, model: Model<T>) {
@@ -10,16 +10,8 @@ export class GetService {
         return OutputService.output<T, Context>(result, context, model);
     }
 
-    public static async getOrThrow<T, Context>(id: string, context: Context, model: Model<T>) {
+    public static async getOrThrow<T, Context>(id: string, context: Context, model: Model<T>): Promise<T> {
         const result = await this.get<T, Context>(id, context, model);
-        if (util.isNil(result)) {
-            throw new graphql.GraphQLError(`No ${model.name} found with id ${id}`, {
-                extensions: {
-                    code: 'NOT_FOUND',
-                    http: { status: 404 },
-                },
-            });
-        }
-        return result;
+        return must.found(result, model, id);
     }
 }

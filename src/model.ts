@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
-import { ModelDefinition } from './type';
-import { GraphqlTypeBuilder } from './graphql-schema-builder';
+import { ModelDefinition, NonPrimitiveArrayKeyOf } from './shared';
 import {
     CreateService,
     UpdateService,
@@ -11,22 +10,23 @@ import {
     PaginateService,
     OutputService,
     GetAllService,
+    EmbeddedService,
 } from './services';
 
 export class Model<T = any> {
     public readonly name: string;
     public readonly db: mongoose.PaginateModel<T>;
-    public readonly graphql: ReturnType<typeof GraphqlTypeBuilder.build>;
 
     constructor(public readonly definition: ModelDefinition<T>) {
         const mongooseSchema = MongooseSchemaBuilder.build(definition);
         mongooseSchema.plugin(mongoosePaginate);
         this.name = definition.name;
         this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
-        this.graphql = GraphqlTypeBuilder.build(definition);
     }
 
     public inContext<Context>(context: Context) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const model = this;
         return {
             create: async (input: Partial<T>): Promise<T> => {
                 return await CreateService.create(input, context, this);
@@ -51,6 +51,18 @@ export class Model<T = any> {
             },
             output: async (raw: T): Promise<T> => {
                 return await OutputService.output<T, Context>(raw, context, this);
+            },
+            onProperty: <K extends NonPrimitiveArrayKeyOf<T>>(propertyName: K) => {
+                return {
+                    withParent(parentId: string) {
+                        return EmbeddedService.getEmbeddedModel<T, K, Context>({
+                            parentId,
+                            context,
+                            model,
+                            propertyName,
+                        });
+                    },
+                };
             },
         };
     }

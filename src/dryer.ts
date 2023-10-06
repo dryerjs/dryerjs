@@ -1,8 +1,8 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
-import { Apollo } from './apollo';
-import { ModelDefinition } from './type';
 import { ApolloServer } from '@apollo/server';
+import { Apollo } from './apollo';
+import { ModelDefinition } from './shared';
 import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
 
@@ -31,7 +31,7 @@ export class Dryer<Context> {
     public expressApp: express.Express;
     private mongoose: mongoose.Mongoose;
 
-    private readonly models: { [key: string]: Model } = {};
+    protected readonly models: { [key: string]: Model } = {};
 
     public model<T>(modelDefinition: ModelDefinition<T>): Model<T> {
         return this.models[modelDefinition.name];
