@@ -12,6 +12,20 @@ export class Property {
         return Metadata.getMetaValue(this.modelDefinition.name, key, this.name);
     }
 
+    public isScalar() {
+        const typeConfig = {
+            String,
+            Date,
+            Number,
+            Boolean,
+        };
+        return util.isFunction(typeConfig[this.typeInClass.name]);
+    }
+
+    public isArray() {
+        return util.isFunction(this.typeInClass) && this.typeInClass.name === 'Array';
+    }
+
     public isEmbedded() {
         return util.isFunction(this.getMetaValue(MetaKey.Embedded));
     }
@@ -29,7 +43,24 @@ export class Property {
         return embeddedValue();
     }
 
-    public isArray() {
-        return util.isFunction(this.typeInClass) && this.typeInClass.name === 'Array';
+    public isRelation() {
+        return util.isNotNullObject(this.getMetaValue(MetaKey.Relation));
+    }
+
+    public getRelation() {
+        /* istanbul ignore if */
+        if (!this.isRelation()) {
+            throw new Error(`Property ${this.name} is not a relation property, check isRelation() before`);
+        }
+
+        return this.getMetaValue(MetaKey.Relation);
+    }
+
+    public getRelationModelDefinition() {
+        const relationType = this.getRelation().type;
+        // type can be class or a arrow function that returns a class
+        const typeAsClass = relationType.toString().includes('class');
+        if (typeAsClass) return relationType;
+        return relationType();
     }
 }

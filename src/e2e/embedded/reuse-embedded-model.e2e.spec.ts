@@ -16,7 +16,7 @@ class Song {
     @Property()
     name: string;
 
-    @EmbeddedProperty({ type: Person })
+    @EmbeddedProperty({ type: () => Person })
     artist: Person;
 }
 

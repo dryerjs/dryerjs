@@ -14,9 +14,13 @@ import { ModelDefinition } from './shared';
 import { MetaKey } from './metadata';
 import { Property } from './property';
 import { inspect } from './inspect';
+import { ModelGetter } from './model';
 
 export abstract class BaseTypeBuilder {
-    constructor(protected modelDefinition: ModelDefinition) {}
+    constructor(
+        protected modelDefinition: ModelDefinition,
+        protected dryer: ModelGetter,
+    ) {}
 
     protected abstract getName(): string;
     protected abstract isExcluded(property: Property): boolean;
@@ -36,11 +40,14 @@ export abstract class BaseTypeBuilder {
                 const isNullable = this.isNullable(property);
                 // eslint-disable-next-line @typescript-eslint/no-this-alias
                 const that = this;
-                result.fields[property.name] = {
-                    get type() {
-                        return that.getPropertyType(property, isNullable);
-                    },
-                };
+                const propertyType = this.getPropertyType(property, isNullable);
+                result.fields[property.name] = propertyType?.resolve
+                    ? propertyType
+                    : {
+                          get type() {
+                              return that.getPropertyType(property, isNullable);
+                          },
+                      };
             });
 
         if (this.useAs === 'input') return new GraphQLInputObjectType(result);
@@ -54,7 +61,7 @@ export abstract class BaseTypeBuilder {
         return nullable ? baseType : new GraphQLNonNull(baseType);
     }
 
-    private getPropertyBaseType(property: Property) {
+    protected getPropertyBaseType(property: Property) {
         const overrideType = property.getMetaValue(MetaKey.GraphQLType);
         if (util.isObject(overrideType)) return overrideType;
 
@@ -92,8 +99,7 @@ export abstract class BaseTypeBuilder {
             return property.isArray() ? new GraphQLList(enumInObject[cacheKey]) : enumInObject[cacheKey];
         }
 
-        const scalarBaseType = typeConfig[property.typeInClass.name];
-        if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
+        if (property.isScalar()) return typeConfig[property.typeInClass.name];
 
         if (property.isEmbedded()) {
             const { create, update, output } = Typer.get(property.getEmbeddedModelDefinition());
@@ -106,7 +112,7 @@ export abstract class BaseTypeBuilder {
         }
 
         throw new Error(
-            `Invalid type for property ${property.name}. You can override it with @GraphQLType(/* type */)`,
+            `Invalid type for property ${property.name} for ${this.modelDefinition.name}. You can override it with @GraphQLType(/* type */)`,
         );
     }
 }
@@ -122,6 +128,78 @@ class OutputTypeBuilder extends BaseTypeBuilder {
 
     protected isNullable(property: Property) {
         return property.getMetaValue(MetaKey.NullableOnOutput);
+    }
+
+    protected getPropertyBaseType(property: Property) {
+        if (!property.isRelation()) return super.getPropertyBaseType(property);
+        if (property.getRelation().kind === 'BelongsTo') {
+            const resolve = (_parent: any, _args: any, context: any) => {
+                return this.dryer
+                    .model(property.getRelationModelDefinition())
+                    .inContext(context)
+                    .getOrThrow(_parent[property.getRelation().lookupField]);
+            };
+
+            return {
+                get type() {
+                    return Typer.get(property.getRelationModelDefinition()).output;
+                },
+                resolve,
+            };
+        }
+
+        if (property.getRelation().kind === 'HasMany') {
+            const resolve = async (_parent: any, _args: any, context: any) => {
+                return await this.dryer
+                    .model(property.getRelationModelDefinition())
+                    .inContext(context)
+                    .getAll({ [property.getRelation().lookupField]: _parent._id });
+            };
+            return {
+                get type() {
+                    return new GraphQLList(Typer.get(property.getRelationModelDefinition()).output);
+                },
+                resolve,
+            };
+        }
+
+        if (property.getRelation().kind === 'HasOne') {
+            const resolve = async (_parent: any, _args: any, context: any) => {
+                const [result] = await this.dryer
+                    .model(property.getRelationModelDefinition())
+                    .inContext(context)
+                    .getAll({ [property.getRelation().lookupField]: _parent._id });
+
+                return result;
+            };
+            return {
+                get type() {
+                    return Typer.get(property.getRelationModelDefinition()).output;
+                },
+                resolve,
+            };
+        }
+
+        if (property.getRelation().kind === 'ReferencesMany') {
+            const resolve = async (parent: any, _args: any, context: any) => {
+                return await this.dryer
+                    .model(property.getRelationModelDefinition())
+                    .inContext(context)
+                    .getAll({
+                        _id: {
+                            $in: parent[property.getRelation().lookupField],
+                        },
+                    });
+            };
+            return {
+                get type() {
+                    return new GraphQLList(Typer.get(property.getRelationModelDefinition()).output);
+                },
+                resolve,
+            };
+        }
+        /* istanbul ignore next */
+        throw new Error(`Invalid relation kind ${property.getRelation().kind}`);
     }
 
     protected useAs: 'input' | 'output' = 'output';
@@ -160,12 +238,30 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
 }
 
 export class Typer {
-    static get(modelDefinition: ModelDefinition) {
-        const cacheKey = '__graphql_type_builder__';
+    private static dryer: ModelGetter;
+
+    public static init(dryer: ModelGetter) {
+        this.dryer = dryer;
+    }
+
+    public static get(modelDefinition: ModelDefinition) {
+        /* istanbul ignore if */
+        if (util.isNil(this.dryer)) {
+            throw new Error('Typer is not initialized');
+        }
+        const cacheKey = '__typer__';
         if (modelDefinition[cacheKey]) return modelDefinition[cacheKey];
-        const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
-        const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
-        const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const output = new OutputTypeBuilder(modelDefinition, this.dryer).getType() as GraphQLObjectType;
+        const create = new CreateInputTypeBuilder(
+            modelDefinition,
+            this.dryer,
+        ).getType() as GraphQLInputObjectType;
+
+        const update = new UpdateInputTypeBuilder(
+            modelDefinition,
+            this.dryer,
+        ).getType() as GraphQLInputObjectType;
+
         const nonNullOutput = new GraphQLNonNull(output);
         const result = {
             output,

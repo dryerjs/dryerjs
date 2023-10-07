@@ -21,6 +21,14 @@ export class MongooseSchemaBuilder {
                 continue;
             }
 
+            const databaseType = property.getMetaValue(MetaKey.DatabaseType);
+            if (util.isFunction(databaseType)) {
+                result[property.name] = property.isArray()
+                    ? [{ type: databaseType }]
+                    : { type: databaseType };
+                continue;
+            }
+
             const typeConfig = {
                 String,
                 Date,

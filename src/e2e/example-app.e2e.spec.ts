@@ -10,7 +10,6 @@ export const dryer = DryerTest.init({
 describe('Example app', () => {
     beforeAll(async () => {
         await dryer.start();
-        await dryer.model(User).db.deleteMany({});
     });
 
     it('Generate correct graphql schema', async () => {
@@ -283,7 +282,6 @@ describe('Example app', () => {
     });
 
     afterAll(async () => {
-        await dryer.model(User).db.deleteMany({});
         await dryer.stop();
     });
 });
