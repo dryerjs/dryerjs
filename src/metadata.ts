@@ -20,12 +20,15 @@ export enum MetaKey {
     GraphQLType = 'GraphQLType',
     Enum = 'Enum',
     Embedded = 'Embedded',
+    Relation = 'Relation',
     ScalarArrayType = 'ScalarArrayType',
 }
 
 type TargetClass = any;
 type AnyEnum = { [key: string]: any };
 type MetaValue = any;
+
+export type Ref<T> = T;
 
 export class Metadata {
     private static propertiesByModel: {
@@ -200,5 +203,33 @@ export function NullableOnOutput() {
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
+    };
+}
+
+export function HasMany(options: { type: TargetClass }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, options.type);
+    };
+}
+
+export function BelongsTo(options: { type: TargetClass }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, options.type);
+    };
+}
+
+export function HasOne(options: { type: TargetClass }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, options.type);
+    };
+}
+
+export function ReferencesMany(options: { type: TargetClass }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, options.type);
     };
 }

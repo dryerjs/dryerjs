@@ -34,8 +34,13 @@ export abstract class BaseTypeBuilder {
             .forEach(property => {
                 if (this.isExcluded(property)) return;
                 const isNullable = this.isNullable(property);
-                const type = this.getPropertyType(property, isNullable);
-                result.fields[property.name] = { type };
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                const that = this;
+                result.fields[property.name] = {
+                    get type() {
+                        return that.getPropertyType(property, isNullable);
+                    },
+                };
             });
 
         if (this.useAs === 'input') return new GraphQLInputObjectType(result);
@@ -90,9 +95,8 @@ export abstract class BaseTypeBuilder {
         const scalarBaseType = typeConfig[property.typeInClass.name];
         if (util.isNotNullObject(scalarBaseType)) return scalarBaseType;
 
-        const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
-        if (isEmbedded) {
-            const { create, update, output } = Typer.get(property.getMetaValue(MetaKey.Embedded));
+        if (property.isEmbedded()) {
+            const { create, update, output } = Typer.get(property.getEmbeddedModelDefinition());
             const subType = (() => {
                 if (this.useAs === 'output') return output;
                 if (this.useAs === 'input' && this.getName().startsWith('Create')) return create;

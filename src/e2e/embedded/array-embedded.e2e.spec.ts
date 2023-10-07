@@ -58,7 +58,6 @@ export const dryer = DryerTest.init({
 describe('Object embedded feature works', () => {
     beforeAll(async () => {
         await dryer.start();
-        await dryer.model(Author).db.deleteMany({});
     });
 
     describe('User CRUD works', () => {
@@ -356,7 +355,6 @@ describe('Object embedded feature works', () => {
     });
 
     afterAll(async () => {
-        await dryer.model(Author).db.deleteMany({});
         await dryer.stop();
     });
 });

@@ -12,12 +12,21 @@ export class Property {
         return Metadata.getMetaValue(this.modelDefinition.name, key, this.name);
     }
 
+    public isEmbedded() {
+        return util.isFunction(this.getMetaValue(MetaKey.Embedded));
+    }
+
     public getEmbeddedModelDefinition() {
-        const result = this.getMetaValue(MetaKey.Embedded);
-        if (util.isUndefined(result)) {
+        const embeddedValue = this.getMetaValue(MetaKey.Embedded);
+
+        if (util.isUndefined(embeddedValue)) {
             throw new Error(`Property ${this.name} is not an embedded property`);
         }
-        return result;
+
+        // type can be class or a arrow function that returns a class
+        const typeAsClass = embeddedValue.toString().includes('class');
+        if (typeAsClass) return embeddedValue;
+        return embeddedValue();
     }
 
     public isArray() {
