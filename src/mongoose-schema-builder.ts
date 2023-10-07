@@ -15,10 +15,17 @@ export class MongooseSchemaBuilder {
                 continue;
             }
 
-            const isEmbedded = util.isFunction(property.getMetaValue(MetaKey.Embedded));
-            if (isEmbedded) {
-                const subSchema = this.build(property.getMetaValue(MetaKey.Embedded), false);
+            if (property.isEmbedded()) {
+                const subSchema = this.build(property.getEmbeddedModelDefinition(), false);
                 result[property.name] = property.isArray() ? [subSchema] : subSchema;
+                continue;
+            }
+
+            const databaseType = property.getMetaValue(MetaKey.DatabaseType);
+            if (util.isFunction(databaseType)) {
+                result[property.name] = property.isArray()
+                    ? [{ type: databaseType }]
+                    : { type: databaseType };
                 continue;
             }
 

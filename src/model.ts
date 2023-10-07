@@ -13,6 +13,10 @@ import {
     EmbeddedService,
 } from './services';
 
+export interface ModelGetter {
+    model<T>(modelDefinition: ModelDefinition<T>): Model<T>;
+}
+
 export class Model<T = any> {
     public readonly name: string;
     public readonly db: mongoose.PaginateModel<T>;
@@ -46,8 +50,8 @@ export class Model<T = any> {
             paginate: async (skip: number, take: number) => {
                 return await PaginateService.paginate<T, Context>(skip, take, context, this);
             },
-            getAll: async () => {
-                return await GetAllService.getAll(context, this);
+            getAll: async (filter = {}) => {
+                return await GetAllService.getAll(context, this, filter);
             },
             output: async (raw: T): Promise<T> => {
                 return await OutputService.output<T, Context>(raw, context, this);

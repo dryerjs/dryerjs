@@ -18,14 +18,18 @@ export enum MetaKey {
     RequiredOnUpdate = 'RequiredOnUpdate',
     NullableOnOutput = 'NullableOnOutput',
     GraphQLType = 'GraphQLType',
+    DatabaseType = 'DatabaseType',
     Enum = 'Enum',
     Embedded = 'Embedded',
+    Relation = 'Relation',
     ScalarArrayType = 'ScalarArrayType',
 }
 
 type TargetClass = any;
 type AnyEnum = { [key: string]: any };
 type MetaValue = any;
+
+export type Ref<T> = T;
 
 export class Metadata {
     private static propertiesByModel: {
@@ -200,5 +204,59 @@ export function NullableOnOutput() {
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
+    };
+}
+
+export function DatabaseType(type: any) {
+    return function (target: TargetClass, propertyKey: string) {
+        Metadata.addProperty(target.constructor.name, MetaKey.DatabaseType, propertyKey, type);
+    };
+}
+
+export function HasMany(options: { type: TargetClass; lookupField: string }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        ExcludeOnInput()(target, propertyKey);
+        ExcludeOnDatabase()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+            ...options,
+            kind: 'HasMany',
+        });
+    };
+}
+
+export function BelongsTo(options: { type: TargetClass; lookupField: string }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        ExcludeOnInput()(target, propertyKey);
+        ExcludeOnDatabase()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+            ...options,
+            kind: 'BelongsTo',
+        });
+    };
+}
+
+export function HasOne(options: { type: TargetClass; lookupField: string }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        ExcludeOnInput()(target, propertyKey);
+        ExcludeOnDatabase()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+            ...options,
+            kind: 'HasOne',
+        });
+    };
+}
+
+export function ReferencesMany(options: { type: TargetClass; lookupField: string }) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        ExcludeOnInput()(target, propertyKey);
+        ExcludeOnDatabase()(target, propertyKey);
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+            ...options,
+            kind: 'ReferencesMany',
+        });
     };
 }

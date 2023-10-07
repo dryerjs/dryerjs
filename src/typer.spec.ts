@@ -12,7 +12,9 @@ describe('Typer', () => {
             }
             const [phoneProperty] = inspect(TestUser).getProperties();
             try {
-                BaseTypeBuilder.prototype['getPropertyBaseType'](phoneProperty);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                new BaseTypeBuilder(TestUser)['getPropertyBaseType'](phoneProperty);
                 fail('Should throw error');
             } catch (error) {
                 expect(error.message).toContain('Invalid type for property');
