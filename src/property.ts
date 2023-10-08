@@ -1,5 +1,6 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
+import { Relation } from './shared';
 
 export class Property {
     constructor(
@@ -47,7 +48,7 @@ export class Property {
         return util.isNotNullObject(this.getMetaValue(MetaKey.Relation));
     }
 
-    public getRelation() {
+    public getRelation(): Relation {
         /* istanbul ignore if */
         if (!this.isRelation()) {
             throw new Error(`Property ${this.name} is not a relation property, check isRelation() before`);

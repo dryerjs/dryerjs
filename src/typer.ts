@@ -10,7 +10,7 @@ import {
     GraphQLList,
 } from 'graphql';
 import * as util from './util';
-import { ModelDefinition } from './shared';
+import { ModelDefinition, RelationKind } from './shared';
 import { MetaKey } from './metadata';
 import { Property } from './property';
 import { inspect } from './inspect';
@@ -132,12 +132,13 @@ class OutputTypeBuilder extends BaseTypeBuilder {
 
     protected getPropertyBaseType(property: Property) {
         if (!property.isRelation()) return super.getPropertyBaseType(property);
-        if (property.getRelation().kind === 'BelongsTo') {
-            const resolve = (_parent: any, _args: any, context: any) => {
+        if (property.getRelation().kind === RelationKind.BelongsTo) {
+            const resolve = (parent: any, _args: any, context: any) => {
+                const filter = { [property.getRelation().to]: parent[property.getRelation().from] };
                 return this.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
-                    .getOrThrow(_parent[property.getRelation().lookupField]);
+                    .getOne(filter);
             };
 
             return {
@@ -148,12 +149,13 @@ class OutputTypeBuilder extends BaseTypeBuilder {
             };
         }
 
-        if (property.getRelation().kind === 'HasMany') {
-            const resolve = async (_parent: any, _args: any, context: any) => {
+        if (property.getRelation().kind === RelationKind.HasMany) {
+            const resolve = async (parent: any, _args: any, context: any) => {
+                const filter = { [property.getRelation().to]: parent[property.getRelation().from] };
                 return await this.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
-                    .getAll({ [property.getRelation().lookupField]: _parent._id });
+                    .getAll(filter);
             };
             return {
                 get type() {
@@ -163,12 +165,13 @@ class OutputTypeBuilder extends BaseTypeBuilder {
             };
         }
 
-        if (property.getRelation().kind === 'HasOne') {
+        if (property.getRelation().kind === RelationKind.HasOne) {
             const resolve = async (_parent: any, _args: any, context: any) => {
+                const filter = { [property.getRelation().to]: _parent[property.getRelation().from] };
                 const [result] = await this.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
-                    .getAll({ [property.getRelation().lookupField]: _parent._id });
+                    .getAll(filter);
 
                 return result;
             };
@@ -179,17 +182,13 @@ class OutputTypeBuilder extends BaseTypeBuilder {
                 resolve,
             };
         }
-
-        if (property.getRelation().kind === 'ReferencesMany') {
+        if (property.getRelation().kind === RelationKind.ReferencesMany) {
             const resolve = async (parent: any, _args: any, context: any) => {
+                const filter = { [property.getRelation().to]: { $in: parent[property.getRelation().from] } };
                 return await this.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
-                    .getAll({
-                        _id: {
-                            $in: parent[property.getRelation().lookupField],
-                        },
-                    });
+                    .getAll(filter);
             };
             return {
                 get type() {
@@ -250,7 +249,13 @@ export class Typer {
             throw new Error('Typer is not initialized');
         }
         const cacheKey = '__typer__';
-        if (modelDefinition[cacheKey]) return modelDefinition[cacheKey];
+        if (modelDefinition[cacheKey]) return modelDefinition[cacheKey] as ReturnType<typeof Typer.build>;
+        const result = this.build(modelDefinition);
+        modelDefinition[cacheKey] = result;
+        return result;
+    }
+
+    private static build(modelDefinition: ModelDefinition) {
         const output = new OutputTypeBuilder(modelDefinition, this.dryer).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(
             modelDefinition,
@@ -270,7 +275,6 @@ export class Typer {
             update,
             paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
         };
-        modelDefinition[cacheKey] = result;
         return result;
     }
 

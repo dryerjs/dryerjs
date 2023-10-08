@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import * as util from './util';
+import { Relation, RelationKind, TargetClass } from './shared';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -25,7 +26,6 @@ export enum MetaKey {
     ScalarArrayType = 'ScalarArrayType',
 }
 
-type TargetClass = any;
 type AnyEnum = { [key: string]: any };
 type MetaValue = any;
 
@@ -213,50 +213,58 @@ export function DatabaseType(type: any) {
     };
 }
 
-export function HasMany(options: { type: TargetClass; lookupField: string }) {
+export function HasMany(options: { type: TargetClass; from?: string; to: string }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         ExcludeOnInput()(target, propertyKey);
         ExcludeOnDatabase()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+        const relation: Relation = {
             ...options,
-            kind: 'HasMany',
-        });
+            kind: RelationKind.HasMany,
+            from: util.defaultTo(options.from, '_id'),
+        };
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
     };
 }
 
-export function BelongsTo(options: { type: TargetClass; lookupField: string }) {
+export function BelongsTo(options: { type: TargetClass; from: string; to?: string }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         ExcludeOnInput()(target, propertyKey);
         ExcludeOnDatabase()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+        const relation: Relation = {
             ...options,
-            kind: 'BelongsTo',
-        });
+            kind: RelationKind.BelongsTo,
+            to: util.defaultTo(options.to, '_id'),
+        };
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
     };
 }
 
-export function HasOne(options: { type: TargetClass; lookupField: string }) {
+export function HasOne(options: { type: TargetClass; from?: string; to: string }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         ExcludeOnInput()(target, propertyKey);
         ExcludeOnDatabase()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+        const relation: Relation = {
             ...options,
-            kind: 'HasOne',
-        });
+            kind: RelationKind.HasOne,
+            from: util.defaultTo(options.from, '_id'),
+        };
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
     };
 }
 
-export function ReferencesMany(options: { type: TargetClass; lookupField: string }) {
+export function ReferencesMany(options: { type: TargetClass; from: string; to?: string }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         ExcludeOnInput()(target, propertyKey);
         ExcludeOnDatabase()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, {
+        const relation: Relation = {
             ...options,
-            kind: 'ReferencesMany',
-        });
+            kind: RelationKind.ReferencesMany,
+            to: util.defaultTo(options.to, '_id'),
+        };
+        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
     };
 }

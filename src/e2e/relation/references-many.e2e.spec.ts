@@ -1,8 +1,8 @@
-import { Schema } from 'mongoose';
 import {
     DatabaseType,
     ExcludeOnInput,
     NullableOnOutput,
+    ObjectId,
     Property,
     ReferencesMany,
     RequiredOnCreate,
@@ -27,12 +27,12 @@ class Product {
     @Property()
     name: string;
 
-    @ReferencesMany({ type: Tag, lookupField: 'tagIds' })
+    @ReferencesMany({ type: Tag, from: 'tagIds' })
     @NullableOnOutput()
     tags: Tag[];
 
     @Property({ type: String })
-    @DatabaseType(Schema.Types.ObjectId)
+    @DatabaseType(ObjectId)
     tagIds: string[];
 }
 

@@ -19,7 +19,7 @@ class AttributeValue {
     @RequiredOnCreate()
     code: string;
 
-    @BelongsTo({ type: () => Attribute, lookupField: 'attributeId' })
+    @BelongsTo({ type: () => Attribute, from: 'attributeId' })
     @NullableOnOutput()
     attribute: Ref<Attribute>;
 
@@ -37,7 +37,7 @@ class Attribute {
     @Property()
     code: string;
 
-    @HasMany({ type: AttributeValue, lookupField: 'attributeId' })
+    @HasMany({ type: AttributeValue, to: 'attributeId' })
     @NullableOnOutput()
     attributeValues: AttributeValue[];
 }

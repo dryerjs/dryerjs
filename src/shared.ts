@@ -1,5 +1,9 @@
 import * as graphql from 'graphql';
 
+import { Schema } from 'mongoose';
+
+export const ObjectId = Schema.Types.ObjectId;
+
 export type ModelDefinition<T = any> = new (...args: any[]) => T;
 
 type NonPrimitiveArrayKeys<T> = {
@@ -17,3 +21,19 @@ export type NonPrimitiveArrayValueOf<T> = T[NonPrimitiveArrayKeyOf<T>];
 export type UnwrapArray<T> = T extends Array<infer U> ? U : never;
 
 export type GraphQLFieldConfigMap = graphql.GraphQLFieldConfigMap<any, any>;
+
+export type TargetClass = any;
+
+export enum RelationKind {
+    HasMany = 'HasMany',
+    BelongsTo = 'BelongsTo',
+    HasOne = 'HasOne',
+    ReferencesMany = 'ReferencesMany',
+}
+
+export type Relation = {
+    kind: RelationKind;
+    type: TargetClass;
+    from: string;
+    to: string;
+};

@@ -279,6 +279,12 @@ describe('Example app', () => {
             const outputtedUser = await dryer.model(User).inContext({}).output(user);
             expect(outputtedUser.email).toEqual('***@test.test');
         });
+
+        it('getOne not found returns null', async () => {
+            const notFoundId = '000000000000000000000000';
+            const result = await dryer.model(User).inContext({}).getOne({ _id: notFoundId });
+            expect(result).toBeNull();
+        });
     });
 
     afterAll(async () => {

@@ -8,9 +8,9 @@ import {
     Property,
     Ref,
     RequiredOnCreate,
+    ObjectId,
 } from 'dryerjs';
 import { DryerTest } from '../dryer-test';
-import { Schema } from 'mongoose';
 
 class FacetValue {
     @ExcludeOnInput()
@@ -21,14 +21,14 @@ class FacetValue {
     @RequiredOnCreate()
     code: string;
 
-    @BelongsTo({ type: () => Facet, lookupField: 'facetId' })
+    @BelongsTo({ type: () => Facet, from: 'facetId' })
     @NullableOnOutput()
     facet: Ref<Facet>;
 
     @ExcludeOnUpdate()
     @RequiredOnCreate()
     @Property()
-    @DatabaseType(Schema.Types.ObjectId)
+    @DatabaseType(ObjectId)
     facetId: string;
 }
 
@@ -40,7 +40,7 @@ class Facet {
     @Property()
     code: string;
 
-    @HasOne({ type: FacetValue, lookupField: 'facetId' })
+    @HasOne({ type: FacetValue, to: 'facetId' })
     @NullableOnOutput()
     defaultFacetValue: FacetValue;
 }
