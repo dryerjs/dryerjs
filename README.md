@@ -31,7 +31,8 @@ To get started with DryerJS, follow these steps:
     echo '{
         "compilerOptions": {
             "emitDecoratorMetadata": true,
-            "experimentalDecorators": true
+            "experimentalDecorators": true,
+            "target": "ES2021"
         }
     }' >> tsconfig.json &&
     touch main.ts
