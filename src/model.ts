@@ -35,6 +35,9 @@ export class Model<T = any> {
             create: async (input: Partial<T>): Promise<T> => {
                 return await CreateService.create(input, context, this);
             },
+            createRecursive: async (input: Partial<T>): Promise<T> => {
+                return await CreateService.createRecursive(input, context, this);
+            },
             update: async (id: string, input: Partial<T>): Promise<T> => {
                 return await UpdateService.update<T, Context>(id, input, context, this);
             },

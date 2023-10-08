@@ -93,7 +93,7 @@ export class ApisBuilder {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: { input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).create) } },
                 resolve: async (_parent: any, { input }: { input: Partial<T> }, context: Context) => {
-                    return await model.inContext(context).create(input);
+                    return await model.inContext(context).createRecursive(input);
                 },
             },
         };

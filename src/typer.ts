@@ -280,12 +280,11 @@ export class Typer {
             fields: {},
         };
 
-        const originalFields = Object.keys(create['_fields']());
-        const toField = property.getRelation().to;
+        const originalFields = util.isFunction(create['_fields']) ? create['_fields']() : create['_fields'];
 
-        for (const originalField of originalFields) {
-            if (originalField === toField) continue;
-            result.fields[originalField] = create['_fields']()[originalField];
+        for (const key of Object.keys(originalFields)) {
+            if (key === property.getRelation().to) continue;
+            result.fields[key] = originalFields[key];
         }
 
         return new GraphQLInputObjectType(result);

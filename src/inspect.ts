@@ -19,5 +19,8 @@ export function inspect(modelDefinition: any) {
         getEmbeddedProperties(): Property[] {
             return this.getProperties(MetaKey.Embedded);
         },
+        getRelationProperties(): Property[] {
+            return this.getProperties(MetaKey.Relation);
+        },
     };
 }

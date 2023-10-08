@@ -68,7 +68,7 @@ export class Dryer<Context> implements ModelGetter {
                 const additional = await this.config.appendContext?.(req, this);
                 return {
                     ...additional,
-                    models: this.models,
+                    dryer: this,
                 };
             },
         });
