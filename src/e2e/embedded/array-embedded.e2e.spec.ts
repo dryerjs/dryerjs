@@ -3,7 +3,6 @@ import {
     DefaultOnInput,
     EmbeddedProperty,
     ExcludeOnCreate,
-    ExcludeOnInput,
     NullableOnOutput,
     Property,
     RequiredOnCreate,
@@ -38,7 +37,7 @@ class Book {
 }
 
 class Author {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -123,8 +122,8 @@ describe('Object embedded feature works', () => {
             const firstBook = firstAuthor.books[0];
             const firstUpdateResponse = await dryer.makeSuccessRequest({
                 query: `
-                    mutation UpdateAuthor($updateAuthorId: String!, $input: UpdateAuthorInput!) {
-                        updateAuthor(id: $updateAuthorId, input: $input) {
+                    mutation UpdateAuthor($input: UpdateAuthorInput!) {
+                        updateAuthor(input: $input) {
                             books {
                                 id
                                 name
@@ -135,6 +134,7 @@ describe('Object embedded feature works', () => {
                 `,
                 variables: {
                     input: {
+                        id: firstAuthor.id,
                         books: [
                             {
                                 ...firstBook,
@@ -142,7 +142,6 @@ describe('Object embedded feature works', () => {
                             },
                         ],
                     },
-                    updateAuthorId: firstAuthor.id,
                 },
             });
             expect(firstUpdateResponse.updateAuthor.books[0]).toEqual({
@@ -237,8 +236,8 @@ describe('Object embedded feature works', () => {
             it('update works', async () => {
                 const response = await dryer.makeSuccessRequest({
                     query: `
-                        mutation UpdateAuthorBook($input: UpdateBookInput!, $authorId: String!, $id: String!) {
-                            updateAuthorBook(input: $input, authorId: $authorId, id: $id) {
+                        mutation UpdateAuthorBook($input: UpdateBookInput!, $authorId: String!) {
+                            updateAuthorBook(input: $input, authorId: $authorId) {
                                 id
                                 name
                             }
@@ -247,9 +246,9 @@ describe('Object embedded feature works', () => {
                     variables: {
                         input: {
                             name: 'Book 1 updated',
+                            id: author.books[0].id,
                         },
                         authorId: author.id,
-                        id: author.books[0].id,
                     },
                 });
                 expect(response.updateAuthorBook).toEqual({
@@ -334,8 +333,8 @@ describe('Object embedded feature works', () => {
             it('update on not found', async () => {
                 await dryer.makeFailRequest({
                     query: `
-                        mutation UpdateAuthorBook($input: UpdateBookInput!, $authorId: String!, $id: String!) {
-                            updateAuthorBook(input: $input, authorId: $authorId, id: $id) {
+                        mutation UpdateAuthorBook($input: UpdateBookInput!, $authorId: String!) {
+                            updateAuthorBook(input: $input, authorId: $authorId) {
                                 id
                                 name
                             }
@@ -344,9 +343,9 @@ describe('Object embedded feature works', () => {
                     variables: {
                         input: {
                             name: 'does not matter',
+                            id: notFoundId,
                         },
                         authorId: author.id,
-                        id: notFoundId,
                     },
                     errorMessageMustContains: 'No book found with id',
                 });

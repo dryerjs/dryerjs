@@ -104,15 +104,14 @@ export class ApisBuilder {
             [`update${model.name}`]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: {
-                    id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
                     input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).update) },
                 },
                 resolve: async (
                     _parent: any,
-                    { input, id }: { input: Partial<T>; id: string },
+                    { input }: { input: Partial<T> & { id: string } },
                     context: Context,
                 ) => {
-                    return model.inContext(context).update(id, input);
+                    return model.inContext(context).update(input.id, input);
                 },
             },
         };
@@ -181,19 +180,18 @@ export class ApisBuilder {
                     [`${util.toCamelCase(model.name)}Id`]: {
                         type: new graphql.GraphQLNonNull(graphql.GraphQLString),
                     },
-                    id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
                     input: {
                         type: new graphql.GraphQLNonNull(
                             Typer.get(property.getEmbeddedModelDefinition()).update,
                         ),
                     },
                 },
-                resolve: async (_parent, { id, [idKey]: parentId, input }: any, context: Context) => {
+                resolve: async (_parent, { [idKey]: parentId, input }: any, context: Context) => {
                     return model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)
-                        .update(id, input);
+                        .update(input.id, input);
                 },
             },
         };
