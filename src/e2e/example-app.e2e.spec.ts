@@ -139,15 +139,14 @@ describe('Example app', () => {
             const newYearOfBirthForUser1 = 1999;
             await dryer.makeSuccessRequest({
                 query: `
-                    mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
-                        updateUser(id: $userId, input: $input) {
+                    mutation UpdateUser($input: UpdateUserInput!) {
+                        updateUser(input: $input) {
                             id
                         }
                     }
                 `,
                 variables: {
-                    input: { yearOfBirth: newYearOfBirthForUser1 },
-                    userId: firstUserId,
+                    input: { yearOfBirth: newYearOfBirthForUser1, id: firstUserId },
                 },
             });
 
@@ -168,15 +167,14 @@ describe('Example app', () => {
             // update user by id
             await dryer.makeSuccessRequest({
                 query: `
-                    mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
-                        updateUser(id: $userId, input: $input) {
+                    mutation UpdateUser($input: UpdateUserInput!) {
+                        updateUser(input: $input) {
                             id
                         }
                     }
                 `,
                 variables: {
-                    input: { tags: [' Tag3 '] },
-                    userId: firstUserId,
+                    input: { tags: [' Tag3 '], id: firstUserId },
                 },
             });
 
@@ -231,15 +229,14 @@ describe('Example app', () => {
             it('update', async () => {
                 await dryer.makeFailRequest({
                     query: `
-                        mutation UpdateUser($input: UpdateUserInput!, $userId: String!) {
-                            updateUser(id: $userId, input: $input) {
+                        mutation UpdateUser($input: UpdateUserInput!) {
+                            updateUser(input: $input) {
                                 id
                             }
                         }
                     `,
                     variables: {
-                        input: { yearOfBirth: 1999 },
-                        userId: notFoundId,
+                        input: { yearOfBirth: 1999, id: notFoundId },
                     },
                     errorMessageMustContains: 'No user found with id',
                 });
@@ -265,11 +262,12 @@ describe('Example app', () => {
     describe('inContext works', () => {
         let user: User;
         beforeAll(async () => {
-            user = await dryer.model(User).db.create({
+            user = await dryer.model(User).inContext({}).create({
                 email: 'test@test.test',
                 password: '',
             });
         });
+
         it('get', async () => {
             const foundUser = await dryer.model(User).inContext({}).get(user.id);
             expect(foundUser?.email).toContain('@test.test');

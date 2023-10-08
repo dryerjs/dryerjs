@@ -4,7 +4,7 @@ import { Relation } from './shared';
 
 export class Property {
     constructor(
-        private modelDefinition: any,
+        public modelDefinition: any,
         public name: string,
         public typeInClass: any,
     ) {}

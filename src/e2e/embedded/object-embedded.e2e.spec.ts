@@ -1,6 +1,6 @@
 import {
     EmbeddedProperty,
-    ExcludeOnInput,
+    ExcludeOnCreate,
     NullableOnOutput,
     Property,
     RequiredOnCreate,
@@ -33,7 +33,7 @@ class Director {
 }
 
 class Movie {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -133,8 +133,8 @@ describe('Object embedded feature works', () => {
             const firstMovie = allMovies[0];
             const firstUpdateResponse = await dryer.makeSuccessRequest({
                 query: `
-                    mutation UpdateMovie($updateMovieId: String!, $input: UpdateMovieInput!) {
-                        updateMovie(id: $updateMovieId, input: $input) {
+                    mutation UpdateMovie($input: UpdateMovieInput!) {
+                        updateMovie(input: $input) {
                             director {
                                 nationality
                                 name
@@ -143,8 +143,10 @@ describe('Object embedded feature works', () => {
                     }
                 `,
                 variables: {
-                    input: { director: { name: 'updated name', nationality: null } },
-                    updateMovieId: firstMovie.id,
+                    input: {
+                        director: { name: 'updated name', nationality: null },
+                        id: firstMovie.id,
+                    },
                 },
             });
             expect(firstUpdateResponse.updateMovie.director).toEqual({
@@ -157,8 +159,8 @@ describe('Object embedded feature works', () => {
             const firstMovie = allMovies[0];
             const firstUpdateResponse = await dryer.makeSuccessRequest({
                 query: `
-                    mutation UpdateMovie($updateMovieId: String!, $input: UpdateMovieInput!) {
-                        updateMovie(id: $updateMovieId, input: $input) {
+                    mutation UpdateMovie($input: UpdateMovieInput!) {
+                        updateMovie(input: $input) {
                             director {
                                 nationality
                                 name
@@ -167,8 +169,7 @@ describe('Object embedded feature works', () => {
                     }
                 `,
                 variables: {
-                    input: { director: null },
-                    updateMovieId: firstMovie.id,
+                    input: { director: null, id: firstMovie.id },
                 },
             });
             expect(firstUpdateResponse.updateMovie.director).toEqual(null);

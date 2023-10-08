@@ -201,6 +201,55 @@ describe('Belongs and HasMany works', () => {
                 },
             ]);
         });
+
+        it('create attribute values within attribute', async () => {
+            const input = {
+                code: 'SIZE',
+                attributeValues: [
+                    {
+                        code: 'S',
+                    },
+                    {
+                        code: 'M',
+                    },
+                ],
+            };
+
+            const { createAttribute } = await dryer.makeSuccessRequest({
+                query: `
+                    mutation CreateAttribute($input: CreateAttributeInput!) {
+                        createAttribute(input: $input) {
+                            id
+                            code
+                            attributeValues {
+                                id
+                                code
+                                attributeId
+                            }
+                        }
+                    }
+                `,
+                variables: { input },
+            });
+
+            expect(createAttribute).toEqual({
+                id: expect.any(String),
+                code: 'SIZE',
+                attributeValues: [
+                    {
+                        id: expect.any(String),
+                        code: 'S',
+                        attributeId: expect.any(String),
+                    },
+                    {
+                        id: expect.any(String),
+                        code: 'M',
+                        attributeId: expect.any(String),
+                    },
+                ],
+            });
+            expect(createAttribute.id).toEqual(createAttribute.attributeValues[0].attributeId);
+        });
     });
 
     afterAll(async () => {

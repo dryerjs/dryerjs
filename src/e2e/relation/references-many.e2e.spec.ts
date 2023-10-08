@@ -41,6 +41,8 @@ export const dryer = DryerTest.init({
 });
 
 describe('ReferencesMany works', () => {
+    let allTags: Tag[] = [];
+
     beforeAll(async () => {
         await dryer.start();
     });
@@ -64,7 +66,7 @@ describe('ReferencesMany works', () => {
             });
         }
 
-        const { allTags } = await dryer.makeSuccessRequest({
+        const response = await dryer.makeSuccessRequest({
             query: `
                     query AllTags {
                         allTags {
@@ -74,6 +76,8 @@ describe('ReferencesMany works', () => {
                     }
                 `,
         });
+
+        allTags = response.allTags;
 
         const createProductQuery = `
                 mutation CreateProduct($input: CreateProductInput!) {
@@ -144,6 +148,40 @@ describe('ReferencesMany works', () => {
                     },
                 ],
             },
+        ]);
+    });
+
+    it('Add new tags when create a new product', async () => {
+        const createProductQuery = `
+            mutation CreateProduct($input: CreateProductInput!) {
+                createProduct(input: $input) {
+                    id
+                    name
+                    tagIds
+                    tags {
+                        id
+                        code
+                    }
+                }
+            }
+        `;
+
+        const { createProduct: response } = await dryer.makeSuccessRequest({
+            query: createProductQuery,
+            variables: {
+                input: {
+                    name: 'Product 2',
+                    tagIds: [allTags[0].id, allTags[1].id],
+                    tags: [{ code: 'YELLOW' }, { code: 'ORANGE' }],
+                },
+            },
+        });
+
+        expect(response.tagIds).toEqual([
+            allTags[0].id,
+            allTags[1].id,
+            response.tags[2].id,
+            response.tags[3].id,
         ]);
     });
 

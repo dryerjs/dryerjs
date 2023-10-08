@@ -17,6 +17,7 @@ import {
     TransformOnInput,
     DefaultOnOutput,
     EmbeddedProperty,
+    ExcludeOnCreate,
 } from 'dryerjs';
 
 export class Address {
@@ -60,7 +61,7 @@ enum UserStatus {
 }
 
 export class User {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
