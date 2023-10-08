@@ -158,6 +158,43 @@ describe('Belongs - HasOne works', () => {
                 },
             ]);
         });
+
+        it('create facet values within facet', async () => {
+            const input = {
+                code: 'SIZE',
+                defaultFacetValue: {
+                    code: 'S',
+                },
+            };
+
+            const { createFacet } = await dryer.makeSuccessRequest({
+                query: `
+                    mutation CreateFacet($input: CreateFacetInput!) {
+                        createFacet(input: $input) {
+                            id
+                            code
+                            defaultFacetValue {
+                                id
+                                code
+                                facetId
+                            }
+                        }
+                    }
+                `,
+                variables: { input },
+            });
+
+            expect(createFacet).toEqual({
+                id: expect.any(String),
+                code: 'SIZE',
+                defaultFacetValue: {
+                    id: expect.any(String),
+                    code: 'S',
+                    facetId: expect.any(String),
+                },
+            });
+            expect(createFacet.defaultFacetValue.facetId).toEqual(createFacet.id);
+        });
     });
 
     afterAll(async () => {

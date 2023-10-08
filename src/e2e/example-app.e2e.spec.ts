@@ -262,11 +262,12 @@ describe('Example app', () => {
     describe('inContext works', () => {
         let user: User;
         beforeAll(async () => {
-            user = await dryer.model(User).db.create({
+            user = await dryer.model(User).inContext({}).create({
                 email: 'test@test.test',
                 password: '',
             });
         });
+
         it('get', async () => {
             const foundUser = await dryer.model(User).inContext({}).get(user.id);
             expect(foundUser?.email).toContain('@test.test');

@@ -41,10 +41,6 @@ export class CreateService {
 
             if (relation.kind === RelationKind.HasMany) {
                 for (const relatedInputItem of relatedInput as any[]) {
-                    console.log({
-                        ...relatedInputItem,
-                        [relatedInput.to]: result['_id'],
-                    });
                     await CreateService.createRecursive(
                         { ...relatedInputItem, [relation.to]: result['_id'] },
                         context,
@@ -72,7 +68,12 @@ export class CreateService {
                     )) as any;
                     ids.push(id);
                 }
-                await UpdateService.update(result['_id'], { [relation.from]: ids } as any, context, model);
+                await UpdateService.update(
+                    result['_id'],
+                    { [relation.from]: [...result[relation.from], ...ids] } as any,
+                    context,
+                    model,
+                );
             }
         }
 
