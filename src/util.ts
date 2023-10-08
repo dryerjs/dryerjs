@@ -1,10 +1,7 @@
 import { plural, singular } from 'pluralize';
 import { ApiType } from './type';
 
-export {
-    plural,
-    singular
-}
+export { plural, singular };
 
 export const isNil = (value: any): value is null | undefined => value === null || value === undefined;
 

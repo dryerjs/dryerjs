@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import * as util from './util';
 import { Relation, RelationKind, TargetClass } from './shared';
+import { SchemaOptions } from './type';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -207,11 +208,12 @@ export function GraphQLType(type: any) {
     };
 }
 
-<<<<<<< HEAD
 export function DatabaseType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.DatabaseType, propertyKey, type);
-=======
+    };
+}
+
 export function Schema(options?: SchemaOptions) {
     return function (target: TargetClass) {
         if (options?.excludeApis) {
@@ -220,7 +222,6 @@ export function Schema(options?: SchemaOptions) {
                 : [options.excludeApis];
             target.excludeApis = excludeApis.map(api => util.getApiName(target.name, api));
         }
->>>>>>> 449749f (feat: use type for api name)
     };
 }
 
