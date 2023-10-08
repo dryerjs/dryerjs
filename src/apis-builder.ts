@@ -67,9 +67,8 @@ export class ApisBuilder {
         return {
             [`all${util.plural(model.name)}`]: {
                 type: new graphql.GraphQLList(Typer.get(model.definition).nonNullOutput),
-                resolve: async (_parent, _, context: Context) => {
-                    const items = await model.inContext(context).getAll();
-                    return items;
+                resolve: async (_parent, _args, context: Context) => {
+                    return await model.inContext(context).getAll();
                 },
             },
         };
