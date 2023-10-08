@@ -258,7 +258,7 @@ export function HasOne(options: { type: TargetClass; from?: string; to: string }
 export function ReferencesMany(options: { type: TargetClass; from: string; to?: string }) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
-        ExcludeOnInput()(target, propertyKey);
+        ExcludeOnUpdate()(target, propertyKey);
         ExcludeOnDatabase()(target, propertyKey);
         const relation: Relation = {
             ...options,

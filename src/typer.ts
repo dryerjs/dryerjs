@@ -219,6 +219,9 @@ class CreateInputTypeBuilder extends BaseTypeBuilder {
 
     protected getPropertyBaseType(property: Property) {
         if (!property.isRelation()) return super.getPropertyBaseType(property);
+        if (property.getRelation().kind === RelationKind.ReferencesMany) {
+            return new GraphQLList(Typer.get(property.getRelationModelDefinition()).create);
+        }
         if (
             property.getRelation().kind === RelationKind.HasMany ||
             property.getRelation().kind === RelationKind.HasOne
