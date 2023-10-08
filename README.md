@@ -27,11 +27,11 @@ To get started with DryerJS, follow these steps:
     cd my-project &&
     npm init -y &&
     npm install typescript ts-node --save-dev &&
-    npm install dryerjs &&
     echo '{
         "compilerOptions": {
             "emitDecoratorMetadata": true,
             "experimentalDecorators": true,
+            "module": "CommonJS",
             "target": "ES2021"
         }
     }' >> tsconfig.json &&
