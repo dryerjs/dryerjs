@@ -5,6 +5,8 @@ import { Typer } from './typer';
 import { Property } from './property';
 import { inspect } from './inspect';
 import { GraphQLFieldConfigMap } from './shared';
+import { ApiType } from './type';
+import { getApiName } from './util';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -51,9 +53,15 @@ export class ApisBuilder {
         };
     }
 
+    private static shouldExclude<T>(model: Model<T>, name: string) {
+        return model.definition.excludeApis?.includes(name);
+    }
+
     private static getOne<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.GetOne);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [util.toCamelCase(model.name)]: {
+            [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {
@@ -64,8 +72,10 @@ export class ApisBuilder {
     }
 
     private static getAll<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.GetAll);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [`all${util.plural(model.name)}`]: {
+            [name]: {
                 type: new graphql.GraphQLList(Typer.get(model.definition).nonNullOutput),
                 resolve: async (_parent, _args, context: Context) => {
                     return await model.inContext(context).getAll();
@@ -75,8 +85,10 @@ export class ApisBuilder {
     }
 
     private static paginate<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.List);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [`paginate${util.plural(model.name)}`]: {
+            [name]: {
                 type: Typer.get(model.definition).paginatedOutput,
                 args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
                 resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
@@ -88,8 +100,10 @@ export class ApisBuilder {
     }
 
     private static create<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.Create);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [`create${model.name}`]: {
+            [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: { input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).create) } },
                 resolve: async (_parent: any, { input }: { input: Partial<T> }, context: Context) => {
@@ -100,8 +114,10 @@ export class ApisBuilder {
     }
 
     private static update<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.Update);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [`update${model.name}`]: {
+            [name]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: {
                     input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).update) },
@@ -118,8 +134,10 @@ export class ApisBuilder {
     }
 
     private static delete<T, Context>(model: Model<T>) {
+        const name = getApiName(model.name, ApiType.Delete);
+        if (this.shouldExclude(model, name)) return {};
         return {
-            [`delete${model.name}`]: {
+            [name]: {
                 type: deleteResponse,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {
