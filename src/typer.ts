@@ -251,9 +251,10 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
     protected useAs: 'input' | 'output' = 'input';
 }
 
+const cacheKey = Symbol('typer');
+
 export class Typer {
     public static get(modelDefinition: ModelDefinition) {
-        const cacheKey = '__typer__';
         if (modelDefinition[cacheKey]) return modelDefinition[cacheKey] as ReturnType<typeof Typer.build>;
         const result = this.build(modelDefinition);
         modelDefinition[cacheKey] = result;

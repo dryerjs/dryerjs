@@ -25,6 +25,7 @@ export enum MetaKey {
     Relation = 'Relation',
     ScalarArrayType = 'ScalarArrayType',
     Schema = 'Schema',
+    Filterable = 'Filterable',
 }
 
 type AnyEnum = { [key: string]: any };
@@ -32,78 +33,74 @@ type MetaValue = any;
 
 export type Ref<T> = T;
 
-export class Metadata {
-    private static propertiesByModel: {
-        [modelName: string]: { [metaKey: string]: { [property: string]: MetaValue } };
-    } = {};
+const METADATA = Symbol('metadata');
+const MODEL_KEY = Symbol('modelKey');
 
+export class Metadata {
     public static getPropertiesByModel(
-        modelName: string,
+        target: TargetClass,
         metaKey: MetaKey,
     ): { [property: string]: MetaValue } {
-        return util.defaultTo(this.propertiesByModel[modelName][metaKey], {});
+        return util.defaultTo(target[METADATA]?.[metaKey], {});
     }
 
-    public static getMetaValue(modelName: string, metaKey: MetaKey, property: string): MetaValue {
-        return this.propertiesByModel[modelName]?.[metaKey]?.[property];
+    public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
+        return target[METADATA]?.[metaKey]?.[property];
     }
 
     public static addProperty(
-        modelName: string,
+        target: TargetClass,
         metaKey: MetaKey,
-        property: string,
+        property: string | symbol,
         value: MetaValue = true,
     ): void {
-        if (util.isUndefined(this.propertiesByModel[modelName])) {
-            this.propertiesByModel[modelName] = {};
+        const constructor = typeof target === 'function' ? target : target.constructor;
+        if (util.isUndefined(constructor[METADATA])) {
+            constructor[METADATA] = {};
         }
-        if (util.isUndefined(this.propertiesByModel[modelName][metaKey])) {
-            this.propertiesByModel[modelName][metaKey] = {};
+        if (util.isUndefined(constructor[METADATA][metaKey])) {
+            constructor[METADATA][metaKey] = {};
         }
-        this.propertiesByModel[modelName][metaKey][property] = value;
+        constructor[METADATA][metaKey][property] = value;
     }
 
-    public static getModelMetaValue(modelName: string, metaKey: MetaKey): MetaValue {
-        const property = '__model__';
-        return this.propertiesByModel[modelName]?.[metaKey]?.[property];
+    public static getModelMetaValue(target: TargetClass, metaKey: MetaKey): MetaValue {
+        return this.getMetaValue(target, metaKey, MODEL_KEY);
     }
 
-    public static addModelProperty(modelName: string, metaKey: MetaKey, value: MetaValue): void {
-        const property = '__model__';
-        this.addProperty(modelName, metaKey, property, value);
+    public static addModelProperty(target: TargetClass, metaKey: MetaKey, value: MetaValue): void {
+        this.addProperty(target, metaKey, MODEL_KEY, value);
     }
 
-    public static cleanOnTest() {
-        this.propertiesByModel = {};
-    }
+    public static cleanOnTest() {}
 }
 
 export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.DesignType, propertyKey);
+        Metadata.addProperty(target, MetaKey.DesignType, propertyKey);
         if (util.isNotNullObject(options.enum)) {
             if (Object.keys(options.enum).length !== 1) {
                 const message = `Enum should be defined as an object. Example: @Property({ enum: { UserStatus })`;
                 throw new Error(message);
             }
-            Metadata.addProperty(target.constructor.name, MetaKey.Enum, propertyKey, options.enum);
+            Metadata.addProperty(target, MetaKey.Enum, propertyKey, options.enum);
         }
         if (util.isFunction(options.type)) {
-            Metadata.addProperty(target.constructor.name, MetaKey.ScalarArrayType, propertyKey, options.type);
+            Metadata.addProperty(target, MetaKey.ScalarArrayType, propertyKey, options.type);
         }
     };
 }
 
 export function Schema(options: SchemaOptions) {
     return function (target: TargetClass) {
-        Metadata.addModelProperty(target.name, MetaKey.Schema, options);
+        Metadata.addModelProperty(target, MetaKey.Schema, options);
     };
 }
 
 export function EmbeddedProperty(options: EmbeddedSchemaOptions) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Embedded, propertyKey, options);
+        Metadata.addProperty(target, MetaKey.Embedded, propertyKey, options);
     };
 }
 
@@ -111,7 +108,7 @@ type TransformFunction = (value: any, ctx: any, object: any) => any;
 
 export function TransformOnOutput(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnOutput, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.TransformOnOutput, propertyKey, fn);
     };
 }
 
@@ -124,13 +121,13 @@ export function TransformOnInput(fn: TransformFunction) {
 
 export function TransformOnCreate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnCreate, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.TransformOnCreate, propertyKey, fn);
     };
 }
 
 export function TransformOnUpdate(fn: TransformFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.TransformOnUpdate, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.TransformOnUpdate, propertyKey, fn);
     };
 }
 
@@ -138,7 +135,7 @@ type DefaultFunction = (ctx: any, object: any) => any;
 
 export function DefaultOnOutput(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnOutput, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.DefaultOnOutput, propertyKey, fn);
     };
 }
 
@@ -151,13 +148,13 @@ export function DefaultOnInput(fn: DefaultFunction) {
 
 export function DefaultOnCreate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnCreate, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.DefaultOnCreate, propertyKey, fn);
     };
 }
 
 export function DefaultOnUpdate(fn: DefaultFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.DefaultOnUpdate, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.DefaultOnUpdate, propertyKey, fn);
     };
 }
 
@@ -165,13 +162,13 @@ type ValidateFunction = (value: any, ctx: any, object: any) => any;
 
 export function Validate(fn: ValidateFunction) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.Validate, propertyKey, fn);
+        Metadata.addProperty(target, MetaKey.Validate, propertyKey, fn);
     };
 }
 
 export function ExcludeOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnOutput, propertyKey);
+        Metadata.addProperty(target, MetaKey.ExcludeOnOutput, propertyKey);
     };
 }
 
@@ -184,49 +181,49 @@ export function ExcludeOnInput() {
 
 export function ExcludeOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnCreate, propertyKey);
+        Metadata.addProperty(target, MetaKey.ExcludeOnCreate, propertyKey);
     };
 }
 
 export function ExcludeOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnUpdate, propertyKey);
+        Metadata.addProperty(target, MetaKey.ExcludeOnUpdate, propertyKey);
     };
 }
 
 export function RequiredOnCreate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.RequiredOnCreate, propertyKey);
+        Metadata.addProperty(target, MetaKey.RequiredOnCreate, propertyKey);
     };
 }
 
 export function RequiredOnUpdate() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.RequiredOnUpdate, propertyKey);
+        Metadata.addProperty(target, MetaKey.RequiredOnUpdate, propertyKey);
     };
 }
 
 export function ExcludeOnDatabase() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey);
+        Metadata.addProperty(target, MetaKey.ExcludeOnDatabase, propertyKey);
     };
 }
 
 export function NullableOnOutput() {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.NullableOnOutput, propertyKey);
+        Metadata.addProperty(target, MetaKey.NullableOnOutput, propertyKey);
     };
 }
 
 export function GraphQLType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.GraphQLType, propertyKey, type);
+        Metadata.addProperty(target, MetaKey.GraphQLType, propertyKey, type);
     };
 }
 
 export function DatabaseType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.addProperty(target.constructor.name, MetaKey.DatabaseType, propertyKey, type);
+        Metadata.addProperty(target, MetaKey.DatabaseType, propertyKey, type);
     };
 }
 
@@ -240,7 +237,7 @@ export function HasMany(options: { type: TargetClass; from?: string; to: string 
             kind: RelationKind.HasMany,
             from: util.defaultTo(options.from, '_id'),
         };
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
+        Metadata.addProperty(target, MetaKey.Relation, propertyKey, relation);
     };
 }
 
@@ -254,7 +251,7 @@ export function BelongsTo(options: { type: TargetClass; from: string; to?: strin
             kind: RelationKind.BelongsTo,
             to: util.defaultTo(options.to, '_id'),
         };
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
+        Metadata.addProperty(target, MetaKey.Relation, propertyKey, relation);
     };
 }
 
@@ -268,7 +265,7 @@ export function HasOne(options: { type: TargetClass; from?: string; to: string }
             kind: RelationKind.HasOne,
             from: util.defaultTo(options.from, '_id'),
         };
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
+        Metadata.addProperty(target, MetaKey.Relation, propertyKey, relation);
     };
 }
 
@@ -282,6 +279,6 @@ export function ReferencesMany(options: { type: TargetClass; from: string; to?: 
             kind: RelationKind.ReferencesMany,
             to: util.defaultTo(options.to, '_id'),
         };
-        Metadata.addProperty(target.constructor.name, MetaKey.Relation, propertyKey, relation);
+        Metadata.addProperty(target, MetaKey.Relation, propertyKey, relation);
     };
 }
