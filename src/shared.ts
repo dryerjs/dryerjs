@@ -41,10 +41,10 @@ export type Relation = {
 export type ApiType = 'create' | 'update' | 'delete' | 'paginate' | 'get' | 'all';
 
 export type SchemaOptions = {
-    exclusion?: ApiType[];
+    excluded?: ApiType[];
 };
 
 export type EmbeddedSchemaOptions = {
     type: TargetClass;
-    exclusion?: ApiType[];
+    excluded?: ApiType[];
 };

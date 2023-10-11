@@ -10,7 +10,7 @@ export class Property {
     ) {}
 
     public getMetaValue(key: MetaKey) {
-        return Metadata.getMetaValue(this.modelDefinition.name, key, this.name);
+        return Metadata.getMetaValue(this.modelDefinition, key, this.name);
     }
 
     public isScalar() {
@@ -46,7 +46,7 @@ export class Property {
 
     public isEmbeddedApiExcluded(apiType: ApiType) {
         const schemaOptions: EmbeddedSchemaOptions = this.getMetaValue(MetaKey.Embedded);
-        return util.defaultTo(schemaOptions.exclusion, []).includes(apiType);
+        return util.defaultTo(schemaOptions.excluded, []).includes(apiType);
     }
 
     public isRelation() {

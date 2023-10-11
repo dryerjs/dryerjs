@@ -3,15 +3,16 @@ import { MetaKey, Metadata } from './metadata';
 import { Property } from './property';
 import { ApiType, SchemaOptions } from './shared';
 
+const INSTANCE_KEY = Symbol('inspectable_instance');
+
 export function inspect(modelDefinition: any) {
-    const INSTANCE_KEY = '__inspectable_instance';
     modelDefinition[INSTANCE_KEY] = util.defaultTo(modelDefinition[INSTANCE_KEY], new modelDefinition());
     const instance = modelDefinition[INSTANCE_KEY];
 
     return {
         getProperties(metaKey: MetaKey = MetaKey.DesignType) {
             const result: Property[] = [];
-            for (const propertyName in Metadata.getPropertiesByModel(modelDefinition.name, metaKey)) {
+            for (const propertyName in Metadata.getPropertiesByModel(modelDefinition, metaKey)) {
                 const typeInClass = Reflect.getMetadata(MetaKey.DesignType, instance, propertyName);
                 const property = new Property(modelDefinition, propertyName, typeInClass);
                 result.push(property);
@@ -25,11 +26,8 @@ export function inspect(modelDefinition: any) {
             return this.getProperties(MetaKey.Relation);
         },
         isApiExcluded(apiType: ApiType): boolean {
-            const schemaOptions: SchemaOptions = Metadata.getModelMetaValue(
-                modelDefinition.name,
-                MetaKey.Schema,
-            );
-            return util.defaultTo(schemaOptions?.exclusion, []).includes(apiType);
+            const schemaOptions: SchemaOptions = Metadata.getModelMetaValue(modelDefinition, MetaKey.Schema);
+            return util.defaultTo(schemaOptions?.excluded, []).includes(apiType);
         },
     };
 }
