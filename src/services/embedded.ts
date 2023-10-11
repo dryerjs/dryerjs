@@ -1,9 +1,10 @@
 import * as graphql from 'graphql';
 import * as util from '../util';
 import { Model } from '../model';
+import { BaseContext } from '../dryer';
+import { NonPrimitiveArrayKeyOf, UnwrapArray } from '../shared';
 import { GetService } from './get';
 import { UpdateService } from './update';
-import { NonPrimitiveArrayKeyOf, UnwrapArray } from '../shared';
 
 interface EmbeddedModelInput<T, K extends NonPrimitiveArrayKeyOf<T>, Context> {
     parentId: string;
@@ -13,14 +14,14 @@ interface EmbeddedModelInput<T, K extends NonPrimitiveArrayKeyOf<T>, Context> {
 }
 
 export class EmbeddedService {
-    public static getEmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context>(
+    public static getEmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context extends BaseContext>(
         input: EmbeddedModelInput<T, K, Context>,
     ) {
         return new EmbeddedModel<T, K, Context>(input);
     }
 }
 
-export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context> {
+export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context extends BaseContext> {
     constructor(private embeddedModelInput: EmbeddedModelInput<T, K, Context>) {}
 
     private async getObjects(): Promise<UnwrapArray<T[K]>[]> {

@@ -1,10 +1,15 @@
 import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { Model } from '../model';
+import { BaseContext } from '../dryer';
 import { ObjectProcessor } from './object-processor';
 
 export class OutputService {
-    public static async output<T, Context>(rawValue: T, context: Context, model: Model<T>) {
+    public static async output<T, Context extends BaseContext>(
+        rawValue: T,
+        context: Context,
+        model: Model<T>,
+    ) {
         const defaultAppliedResult = await ObjectProcessor.setDefault<T, Context>({
             obj: this.lean(rawValue),
             context,

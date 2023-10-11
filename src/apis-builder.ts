@@ -5,6 +5,7 @@ import { Typer } from './typer';
 import { Property } from './property';
 import { inspect } from './inspect';
 import { ApiType, GraphQLFieldConfigMap } from './shared';
+import { BaseContext } from './dryer';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -14,29 +15,31 @@ const deleteResponse = new graphql.GraphQLObjectType({
     },
 });
 
-export class ApisBuilder {
-    public static build<T, Context>(model: Model<T>) {
+export class ApisBuilder<T, Context extends BaseContext> {
+    constructor(private model: Model<T>) {}
+
+    public build() {
         let queryFields: GraphQLFieldConfigMap = {};
 
         let mutationFields: GraphQLFieldConfigMap = {};
 
         const apiConfigs: { api: () => GraphQLFieldConfigMap; kind: 'query' | 'mutation'; type: ApiType }[] =
             [
-                { api: () => this.getOne<T, Context>(model), kind: 'query', type: 'get' },
-                { api: () => this.paginate<T, Context>(model), kind: 'query', type: 'paginate' },
-                { api: () => this.getAll<T, Context>(model), kind: 'query', type: 'all' },
-                { api: () => this.create<T, Context>(model), kind: 'mutation', type: 'create' },
-                { api: () => this.update<T, Context>(model), kind: 'mutation', type: 'update' },
-                { api: () => this.delete<T, Context>(model), kind: 'mutation', type: 'delete' },
+                { api: () => this.getOne(), kind: 'query', type: 'get' },
+                { api: () => this.paginate(), kind: 'query', type: 'paginate' },
+                { api: () => this.getAll(), kind: 'query', type: 'all' },
+                { api: () => this.create(), kind: 'mutation', type: 'create' },
+                { api: () => this.update(), kind: 'mutation', type: 'update' },
+                { api: () => this.delete(), kind: 'mutation', type: 'delete' },
             ];
 
         for (const apiConfig of apiConfigs) {
-            if (inspect(model.definition).isApiExcluded(apiConfig.type)) continue;
+            if (inspect(this.model.definition).isApiExcluded(apiConfig.type)) continue;
             if (apiConfig.kind === 'query') queryFields = { ...queryFields, ...apiConfig.api() };
             if (apiConfig.kind === 'mutation') mutationFields = { ...mutationFields, ...apiConfig.api() };
         }
 
-        const embeddedArrayProperties = inspect(model.definition)
+        const embeddedArrayProperties = inspect(this.model.definition)
             .getEmbeddedProperties()
             .filter(property => property.isArray());
 
@@ -46,20 +49,20 @@ export class ApisBuilder {
                 kind: 'query' | 'mutation';
                 type: ApiType;
             }[] = [
-                { api: () => this.getOneEmbedded<T, Context>(model, property), kind: 'query', type: 'get' },
-                { api: () => this.getAllEmbedded<T, Context>(model, property), kind: 'query', type: 'all' },
+                { api: () => this.getOneEmbedded(property), kind: 'query', type: 'get' },
+                { api: () => this.getAllEmbedded(property), kind: 'query', type: 'all' },
                 {
-                    api: () => this.createEmbedded<T, Context>(model, property),
+                    api: () => this.createEmbedded(property),
                     kind: 'mutation',
                     type: 'create',
                 },
                 {
-                    api: () => this.updateEmbedded<T, Context>(model, property),
+                    api: () => this.updateEmbedded(property),
                     kind: 'mutation',
                     type: 'update',
                 },
                 {
-                    api: () => this.deleteEmbedded<T, Context>(model, property),
+                    api: () => this.deleteEmbedded(property),
                     kind: 'mutation',
                     type: 'delete',
                 },
@@ -77,98 +80,100 @@ export class ApisBuilder {
         };
     }
 
-    private static getOne<T, Context>(model: Model<T>) {
+    private getOne() {
         return {
-            [util.toCamelCase(model.name)]: {
-                type: Typer.get(model.definition).nonNullOutput,
+            [util.toCamelCase(this.model.name)]: {
+                type: Typer.get(this.model.definition).nonNullOutput,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {
-                    return model.inContext(context).getOrThrow(id);
+                    return this.model.inContext(context).getOrThrow(id);
                 },
             },
         };
     }
 
-    private static getAll<T, Context>(model: Model<T>) {
+    private getAll() {
         return {
-            [`all${util.plural(model.name)}`]: {
-                type: new graphql.GraphQLList(Typer.get(model.definition).nonNullOutput),
+            [`all${util.plural(this.model.name)}`]: {
+                type: new graphql.GraphQLList(Typer.get(this.model.definition).nonNullOutput),
                 resolve: async (_parent, _args, context: Context) => {
-                    return await model.inContext(context).getAll();
+                    return await this.model.inContext(context).getAll();
                 },
             },
         };
     }
 
-    private static paginate<T, Context>(model: Model<T>) {
+    private paginate() {
         return {
-            [`paginate${util.plural(model.name)}`]: {
-                type: Typer.get(model.definition).paginatedOutput,
+            [`paginate${util.plural(this.model.name)}`]: {
+                type: Typer.get(this.model.definition).paginatedOutput,
                 args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
                 resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
-                    const result = await model.inContext(context).paginate(skip, take);
+                    const result = await this.model.inContext(context).paginate(skip, take);
                     return result;
                 },
             },
         };
     }
 
-    private static create<T, Context>(model: Model<T>) {
+    private create() {
         return {
-            [`create${model.name}`]: {
-                type: Typer.get(model.definition).nonNullOutput,
-                args: { input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).create) } },
+            [`create${this.model.name}`]: {
+                type: Typer.get(this.model.definition).nonNullOutput,
+                args: {
+                    input: { type: new graphql.GraphQLNonNull(Typer.get(this.model.definition).create) },
+                },
                 resolve: async (_parent: any, { input }: { input: Partial<T> }, context: Context) => {
-                    return await model.inContext(context).createRecursive(input);
+                    return await this.model.inContext(context).createRecursive(input);
                 },
             },
         };
     }
 
-    private static update<T, Context>(model: Model<T>) {
+    private update() {
         return {
-            [`update${model.name}`]: {
-                type: Typer.get(model.definition).nonNullOutput,
+            [`update${this.model.name}`]: {
+                type: Typer.get(this.model.definition).nonNullOutput,
                 args: {
-                    input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).update) },
+                    input: { type: new graphql.GraphQLNonNull(Typer.get(this.model.definition).update) },
                 },
                 resolve: async (
                     _parent: any,
                     { input }: { input: Partial<T> & { id: string } },
                     context: Context,
                 ) => {
-                    return model.inContext(context).update(input.id, input);
+                    return this.model.inContext(context).update(input.id, input);
                 },
             },
         };
     }
 
-    private static delete<T, Context>(model: Model<T>) {
+    private delete() {
         return {
-            [`delete${model.name}`]: {
+            [`delete${this.model.name}`]: {
                 type: deleteResponse,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {
-                    await model.inContext(context).delete(id);
+                    await this.model.inContext(context).delete(id);
                     return { deleted: true, id };
                 },
             },
         };
     }
 
-    private static getOneEmbedded<T, Context>(model: Model<T>, property: Property) {
-        const idKey = `${util.toCamelCase(model.name)}Id`;
+    private getOneEmbedded(property: Property) {
+        const idKey = `${util.toCamelCase(this.model.name)}Id`;
         return {
-            [`${util.toCamelCase(model.name)}${util.toPascalCase(util.singular(property.name))}`]: {
+            [`${util.toCamelCase(this.model.name)}${util.toPascalCase(util.singular(property.name))}`]: {
                 type: Typer.get(property.getEmbeddedModelDefinition()).nonNullOutput,
                 args: {
-                    [`${util.toCamelCase(model.name)}Id`]: {
+                    [`${util.toCamelCase(this.model.name)}Id`]: {
                         type: new graphql.GraphQLNonNull(graphql.GraphQLString),
                     },
                     id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
                 },
                 resolve: async (_parent, { id, [idKey]: parentId }: any, context: Context) => {
-                    return await model
+                    return await this.model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)
@@ -178,16 +183,16 @@ export class ApisBuilder {
         };
     }
 
-    private static getAllEmbedded<T, Context>(model: Model<T>, property: Property) {
-        const idKey = `${util.toCamelCase(model.name)}Id`;
+    private getAllEmbedded(property: Property) {
+        const idKey = `${util.toCamelCase(this.model.name)}Id`;
         return {
-            [`all${model.name}${util.plural(property.getEmbeddedModelDefinition().name)}`]: {
+            [`all${this.model.name}${util.plural(property.getEmbeddedModelDefinition().name)}`]: {
                 type: new graphql.GraphQLList(Typer.get(property.getEmbeddedModelDefinition()).nonNullOutput),
                 args: {
                     [idKey]: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
                 },
                 resolve: async (_parent, { [idKey]: parentId }: any, context: Context) => {
-                    return await model
+                    return await this.model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)
@@ -197,13 +202,13 @@ export class ApisBuilder {
         };
     }
 
-    private static updateEmbedded<T, Context>(model: Model<T>, property: Property) {
-        const idKey = `${util.toCamelCase(model.name)}Id`;
+    private updateEmbedded(property: Property) {
+        const idKey = `${util.toCamelCase(this.model.name)}Id`;
         return {
-            [`update${model.name}${util.toPascalCase(util.singular(property.name))}`]: {
+            [`update${this.model.name}${util.toPascalCase(util.singular(property.name))}`]: {
                 type: Typer.get(property.getEmbeddedModelDefinition()).nonNullOutput,
                 args: {
-                    [`${util.toCamelCase(model.name)}Id`]: {
+                    [`${util.toCamelCase(this.model.name)}Id`]: {
                         type: new graphql.GraphQLNonNull(graphql.GraphQLString),
                     },
                     input: {
@@ -213,7 +218,7 @@ export class ApisBuilder {
                     },
                 },
                 resolve: async (_parent, { [idKey]: parentId, input }: any, context: Context) => {
-                    return model
+                    return this.model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)
@@ -223,13 +228,13 @@ export class ApisBuilder {
         };
     }
 
-    private static createEmbedded<T, Context>(model: Model<T>, property: Property) {
-        const idKey = `${util.toCamelCase(model.name)}Id`;
+    private createEmbedded(property: Property) {
+        const idKey = `${util.toCamelCase(this.model.name)}Id`;
         return {
-            [`create${model.name}${util.toPascalCase(util.singular(property.name))}`]: {
+            [`create${this.model.name}${util.toPascalCase(util.singular(property.name))}`]: {
                 type: Typer.get(property.getEmbeddedModelDefinition()).nonNullOutput,
                 args: {
-                    [`${util.toCamelCase(model.name)}Id`]: {
+                    [`${util.toCamelCase(this.model.name)}Id`]: {
                         type: new graphql.GraphQLNonNull(graphql.GraphQLString),
                     },
                     input: {
@@ -239,7 +244,7 @@ export class ApisBuilder {
                     },
                 },
                 resolve: async (_parent, { [idKey]: parentId, input }: any, context: Context) => {
-                    return await model
+                    return await this.model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)
@@ -249,19 +254,19 @@ export class ApisBuilder {
         };
     }
 
-    private static deleteEmbedded<T, Context>(model: Model<T>, property: Property) {
-        const idKey = `${util.toCamelCase(model.name)}Id`;
+    private deleteEmbedded(property: Property) {
+        const idKey = `${util.toCamelCase(this.model.name)}Id`;
         return {
-            [`delete${model.name}${util.toPascalCase(util.singular(property.name))}`]: {
+            [`delete${this.model.name}${util.toPascalCase(util.singular(property.name))}`]: {
                 type: deleteResponse,
                 args: {
-                    [`${util.toCamelCase(model.name)}Id`]: {
+                    [`${util.toCamelCase(this.model.name)}Id`]: {
                         type: new graphql.GraphQLNonNull(graphql.GraphQLString),
                     },
                     id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) },
                 },
                 resolve: async (_parent, { id, [idKey]: parentId }: any, context: Context) => {
-                    await model
+                    await this.model
                         .inContext(context)
                         .onProperty(property.name as any)
                         .withParent(parentId)

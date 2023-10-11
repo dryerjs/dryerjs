@@ -2,9 +2,10 @@ import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { ModelDefinition } from '../shared';
 import { inspect } from '../inspect';
+import { BaseContext } from '../dryer';
 
 export class ObjectProcessor {
-    public static async validate<T, Context>({
+    public static async validate<T, Context extends BaseContext>({
         input,
         context,
         modelDefinition,
@@ -41,7 +42,7 @@ export class ObjectProcessor {
         }
     }
 
-    public static async setDefault<T, Context>(input: {
+    public static async setDefault<T, Context extends BaseContext>(input: {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
@@ -50,7 +51,7 @@ export class ObjectProcessor {
         return (await this.setDefaultPartial(input)) as T;
     }
 
-    public static async setDefaultPartial<T, Context>(input: {
+    public static async setDefaultPartial<T, Context extends BaseContext>(input: {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
@@ -90,7 +91,7 @@ export class ObjectProcessor {
         return obj;
     }
 
-    public static async transform<T, Context>(input: {
+    public static async transform<T, Context extends BaseContext>(input: {
         obj: T;
         context: Context;
         modelDefinition: ModelDefinition<T>;
@@ -99,7 +100,7 @@ export class ObjectProcessor {
         return (await this.transformPartial(input)) as T;
     }
 
-    public static async transformPartial<T, Context>(input: {
+    public static async transformPartial<T, Context extends BaseContext>(input: {
         obj: Partial<T>;
         context: Context;
         modelDefinition: ModelDefinition<T>;
