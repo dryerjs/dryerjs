@@ -1,6 +1,6 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { Relation } from './shared';
+import { ApiType, EmbeddedSchemaOptions, Relation } from './shared';
 
 export class Property {
     constructor(
@@ -28,20 +28,25 @@ export class Property {
     }
 
     public isEmbedded() {
-        return util.isFunction(this.getMetaValue(MetaKey.Embedded));
+        return util.isObject(this.getMetaValue(MetaKey.Embedded));
     }
 
     public getEmbeddedModelDefinition() {
-        const embeddedValue = this.getMetaValue(MetaKey.Embedded);
+        const embeddedSchemaOptions = this.getMetaValue(MetaKey.Embedded) as EmbeddedSchemaOptions;
 
-        if (util.isUndefined(embeddedValue)) {
+        if (util.isUndefined(embeddedSchemaOptions)) {
             throw new Error(`Property ${this.name} is not an embedded property`);
         }
 
         // type can be class or a arrow function that returns a class
-        const typeAsClass = embeddedValue.toString().includes('class');
-        if (typeAsClass) return embeddedValue;
-        return embeddedValue();
+        const typeAsClass = embeddedSchemaOptions.type.toString().includes('class');
+        if (typeAsClass) return embeddedSchemaOptions.type;
+        return embeddedSchemaOptions.type();
+    }
+
+    public isEmbeddedApiExcluded(apiType: ApiType) {
+        const schemaOptions: EmbeddedSchemaOptions = this.getMetaValue(MetaKey.Embedded);
+        return (schemaOptions.exclusion || []).includes(apiType);
     }
 
     public isRelation() {

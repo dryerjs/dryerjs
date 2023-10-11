@@ -4,9 +4,7 @@ import { Model } from './model';
 import { Typer } from './typer';
 import { Property } from './property';
 import { inspect } from './inspect';
-import { GraphQLFieldConfigMap } from './shared';
-import { ApiType } from './type';
-import { getApiName } from './util';
+import { ApiType, GraphQLFieldConfigMap } from './shared';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -18,33 +16,59 @@ const deleteResponse = new graphql.GraphQLObjectType({
 
 export class ApisBuilder {
     public static build<T, Context>(model: Model<T>) {
-        let queryFields: GraphQLFieldConfigMap = {
-            ...this.getOne<T, Context>(model),
-            ...this.paginate<T, Context>(model),
-            ...this.getAll<T, Context>(model),
-        };
-        let mutationFields: GraphQLFieldConfigMap = {
-            ...this.create<T, Context>(model),
-            ...this.update<T, Context>(model),
-            ...this.delete<T, Context>(model),
-        };
+        let queryFields: GraphQLFieldConfigMap = {};
+
+        let mutationFields: GraphQLFieldConfigMap = {};
+
+        const apiConfigs: { api: () => GraphQLFieldConfigMap; kind: 'query' | 'mutation'; type: ApiType }[] =
+            [
+                { api: () => this.getOne<T, Context>(model), kind: 'query', type: 'get' },
+                { api: () => this.paginate<T, Context>(model), kind: 'query', type: 'paginate' },
+                { api: () => this.getAll<T, Context>(model), kind: 'query', type: 'all' },
+                { api: () => this.create<T, Context>(model), kind: 'mutation', type: 'create' },
+                { api: () => this.update<T, Context>(model), kind: 'mutation', type: 'update' },
+                { api: () => this.delete<T, Context>(model), kind: 'mutation', type: 'delete' },
+            ];
+
+        for (const apiConfig of apiConfigs) {
+            if (inspect(model.definition).isApiExcluded(apiConfig.type)) continue;
+            if (apiConfig.kind === 'query') queryFields = { ...queryFields, ...apiConfig.api() };
+            if (apiConfig.kind === 'mutation') mutationFields = { ...mutationFields, ...apiConfig.api() };
+        }
 
         const embeddedArrayProperties = inspect(model.definition)
             .getEmbeddedProperties()
             .filter(property => property.isArray());
 
         for (const property of embeddedArrayProperties) {
-            queryFields = {
-                ...queryFields,
-                ...this.getOneEmbedded<T, Context>(model, property),
-                ...this.getAllEmbedded<T, Context>(model, property),
-            };
-            mutationFields = {
-                ...mutationFields,
-                ...this.createEmbedded<T, Context>(model, property),
-                ...this.updateEmbedded<T, Context>(model, property),
-                ...this.deleteEmbedded<T, Context>(model, property),
-            };
+            const apiConfigs: {
+                api: () => GraphQLFieldConfigMap;
+                kind: 'query' | 'mutation';
+                type: ApiType;
+            }[] = [
+                { api: () => this.getOneEmbedded<T, Context>(model, property), kind: 'query', type: 'get' },
+                { api: () => this.getAllEmbedded<T, Context>(model, property), kind: 'query', type: 'all' },
+                {
+                    api: () => this.createEmbedded<T, Context>(model, property),
+                    kind: 'mutation',
+                    type: 'create',
+                },
+                {
+                    api: () => this.updateEmbedded<T, Context>(model, property),
+                    kind: 'mutation',
+                    type: 'update',
+                },
+                {
+                    api: () => this.deleteEmbedded<T, Context>(model, property),
+                    kind: 'mutation',
+                    type: 'delete',
+                },
+            ];
+            for (const apiConfig of apiConfigs) {
+                if (property.isEmbeddedApiExcluded(apiConfig.type)) continue;
+                if (apiConfig.kind === 'query') queryFields = { ...queryFields, ...apiConfig.api() };
+                if (apiConfig.kind === 'mutation') mutationFields = { ...mutationFields, ...apiConfig.api() };
+            }
         }
 
         return {
@@ -53,15 +77,9 @@ export class ApisBuilder {
         };
     }
 
-    private static shouldExclude<T>(model: Model<T>, name: string) {
-        return model.definition.excludeApis?.includes(name);
-    }
-
     private static getOne<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.GetOne);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [util.toCamelCase(model.name)]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {
@@ -72,10 +90,8 @@ export class ApisBuilder {
     }
 
     private static getAll<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.GetAll);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [`all${util.plural(model.name)}`]: {
                 type: new graphql.GraphQLList(Typer.get(model.definition).nonNullOutput),
                 resolve: async (_parent, _args, context: Context) => {
                     return await model.inContext(context).getAll();
@@ -85,10 +101,8 @@ export class ApisBuilder {
     }
 
     private static paginate<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.List);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [`paginate${util.plural(model.name)}`]: {
                 type: Typer.get(model.definition).paginatedOutput,
                 args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
                 resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
@@ -100,10 +114,8 @@ export class ApisBuilder {
     }
 
     private static create<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.Create);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [`create${model.name}`]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: { input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).create) } },
                 resolve: async (_parent: any, { input }: { input: Partial<T> }, context: Context) => {
@@ -114,10 +126,8 @@ export class ApisBuilder {
     }
 
     private static update<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.Update);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [`update${model.name}`]: {
                 type: Typer.get(model.definition).nonNullOutput,
                 args: {
                     input: { type: new graphql.GraphQLNonNull(Typer.get(model.definition).update) },
@@ -134,10 +144,8 @@ export class ApisBuilder {
     }
 
     private static delete<T, Context>(model: Model<T>) {
-        const name = getApiName(model.name, ApiType.Delete);
-        if (this.shouldExclude(model, name)) return {};
         return {
-            [name]: {
+            [`delete${model.name}`]: {
                 type: deleteResponse,
                 args: { id: { type: new graphql.GraphQLNonNull(graphql.GraphQLString) } },
                 resolve: async (_parent, { id }: { id: string }, context: Context) => {

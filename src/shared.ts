@@ -37,3 +37,14 @@ export type Relation = {
     from: string;
     to: string;
 };
+
+export type ApiType = 'create' | 'update' | 'delete' | 'paginate' | 'get' | 'all';
+
+export type SchemaOptions = {
+    exclusion?: ApiType[];
+};
+
+export type EmbeddedSchemaOptions = {
+    type: TargetClass;
+    exclusion?: ApiType[];
+};

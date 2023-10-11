@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import * as util from './util';
-import { Relation, RelationKind, TargetClass } from './shared';
-import { SchemaOptions } from './type';
+import { EmbeddedSchemaOptions, SchemaOptions, Relation, RelationKind, TargetClass } from './shared';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -25,6 +24,7 @@ export enum MetaKey {
     Embedded = 'Embedded',
     Relation = 'Relation',
     ScalarArrayType = 'ScalarArrayType',
+    Schema = 'Schema',
 }
 
 type AnyEnum = { [key: string]: any };
@@ -63,6 +63,16 @@ export class Metadata {
         this.propertiesByModel[modelName][metaKey][property] = value;
     }
 
+    public static getModelMetaValue(modelName: string, metaKey: MetaKey): MetaValue {
+        const property = '__model__';
+        return this.propertiesByModel[modelName]?.[metaKey]?.[property];
+    }
+
+    public static addModelProperty(modelName: string, metaKey: MetaKey, value: MetaValue): void {
+        const property = '__model__';
+        this.addProperty(modelName, metaKey, property, value);
+    }
+
     public static cleanOnTest() {
         this.propertiesByModel = {};
     }
@@ -84,10 +94,16 @@ export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {
     };
 }
 
-export function EmbeddedProperty(options: { type: TargetClass }) {
+export function Schema(options: SchemaOptions) {
+    return function (target: TargetClass) {
+        Metadata.addModelProperty(target.name, MetaKey.Schema, options);
+    };
+}
+
+export function EmbeddedProperty(options: EmbeddedSchemaOptions) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
-        Metadata.addProperty(target.constructor.name, MetaKey.Embedded, propertyKey, options.type);
+        Metadata.addProperty(target.constructor.name, MetaKey.Embedded, propertyKey, options);
     };
 }
 
@@ -211,17 +227,6 @@ export function GraphQLType(type: any) {
 export function DatabaseType(type: any) {
     return function (target: TargetClass, propertyKey: string) {
         Metadata.addProperty(target.constructor.name, MetaKey.DatabaseType, propertyKey, type);
-    };
-}
-
-export function Schema(options?: SchemaOptions) {
-    return function (target: TargetClass) {
-        if (options?.excludeApis) {
-            const excludeApis = Array.isArray(options?.excludeApis)
-                ? options.excludeApis
-                : [options.excludeApis];
-            target.excludeApis = excludeApis.map(api => util.getApiName(target.name, api));
-        }
     };
 }
 

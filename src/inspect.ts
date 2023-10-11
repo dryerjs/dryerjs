@@ -1,5 +1,6 @@
 import { MetaKey, Metadata } from './metadata';
 import { Property } from './property';
+import { ApiType, SchemaOptions } from './shared';
 
 export function inspect(modelDefinition: any) {
     const INSTANCE_KEY = '__inspectable_instance';
@@ -21,6 +22,13 @@ export function inspect(modelDefinition: any) {
         },
         getRelationProperties(): Property[] {
             return this.getProperties(MetaKey.Relation);
+        },
+        isApiExcluded(apiType: ApiType): boolean {
+            const schemaOptions: SchemaOptions = Metadata.getModelMetaValue(
+                modelDefinition.name,
+                MetaKey.Schema,
+            );
+            return (schemaOptions?.exclusion || []).includes(apiType);
         },
     };
 }
