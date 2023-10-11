@@ -27,7 +27,7 @@ class Film {
     @Property()
     name: string;
 
-    @EmbeddedProperty({ type: Person })
+    @EmbeddedProperty({ type: Person, exclusion: ['update'] })
     artists: Person[];
 
     @EmbeddedProperty({ type: Person })
