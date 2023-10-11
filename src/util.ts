@@ -19,7 +19,8 @@ export const isTruthy = (value: any) => !!value;
 export const isString = (value: any): value is string => typeof value === 'string';
 
 export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
-    return value != null && !isNaN(value as any) ? value : defaultValue;
+    const shouldUseDefaultValue = isNil(value) || (typeof value === 'number' && isNaN(value));
+    return shouldUseDefaultValue ? defaultValue : value;
 };
 
 export const isEnumOfNumbers = (enumObject: any) => {

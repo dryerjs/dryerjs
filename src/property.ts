@@ -46,7 +46,7 @@ export class Property {
 
     public isEmbeddedApiExcluded(apiType: ApiType) {
         const schemaOptions: EmbeddedSchemaOptions = this.getMetaValue(MetaKey.Embedded);
-        return (schemaOptions.exclusion || []).includes(apiType);
+        return util.defaultTo(schemaOptions.exclusion, []).includes(apiType);
     }
 
     public isRelation() {

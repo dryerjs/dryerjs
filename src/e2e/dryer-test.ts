@@ -6,8 +6,7 @@ export class DryerTest extends Dryer<any> {
     public static init<Context>(config: Pick<DryerConfig<Context>, 'modelDefinitions' | 'appendContext'>) {
         return new DryerTest({
             ...config,
-            mongoUri:
-                process.env.E2E_MONGO_URI || 'mongodb://127.0.0.1:27017/dryer-e2e?directConnection=true',
+            mongoUri: util.defaultTo(process.env.E2E_MONGO_URI, 'mongodb://127.0.0.1:27017/dryer-e2e'),
             port: 0,
             beforeApplicationInit: undefined,
             afterApplicationInit: undefined,

@@ -19,11 +19,10 @@ export class OutputService {
         });
     }
 
-    private static lean<T>(rawValue: T) {
-        const leanValue = util.defaultTo((rawValue as any)['toObject']?.(), rawValue);
-        if (util.isNil(leanValue.id) && util.isTruthy(leanValue._id)) {
-            leanValue.id = leanValue._id.toString();
+    private static lean<T>(rawValue: any): T {
+        if (util.isNil(rawValue.id) && util.isTruthy(rawValue._id)) {
+            rawValue.id = rawValue._id.toString();
         }
-        return leanValue;
+        return rawValue;
     }
 }
