@@ -1,10 +1,11 @@
+import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { Property } from './property';
 import { ApiType, SchemaOptions } from './shared';
 
 export function inspect(modelDefinition: any) {
     const INSTANCE_KEY = '__inspectable_instance';
-    modelDefinition[INSTANCE_KEY] = modelDefinition[INSTANCE_KEY] || new modelDefinition();
+    modelDefinition[INSTANCE_KEY] = util.defaultTo(modelDefinition[INSTANCE_KEY], new modelDefinition());
     const instance = modelDefinition[INSTANCE_KEY];
 
     return {
@@ -28,7 +29,7 @@ export function inspect(modelDefinition: any) {
                 modelDefinition.name,
                 MetaKey.Schema,
             );
-            return (schemaOptions?.exclusion || []).includes(apiType);
+            return util.defaultTo(schemaOptions?.exclusion, []).includes(apiType);
         },
     };
 }

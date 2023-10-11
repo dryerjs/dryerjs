@@ -41,7 +41,7 @@ export class Metadata {
         modelName: string,
         metaKey: MetaKey,
     ): { [property: string]: MetaValue } {
-        return this.propertiesByModel[modelName][metaKey] || {};
+        return util.defaultTo(this.propertiesByModel[modelName][metaKey], {});
     }
 
     public static getMetaValue(modelName: string, metaKey: MetaKey, property: string): MetaValue {
