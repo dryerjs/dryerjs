@@ -2,6 +2,7 @@ import { MetaKey } from '../metadata';
 import { Model } from '../model';
 import { inspect } from '../inspect';
 import * as util from '../util';
+import { BaseContext } from '../dryer';
 
 import { OutputService } from './output';
 import { ObjectProcessor } from './object-processor';
@@ -10,7 +11,11 @@ import { UpdateService } from './update';
 import { GetService } from './get';
 
 export class CreateService {
-    public static async create<T, Context>(input: Partial<T>, context: Context, model: Model<T>) {
+    public static async create<T, Context extends BaseContext>(
+        input: Partial<T>,
+        context: Context,
+        model: Model<T>,
+    ) {
         await ObjectProcessor.validate({ input, context, modelDefinition: model.definition });
         const defaultAppliedInput = await ObjectProcessor.setDefaultPartial({
             obj: input,
@@ -28,7 +33,11 @@ export class CreateService {
         return await OutputService.output<T, Context>(value, context, model);
     }
 
-    public static async createRecursive<T, Context>(input: Partial<T>, context: Context, model: Model<T>) {
+    public static async createRecursive<T, Context extends BaseContext>(
+        input: Partial<T>,
+        context: Context,
+        model: Model<T>,
+    ) {
         const result = await this.create(input, context, model);
 
         for (const property of inspect(model.definition).getRelationProperties()) {
@@ -37,7 +46,7 @@ export class CreateService {
             if (!supportedKinds.includes(relation.kind)) continue;
             if (util.isNil(input[property.name])) continue;
             const relatedInput = input[property.name];
-            const relationModel = context['dryer'].model(property.getRelationModelDefinition());
+            const relationModel = context.dryer.model(property.getRelationModelDefinition());
 
             if (relation.kind === RelationKind.HasMany) {
                 for (const relatedInputItem of relatedInput as any[]) {

@@ -14,13 +14,10 @@ import { ModelDefinition, RelationKind } from './shared';
 import { MetaKey } from './metadata';
 import { Property } from './property';
 import { inspect } from './inspect';
-import { ModelGetter } from './model';
+import { BaseContext } from './dryer';
 
 export abstract class BaseTypeBuilder {
-    constructor(
-        protected modelDefinition: ModelDefinition,
-        protected dryer: ModelGetter,
-    ) {}
+    constructor(protected modelDefinition: ModelDefinition) {}
 
     protected abstract getName(): string;
     protected abstract isExcluded(property: Property): boolean;
@@ -133,9 +130,9 @@ class OutputTypeBuilder extends BaseTypeBuilder {
     protected getPropertyBaseType(property: Property) {
         if (!property.isRelation()) return super.getPropertyBaseType(property);
         if (property.getRelation().kind === RelationKind.BelongsTo) {
-            const resolve = (parent: any, _args: any, context: any) => {
+            const resolve = (parent: any, _args: any, context: BaseContext) => {
                 const filter = { [property.getRelation().to]: parent[property.getRelation().from] };
-                return this.dryer
+                return context.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
                     .getOne(filter);
@@ -150,9 +147,9 @@ class OutputTypeBuilder extends BaseTypeBuilder {
         }
 
         if (property.getRelation().kind === RelationKind.HasMany) {
-            const resolve = async (parent: any, _args: any, context: any) => {
+            const resolve = async (parent: any, _args: any, context: BaseContext) => {
                 const filter = { [property.getRelation().to]: parent[property.getRelation().from] };
-                return await this.dryer
+                return await context.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
                     .getAll(filter);
@@ -166,9 +163,9 @@ class OutputTypeBuilder extends BaseTypeBuilder {
         }
 
         if (property.getRelation().kind === RelationKind.HasOne) {
-            const resolve = async (_parent: any, _args: any, context: any) => {
+            const resolve = async (_parent: any, _args: any, context: BaseContext) => {
                 const filter = { [property.getRelation().to]: _parent[property.getRelation().from] };
-                const [result] = await this.dryer
+                const [result] = await context.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
                     .getAll(filter);
@@ -183,9 +180,9 @@ class OutputTypeBuilder extends BaseTypeBuilder {
             };
         }
         if (property.getRelation().kind === RelationKind.ReferencesMany) {
-            const resolve = async (parent: any, _args: any, context: any) => {
+            const resolve = async (parent: any, _args: any, context: BaseContext) => {
                 const filter = { [property.getRelation().to]: { $in: parent[property.getRelation().from] } };
-                return await this.dryer
+                return await context.dryer
                     .model(property.getRelationModelDefinition())
                     .inContext(context)
                     .getAll(filter);
@@ -255,17 +252,7 @@ class UpdateInputTypeBuilder extends BaseTypeBuilder {
 }
 
 export class Typer {
-    private static dryer: ModelGetter;
-
-    public static init(dryer: ModelGetter) {
-        this.dryer = dryer;
-    }
-
     public static get(modelDefinition: ModelDefinition) {
-        /* istanbul ignore if */
-        if (util.isNil(this.dryer)) {
-            throw new Error('Typer is not initialized');
-        }
         const cacheKey = '__typer__';
         if (modelDefinition[cacheKey]) return modelDefinition[cacheKey] as ReturnType<typeof Typer.build>;
         const result = this.build(modelDefinition);
@@ -291,17 +278,9 @@ export class Typer {
     }
 
     private static build(modelDefinition: ModelDefinition) {
-        const output = new OutputTypeBuilder(modelDefinition, this.dryer).getType() as GraphQLObjectType;
-        const create = new CreateInputTypeBuilder(
-            modelDefinition,
-            this.dryer,
-        ).getType() as GraphQLInputObjectType;
-
-        const update = new UpdateInputTypeBuilder(
-            modelDefinition,
-            this.dryer,
-        ).getType() as GraphQLInputObjectType;
-
+        const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
+        const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
+        const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const nonNullOutput = new GraphQLNonNull(output);
         const result = {
             output,

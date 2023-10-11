@@ -1,9 +1,10 @@
 import * as util from '../util';
 import { Model } from '../model';
+import { BaseContext } from '../dryer';
 import { OutputService } from './output';
 
 export class PaginateService {
-    public static async paginate<T, Context>(
+    public static async paginate<T, Context extends BaseContext>(
         skip: number | undefined,
         take: number | undefined,
         context: Context,

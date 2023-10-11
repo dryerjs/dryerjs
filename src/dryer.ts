@@ -3,9 +3,8 @@ import mongoose from 'mongoose';
 import { ApolloServer } from '@apollo/server';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './shared';
-import { Model, ModelGetter } from './model';
+import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
-import { Typer } from './typer';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -21,10 +20,8 @@ export interface DryerConfig<Context> {
     appendContext?: ContextFunction<Context>;
 }
 
-export class Dryer<Context> implements ModelGetter {
-    protected constructor(private readonly config: DryerConfig<Context>) {
-        Typer.init(this);
-    }
+export class Dryer<Context> {
+    protected constructor(private readonly config: DryerConfig<Context>) {}
 
     public static init<Context>(config: DryerConfig<Context>) {
         return new Dryer(config);
@@ -49,7 +46,7 @@ export class Dryer<Context> implements ModelGetter {
             const model = new Model(modelDefinition);
             this.models[modelDefinition.name] = model;
 
-            const apis = ApisBuilder.build(model);
+            const apis = new ApisBuilder(model).build();
             mutationFields = {
                 ...mutationFields,
                 ...apis.mutationFields,
@@ -91,3 +88,5 @@ export class Dryer<Context> implements ModelGetter {
         await this.apolloServer.stop();
     }
 }
+
+export type BaseContext = { dryer: Dryer<any> };

@@ -2,7 +2,7 @@ import { ExcludeOnInput, Property, RequiredOnCreate, Schema } from '../metadata'
 import { DryerTest } from './dryer-test';
 
 @Schema({ exclusion: ['all', 'delete', 'paginate', 'update'] })
-class Movie {
+class Game {
     @ExcludeOnInput()
     @Property()
     id: string;
@@ -13,7 +13,7 @@ class Movie {
 }
 
 export const dryer = DryerTest.init({
-    modelDefinitions: [Movie],
+    modelDefinitions: [Game],
 });
 
 describe('Exclusion works', () => {
@@ -21,10 +21,10 @@ describe('Exclusion works', () => {
         await dryer.start();
     });
 
-    it('updateMovie is not generated', async () => {
+    it('Game is not generated', async () => {
         const query = `
             mutation {
-                updateMovie(input: {}) {
+                Game(input: {}) {
                     id
                 }
             }
@@ -32,49 +32,49 @@ describe('Exclusion works', () => {
 
         await dryer.makeFailRequest({
             query,
-            errorMessageMustContains: 'Cannot query field "updateMovie"',
+            errorMessageMustContains: 'Cannot query field "Game"',
         });
     });
 
-    it('deleteMovie is not generated', async () => {
+    it('Game is not generated', async () => {
         const query = `
             mutation {
-                deleteMovie(id: "123") {
+                Game(id: "123") {
                     id
                 }
             }
         `;
         await dryer.makeFailRequest({
             query,
-            errorMessageMustContains: 'Cannot query field "deleteMovie"',
+            errorMessageMustContains: 'Cannot query field "Game"',
         });
     });
 
-    it('allMovies is not generated', async () => {
+    it('Game is not generated', async () => {
         const query = `
             query {
-                allMovies {
+                Game {
                     id
                 }
             }
         `;
         await dryer.makeFailRequest({
             query,
-            errorMessageMustContains: 'Cannot query field "allMovies"',
+            errorMessageMustContains: 'Cannot query field "Game"',
         });
     });
 
-    it('paginateMovies is not generated', async () => {
+    it('Game is not generated', async () => {
         const query = `
             query {
-                paginateMovies {
+                Game {
                     id
                 }
             }
         `;
         await dryer.makeFailRequest({
             query,
-            errorMessageMustContains: 'Cannot query field "paginateMovies"',
+            errorMessageMustContains: 'Cannot query field "Game"',
         });
     });
 

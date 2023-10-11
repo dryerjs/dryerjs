@@ -12,10 +12,7 @@ import {
     GetAllService,
     EmbeddedService,
 } from './services';
-
-export interface ModelGetter {
-    model<T>(modelDefinition: ModelDefinition<T>): Model<T>;
-}
+import { BaseContext } from './dryer';
 
 export class Model<T = any> {
     public readonly name: string;
@@ -28,7 +25,7 @@ export class Model<T = any> {
         this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
     }
 
-    public inContext<Context>(context: Context) {
+    public inContext<Context extends BaseContext>(context: Context) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const model = this;
         return {

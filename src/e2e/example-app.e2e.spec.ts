@@ -261,26 +261,28 @@ describe('Example app', () => {
 
     describe('inContext works', () => {
         let user: User;
+        const fakeContext: any = {};
+
         beforeAll(async () => {
-            user = await dryer.model(User).inContext({}).create({
+            user = await dryer.model(User).inContext(fakeContext).create({
                 email: 'test@test.test',
                 password: '',
             });
         });
 
         it('get', async () => {
-            const foundUser = await dryer.model(User).inContext({}).get(user.id);
+            const foundUser = await dryer.model(User).inContext(fakeContext).get(user.id);
             expect(foundUser?.email).toContain('@test.test');
         });
 
         it('output', async () => {
-            const outputtedUser = await dryer.model(User).inContext({}).output(user);
+            const outputtedUser = await dryer.model(User).inContext(fakeContext).output(user);
             expect(outputtedUser.email).toEqual('***@test.test');
         });
 
         it('getOne not found returns null', async () => {
             const notFoundId = '000000000000000000000000';
-            const result = await dryer.model(User).inContext({}).getOne({ _id: notFoundId });
+            const result = await dryer.model(User).inContext(fakeContext).getOne({ _id: notFoundId });
             expect(result).toBeNull();
         });
     });
