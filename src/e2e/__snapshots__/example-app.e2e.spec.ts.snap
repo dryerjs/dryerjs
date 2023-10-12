@@ -692,6 +692,16 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "ofType": null,
         },
       },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "yearOfBirth",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserYearOfBirthFilter",
+          "ofType": null,
+        },
+      },
     ],
     "interfaces": null,
     "kind": "INPUT_OBJECT",
@@ -731,6 +741,67 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": null,
     "kind": "INPUT_OBJECT",
     "name": "UserEmailFilter",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "exists",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "gt",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "gte",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "lt",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "lte",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserYearOfBirthFilter",
     "possibleTypes": null,
   },
   {

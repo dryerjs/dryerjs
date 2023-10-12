@@ -23,4 +23,8 @@ describe('util', () => {
         expect(util.deepOmit(null, ['key'])).toBe(null);
         expect(util.deepOmit('not_an_object', ['key'])).toBe('not_an_object');
     });
+
+    it('defaultTo', () => {
+        expect(util.defaultTo(NaN, 100)).toEqual(100);
+    });
 });

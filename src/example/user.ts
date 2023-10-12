@@ -75,6 +75,7 @@ export class User {
             },
         });
     })
+    @Filterable({ operators: ['exists', 'gt', 'gte', 'lt', 'lte'] })
     yearOfBirth?: number;
 
     @Property()

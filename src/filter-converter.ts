@@ -40,6 +40,7 @@ export const convertGraphQLFilterToMongoQuery = (graphqlFilter: GraphQLField) =>
     for (const [fieldName, field] of Object.entries(graphqlFilter)) {
         for (const [operator, value] of Object.entries(field)) {
             const config = configs.find(c => c.from === operator);
+            /* istanbul ignore next */
             if (util.isNil(config)) throw new Error(`Unknown filter operator: ${operator}`);
             result[fieldName] = util.isFunction(config.to)
                 ? (config.to as ConvertOperatorFunction)(value)
