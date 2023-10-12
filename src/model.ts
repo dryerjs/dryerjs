@@ -53,7 +53,7 @@ export class Model<T = any> {
             paginate: async (limit: number, page: number, filter: FilterQuery<T>) => {
                 return await PaginateService.paginate<T, Context>(page, limit, filter, context, this);
             },
-            getAll: async (filter: FilterQuery<T> = {}) => {
+            getAll: async (filter: FilterQuery<T>) => {
                 return await GetAllService.getAll(context, this, filter);
             },
             output: async (raw: T): Promise<T> => {

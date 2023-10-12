@@ -116,7 +116,18 @@ exports[`Example app Generate correct graphql schema 1`] = `
         },
       },
       {
-        "args": [],
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "filter",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "UserFilter",
+              "ofType": null,
+            },
+          },
+        ],
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,

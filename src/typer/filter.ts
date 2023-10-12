@@ -1,4 +1,4 @@
-import { GraphQLInputObjectType, GraphQLList } from 'graphql';
+import { GraphQLInputObjectType, GraphQLList, GraphQLBoolean } from 'graphql';
 import * as util from '../util';
 import { FilterOperator, ModelDefinition } from '../shared';
 import { MetaKey } from '../metadata';
@@ -28,6 +28,7 @@ export class FilterInputTypeBuilder {
         if (listOperators.includes(operator)) {
             return new GraphQLList(property.getScalarOrEnumType());
         }
+        if (operator === 'exists') return GraphQLBoolean;
         return property.getScalarOrEnumType();
     }
 

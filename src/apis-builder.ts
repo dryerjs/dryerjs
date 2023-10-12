@@ -6,6 +6,7 @@ import { Property } from './property';
 import { inspect } from './inspect';
 import { ApiType, GraphQLFieldConfigMap } from './shared';
 import { BaseContext } from './dryer';
+import { convertGraphQLFilterToMongoQuery } from './filter-converter';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -100,7 +101,8 @@ export class ApisBuilder<T, Context extends BaseContext> {
                 type: new graphql.GraphQLList(Typer.get(this.model.definition).nonNullOutput),
                 args,
                 resolve: async (_parent, { filter = {} }, context: Context) => {
-                    return await this.model.inContext(context).getAll(filter);
+                    const mongoQuery = convertGraphQLFilterToMongoQuery(filter);
+                    return await this.model.inContext(context).getAll(mongoQuery);
                 },
             } as any,
         };
@@ -115,10 +117,11 @@ export class ApisBuilder<T, Context extends BaseContext> {
                 } as any,
                 resolve: async (
                     _parent,
-                    { options: { limit = 10, page = 1, filter = {} } },
+                    { options: { limit = 10, page = 1, filter = {} } = {} },
                     context: Context,
                 ) => {
-                    return await this.model.inContext(context).paginate(limit, page, filter);
+                    const mongoQuery = convertGraphQLFilterToMongoQuery(filter);
+                    return await this.model.inContext(context).paginate(limit, page, mongoQuery);
                 },
             },
         };

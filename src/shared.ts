@@ -63,8 +63,7 @@ export type FilterOperator =
     | 'regex'
     | 'notRegex'
     | 'all'
-    | 'exists'
-    | 'between';
+    | 'exists';
 
 export type FilterableOptions = {
     operators: FilterOperator[];
