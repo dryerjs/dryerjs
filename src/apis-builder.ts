@@ -93,29 +93,32 @@ export class ApisBuilder<T, Context extends BaseContext> {
     }
 
     private getAll() {
+        const filter = Typer.get(this.model.definition).filter;
+        const args = filter ? { filter: { type: filter } } : {};
         return {
             [`all${util.plural(this.model.name)}`]: {
                 type: new graphql.GraphQLList(Typer.get(this.model.definition).nonNullOutput),
-                resolve: async (_parent, _args, context: Context) => {
-                    return await this.model.inContext(context).getAll();
+                args,
+                resolve: async (_parent, { filter = {} }, context: Context) => {
+                    return await this.model.inContext(context).getAll(filter);
                 },
-            },
+            } as any,
         };
     }
 
     private paginate() {
-        const filterableType = Typer.get(this.model.definition).filterable;
         return {
             [`paginate${util.plural(this.model.name)}`]: {
                 type: Typer.get(this.model.definition).paginatedOutput,
                 args: {
-                    skip: { type: graphql.GraphQLInt },
-                    take: { type: graphql.GraphQLInt },
-                    ...(filterableType ? { filter: { type: filterableType } } : {}),
+                    options: { type: Typer.get(this.model.definition).paginatedOptions },
                 } as any,
-                resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
-                    const result = await this.model.inContext(context).paginate(skip, take);
-                    return result;
+                resolve: async (
+                    _parent,
+                    { options: { limit = 10, page = 1, filter = {} } },
+                    context: Context,
+                ) => {
+                    return await this.model.inContext(context).paginate(limit, page, filter);
                 },
             },
         };

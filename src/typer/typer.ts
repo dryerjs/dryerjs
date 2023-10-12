@@ -12,7 +12,7 @@ import { Property } from '../property';
 import { OutputTypeBuilder } from './output';
 import { CreateInputTypeBuilder } from './create';
 import { UpdateInputTypeBuilder } from './update';
-import { FilterableInputTypeBuilder } from './filter';
+import { FilterInputTypeBuilder } from './filter';
 
 const cacheKey = Symbol('typer');
 
@@ -45,15 +45,16 @@ export class Typer {
         const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
-        const filterable = new FilterableInputTypeBuilder(modelDefinition).getType();
+        const filter = new FilterInputTypeBuilder(modelDefinition).getType();
         const nonNullOutput = new GraphQLNonNull(output);
         const result = {
             output,
             nonNullOutput,
             create,
             update,
-            filterable,
+            filter,
             paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
+            paginatedOptions: this.getPaginatedOptionsType(modelDefinition, filter),
         };
         return result;
     }
@@ -75,5 +76,20 @@ export class Typer {
             },
         };
         return new GraphQLObjectType(result);
+    }
+
+    private static getPaginatedOptionsType(
+        modelDefinition: ModelDefinition,
+        filter: GraphQLInputObjectType | null,
+    ) {
+        const result = {
+            name: `Paginated${util.plural(modelDefinition.name)}Options`,
+            fields: {
+                page: { type: GraphQLInt },
+                limit: { type: GraphQLInt },
+            },
+        };
+        if (util.isNotNullObject(filter)) result.fields['filter'] = { type: filter };
+        return new GraphQLInputObjectType(result);
     }
 }

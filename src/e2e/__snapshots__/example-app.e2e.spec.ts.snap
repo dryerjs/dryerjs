@@ -97,30 +97,10 @@ exports[`Example app Generate correct graphql schema 1`] = `
           {
             "defaultValue": null,
             "description": null,
-            "name": "skip",
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null,
-            },
-          },
-          {
-            "defaultValue": null,
-            "description": null,
-            "name": "take",
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null,
-            },
-          },
-          {
-            "defaultValue": null,
-            "description": null,
-            "name": "filter",
+            "name": "options",
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "UserFilter",
+              "name": "PaginatedUsersOptions",
               "ofType": null,
             },
           },
@@ -643,6 +623,47 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": [],
     "kind": "OBJECT",
     "name": "PaginatedUsers",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "page",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "limit",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "filter",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserFilter",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "PaginatedUsersOptions",
     "possibleTypes": null,
   },
   {

@@ -2,7 +2,7 @@ import { GraphQLObjectType, GraphQLInputObjectType, GraphQLNonNull, GraphQLList 
 import { ModelDefinition } from '../shared';
 import { Property } from '../property';
 import { inspect } from '../inspect';
-import { Typer } from '.';
+import { Typer } from './typer';
 
 export abstract class BaseTypeBuilder {
     constructor(protected modelDefinition: ModelDefinition) {}

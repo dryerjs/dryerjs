@@ -5,7 +5,7 @@ import { MetaKey } from '../metadata';
 import { Property } from '../property';
 import { inspect } from '../inspect';
 
-export class FilterableInputTypeBuilder {
+export class FilterInputTypeBuilder {
     constructor(private modelDefinition: ModelDefinition) {}
 
     public getType() {
