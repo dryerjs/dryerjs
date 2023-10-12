@@ -1,6 +1,6 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType, EmbeddedSchemaOptions, Relation } from './shared';
+import { ApiType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
 
 export class Property {
     constructor(
@@ -68,5 +68,9 @@ export class Property {
         const typeAsClass = relationType.toString().includes('class');
         if (typeAsClass) return relationType;
         return relationType();
+    }
+
+    public getFilterableOptions() {
+        return this.getMetaValue(MetaKey.Filterable) as FilterableOptions;
     }
 }

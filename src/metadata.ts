@@ -1,6 +1,13 @@
 import 'reflect-metadata';
 import * as util from './util';
-import { EmbeddedSchemaOptions, SchemaOptions, Relation, RelationKind, TargetClass } from './shared';
+import {
+    EmbeddedSchemaOptions,
+    SchemaOptions,
+    Relation,
+    RelationKind,
+    TargetClass,
+    FilterableOptions,
+} from './shared';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -280,5 +287,12 @@ export function ReferencesMany(options: { type: TargetClass; from: string; to?: 
             to: util.defaultTo(options.to, '_id'),
         };
         Metadata.addProperty(target, MetaKey.Relation, propertyKey, relation);
+    };
+}
+
+export function Filterable(options: FilterableOptions) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target, MetaKey.Filterable, propertyKey, options);
     };
 }

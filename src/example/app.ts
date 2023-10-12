@@ -18,6 +18,7 @@ import {
     DefaultOnOutput,
     EmbeddedProperty,
     ExcludeOnCreate,
+    Filterable,
 } from 'dryerjs';
 
 export class Address {
@@ -81,6 +82,7 @@ export class User {
         });
     })
     @RequiredOnCreate()
+    @Filterable({ operators: ['eq', 'in'] })
     email: string;
 
     @Property()
