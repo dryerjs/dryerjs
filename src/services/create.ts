@@ -85,7 +85,6 @@ export class CreateService {
                 );
             }
         }
-
         return await GetService.getOrThrow<T, Context>(result['_id'], context, model);
     }
 }
