@@ -1,6 +1,9 @@
+import { GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLEnumType } from 'graphql';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
+
+const ENUM_CACHE_KEY = Symbol('ENUM_CACHE_KEY');
 
 export class Property {
     constructor(
@@ -11,16 +14,6 @@ export class Property {
 
     public getMetaValue(key: MetaKey) {
         return Metadata.getMetaValue(this.modelDefinition, key, this.name);
-    }
-
-    public isScalar() {
-        const typeConfig = {
-            String,
-            Date,
-            Number,
-            Boolean,
-        };
-        return util.isFunction(typeConfig[this.typeInClass.name]);
     }
 
     public isArray() {
@@ -72,5 +65,44 @@ export class Property {
 
     public getFilterableOptions() {
         return this.getMetaValue(MetaKey.Filterable) as FilterableOptions;
+    }
+
+    public getScalarOrEnumType() {
+        const overrideType = this.getMetaValue(MetaKey.GraphQLType);
+        if (util.isObject(overrideType)) return overrideType;
+
+        const typeConfig = {
+            String: GraphQLString,
+            Date: GraphQLString,
+            Number: GraphQLFloat,
+            Boolean: GraphQLBoolean,
+        };
+
+        if (util.isFunction(this.getMetaValue(MetaKey.ScalarArrayType))) {
+            return typeConfig[this.getMetaValue(MetaKey.ScalarArrayType).name];
+        }
+
+        const enumInObject = this.getMetaValue(MetaKey.Enum);
+        if (util.isObject(enumInObject)) {
+            const enumName = Object.keys(enumInObject)[0];
+            const enumValues = enumInObject[enumName];
+
+            enumInObject[ENUM_CACHE_KEY] =
+                enumInObject[ENUM_CACHE_KEY] ??
+                new GraphQLEnumType({
+                    name: enumName,
+                    values: Object.keys(enumValues)
+                        .filter(key => !'0123456789'.includes(key)) // support enum for numbers
+                        .reduce((values, key) => {
+                            values[key] = { value: enumValues[key] };
+                            return values;
+                        }, {}),
+                });
+
+            return enumInObject[ENUM_CACHE_KEY];
+        }
+
+        if (typeConfig[this.typeInClass.name]) return typeConfig[this.typeInClass.name];
+        throw new Error(`Property ${this.name} is not a scalar property`);
     }
 }

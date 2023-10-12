@@ -1,4 +1,4 @@
-import {  GraphQLList } from 'graphql';
+import { GraphQLList } from 'graphql';
 import { RelationKind } from '../shared';
 import { MetaKey } from '../metadata';
 import { Property } from '../property';

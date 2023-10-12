@@ -104,14 +104,15 @@ export class ApisBuilder<T, Context extends BaseContext> {
     }
 
     private paginate() {
+        const filterableType = Typer.get(this.model.definition).filterable;
         return {
             [`paginate${util.plural(this.model.name)}`]: {
                 type: Typer.get(this.model.definition).paginatedOutput,
                 args: {
                     skip: { type: graphql.GraphQLInt },
                     take: { type: graphql.GraphQLInt },
-                    // filter: { type: Typer.get(this.model.definition).filterable },
-                },
+                    ...(filterableType ? { filter: { type: filterableType } } : {}),
+                } as any,
                 resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
                     const result = await this.model.inContext(context).paginate(skip, take);
                     return result;

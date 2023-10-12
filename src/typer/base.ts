@@ -1,16 +1,5 @@
-import {
-    GraphQLObjectType,
-    GraphQLInputObjectType,
-    GraphQLNonNull,
-    GraphQLString,
-    GraphQLFloat,
-    GraphQLBoolean,
-    GraphQLEnumType,
-    GraphQLList,
-} from 'graphql';
-import * as util from '../util';
+import { GraphQLObjectType, GraphQLInputObjectType, GraphQLNonNull, GraphQLList } from 'graphql';
 import { ModelDefinition } from '../shared';
-import { MetaKey } from '../metadata';
 import { Property } from '../property';
 import { inspect } from '../inspect';
 import { Typer } from '.';
@@ -58,45 +47,6 @@ export abstract class BaseTypeBuilder {
     }
 
     protected getPropertyBaseType(property: Property) {
-        const overrideType = property.getMetaValue(MetaKey.GraphQLType);
-        if (util.isObject(overrideType)) return overrideType;
-
-        const typeConfig = {
-            String: GraphQLString,
-            Date: GraphQLString,
-            Number: GraphQLFloat,
-            Boolean: GraphQLBoolean,
-        };
-
-        const isScalarArrayType =
-            property.isArray() && util.isFunction(property.getMetaValue(MetaKey.ScalarArrayType));
-        if (isScalarArrayType) {
-            return new GraphQLList(typeConfig[property.getMetaValue(MetaKey.ScalarArrayType).name]);
-        }
-
-        const enumInObject = property.getMetaValue(MetaKey.Enum);
-        if (util.isObject(enumInObject)) {
-            const cacheKey = '__graphql_enum_type__';
-            const enumName = Object.keys(enumInObject)[0];
-            const enumValues = enumInObject[enumName];
-
-            enumInObject[cacheKey] =
-                enumInObject[cacheKey] ??
-                new GraphQLEnumType({
-                    name: enumName,
-                    values: Object.keys(enumValues)
-                        .filter(key => !'0123456789'.includes(key)) // support enum for numbers
-                        .reduce((values, key) => {
-                            values[key] = { value: enumValues[key] };
-                            return values;
-                        }, {}),
-                });
-
-            return property.isArray() ? new GraphQLList(enumInObject[cacheKey]) : enumInObject[cacheKey];
-        }
-
-        if (property.isScalar()) return typeConfig[property.typeInClass.name];
-
         if (property.isEmbedded()) {
             const { create, update, output } = Typer.get(property.getEmbeddedModelDefinition());
             const subType = (() => {
@@ -106,9 +56,7 @@ export abstract class BaseTypeBuilder {
             })();
             return property.isArray() ? new GraphQLList(subType) : subType;
         }
-
-        throw new Error(
-            `Invalid type for property ${property.name} for ${this.modelDefinition.name}. You can override it with @GraphQLType(/* type */)`,
-        );
+        const scalarOrEnumType = property.getScalarOrEnumType();
+        return property.isArray() ? new GraphQLList(scalarOrEnumType) : scalarOrEnumType;
     }
 }

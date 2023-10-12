@@ -12,7 +12,7 @@ import { Property } from '../property';
 import { OutputTypeBuilder } from './output';
 import { CreateInputTypeBuilder } from './create';
 import { UpdateInputTypeBuilder } from './update';
-// import { FilterableInputTypeBuilder } from './filter';
+import { FilterableInputTypeBuilder } from './filter';
 
 const cacheKey = Symbol('typer');
 
@@ -45,14 +45,14 @@ export class Typer {
         const output = new OutputTypeBuilder(modelDefinition).getType() as GraphQLObjectType;
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
-        // const filterable = new FilterableInputTypeBuilder(modelDefinition).getType();
+        const filterable = new FilterableInputTypeBuilder(modelDefinition).getType();
         const nonNullOutput = new GraphQLNonNull(output);
         const result = {
             output,
             nonNullOutput,
             create,
             update,
-            // filterable,
+            filterable,
             paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
         };
         return result;

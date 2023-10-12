@@ -114,6 +114,16 @@ exports[`Example app Generate correct graphql schema 1`] = `
               "ofType": null,
             },
           },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "filter",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "UserFilter",
+              "ofType": null,
+            },
+          },
         ],
         "deprecationReason": null,
         "description": null,
@@ -633,6 +643,62 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": [],
     "kind": "OBJECT",
     "name": "PaginatedUsers",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "email",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserEmailFilter",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserFilter",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "eq",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "in",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserEmailFilter",
     "possibleTypes": null,
   },
   {
