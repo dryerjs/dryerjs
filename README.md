@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="https://cdn.dryerjs.com/logo/Dark.png">
-  <source media="(prefers-color-scheme: dark)" srcset="https://cdn.dryerjs.com/logo/Light.png">
-  <img alt="DryerJS Logo" src="https://user-images.githubusercontent.com/25423296/163456779-a8556205-d0a5-45e2-ac17-42d089e3c3f8.png" width="300px">
+  <source media="(prefers-color-scheme: light)" srcset="https://dryerjs.github.io/logo-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://dryerjs.github.io/logo-dark.png">
+  <img alt="DryerJS Logo" src="https://dryerjs.github.io/logo-light.png" width="300px">
 </picture>
 
 DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
