@@ -289,7 +289,13 @@ describe('Example app', () => {
         });
     });
 
+    it('Index generated', async () => {
+        const indexExists = await dryer.model(User).db.collection.indexExists('email_1');
+        expect(indexExists).toBeTruthy();
+    });
+
     afterAll(async () => {
+        await dryer.model(User).db.collection.dropIndexes();
         await dryer.stop();
     });
 });

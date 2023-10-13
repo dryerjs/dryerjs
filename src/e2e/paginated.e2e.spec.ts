@@ -13,7 +13,7 @@ import { DryerTest } from './dryer-test';
 import { allFilterOperators } from '../shared';
 
 @Schema({})
-class User {
+class Customer {
     @ExcludeOnCreate()
     @Property()
     @Filterable({ operators: allFilterOperators })
@@ -38,15 +38,15 @@ class User {
 }
 
 export const dryer = DryerTest.init({
-    modelDefinitions: [User],
+    modelDefinitions: [Customer],
 });
 
 describe('Paginate with filter works', () => {
     beforeAll(async () => {
         await dryer.start();
 
-        // create 5 users from input array
-        const users = [
+        // create 5 customers from input array
+        const customers = [
             { name: 'John', email: 'john@example.com', numberOfOrders: 10 },
             { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15 },
             { name: 'Jack', email: 'jack@example.com', numberOfOrders: 20 },
@@ -54,23 +54,23 @@ describe('Paginate with filter works', () => {
             { name: 'Joe', email: 'joe@example.com', numberOfOrders: null },
         ];
 
-        for (const user of users) {
+        for (const customer of customers) {
             await dryer.makeSuccessRequest({
                 query: `
-                    mutation CreateUser($input: CreateUserInput!) {
-                        createUser(input: $input) {
+                    mutation CreateCustomer($input: CreateCustomerInput!) {
+                        createCustomer(input: $input) {
                             id
                         }
                     }
                 `,
-                variables: { input: user },
+                variables: { input: customer },
             });
         }
     });
 
     const query = `
-        query PaginateUsers($options: PaginatedUsersOptions) {
-            paginateUsers(options: $options) {
+        query PaginateCustomers($options: PaginatedCustomersOptions) {
+            paginateCustomers(options: $options) {
                 docs {
                     email
                     numberOfOrders
@@ -80,35 +80,35 @@ describe('Paginate with filter works', () => {
         }
     `;
 
-    it('should return all users', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+    it('should return all customers', async () => {
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { page: 1, limit: 10, filter: {} } },
         });
 
-        expect(paginateUsers.docs).toHaveLength(5);
-        expect(paginateUsers.totalDocs).toEqual(5);
+        expect(paginateCustomers.docs).toHaveLength(5);
+        expect(paginateCustomers.totalDocs).toEqual(5);
     });
 
     it('eq', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { eq: 10 } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [{ email: 'john@example.com', numberOfOrders: 10 }],
             totalDocs: 1,
         });
     });
 
     it('notEq', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { notEq: 20 } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
@@ -120,12 +120,12 @@ describe('Paginate with filter works', () => {
     });
 
     it('in', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { name: { in: ['John', 'Jane'] } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
@@ -135,12 +135,12 @@ describe('Paginate with filter works', () => {
     });
 
     it('notIn', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { name: { notIn: ['John', 'Jane'] } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'jack@example.com', numberOfOrders: 20 },
                 { email: 'jill@example.com', numberOfOrders: null },
@@ -151,12 +151,12 @@ describe('Paginate with filter works', () => {
     });
 
     it('contains', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { name: { contains: 'Ja' } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'jane@example.com', numberOfOrders: 15 },
                 { email: 'jack@example.com', numberOfOrders: 20 },
@@ -166,12 +166,12 @@ describe('Paginate with filter works', () => {
     });
 
     it('notContains', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { name: { notContains: 'Ja' } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jill@example.com', numberOfOrders: null },
@@ -182,24 +182,24 @@ describe('Paginate with filter works', () => {
     });
 
     it('gt with lt', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { lt: 20, gt: 10 } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [{ email: 'jane@example.com', numberOfOrders: 15 }],
             totalDocs: 1,
         });
     });
 
     it('gte with lte', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { lte: 20, gte: 10 } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
@@ -210,24 +210,24 @@ describe('Paginate with filter works', () => {
     });
 
     it('regex with notRegex', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { email: { regex: 'jo', notRegex: 'john' } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [{ email: 'joe@example.com', numberOfOrders: null }],
             totalDocs: 1,
         });
     });
 
     it('exists = true', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { exists: true } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
@@ -238,12 +238,12 @@ describe('Paginate with filter works', () => {
     });
 
     it('exists = false', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: { options: { filter: { numberOfOrders: { exists: false } } } },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'jill@example.com', numberOfOrders: null },
                 { email: 'joe@example.com', numberOfOrders: null },
@@ -253,14 +253,14 @@ describe('Paginate with filter works', () => {
     });
 
     it('sort asc', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: {
                 options: { sort: { numberOfOrders: 'ASC' }, filter: { numberOfOrders: { exists: true } } },
             },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'john@example.com', numberOfOrders: 10 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
@@ -271,14 +271,14 @@ describe('Paginate with filter works', () => {
     });
 
     it('sort desc', async () => {
-        const { paginateUsers } = await dryer.makeSuccessRequest({
+        const { paginateCustomers } = await dryer.makeSuccessRequest({
             query,
             variables: {
                 options: { sort: { numberOfOrders: 'DESC' }, filter: { numberOfOrders: { exists: true } } },
             },
         });
 
-        expect(paginateUsers).toEqual({
+        expect(paginateCustomers).toEqual({
             docs: [
                 { email: 'jack@example.com', numberOfOrders: 20 },
                 { email: 'jane@example.com', numberOfOrders: 15 },
