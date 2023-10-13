@@ -6,9 +6,9 @@
 
 DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
 
-[![codecov](https://codecov.io/gh/vanpho93/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/vanpho93/dryerjs)
-[![Build Status]( https://github.com/vanpho93/dryerjs/workflows/CI/badge.svg)](https://github.com/vanpho93/dryerjs/actions)
-[![Release Status]( https://github.com/vanpho93/dryerjs/workflows/Release/badge.svg)](https://github.com/vanpho93/dryerjs/actions)
+[![codecov](https://codecov.io/gh/dryerjs/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/dryerjs/dryerjs)
+[![Build Status]( https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
+[![Release Status]( https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
 
 ## Features
@@ -80,11 +80,11 @@ To get started with DryerJS, follow these steps:
 
 5. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground.
 
-6. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/vanpho93/dryerjs/tree/master/src/example/app.ts).
+6. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/dryerjs/dryerjs/tree/master/src/example/app.ts).
 
 ## Documentation
 
-We are actively working on documentation. In the meantime, you can explore our [example project](https://github.com/vanpho93/dryerjs/tree/master/src/example) to see DryerJS in action.
+We are actively working on documentation. In the meantime, you can explore our [example project](https://github.com/dryerjs/dryerjs/tree/master/src/example) to see DryerJS in action.
 
 ## Contributing
 
@@ -137,4 +137,4 @@ To update snapshots for end-to-end tests, use the following command:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE file](https://github.com/vanpho93/dryerjs/blob/master/LICENSE) for details.
+This project is licensed under the MIT License - see the [LICENSE file](https://github.com/dryerjs/dryerjs/blob/master/LICENSE) for details.

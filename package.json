@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vanpho93/dryerjs.git"
+    "url": "git+https://github.com/dryerjs/dryerjs.git"
   },
   "scripts": {
     "start": "nodemon --exec ts-node -r tsconfig-paths/register -r dotenv/config ./src/example/main.ts",
