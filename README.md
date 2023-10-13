@@ -5,6 +5,9 @@
 [![Release Status]( https://github.com/vanpho93/dryerjs/workflows/Release/badge.svg)](https://github.com/vanpho93/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
 
+![DryerJS Dark Logo](https://cdn.dryerjs.com/logo/Dark.png#gh-light-mode-only)
+![DryerJS Light Logo](https://cdn.dryerjs.com/logo/Light.png#gh-dark-mode-only)
+
 DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
 
 ## Features
