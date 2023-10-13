@@ -56,7 +56,9 @@ describe('convertGraphQLFilterToMongoQuery', () => {
             }),
         ).toEqual({
             firstName: {
-                $exists: false,
+                $not: {
+                    $ne: null,
+                },
             },
         });
     });
