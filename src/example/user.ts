@@ -18,6 +18,7 @@ import {
     ExcludeOnCreate,
     Filterable,
     Sortable,
+    Index,
 } from 'dryerjs';
 import { Phone } from './phone';
 import { Address } from './address';
@@ -28,6 +29,7 @@ enum UserStatus {
     INACTIVE = 'INACTIVE',
 }
 
+@Index({ email: 1 }, { unique: true })
 export class User {
     @ExcludeOnCreate()
     @Property()

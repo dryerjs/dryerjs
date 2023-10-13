@@ -1,6 +1,7 @@
 import mongoose, { FilterQuery } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
+import * as util from './util';
 import { ModelDefinition, NonPrimitiveArrayKeyOf, Sort } from './shared';
 import {
     CreateService,
@@ -13,6 +14,7 @@ import {
     EmbeddedService,
 } from './services';
 import { BaseContext } from './dryer';
+import { MetaKey, Metadata } from './metadata';
 
 export class Model<T = any> {
     public readonly name: string;
@@ -21,6 +23,9 @@ export class Model<T = any> {
     constructor(public readonly definition: ModelDefinition<T>) {
         const mongooseSchema = MongooseSchemaBuilder.build(definition);
         mongooseSchema.plugin(mongoosePaginate);
+        const indexes = util.defaultTo(Metadata.getModelMetaValue(definition, MetaKey.Index), []);
+        indexes.forEach(({ fields, options }) => mongooseSchema.index(fields, options));
+
         this.name = definition.name;
         this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
     }

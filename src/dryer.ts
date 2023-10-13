@@ -29,7 +29,7 @@ export class Dryer<Context> {
 
     public apolloServer: ApolloServer;
     public expressApp: express.Express;
-    private mongoose: mongoose.Mongoose;
+    public mongoose: mongoose.Mongoose;
 
     protected readonly models: { [key: string]: Model } = {};
 

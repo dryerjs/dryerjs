@@ -8,6 +8,7 @@ import {
     TargetClass,
     FilterableOptions,
 } from './shared';
+import { IndexDefinition, IndexOptions } from 'mongoose';
 
 export enum MetaKey {
     DesignType = 'design:type',
@@ -32,6 +33,7 @@ export enum MetaKey {
     Relation = 'Relation',
     ScalarArrayType = 'ScalarArrayType',
     Schema = 'Schema',
+    Index = 'Index',
     Filterable = 'Filterable',
     Sortable = 'Sortable',
 }
@@ -100,6 +102,13 @@ export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {
 export function Schema(options: SchemaOptions) {
     return function (target: TargetClass) {
         Metadata.addModelProperty(target, MetaKey.Schema, options);
+    };
+}
+
+export function Index(fields: IndexDefinition, options?: IndexOptions) {
+    return function (target: TargetClass) {
+        const indexOptions = util.defaultTo(Metadata.getModelMetaValue(target, MetaKey.Index), []);
+        Metadata.addModelProperty(target, MetaKey.Index, [...indexOptions, { fields, options }]);
     };
 }
 
