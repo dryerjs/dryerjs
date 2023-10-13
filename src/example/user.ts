@@ -17,6 +17,7 @@ import {
     EmbeddedProperty,
     ExcludeOnCreate,
     Filterable,
+    Sortable,
 } from 'dryerjs';
 import { Phone } from './phone';
 import { Address } from './address';
@@ -108,6 +109,7 @@ export class User {
     @Property()
     @TransformOnOutput((date: Date) => date.toISOString())
     @GraphQLType(graphql.GraphQLString)
+    @Sortable()
     createdAt: Date;
 
     @EmbeddedProperty({ type: Phone })

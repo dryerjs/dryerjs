@@ -1,7 +1,7 @@
 import mongoose, { FilterQuery } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
-import { ModelDefinition, NonPrimitiveArrayKeyOf } from './shared';
+import { ModelDefinition, NonPrimitiveArrayKeyOf, Sort } from './shared';
 import {
     CreateService,
     UpdateService,
@@ -50,11 +50,11 @@ export class Model<T = any> {
             getOrThrow: async (id: string): Promise<T> => {
                 return await GetService.getOrThrow<T, Context>(id, context, this);
             },
-            paginate: async (limit: number, page: number, filter: FilterQuery<T>) => {
-                return await PaginateService.paginate<T, Context>(page, limit, filter, context, this);
+            paginate: async (query: FilterQuery<T>, options: { limit: number; page: number; sort: Sort }) => {
+                return await PaginateService.paginate<T, Context>(query, options, context, this);
             },
-            getAll: async (filter: FilterQuery<T>) => {
-                return await GetAllService.getAll(context, this, filter);
+            getAll: async (query: FilterQuery<T>, sort: Sort = {}) => {
+                return await GetAllService.getAll(query, sort, context, this);
             },
             output: async (raw: T): Promise<T> => {
                 return await OutputService.output<T, Context>(raw, context, this);

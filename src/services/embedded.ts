@@ -49,7 +49,7 @@ export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context exten
 
         const newArrayOfEmbeddedObjects = objects.map((item: any) => {
             if (item.id === id) {
-                return { ...embedded['toObject'](), ...input };
+                return { ...(embedded as object), ...input };
             }
             return item;
         });
