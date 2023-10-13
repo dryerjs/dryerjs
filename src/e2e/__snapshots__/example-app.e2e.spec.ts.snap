@@ -97,20 +97,10 @@ exports[`Example app Generate correct graphql schema 1`] = `
           {
             "defaultValue": null,
             "description": null,
-            "name": "skip",
+            "name": "options",
             "type": {
-              "kind": "SCALAR",
-              "name": "Int",
-              "ofType": null,
-            },
-          },
-          {
-            "defaultValue": null,
-            "description": null,
-            "name": "take",
-            "type": {
-              "kind": "SCALAR",
-              "name": "Int",
+              "kind": "INPUT_OBJECT",
+              "name": "PaginatedUsersOptions",
               "ofType": null,
             },
           },
@@ -126,7 +116,18 @@ exports[`Example app Generate correct graphql schema 1`] = `
         },
       },
       {
-        "args": [],
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "filter",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "UserFilter",
+              "ofType": null,
+            },
+          },
+        ],
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,
@@ -633,6 +634,174 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": [],
     "kind": "OBJECT",
     "name": "PaginatedUsers",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "page",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "limit",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "filter",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserFilter",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "PaginatedUsersOptions",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "email",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserEmailFilter",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "yearOfBirth",
+        "type": {
+          "kind": "INPUT_OBJECT",
+          "name": "UserYearOfBirthFilter",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserFilter",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "eq",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "in",
+        "type": {
+          "kind": "LIST",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserEmailFilter",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "exists",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "gt",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "gte",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "lt",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "lte",
+        "type": {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "UserYearOfBirthFilter",
     "possibleTypes": null,
   },
   {
@@ -1160,6 +1329,16 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "enumValues": null,
     "fields": null,
     "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "id",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
       {
         "defaultValue": null,
         "description": null,

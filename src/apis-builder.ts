@@ -6,6 +6,7 @@ import { Property } from './property';
 import { inspect } from './inspect';
 import { ApiType, GraphQLFieldConfigMap } from './shared';
 import { BaseContext } from './dryer';
+import { convertGraphQLFilterToMongoQuery } from './filter-converter';
 
 const deleteResponse = new graphql.GraphQLObjectType({
     name: `DeleteResponse`,
@@ -93,13 +94,17 @@ export class ApisBuilder<T, Context extends BaseContext> {
     }
 
     private getAll() {
+        const filter = Typer.get(this.model.definition).filter;
+        const args = filter ? { filter: { type: filter } } : {};
         return {
             [`all${util.plural(this.model.name)}`]: {
                 type: new graphql.GraphQLList(Typer.get(this.model.definition).nonNullOutput),
-                resolve: async (_parent, _args, context: Context) => {
-                    return await this.model.inContext(context).getAll();
+                args,
+                resolve: async (_parent, { filter = {} }, context: Context) => {
+                    const mongoQuery = convertGraphQLFilterToMongoQuery(filter);
+                    return await this.model.inContext(context).getAll(mongoQuery);
                 },
-            },
+            } as any,
         };
     }
 
@@ -107,10 +112,16 @@ export class ApisBuilder<T, Context extends BaseContext> {
         return {
             [`paginate${util.plural(this.model.name)}`]: {
                 type: Typer.get(this.model.definition).paginatedOutput,
-                args: { skip: { type: graphql.GraphQLInt }, take: { type: graphql.GraphQLInt } },
-                resolve: async (_parent, { skip = 0, take = 10 }, context: Context) => {
-                    const result = await this.model.inContext(context).paginate(skip, take);
-                    return result;
+                args: {
+                    options: { type: Typer.get(this.model.definition).paginatedOptions },
+                } as any,
+                resolve: async (
+                    _parent,
+                    { options: { limit = 10, page = 1, filter = {} } = {} },
+                    context: Context,
+                ) => {
+                    const mongoQuery = convertGraphQLFilterToMongoQuery(filter);
+                    return await this.model.inContext(context).paginate(limit, page, mongoQuery);
                 },
             },
         };

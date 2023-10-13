@@ -1,6 +1,7 @@
 import * as util from '../util';
 import { getIntrospectionQuery } from 'graphql';
-import { User, dryerConfig as exampleDryerConfig } from '../example/app';
+import { User } from '../example/user';
+import { dryerConfig as exampleDryerConfig } from '../example/app';
 import { DryerTest } from './dryer-test';
 
 export const dryer = DryerTest.init({

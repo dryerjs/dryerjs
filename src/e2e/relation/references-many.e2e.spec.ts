@@ -1,6 +1,6 @@
 import {
     DatabaseType,
-    ExcludeOnInput,
+    ExcludeOnCreate,
     NullableOnOutput,
     ObjectId,
     Property,
@@ -10,7 +10,7 @@ import {
 import { DryerTest } from '../dryer-test';
 
 class Tag {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -20,7 +20,7 @@ class Tag {
 }
 
 class Product {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 

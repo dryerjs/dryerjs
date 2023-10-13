@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { Dryer, DryerConfig, Metadata } from '../';
+import { Dryer, DryerConfig } from '../';
 import * as util from '../util';
 
 export class DryerTest extends Dryer<any> {
@@ -16,7 +16,6 @@ export class DryerTest extends Dryer<any> {
     public async stop() {
         await this.cleanDatabase();
         await super.stop();
-        Metadata.cleanOnTest();
     }
 
     public async start() {

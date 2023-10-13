@@ -1,9 +1,9 @@
-import { ExcludeOnInput, Property, RequiredOnCreate, Schema } from '../metadata';
+import { ExcludeOnCreate, Property, RequiredOnCreate, Schema } from '../metadata';
 import { DryerTest } from './dryer-test';
 
 @Schema({ excluded: ['all', 'delete', 'paginate', 'update'] })
 class Game {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 

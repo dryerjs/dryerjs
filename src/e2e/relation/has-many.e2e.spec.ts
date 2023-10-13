@@ -1,5 +1,6 @@
 import {
     BelongsTo,
+    ExcludeOnCreate,
     ExcludeOnInput,
     ExcludeOnUpdate,
     HasMany,
@@ -30,7 +31,7 @@ class AttributeValue {
 }
 
 class Attribute {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 

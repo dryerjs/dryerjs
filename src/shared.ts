@@ -48,3 +48,40 @@ export type EmbeddedSchemaOptions = {
     type: TargetClass;
     excluded?: ApiType[];
 };
+
+export type FilterOperator =
+    | 'eq'
+    | 'in'
+    | 'notEq'
+    | 'notIn'
+    | 'contains'
+    | 'notContains'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'regex'
+    | 'notRegex'
+    | 'all'
+    | 'exists';
+
+export const allFilterOperators: FilterOperator[] = [
+    'eq',
+    'in',
+    'notEq',
+    'notIn',
+    'contains',
+    'notContains',
+    'gt',
+    'gte',
+    'lt',
+    'lte',
+    'regex',
+    'notRegex',
+    'all',
+    'exists',
+];
+
+export type FilterableOptions = {
+    operators: FilterOperator[];
+};
