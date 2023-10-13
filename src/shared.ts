@@ -24,6 +24,8 @@ export type GraphQLFieldConfigMap = graphql.GraphQLFieldConfigMap<any, any>;
 
 export type TargetClass = any;
 
+export type Sort = any;
+
 export enum RelationKind {
     HasMany = 'HasMany',
     BelongsTo = 'BelongsTo',

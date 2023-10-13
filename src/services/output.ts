@@ -1,4 +1,3 @@
-import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { Model } from '../model';
 import { BaseContext } from '../dryer';
@@ -10,8 +9,12 @@ export class OutputService {
         context: Context,
         model: Model<T>,
     ) {
+        const leanedObject = await ObjectProcessor.lean<T>({
+            obj: rawValue,
+            modelDefinition: model.definition,
+        });
         const defaultAppliedResult = await ObjectProcessor.setDefault<T, Context>({
-            obj: this.lean(rawValue),
+            obj: leanedObject,
             context,
             modelDefinition: model.definition,
             metaKey: MetaKey.DefaultOnOutput,
@@ -22,12 +25,5 @@ export class OutputService {
             modelDefinition: model.definition,
             metaKey: MetaKey.TransformOnOutput,
         });
-    }
-
-    private static lean<T>(rawValue: any): T {
-        if (util.isNil(rawValue.id) && util.isTruthy(rawValue._id)) {
-            rawValue.id = rawValue._id.toString();
-        }
-        return rawValue;
     }
 }

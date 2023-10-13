@@ -51,6 +51,33 @@ export class ObjectProcessor {
         return (await this.setDefaultPartial(input)) as T;
     }
 
+    public static lean<T>(input: { obj: Partial<T>; modelDefinition: ModelDefinition<T> }) {
+        const { obj, modelDefinition } = input;
+
+        const leanObject = util.isFunction(obj['toObject']) ? obj['toObject']() : obj;
+        if (util.isNil(leanObject.id) && util.isTruthy(leanObject._id)) {
+            leanObject.id = leanObject._id.toString();
+        }
+
+        for (const property of inspect(modelDefinition).getEmbeddedProperties()) {
+            if (util.isNil(obj[property.name])) continue;
+            if (property.isArray()) {
+                leanObject[property.name] = leanObject[property.name].map((item: any) =>
+                    this.lean({
+                        obj: item,
+                        modelDefinition: property.getEmbeddedModelDefinition(),
+                    }),
+                );
+            }
+            leanObject[property.name] = this.lean({
+                obj: leanObject[property.name],
+                modelDefinition: property.getEmbeddedModelDefinition(),
+            });
+        }
+
+        return leanObject;
+    }
+
     public static async setDefaultPartial<T, Context extends BaseContext>(input: {
         obj: Partial<T>;
         context: Context;
@@ -69,7 +96,7 @@ export class ObjectProcessor {
             if (property.isArray()) {
                 const embeddedValue = await Promise.all(
                     obj[property.name].map((item: any) =>
-                        this.setDefault({
+                        this.setDefaultPartial({
                             obj: item,
                             context,
                             modelDefinition: property.getEmbeddedModelDefinition(),
@@ -80,7 +107,7 @@ export class ObjectProcessor {
                 obj[property.name] = embeddedValue;
                 continue;
             }
-            const embeddedValue = await this.setDefault({
+            const embeddedValue = await this.setDefaultPartial({
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
@@ -118,7 +145,7 @@ export class ObjectProcessor {
             if (property.isArray()) {
                 const embeddedValue = await Promise.all(
                     obj[property.name].map((item: any) =>
-                        this.transform({
+                        this.transformPartial({
                             obj: item,
                             context,
                             modelDefinition: property.getEmbeddedModelDefinition(),
@@ -129,7 +156,7 @@ export class ObjectProcessor {
                 obj[property.name] = embeddedValue;
                 continue;
             }
-            const embeddedValue = await this.transform({
+            const embeddedValue = await this.transformPartial({
                 obj: obj[property.name],
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),

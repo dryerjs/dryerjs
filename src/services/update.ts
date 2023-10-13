@@ -29,10 +29,10 @@ export class UpdateService {
             modelDefinition: model.definition,
             metaKey: MetaKey.TransformOnUpdate,
         });
-        const result = await model.db.findByIdAndUpdate(id, transformedInput, {
+        const updated = await model.db.findByIdAndUpdate(id, transformedInput, {
             new: true,
         });
-        const found = must.found(result, model, id);
+        const found = must.found(updated, model, id);
         return await OutputService.output<T, Context>(found, context, model);
     }
 }

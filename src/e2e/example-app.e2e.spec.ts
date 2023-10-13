@@ -277,7 +277,8 @@ describe('Example app', () => {
         });
 
         it('output', async () => {
-            const outputtedUser = await dryer.model(User).inContext(fakeContext).output(user);
+            const rawUser = await dryer.model(User).db.findById(user.id);
+            const outputtedUser = await dryer.model(User).inContext(fakeContext).output(rawUser!);
             expect(outputtedUser.email).toEqual('***@test.test');
         });
 

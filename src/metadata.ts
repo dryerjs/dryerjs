@@ -33,6 +33,7 @@ export enum MetaKey {
     ScalarArrayType = 'ScalarArrayType',
     Schema = 'Schema',
     Filterable = 'Filterable',
+    Sortable = 'Sortable',
 }
 
 type AnyEnum = { [key: string]: any };
@@ -292,5 +293,12 @@ export function Filterable(options: FilterableOptions) {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         Metadata.addProperty(target, MetaKey.Filterable, propertyKey, options);
+    };
+}
+
+export function Sortable() {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target, MetaKey.Sortable, propertyKey);
     };
 }

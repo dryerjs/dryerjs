@@ -7,6 +7,7 @@ import {
     Property,
     RequiredOnCreate,
     Schema,
+    Sortable,
 } from '../metadata';
 import { DryerTest } from './dryer-test';
 import { allFilterOperators } from '../shared';
@@ -32,6 +33,7 @@ class User {
     @GraphQLType(graphql.GraphQLInt)
     @NullableOnOutput()
     @Filterable({ operators: allFilterOperators })
+    @Sortable()
     numberOfOrders: number;
 }
 
@@ -247,6 +249,42 @@ describe('Paginate with filter works', () => {
                 { email: 'joe@example.com', numberOfOrders: null },
             ],
             totalDocs: 2,
+        });
+    });
+
+    it('sort asc', async () => {
+        const { paginateUsers } = await dryer.makeSuccessRequest({
+            query,
+            variables: {
+                options: { sort: { numberOfOrders: 'ASC' }, filter: { numberOfOrders: { exists: true } } },
+            },
+        });
+
+        expect(paginateUsers).toEqual({
+            docs: [
+                { email: 'john@example.com', numberOfOrders: 10 },
+                { email: 'jane@example.com', numberOfOrders: 15 },
+                { email: 'jack@example.com', numberOfOrders: 20 },
+            ],
+            totalDocs: 3,
+        });
+    });
+
+    it('sort desc', async () => {
+        const { paginateUsers } = await dryer.makeSuccessRequest({
+            query,
+            variables: {
+                options: { sort: { numberOfOrders: 'DESC' }, filter: { numberOfOrders: { exists: true } } },
+            },
+        });
+
+        expect(paginateUsers).toEqual({
+            docs: [
+                { email: 'jack@example.com', numberOfOrders: 20 },
+                { email: 'jane@example.com', numberOfOrders: 15 },
+                { email: 'john@example.com', numberOfOrders: 10 },
+            ],
+            totalDocs: 3,
         });
     });
 

@@ -13,6 +13,7 @@ import { OutputTypeBuilder } from './output';
 import { CreateInputTypeBuilder } from './create';
 import { UpdateInputTypeBuilder } from './update';
 import { FilterInputTypeBuilder } from './filter';
+import { SortInputTypeBuilder } from './sort';
 
 const cacheKey = Symbol('typer');
 
@@ -46,6 +47,7 @@ export class Typer {
         const create = new CreateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const update = new UpdateInputTypeBuilder(modelDefinition).getType() as GraphQLInputObjectType;
         const filter = new FilterInputTypeBuilder(modelDefinition).getType();
+        const sort = new SortInputTypeBuilder(modelDefinition).getType();
         const nonNullOutput = new GraphQLNonNull(output);
         const result = {
             output,
@@ -53,8 +55,9 @@ export class Typer {
             create,
             update,
             filter,
+            sort,
             paginatedOutput: this.getPaginatedOutputType(modelDefinition, nonNullOutput),
-            paginatedOptions: this.getPaginatedOptionsType(modelDefinition, filter),
+            paginatedOptions: this.getPaginatedOptionsType(modelDefinition, filter, sort),
         };
         return result;
     }
@@ -81,6 +84,7 @@ export class Typer {
     private static getPaginatedOptionsType(
         modelDefinition: ModelDefinition,
         filter: GraphQLInputObjectType | null,
+        sort: GraphQLInputObjectType | null,
     ) {
         const result = {
             name: `Paginated${util.plural(modelDefinition.name)}Options`,
@@ -90,6 +94,7 @@ export class Typer {
             },
         };
         if (util.isNotNullObject(filter)) result.fields['filter'] = { type: filter };
+        if (util.isNotNullObject(sort)) result.fields['sort'] = { type: sort };
         return new GraphQLInputObjectType(result);
     }
 }
