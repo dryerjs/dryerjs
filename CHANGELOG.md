@@ -1,3 +1,15 @@
+# [0.4.0](https://github.com/vanpho93/dryerjs/compare/v0.3.0...v0.4.0) (2023-10-13)
+
+
+### Features
+
+* add config to exclude APIs ([#25](https://github.com/vanpho93/dryerjs/issues/25)) ([f6bc092](https://github.com/vanpho93/dryerjs/commit/f6bc092b317c842a6490581c0c64a54dea17a60b))
+* Add dryer into context ([#30](https://github.com/vanpho93/dryerjs/issues/30)) ([a73eb67](https://github.com/vanpho93/dryerjs/commit/a73eb67e3be0631b22185c6ea24ec4d94baaee39))
+* Add filter ([#32](https://github.com/vanpho93/dryerjs/issues/32)) ([24fd49a](https://github.com/vanpho93/dryerjs/commit/24fd49a6da50cf5b69d72f83eed936ae384ab9ad))
+* index ([#34](https://github.com/vanpho93/dryerjs/issues/34)) ([0c1369c](https://github.com/vanpho93/dryerjs/commit/0c1369c89a531850e52376ffc96633fb6a6d5e67))
+* sortable ([#33](https://github.com/vanpho93/dryerjs/issues/33)) ([ca61ce2](https://github.com/vanpho93/dryerjs/commit/ca61ce21b0dc83430aa6424dc082682bb160b07a))
+* update logo in readme.md ([#35](https://github.com/vanpho93/dryerjs/issues/35)) ([b23325a](https://github.com/vanpho93/dryerjs/commit/b23325a3e4083c92b50d00abd8691d169d1848fe))
+
 # [0.3.0](https://github.com/vanpho93/dryerjs/compare/v0.2.0...v0.3.0) (2023-10-08)
 
 
