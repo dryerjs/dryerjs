@@ -65,6 +65,23 @@ export type FilterOperator =
     | 'all'
     | 'exists';
 
+export const allFilterOperators: FilterOperator[] = [
+    'eq',
+    'in',
+    'notEq',
+    'notIn',
+    'contains',
+    'notContains',
+    'gt',
+    'gte',
+    'lt',
+    'lte',
+    'regex',
+    'notRegex',
+    'all',
+    'exists',
+];
+
 export type FilterableOptions = {
     operators: FilterOperator[];
 };

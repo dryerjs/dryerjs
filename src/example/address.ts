@@ -1,7 +1,7 @@
-import { ExcludeOnInput, Property, DefaultOnOutput } from 'dryerjs';
+import { ExcludeOnCreate, Property, DefaultOnOutput } from 'dryerjs';
 
 export class Address {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 

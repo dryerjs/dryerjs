@@ -78,8 +78,6 @@ export class Metadata {
     public static addModelProperty(target: TargetClass, metaKey: MetaKey, value: MetaValue): void {
         this.addProperty(target, metaKey, MODEL_KEY, value);
     }
-
-    public static cleanOnTest() {}
 }
 
 export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {

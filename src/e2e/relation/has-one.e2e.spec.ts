@@ -1,7 +1,6 @@
 import {
     BelongsTo,
     DatabaseType,
-    ExcludeOnInput,
     ExcludeOnUpdate,
     HasOne,
     NullableOnOutput,
@@ -9,11 +8,12 @@ import {
     Ref,
     RequiredOnCreate,
     ObjectId,
+    ExcludeOnCreate,
 } from 'dryerjs';
 import { DryerTest } from '../dryer-test';
 
 class FacetValue {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -33,7 +33,7 @@ class FacetValue {
 }
 
 class Facet {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 

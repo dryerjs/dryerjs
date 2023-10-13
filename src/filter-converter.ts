@@ -27,7 +27,7 @@ const configs: {
         from: 'exists',
         to: (value: boolean) => {
             if (value) return { $ne: null };
-            return { $exists: false };
+            return { $not: { $ne: null } };
         },
     },
 ];
@@ -42,9 +42,11 @@ export const convertGraphQLFilterToMongoQuery = (graphqlFilter: GraphQLField) =>
             const config = configs.find(c => c.from === operator);
             /* istanbul ignore next */
             if (util.isNil(config)) throw new Error(`Unknown filter operator: ${operator}`);
-            result[fieldName] = util.isFunction(config.to)
+            const toAdd = util.isFunction(config.to)
                 ? (config.to as ConvertOperatorFunction)(value)
                 : { [config.to as string]: value };
+
+            result[fieldName] = { ...util.defaultTo(result[fieldName], {}), ...toAdd };
         }
     }
 

@@ -1,6 +1,6 @@
 import {
     BelongsTo,
-    ExcludeOnInput,
+    ExcludeOnCreate,
     ExcludeOnUpdate,
     HasMany,
     NullableOnOutput,
@@ -12,7 +12,7 @@ import * as util from '../../util';
 import { DryerTest } from '../dryer-test';
 
 class Leaf {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -30,7 +30,7 @@ class Leaf {
 }
 
 class Branch {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
@@ -52,7 +52,7 @@ class Branch {
 }
 
 class Trunk {
-    @ExcludeOnInput()
+    @ExcludeOnCreate()
     @Property()
     id: string;
 
