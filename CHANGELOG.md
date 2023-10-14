@@ -1,3 +1,15 @@
+# [0.5.0](https://github.com/dryerjs/dryerjs/compare/v0.4.0...v0.5.0) (2023-10-14)
+
+
+### Bug Fixes
+
+* Change logo again ([#37](https://github.com/dryerjs/dryerjs/issues/37)) ([5c25be1](https://github.com/dryerjs/dryerjs/commit/5c25be1717c19cd281d968ac1ff5e3529c671af7))
+
+
+### Features
+
+* Update github owner ([#36](https://github.com/dryerjs/dryerjs/issues/36)) ([2b74c4e](https://github.com/dryerjs/dryerjs/commit/2b74c4e5ff6f752c4f92232c2196cbc204ec4e83))
+
 # [0.4.0](https://github.com/vanpho93/dryerjs/compare/v0.3.0...v0.4.0) (2023-10-13)
 
 
