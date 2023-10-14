@@ -87,3 +87,9 @@ export const allFilterOperators: FilterOperator[] = [
 export type FilterableOptions = {
     operators: FilterOperator[];
 };
+
+export type Argument = {
+    index: number;
+    name: string;
+    type: any;
+};

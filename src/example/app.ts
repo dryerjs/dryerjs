@@ -1,6 +1,7 @@
 import { Dryer, DryerConfig } from 'dryerjs';
 import { AdditionalContext } from './context';
 import { User } from './user';
+import { UserResolver } from './user.resolver';
 
 export const dryerConfig: DryerConfig<AdditionalContext> = {
     modelDefinitions: [User],
@@ -12,6 +13,7 @@ export const dryerConfig: DryerConfig<AdditionalContext> = {
     appendContext: async (req, dryer) => {
         return { userId: '123', role: 'user' };
     },
+    resolvers: [UserResolver],
 };
 
 export const dryer = Dryer.init<AdditionalContext>(dryerConfig);

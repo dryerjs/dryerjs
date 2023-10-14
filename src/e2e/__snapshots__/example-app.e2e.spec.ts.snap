@@ -236,6 +236,33 @@ exports[`Example app Generate correct graphql schema 1`] = `
           },
         },
       },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null,
+              },
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "whoAmI",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
     ],
     "inputFields": null,
     "interfaces": [],
@@ -1092,6 +1119,97 @@ exports[`Example app Generate correct graphql schema 1`] = `
           "ofType": null,
         },
       },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "password",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null,
+            },
+          },
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "email",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null,
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "login",
+        "type": {
+          "kind": "OBJECT",
+          "name": "LoginResponse",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "reindex",
+        "type": {
+          "kind": "OBJECT",
+          "name": "User",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "CreateSignUpInputInput",
+              "ofType": null,
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "signUp",
+        "type": {
+          "kind": "OBJECT",
+          "name": "User",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
+            "name": "input",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "CreateRefreshInputInput",
+              "ofType": null,
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "refresh",
+        "type": {
+          "kind": "OBJECT",
+          "name": "User",
+          "ofType": null,
+        },
+      },
     ],
     "inputFields": null,
     "interfaces": [],
@@ -1470,6 +1588,119 @@ exports[`Example app Generate correct graphql schema 1`] = `
     "interfaces": [],
     "kind": "OBJECT",
     "name": "DeleteResponse",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": [
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "token",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "args": [],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "id",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "inputFields": null,
+    "interfaces": [],
+    "kind": "OBJECT",
+    "name": "LoginResponse",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "email",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "password",
+        "type": {
+          "kind": "NON_NULL",
+          "name": null,
+          "ofType": {
+            "kind": "SCALAR",
+            "name": "String",
+            "ofType": null,
+          },
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "CreateSignUpInputInput",
+    "possibleTypes": null,
+  },
+  {
+    "description": null,
+    "enumValues": null,
+    "fields": null,
+    "inputFields": [
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "id",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "defaultValue": null,
+        "description": null,
+        "name": "action",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    ],
+    "interfaces": null,
+    "kind": "INPUT_OBJECT",
+    "name": "CreateRefreshInputInput",
     "possibleTypes": null,
   },
 ]

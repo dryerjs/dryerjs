@@ -7,11 +7,15 @@ import {
     RelationKind,
     TargetClass,
     FilterableOptions,
+    Argument,
 } from './shared';
 import { IndexDefinition, IndexOptions } from 'mongoose';
 
 export enum MetaKey {
     DesignType = 'design:type',
+    ParamTypes = 'design:paramtypes',
+    ReturnType = 'design:returntype',
+    InheritedDesignType = 'InheritedDesignType',
     TransformOnOutput = 'TransformOnOutput',
     TransformOnCreate = 'TransformOnCreate',
     TransformOnUpdate = 'TransformOnUpdate',
@@ -36,6 +40,10 @@ export enum MetaKey {
     Index = 'Index',
     Filterable = 'Filterable',
     Sortable = 'Sortable',
+    Resolver = 'Resolver',
+    Mutation = 'Mutation',
+    Query = 'Query',
+    Arg = 'Arg',
 }
 
 type AnyEnum = { [key: string]: any };
@@ -51,11 +59,18 @@ export class Metadata {
         target: TargetClass,
         metaKey: MetaKey,
     ): { [property: string]: MetaValue } {
-        return util.defaultTo(target[METADATA]?.[metaKey], {});
+        const result = {};
+        for (const property of Object.keys(target[METADATA] || {})) {
+            const value = target[METADATA][property][metaKey];
+            if (util.isUndefined(value)) continue;
+            result[property] = value;
+        }
+        return result;
     }
 
     public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
-        return target[METADATA]?.[metaKey]?.[property];
+        const constructor = typeof target === 'function' ? target : target.constructor;
+        return constructor[METADATA]?.[property]?.[metaKey];
     }
 
     public static addProperty(
@@ -68,10 +83,24 @@ export class Metadata {
         if (util.isUndefined(constructor[METADATA])) {
             constructor[METADATA] = {};
         }
-        if (util.isUndefined(constructor[METADATA][metaKey])) {
-            constructor[METADATA][metaKey] = {};
+        if (util.isUndefined(constructor[METADATA][property])) {
+            constructor[METADATA][property] = {};
         }
-        constructor[METADATA][metaKey][property] = value;
+        constructor[METADATA][property][metaKey] = value;
+    }
+
+    public static copyProperty(from: TargetClass, to: TargetClass, property: string | symbol): void {
+        if (util.isUndefined(to[METADATA])) to[METADATA] = {};
+        to[METADATA][property] = from[METADATA]?.[property];
+    }
+
+    public static addArgs(
+        target: TargetClass,
+        property: string | symbol,
+        argument: Omit<Argument, 'type'>,
+    ): void {
+        const current = util.defaultTo(Metadata.getMetaValue(target, MetaKey.Arg, property), []);
+        Metadata.addProperty(target, MetaKey.Arg, property, [...current, argument]);
     }
 
     public static getModelMetaValue(target: TargetClass, metaKey: MetaKey): MetaValue {
@@ -309,5 +338,43 @@ export function Sortable() {
     return function (target: TargetClass, propertyKey: string) {
         Property()(target, propertyKey);
         Metadata.addProperty(target, MetaKey.Sortable, propertyKey);
+    };
+}
+
+export function Mutation(type?: any) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target, MetaKey.Mutation, propertyKey, type);
+    };
+}
+
+export function Query(type?: any) {
+    return function (target: TargetClass, propertyKey: string) {
+        Property()(target, propertyKey);
+        Metadata.addProperty(target, MetaKey.Query, propertyKey, type);
+    };
+}
+
+export function Resolver(type?: any) {
+    return function (target: TargetClass) {
+        Metadata.addModelProperty(target, MetaKey.Schema, type);
+    };
+}
+
+export function Arg(name: string) {
+    return function (target: TargetClass, propertyKey: string, index: number) {
+        Metadata.addArgs(target, propertyKey, {
+            index,
+            name,
+        });
+    };
+}
+
+export function Ctx() {
+    return function (target: TargetClass, propertyKey: string, index: number) {
+        Metadata.addArgs(target, propertyKey, {
+            index,
+            name: 'ctx',
+        });
     };
 }

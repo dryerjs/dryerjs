@@ -52,7 +52,7 @@ export class MongooseSchemaBuilder {
                 continue;
             }
 
-            result[property.name] = { type: typeConfig[property.typeInClass.name] };
+            result[property.name] = { type: typeConfig[property.designType.name] };
         }
 
         return new Schema(result, isRoot ? { timestamps: true } : {});

@@ -1,10 +1,13 @@
+import { Provider, ReflectiveInjector } from 'injection-js';
 import * as express from 'express';
 import mongoose from 'mongoose';
 import { ApolloServer } from '@apollo/server';
+import * as util from './util';
 import { Apollo } from './apollo';
 import { ModelDefinition } from './shared';
 import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
+import { ResolverProcessor } from './resolver-processor';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -18,6 +21,8 @@ export interface DryerConfig<Context> {
     mongoUri: string;
     port: number;
     appendContext?: ContextFunction<Context>;
+    providers?: Provider[];
+    resolvers?: Provider[];
 }
 
 export class Dryer<Context> {
@@ -30,6 +35,7 @@ export class Dryer<Context> {
     public apolloServer: ApolloServer;
     public expressApp: express.Express;
     public mongoose: mongoose.Mongoose;
+    public injector: ReflectiveInjector;
 
     protected readonly models: { [key: string]: Model } = {};
 
@@ -39,6 +45,14 @@ export class Dryer<Context> {
 
     public async start() {
         await this.config?.beforeApplicationInit?.();
+        this.injector = ReflectiveInjector.resolveAndCreate([
+            ...(this.config.providers || []),
+            ...(this.config.resolvers || []),
+            {
+                provide: Dryer,
+                useValue: this,
+            },
+        ]);
         let mutationFields = {};
         let queryFields = {};
 
@@ -56,6 +70,19 @@ export class Dryer<Context> {
                 ...apis.queryFields,
             };
         }
+
+        for (const resolver of util.defaultTo(this.config.resolvers, [])) {
+            const apis = ResolverProcessor.get(resolver, this.injector);
+            queryFields = {
+                ...queryFields,
+                ...apis.queryFields,
+            };
+            mutationFields = {
+                ...mutationFields,
+                ...apis.mutationFields,
+            };
+        }
+
         this.mongoose = await mongoose.connect(this.config.mongoUri);
         const { apolloServer, expressApp } = await Apollo.start({
             mutationFields,
