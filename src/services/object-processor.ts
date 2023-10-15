@@ -46,7 +46,6 @@ export class ObjectProcessor {
             const relation = property.getRelation();
             const relationModel = context.dryer.model(property.getRelationModelDefinition());
             if (relation.kind === RelationKind.BelongsTo) {
-                if (util.isUndefined(input[relation.from])) continue;
                 must.found(
                     await relationModel.db.exists({ _id: input[relation.from] }),
                     relationModel,
