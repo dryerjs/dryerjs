@@ -1,4 +1,5 @@
 import { Dryer, DryerConfig } from 'dryerjs';
+import { PubSub } from 'graphql-subscriptions';
 import { AdditionalContext } from './context';
 import { User } from './user';
 import { AuthResolver } from './auth.resolver';
@@ -16,6 +17,7 @@ export const dryerConfig: DryerConfig<AdditionalContext> = {
         if (!token) return { userId: null, role: null };
         return await (dryer.injector.get(JWTService) as JWTService).verify(token);
     },
+    pubSub: new PubSub(),
     providers: [JWTService],
     resolvers: [AuthResolver],
 };

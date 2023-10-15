@@ -8,6 +8,7 @@ import { ModelDefinition } from './shared';
 import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
 import { ResolverProcessor } from './resolver-processor';
+import type { PubSub } from 'graphql-subscriptions';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -23,6 +24,7 @@ export interface DryerConfig<Context> {
     appendContext?: ContextFunction<Context>;
     providers?: Provider[];
     resolvers?: Provider[];
+    pubSub?: PubSub;
 }
 
 export class Dryer<Context> {
@@ -55,6 +57,7 @@ export class Dryer<Context> {
         ]);
         let mutationFields = {};
         let queryFields = {};
+        let subscriptionFields = {};
 
         for (const modelDefinition of this.config.modelDefinitions) {
             const model = new Model(modelDefinition);
@@ -68,6 +71,9 @@ export class Dryer<Context> {
             queryFields = {
                 ...queryFields,
                 ...apis.queryFields,
+            };
+            subscriptionFields = {
+                ...apis.subscriptionFields,
             };
         }
 
@@ -87,6 +93,7 @@ export class Dryer<Context> {
         const { apolloServer, expressApp } = await Apollo.start({
             mutationFields,
             queryFields,
+            subscriptionFields,
             port: this.config.port,
             getContext: async (req: express.Request) => {
                 const additional = await this.config.appendContext?.(req, this);
@@ -94,6 +101,9 @@ export class Dryer<Context> {
                     ...additional,
                     dryer: this,
                 };
+            },
+            getWsContext: async (ctx: BaseContext) => {
+                return { ...ctx, pubSub: this.config?.pubSub };
             },
         });
         this.apolloServer = apolloServer;
@@ -116,4 +126,4 @@ export class Dryer<Context> {
     }
 }
 
-export type BaseContext = { dryer: Dryer<any> };
+export type BaseContext = { dryer: Dryer<any>; pubSub: PubSub };
