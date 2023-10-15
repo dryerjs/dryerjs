@@ -29,6 +29,7 @@ export class CreateService {
             modelDefinition: model.definition,
             metaKey: MetaKey.TransformOnCreate,
         });
+
         const value = await model.db.create(transformedInput);
         return await OutputService.output<T, Context>(value, context, model);
     }
