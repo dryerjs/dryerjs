@@ -18,13 +18,7 @@ function inspectWithoutCache(modelDefinition: any) {
                     modelDefinition.prototype,
                     propertyName,
                 );
-                const paramTypes = Reflect.getMetadata(
-                    MetaKey.ParamTypes,
-                    modelDefinition.prototype,
-                    propertyName,
-                );
-
-                const property = new Property(modelDefinition, propertyName, designType, paramTypes);
+                const property = new Property(modelDefinition, propertyName, designType);
                 result.push(property);
             }
             this[CACHED_PROPERTIES][metaKey] = result;

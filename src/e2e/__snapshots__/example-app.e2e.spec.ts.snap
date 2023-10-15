@@ -237,29 +237,14 @@ exports[`Example app Generate correct graphql schema 1`] = `
         },
       },
       {
-        "args": [
-          {
-            "defaultValue": null,
-            "description": null,
-            "name": "id",
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null,
-              },
-            },
-          },
-        ],
+        "args": [],
         "deprecationReason": null,
         "description": null,
         "isDeprecated": false,
         "name": "whoAmI",
         "type": {
-          "kind": "SCALAR",
-          "name": "String",
+          "kind": "OBJECT",
+          "name": "User",
           "ofType": null,
         },
       },

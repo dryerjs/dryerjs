@@ -94,11 +94,7 @@ export class Metadata {
         to[METADATA][property] = from[METADATA]?.[property];
     }
 
-    public static addArgs(
-        target: TargetClass,
-        property: string | symbol,
-        argument: Omit<Argument, 'type'>,
-    ): void {
+    public static addArgs(target: TargetClass, property: string | symbol, argument: Argument): void {
         const current = util.defaultTo(Metadata.getMetaValue(target, MetaKey.Arg, property), []);
         Metadata.setProperty(target, MetaKey.Arg, property, [...current, argument]);
     }
@@ -361,18 +357,16 @@ export function Resolver(type?: ClassType) {
 
 export function Arg(name: string) {
     return function (target: TargetClass, propertyKey: string, index: number) {
+        const { prototype } = target.constructor;
+        const type = Reflect.getMetadata(MetaKey.ParamTypes, prototype, propertyKey)[index];
         Metadata.addArgs(target, propertyKey, {
             index,
             name,
+            type,
         });
     };
 }
 
 export function Ctx() {
-    return function (target: TargetClass, propertyKey: string, index: number) {
-        Metadata.addArgs(target, propertyKey, {
-            index,
-            name: 'ctx',
-        });
-    };
+    return Arg('ctx');
 }

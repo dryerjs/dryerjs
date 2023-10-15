@@ -10,7 +10,6 @@ export class Property {
         public modelDefinition: any,
         public name: string,
         public designType: ClassType,
-        public paramTypes: ClassType[],
     ) {}
 
     public getMetaValue(key: MetaKey) {
@@ -108,13 +107,6 @@ export class Property {
     }
 
     public getArgs(): Argument[] {
-        const paramTypes = this.paramTypes;
-        return this.getMetaValue(MetaKey.Arg).map(({ index, name }) => {
-            return {
-                index,
-                name,
-                type: paramTypes[index],
-            };
-        });
+        return this.getMetaValue(MetaKey.Arg);
     }
 }
