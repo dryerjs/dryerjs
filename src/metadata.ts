@@ -15,7 +15,6 @@ export enum MetaKey {
     DesignType = 'design:type',
     ParamTypes = 'design:paramtypes',
     ReturnType = 'design:returntype',
-    InheritedDesignType = 'InheritedDesignType',
     TransformOnOutput = 'TransformOnOutput',
     TransformOnCreate = 'TransformOnCreate',
     TransformOnUpdate = 'TransformOnUpdate',

@@ -13,9 +13,7 @@ export function inspect(modelDefinition: any) {
         getProperties(metaKey: MetaKey = MetaKey.DesignType) {
             const result: Property[] = [];
             for (const propertyName in Metadata.getPropertiesByModel(modelDefinition, metaKey)) {
-                const designType =
-                    Reflect.getMetadata(MetaKey.DesignType, instance, propertyName) ||
-                    Metadata.getMetaValue(modelDefinition, MetaKey.InheritedDesignType, propertyName);
+                const designType = Reflect.getMetadata(MetaKey.DesignType, instance, propertyName);
                 const paramTypes = Reflect.getMetadata(MetaKey.ParamTypes, instance, propertyName);
                 const returnType = Reflect.getMetadata(MetaKey.ReturnType, instance, propertyName);
 

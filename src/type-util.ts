@@ -18,7 +18,7 @@ export function buildType(BaseClass: ClassType, names: Record<string, 1>): any {
     for (const name of Object.keys(names)) {
         Metadata.copyProperty(BaseClass, ChildClass, name);
         const baseProp = baseProps.find(prop => prop.name === name)!;
-        Metadata.addProperty(ChildClass, MetaKey.InheritedDesignType, name, baseProp.designType);
+        Reflect.defineMetadata(MetaKey.DesignType, baseProp.designType, ChildClass.prototype, name);
     }
     return ChildClass;
 }
