@@ -11,7 +11,6 @@ export class Property {
         public name: string,
         public designType: any,
         public paramTypes: any,
-        public returnType: any,
     ) {}
 
     public getMetaValue(key: MetaKey) {

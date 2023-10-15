@@ -3,27 +3,26 @@ import { MetaKey, Metadata } from './metadata';
 import { Property } from './property';
 import { ApiType, SchemaOptions } from './shared';
 
-const INSTANCE_KEY = Symbol('inspectable_instance');
+const INSPECTED = Symbol('inspected');
 
 export function inspect(modelDefinition: any) {
-    modelDefinition[INSTANCE_KEY] = util.defaultTo(modelDefinition[INSTANCE_KEY], new modelDefinition());
-    const instance = modelDefinition[INSTANCE_KEY];
-
-    return {
+    if (modelDefinition[INSPECTED]) return modelDefinition[INSPECTED];
+    const result = {
         getProperties(metaKey: MetaKey = MetaKey.DesignType) {
             const result: Property[] = [];
             for (const propertyName in Metadata.getPropertiesByModel(modelDefinition, metaKey)) {
-                const designType = Reflect.getMetadata(MetaKey.DesignType, instance, propertyName);
-                const paramTypes = Reflect.getMetadata(MetaKey.ParamTypes, instance, propertyName);
-                const returnType = Reflect.getMetadata(MetaKey.ReturnType, instance, propertyName);
-
-                const property = new Property(
-                    modelDefinition,
+                const designType = Reflect.getMetadata(
+                    MetaKey.DesignType,
+                    modelDefinition.prototype,
                     propertyName,
-                    designType,
-                    paramTypes,
-                    returnType,
                 );
+                const paramTypes = Reflect.getMetadata(
+                    MetaKey.ParamTypes,
+                    modelDefinition.prototype,
+                    propertyName,
+                );
+
+                const property = new Property(modelDefinition, propertyName, designType, paramTypes);
                 result.push(property);
             }
             return result;
@@ -39,4 +38,6 @@ export function inspect(modelDefinition: any) {
             return util.defaultTo(schemaOptions?.excluded, []).includes(apiType);
         },
     };
+    modelDefinition[INSPECTED] = result;
+    return modelDefinition[INSPECTED];
 }
