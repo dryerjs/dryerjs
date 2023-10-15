@@ -1,4 +1,3 @@
-import * as graphql from 'graphql';
 import * as util from '../util';
 import * as must from './must';
 import { MetaKey } from '../metadata';
