@@ -6,11 +6,10 @@ import { ApiType, SchemaOptions } from './shared';
 const INSPECTED = Symbol('inspected');
 const CACHED_PROPERTIES = Symbol('cached_properties');
 
-export function inspect(modelDefinition: any) {
-    if (modelDefinition[INSPECTED]) return modelDefinition[INSPECTED];
-    const result = {
+function inspectWithoutCache(modelDefinition: any) {
+    return {
         [CACHED_PROPERTIES]: {},
-        getProperties(metaKey: MetaKey = MetaKey.DesignType) {
+        getProperties(metaKey: MetaKey = MetaKey.DesignType): Property[] {
             if (this[CACHED_PROPERTIES][metaKey]) return this[CACHED_PROPERTIES][metaKey];
             const result: Property[] = [];
             for (const propertyName in Metadata.getPropertiesByModel(modelDefinition, metaKey)) {
@@ -42,6 +41,11 @@ export function inspect(modelDefinition: any) {
             return util.defaultTo(schemaOptions?.excluded, []).includes(apiType);
         },
     };
+}
+
+export function inspect(modelDefinition: any): ReturnType<typeof inspectWithoutCache> {
+    if (modelDefinition[INSPECTED]) return modelDefinition[INSPECTED];
+    const result = inspectWithoutCache(modelDefinition);
     modelDefinition[INSPECTED] = result;
     return modelDefinition[INSPECTED];
 }

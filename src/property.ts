@@ -1,7 +1,7 @@
 import { GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLEnumType } from 'graphql';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType, Argument, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
+import { ApiType, Argument, ClassType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
 
 const ENUM_CACHE_KEY = Symbol('ENUM_CACHE_KEY');
 
@@ -9,8 +9,8 @@ export class Property {
     constructor(
         public modelDefinition: any,
         public name: string,
-        public designType: any,
-        public paramTypes: any,
+        public designType: ClassType,
+        public paramTypes: ClassType[],
     ) {}
 
     public getMetaValue(key: MetaKey) {

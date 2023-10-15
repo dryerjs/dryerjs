@@ -24,6 +24,8 @@ export type GraphQLFieldConfigMap = graphql.GraphQLFieldConfigMap<any, any>;
 
 export type TargetClass = any;
 
+export type ClassType = any;
+
 export type Sort = any;
 
 export enum RelationKind {
@@ -91,5 +93,5 @@ export type FilterableOptions = {
 export type Argument = {
     index: number;
     name: string;
-    type: any;
+    type: ClassType;
 };

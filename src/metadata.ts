@@ -8,6 +8,7 @@ import {
     TargetClass,
     FilterableOptions,
     Argument,
+    ClassType,
 } from './shared';
 import { IndexDefinition, IndexOptions } from 'mongoose';
 
@@ -340,23 +341,21 @@ export function Sortable() {
     };
 }
 
-export function Mutation(type?: any) {
+export function Mutation(type?: ClassType) {
     return function (target: TargetClass, propertyKey: string) {
-        Property()(target, propertyKey);
         Metadata.setProperty(target, MetaKey.Mutation, propertyKey, type);
     };
 }
 
-export function Query(type?: any) {
+export function Query(type?: ClassType) {
     return function (target: TargetClass, propertyKey: string) {
-        Property()(target, propertyKey);
         Metadata.setProperty(target, MetaKey.Query, propertyKey, type);
     };
 }
 
-export function Resolver(type?: any) {
+export function Resolver(type?: ClassType) {
     return function (target: TargetClass) {
-        Metadata.addModelProperty(target, MetaKey.Schema, type);
+        Metadata.addModelProperty(target, MetaKey.Resolver, type);
     };
 }
 
