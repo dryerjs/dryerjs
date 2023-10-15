@@ -33,6 +33,6 @@ export class UpdateService {
             new: true,
         });
         const found = must.found(updated, model, id);
-        return await OutputService.output<T, Context>(found, context, model);
+        return await OutputService.output<T, Context>(found, context, model.definition);
     }
 }

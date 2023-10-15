@@ -95,3 +95,8 @@ export type Argument = {
     name: string;
     type: ClassType;
 };
+
+export type ApiOptions = {
+    kind: 'Mutation' | 'Query';
+    type: ClassType;
+};

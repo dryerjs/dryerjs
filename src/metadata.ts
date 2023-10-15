@@ -9,6 +9,7 @@ import {
     FilterableOptions,
     Argument,
     ClassType,
+    ApiOptions,
 } from './shared';
 import { IndexDefinition, IndexOptions } from 'mongoose';
 
@@ -41,8 +42,7 @@ export enum MetaKey {
     Filterable = 'Filterable',
     Sortable = 'Sortable',
     Resolver = 'Resolver',
-    Mutation = 'Mutation',
-    Query = 'Query',
+    Api = 'Api',
     Arg = 'Arg',
 }
 
@@ -339,13 +339,15 @@ export function Sortable() {
 
 export function Mutation(type?: ClassType) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.setProperty(target, MetaKey.Mutation, propertyKey, type);
+        const options: ApiOptions = { kind: 'Mutation', type };
+        Metadata.setProperty(target, MetaKey.Api, propertyKey, options);
     };
 }
 
 export function Query(type?: ClassType) {
     return function (target: TargetClass, propertyKey: string) {
-        Metadata.setProperty(target, MetaKey.Query, propertyKey, type);
+        const options: ApiOptions = { kind: 'Query', type };
+        Metadata.setProperty(target, MetaKey.Api, propertyKey, options);
     };
 }
 

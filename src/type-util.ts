@@ -1,9 +1,7 @@
 import { inspect } from './inspect';
 import { MetaKey, Metadata } from './metadata';
 
-type Constructor<T extends object, Arguments extends unknown[] = any[]> = new (
-    ...arguments_: Arguments
-) => T;
+type Constructor<T extends object, Arguments extends unknown[] = any[]> = new (...arguments_: Arguments) => T;
 
 type BaseClassType<T extends object = object, Arguments extends unknown[] = any[]> = Constructor<
     T,
