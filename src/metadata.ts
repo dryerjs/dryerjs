@@ -59,8 +59,8 @@ export class Metadata {
         metaKey: MetaKey,
     ): { [property: string]: MetaValue } {
         const result = {};
-        for (const property of Object.keys(target[METADATA] || {})) {
-            const value = target[METADATA][property][metaKey];
+        for (const property of Object.keys(util.defaultTo(target[METADATA], []))) {
+            const value = this.getMetaValue(target, metaKey, property);
             if (util.isUndefined(value)) continue;
             result[property] = value;
         }
