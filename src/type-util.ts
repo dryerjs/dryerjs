@@ -10,10 +10,10 @@ type BaseClassType<T extends object = object, Arguments extends unknown[] = any[
     prototype: T;
 };
 
-export function buildType(BaseClass: BaseClassType, names: Record<string, 1>): any {
+export function buildType(BaseClass: BaseClassType, names: string[]): any {
     class ChildClass {}
     const baseProps = inspect(BaseClass).getProperties();
-    for (const name of Object.keys(names)) {
+    for (const name of names) {
         Metadata.copyProperty(BaseClass, ChildClass, name);
         const baseProp = baseProps.find(prop => prop.name === name)!;
         Reflect.defineMetadata(MetaKey.DesignType, baseProp.designType, ChildClass.prototype, name);
@@ -23,16 +23,16 @@ export function buildType(BaseClass: BaseClassType, names: Record<string, 1>): a
 
 export function Pick<T extends BaseClassType, K extends keyof InstanceType<T>>(
     BaseClass: T,
-    names: Record<K, 1>,
+    names: K[],
 ): BaseClassType<Pick<InstanceType<T>, K>> {
-    return buildType(BaseClass, names);
+    return buildType(BaseClass, names as string[]);
 }
 
 export function Omit<T extends BaseClassType, K extends keyof InstanceType<T>>(
     BaseClass: T,
-    names: Record<K, 1>,
+    names: K[],
 ): BaseClassType<Omit<InstanceType<T>, K>> {
-    return buildType(BaseClass, names);
+    return buildType(BaseClass, names as string[]);
 }
 
 // type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

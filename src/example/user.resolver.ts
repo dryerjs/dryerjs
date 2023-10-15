@@ -18,7 +18,7 @@ class RefreshInput {
     action: string;
 }
 
-class SignUpInput extends Pick(User, { email: 1, password: 1 }) {}
+class SignUpInput extends Pick(User, ['email', 'password']) {}
 
 @Resolver(User)
 export class UserResolver {
