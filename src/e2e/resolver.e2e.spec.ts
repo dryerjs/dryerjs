@@ -83,11 +83,7 @@ describe('Resolver works', () => {
         const response = await dryer.apolloServer.executeOperation({
             query,
         });
-        const ignoreTypeNames = [
-            'String',
-            'Int',
-            'Boolean',
-        ];
+        const ignoreTypeNames = ['String', 'Int', 'Boolean'];
         const types = response.body['singleResult'].data.__schema.types.filter(({ name }) => {
             return !ignoreTypeNames.includes(name) && !name.startsWith('__');
         });

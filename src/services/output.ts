@@ -4,7 +4,6 @@ import { ObjectProcessor } from './object-processor';
 import { ModelDefinition } from '../shared';
 import { ObjectMarker } from '../object-marker';
 
-
 export class OutputService {
     public static async output<T, Context extends BaseContext>(
         rawValue: T,
