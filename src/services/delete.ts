@@ -23,13 +23,6 @@ export class DeleteService {
                 const relationDocs = await relationModel.db.find<T>({ [relation.to]: id });
                 await Promise.all(relationDocs.map(doc => this.delete(doc['_id'], _context, relationModel)));
             }
-
-            if (relation.kind === RelationKind.ReferencesMany) {
-                const relationIds = (deleteDoc && deleteDoc[relation.from]) || [];
-                if (relationIds.length === 0) continue;
-                const relationDocs = await relationModel.db.find<T>({ _id: { $in: relationIds } });
-                await Promise.all(relationDocs.map(doc => this.delete(doc['_id'], _context, relationModel)));
-            }
         }
     }
 }
