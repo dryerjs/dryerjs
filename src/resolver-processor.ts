@@ -1,5 +1,5 @@
 import { ReflectiveInjector } from 'injection-js';
-import { GraphQLString, GraphQLFloat, GraphQLBoolean } from 'graphql';
+import { GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLNonNull } from 'graphql';
 import { ApiOptions, GraphQLFieldConfigMap, TargetClass } from './shared';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
@@ -54,7 +54,9 @@ export class ResolverProcessor {
                 if (arg.name === 'ctx') continue;
                 const isScalar = arg.type.name in typeConfig;
                 if (isScalar) {
-                    result.args[arg.name] = { type: typeConfig[arg.type.name] };
+                    result.args[arg.name] = arg.required
+                        ? { type: new GraphQLNonNull(typeConfig[arg.type.name]) }
+                        : { type: typeConfig[arg.type.name] };
                     continue;
                 }
                 result.args[arg.name] = { type: Typer.get(arg.type).create };

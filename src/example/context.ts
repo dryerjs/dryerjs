@@ -1,4 +1,4 @@
-export interface AdditionalContext {
-    userId: string;
-    role: string;
-}
+export type AdditionalContext = {
+    userId: string | null;
+    role: string | null;
+};

@@ -1,4 +1,4 @@
-import { Provider, ReflectiveInjector } from 'injection-js';
+import { Provider, ReflectiveInjector } from './injection';
 import * as express from 'express';
 import mongoose from 'mongoose';
 import { ApolloServer } from '@apollo/server';

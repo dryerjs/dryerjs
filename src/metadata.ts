@@ -369,7 +369,7 @@ export function Resolver(type?: ClassType) {
     };
 }
 
-export function Arg(name: string) {
+export function Arg(name: string, required = true) {
     return function (target: TargetClass, propertyKey: string, index: number) {
         const { prototype } = target.constructor;
         const type = Reflect.getMetadata(MetaKey.ParamTypes, prototype, propertyKey)[index];
@@ -377,6 +377,7 @@ export function Arg(name: string) {
             index,
             name,
             type,
+            required,
         });
     };
 }

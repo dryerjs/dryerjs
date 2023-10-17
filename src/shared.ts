@@ -93,6 +93,7 @@ export type FilterableOptions = {
 export type Argument = {
     index: number;
     name: string;
+    required: boolean;
     type: ClassType;
 };
 
