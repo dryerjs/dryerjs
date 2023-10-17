@@ -29,12 +29,18 @@ export class DryerTest extends Dryer<any> {
         }
     }
 
-    public async makeSuccessRequest(input: { query: string; variables?: object }) {
-        const {
-            body: { data, errors },
-        } = await request(this.expressApp).post('/').send(input);
-        expect(errors).toBeUndefined();
-        return data;
+    public async makeSuccessRequest(input: {
+        query: string;
+        variables?: object;
+        headers?: Record<string, string>;
+    }) {
+        const requestObject = request(this.expressApp).post('/');
+        for (const key in util.defaultTo(input.headers, {})) {
+            requestObject.set(key, input.headers![key] as string);
+        }
+        const { body } = await requestObject.send(input);
+        expect(body.errors).toBeUndefined();
+        return body.data;
     }
 
     public async makeFailRequest(input: {

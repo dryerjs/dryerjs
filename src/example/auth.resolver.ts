@@ -55,7 +55,7 @@ export class AuthResolver {
     @Query(AuthResponse)
     public async refreshToken(@Ctx() context: any) {
         const user = await this.dryer.model(User).inContext(context).getOrThrow(context.userId);
-        const token = await this.jwtService.sign({ userId: user.id, role: 'user' });
+        const token = await this.jwtService.sign({ userId: user.id, role: context.role });
         return { token, id: user.id };
     }
 

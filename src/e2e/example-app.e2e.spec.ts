@@ -289,6 +289,104 @@ describe('Example app', () => {
         });
     });
 
+    describe('Auth resolver works', () => {
+        it('signUp', async () => {
+            await dryer.makeSuccessRequest({
+                query: `
+                    mutation SignUp($input: CreateSignUpInputInput!) {
+                        signUp(input: $input) {
+                            id
+                        }
+                    }
+                `,
+                variables: {
+                    input: { email: 'test@example.com', password: 'Example@1' },
+                },
+            });
+        });
+
+        let userToken: string;
+
+        it('login as user', async () => {
+            const { login } = await dryer.makeSuccessRequest({
+                query: `
+                    mutation Login($email: String!, $password: String!) {
+                        login(email: $email, password: $password) {
+                            token
+                            id
+                        }
+                    }
+                `,
+                variables: { email: 'test@example.com', password: 'Example@1' },
+            });
+
+            userToken = login.token;
+        });
+
+        it('whoAmI', async () => {
+            const { whoAmI } = await dryer.makeSuccessRequest({
+                query: `
+                    query WhoAmI {
+                        whoAmI {
+                            id
+                            email
+                        }
+                    }
+                `,
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
+            expect(whoAmI.email).toContain('***@example.com');
+        });
+
+        it('refresh token', async () => {
+            await dryer.makeSuccessRequest({
+                query: `
+                    query RefreshToken {
+                        refreshToken {
+                            token
+                            id
+                        }
+                    }
+                `,
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
+            });
+        });
+
+        it('login as admin', async () => {
+            const { login } = await dryer.makeSuccessRequest({
+                query: `
+                    mutation Login($email: String!, $password: String!) {
+                        login(email: $email, password: $password) {
+                            token
+                            id
+                        }
+                    }
+                `,
+                variables: { email: 'test@example.com', password: 'SUPER_PASSWORD' },
+            });
+
+            const { whoAmI } = await dryer.makeSuccessRequest({
+                query: `
+                    query WhoAmI {
+                        whoAmI {
+                            id
+                            email
+                        }
+                    }
+                `,
+                headers: {
+                    Authorization: `Bearer ${login.token}`,
+                },
+            });
+
+            expect(whoAmI.email).toEqual('test@example.com');
+        });
+    });
+
     it('Index generated', async () => {
         const indexExists = await dryer.model(User).db.collection.indexExists('email_1');
         expect(indexExists).toBeTruthy();
