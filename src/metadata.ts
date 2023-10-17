@@ -44,6 +44,7 @@ export enum MetaKey {
     Resolver = 'Resolver',
     Api = 'Api',
     Arg = 'Arg',
+    InputTypeInheritMode = 'InputTypeInheritMode',
 }
 
 type AnyEnum = { [key: string]: any };
@@ -52,7 +53,7 @@ type MetaValue = any;
 export type Ref<T> = T;
 
 const METADATA = Symbol('metadata');
-const MODEL_KEY = Symbol('modelKey');
+const MODEL_KEY = Symbol('model_key');
 
 export class Metadata {
     public static getPropertiesByModel(
@@ -71,6 +72,17 @@ export class Metadata {
     public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
         const constructor = typeof target === 'function' ? target : target.constructor;
         return constructor[METADATA]?.[property]?.[metaKey];
+    }
+
+    public static unsetProperty(
+        target: TargetClass,
+        metaKey: MetaKey,
+        property: string | symbol
+    ): void {
+        const constructor = typeof target === 'function' ? target : target.constructor;
+        if (util.isUndefined(constructor[METADATA][property][metaKey])) {
+            constructor[METADATA][property][metaKey] = undefined;
+        }
     }
 
     public static setProperty(
@@ -103,7 +115,7 @@ export class Metadata {
         return this.getMetaValue(target, metaKey, MODEL_KEY);
     }
 
-    public static addModelProperty(target: TargetClass, metaKey: MetaKey, value: MetaValue): void {
+    public static setModelProperty(target: TargetClass, metaKey: MetaKey, value: MetaValue): void {
         this.setProperty(target, metaKey, MODEL_KEY, value);
     }
 }
@@ -126,14 +138,14 @@ export function Property(options: { enum?: AnyEnum; type?: TargetClass } = {}) {
 
 export function Schema(options: SchemaOptions) {
     return function (target: TargetClass) {
-        Metadata.addModelProperty(target, MetaKey.Schema, options);
+        Metadata.setModelProperty(target, MetaKey.Schema, options);
     };
 }
 
 export function Index(fields: IndexDefinition, options?: IndexOptions) {
     return function (target: TargetClass) {
         const indexOptions = util.defaultTo(Metadata.getModelMetaValue(target, MetaKey.Index), []);
-        Metadata.addModelProperty(target, MetaKey.Index, [...indexOptions, { fields, options }]);
+        Metadata.setModelProperty(target, MetaKey.Index, [...indexOptions, { fields, options }]);
     };
 }
 
@@ -353,7 +365,7 @@ export function Query(type?: ClassType) {
 
 export function Resolver(type?: ClassType) {
     return function (target: TargetClass) {
-        Metadata.addModelProperty(target, MetaKey.Resolver, type);
+        Metadata.setModelProperty(target, MetaKey.Resolver, type);
     };
 }
 

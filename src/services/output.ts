@@ -2,6 +2,8 @@ import { MetaKey } from '../metadata';
 import { BaseContext } from '../dryer';
 import { ObjectProcessor } from './object-processor';
 import { ModelDefinition } from '../shared';
+import { ObjectMaker } from '../object-marker';
+
 
 export class OutputService {
     public static async output<T, Context extends BaseContext>(
@@ -19,11 +21,14 @@ export class OutputService {
             modelDefinition,
             metaKey: MetaKey.DefaultOnOutput,
         });
-        return await ObjectProcessor.transform<T, Context>({
+        const result = await ObjectProcessor.transform<T, Context>({
             obj: defaultAppliedResult,
             context,
             modelDefinition,
             metaKey: MetaKey.TransformOnOutput,
         });
+
+        ObjectMaker.mark(result, modelDefinition);
+        return result;
     }
 }

@@ -3,7 +3,7 @@ import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType, Argument, ClassType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
 
-const ENUM_CACHE_KEY = Symbol('ENUM_CACHE_KEY');
+const ENUM_CACHE_KEY = Symbol('enum_cache_key');
 
 export class Property {
     constructor(

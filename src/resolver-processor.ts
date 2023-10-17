@@ -5,6 +5,8 @@ import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { inspect } from './inspect';
 import { Typer } from './typer';
+import { OutputService } from './services';
+import { ObjectMaker } from './object-marker';
 
 export class ResolverProcessor {
     public static get(resolver: TargetClass, injector: ReflectiveInjector) {
@@ -25,7 +27,7 @@ export class ResolverProcessor {
             const result = {
                 type: Typer.get(type).output,
                 args: {},
-                resolve: (_parent, args, ctx) => {
+                resolve: async (_parent, args, ctx) => {
                     const service = injector.get(resolver);
                     const definedArgs = property
                         .getArgs()
@@ -35,7 +37,9 @@ export class ResolverProcessor {
                             return args[name];
                         });
 
-                    return service[property.name](...definedArgs);
+                    const result = await service[property.name](...definedArgs);
+                    if (ObjectMaker.isProcessed(result)) return result;
+                    return await OutputService.output(result, ctx, type);
                 },
             };
 
