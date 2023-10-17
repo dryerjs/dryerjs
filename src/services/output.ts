@@ -2,7 +2,7 @@ import { MetaKey } from '../metadata';
 import { BaseContext } from '../dryer';
 import { ObjectProcessor } from './object-processor';
 import { ModelDefinition } from '../shared';
-import { ObjectMaker } from '../object-marker';
+import { ObjectMarker } from '../object-marker';
 
 
 export class OutputService {
@@ -28,7 +28,7 @@ export class OutputService {
             metaKey: MetaKey.TransformOnOutput,
         });
 
-        ObjectMaker.mark(result, modelDefinition);
+        ObjectMarker.mark(result, modelDefinition);
         return result;
     }
 }

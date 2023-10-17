@@ -108,6 +108,29 @@ exports[`Resolver works Generate correct graphql schema 1`] = `
           {
             "defaultValue": null,
             "description": null,
+            "name": "email",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null,
+            },
+          },
+        ],
+        "deprecationReason": null,
+        "description": null,
+        "isDeprecated": false,
+        "name": "nullableInput",
+        "type": {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+      {
+        "args": [
+          {
+            "defaultValue": null,
+            "description": null,
             "name": "input",
             "type": {
               "kind": "INPUT_OBJECT",

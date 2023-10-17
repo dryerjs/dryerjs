@@ -6,7 +6,7 @@ import { MetaKey, Metadata } from './metadata';
 import { inspect } from './inspect';
 import { Typer } from './typer';
 import { OutputService } from './services';
-import { ObjectMaker } from './object-marker';
+import { ObjectMarker } from './object-marker';
 
 export class ResolverProcessor {
     public static get(resolver: TargetClass, injector: ReflectiveInjector) {
@@ -16,17 +16,17 @@ export class ResolverProcessor {
         for (const property of inspect(resolver).getProperties(MetaKey.Api)) {
             const apiOptions = property.getMetaValue(MetaKey.Api) as ApiOptions;
             const type = (() => {
-                if (util.isFunction(apiOptions.type)) return apiOptions.type;
+                if (!util.isNil(apiOptions.type)) return apiOptions.type;
                 return Metadata.getModelMetaValue(resolver, MetaKey.Resolver);
             })();
 
             /* istanbul ignore if */
-            if (!util.isFunction(type)) {
+            if (util.isNil(type)) {
                 throw new Error(`Unable to determine type for ${resolver.name}.${property.name}`);
             }
 
             const result = {
-                type: Typer.get(type).output,
+                type: util.isFunction(type) ? Typer.get(type).output : type,
                 args: {},
                 resolve: async (_parent, args, ctx) => {
                     const service = injector.get(resolver);
@@ -39,8 +39,12 @@ export class ResolverProcessor {
                         });
 
                     const result = await service[property.name](...definedArgs);
-                    if (ObjectMaker.isProcessed(result)) return result;
-                    return await OutputService.output(result, ctx, type);
+                    if (ObjectMarker.isProcessed(result)) return result;
+                    try {
+                        return await OutputService.output(result, ctx, type);
+                    } catch (error) {
+                        return result;
+                    }
                 },
             };
 

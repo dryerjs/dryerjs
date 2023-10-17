@@ -1,4 +1,4 @@
-import { getIntrospectionQuery } from 'graphql';
+import { getIntrospectionQuery, GraphQLString } from 'graphql';
 import {
     Arg,
     ExcludeOnCreate,
@@ -47,6 +47,11 @@ class AccountResolver {
         return input;
     }
 
+    @Query(GraphQLString)
+    nullableInput(@Arg('email', false) email?: string) {
+        return email || 'emtpy@email.com';
+    }
+
     @Query(PickCreateAccountInput)
     pick(@Arg('input') input: PickCreateAccountInput) {
         return input;
@@ -87,6 +92,28 @@ describe('Resolver works', () => {
             return !ignoreTypeNames.includes(name) && !name.startsWith('__');
         });
         expect(types).toMatchSnapshot();
+    });
+
+    it('nullableInput', async () => {
+        const response1 = await dryer.makeSuccessRequest({
+            query: `
+                query {
+                    nullableInput
+                }
+            `,
+        });
+
+        const response2 = await dryer.makeSuccessRequest({
+            query: `
+                query NullableInput($email: String) {
+                    nullableInput(email: $email)
+                }
+            `,
+            variables: { email: 'real@email.com' },
+        });
+
+        expect(response1.nullableInput).toEqual('emtpy@email.com');
+        expect(response2.nullableInput).toEqual('real@email.com');
     });
 
     afterAll(async () => {
