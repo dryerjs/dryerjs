@@ -62,7 +62,7 @@ export class Model<T = any> {
                 return await GetAllService.getAll(query, sort, context, this);
             },
             output: async (raw: T): Promise<T> => {
-                return await OutputService.output<T, Context>(raw, context, this);
+                return await OutputService.output<T, Context>(raw, context, this.definition);
             },
             onProperty: <K extends NonPrimitiveArrayKeyOf<T>>(propertyName: K) => {
                 return {

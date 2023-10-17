@@ -11,7 +11,9 @@ export class PaginateService {
         model: Model<T>,
     ) {
         const result = await model.db.paginate(query, options);
-        const docs = await Promise.all(result.docs.map(doc => OutputService.output(doc, context, model)));
+        const docs = await Promise.all(
+            result.docs.map(doc => OutputService.output(doc, context, model.definition)),
+        );
         return {
             ...result,
             docs,

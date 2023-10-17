@@ -53,7 +53,7 @@ export class MongooseSchemaBuilder {
                 continue;
             }
 
-            result[property.name] = { type: typeConfig[property.typeInClass.name] };
+            result[property.name] = { type: typeConfig[property.designType.name] };
         }
 
         for (const property of inspect(modelDefinition).getRelationProperties()) {

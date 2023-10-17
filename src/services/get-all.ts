@@ -13,6 +13,6 @@ export class GetAllService {
     ) {
         const projection = {};
         const items = await model.db.find(query, projection, { sort });
-        return await Promise.all(items.map(item => OutputService.output(item, context, model)));
+        return await Promise.all(items.map(item => OutputService.output(item, context, model.definition)));
     }
 }

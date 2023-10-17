@@ -1,15 +1,15 @@
 import { GraphQLString, GraphQLFloat, GraphQLBoolean, GraphQLEnumType } from 'graphql';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
+import { ApiType, Argument, ClassType, EmbeddedSchemaOptions, FilterableOptions, Relation } from './shared';
 
-const ENUM_CACHE_KEY = Symbol('ENUM_CACHE_KEY');
+const ENUM_CACHE_KEY = Symbol('enum_cache_key');
 
 export class Property {
     constructor(
         public modelDefinition: any,
         public name: string,
-        public typeInClass: any,
+        public designType: ClassType,
     ) {}
 
     public getMetaValue(key: MetaKey) {
@@ -17,7 +17,7 @@ export class Property {
     }
 
     public isArray() {
-        return util.isFunction(this.typeInClass) && this.typeInClass.name === 'Array';
+        return util.isFunction(this.designType) && this.designType.name === 'Array';
     }
 
     public isEmbedded() {
@@ -102,7 +102,11 @@ export class Property {
             return enumInObject[ENUM_CACHE_KEY];
         }
 
-        if (typeConfig[this.typeInClass.name]) return typeConfig[this.typeInClass.name];
+        if (typeConfig[this.designType.name]) return typeConfig[this.designType.name];
         throw new Error(`Property ${this.name} is not a scalar property`);
+    }
+
+    public getArgs(): Argument[] {
+        return this.getMetaValue(MetaKey.Arg);
     }
 }

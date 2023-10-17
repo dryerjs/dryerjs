@@ -38,7 +38,7 @@ export class User {
     @Property()
     @ExcludeOnUpdate()
     @TransformOnOutput((email: string, ctx: AdditionalContext) => {
-        if (ctx.role === 'admin') return email;
+        if (ctx?.role === 'admin') return email;
         return `***@${email.split('@')[1]}`;
     })
     @Validate((email: string) => {
@@ -57,10 +57,9 @@ export class User {
     @Property()
     @ExcludeOnUpdate()
     @RequiredOnCreate()
-    @TransformOnCreate((password: string, _ctx: AdditionalContext, userInput: User) => {
+    @TransformOnCreate((password: string) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const passwordHash = require('crypto').createHash('md5').update(password).digest('hex');
-        return `${userInput.email}:${passwordHash}`;
+        return require('crypto').createHash('md5').update(password).digest('hex');
     })
     @ExcludeOnOutput()
     password: string;

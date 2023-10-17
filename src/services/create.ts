@@ -45,7 +45,7 @@ export class CreateService {
         }
 
         const value = await model.db.create(transformedInput);
-        return await OutputService.output<T, Context>(value, context, model);
+        return await OutputService.output<T, Context>(value, context, model.definition);
     }
 
     public static async createRecursive<T, Context extends BaseContext>(

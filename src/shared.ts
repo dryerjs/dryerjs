@@ -24,6 +24,8 @@ export type GraphQLFieldConfigMap = graphql.GraphQLFieldConfigMap<any, any>;
 
 export type TargetClass = any;
 
+export type ClassType = any;
+
 export type Sort = any;
 
 export enum RelationKind {
@@ -86,4 +88,16 @@ export const allFilterOperators: FilterOperator[] = [
 
 export type FilterableOptions = {
     operators: FilterOperator[];
+};
+
+export type Argument = {
+    index: number;
+    name: string;
+    required: boolean;
+    type: ClassType;
+};
+
+export type ApiOptions = {
+    kind: 'Mutation' | 'Query';
+    type: ClassType;
 };

@@ -9,7 +9,7 @@ export class GetService {
     public static async get<T, Context extends BaseContext>(id: string, context: Context, model: Model<T>) {
         const result = await model.db.findById(id);
         if (util.isNil(result)) return null;
-        return OutputService.output<T, Context>(result, context, model);
+        return OutputService.output<T, Context>(result, context, model.definition);
     }
 
     public static async getOrThrow<T, Context extends BaseContext>(
@@ -28,6 +28,6 @@ export class GetService {
     ) {
         const result = await model.db.findOne(filter);
         if (util.isNil(result)) return null;
-        return OutputService.output<T, Context>(result, context, model);
+        return OutputService.output<T, Context>(result, context, model.definition);
     }
 }
