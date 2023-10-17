@@ -3,6 +3,7 @@ import {
     ExcludeOnCreate,
     ExcludeOnInput,
     ExcludeOnUpdate,
+    Filterable,
     HasMany,
     NullableOnOutput,
     Property,
@@ -26,6 +27,7 @@ class AttributeValue {
 
     @ExcludeOnUpdate()
     @RequiredOnCreate()
+    @Filterable({ operators: ['eq'] })
     @Property()
     attributeId: string;
 }
@@ -250,6 +252,66 @@ describe('Belongs and HasMany works', () => {
                 ],
             });
             expect(createAttribute.id).toEqual(createAttribute.attributeValues[0].attributeId);
+        });
+
+        it('delete attribute values', async () => {
+            const input = {
+                code: 'SIZE',
+                attributeValues: [
+                    {
+                        code: 'S',
+                    },
+                    {
+                        code: 'M',
+                    },
+                ],
+            };
+            const { createAttribute } = await dryer.makeSuccessRequest({
+                query: `
+                    mutation CreateAttribute($input: CreateAttributeInput!) {
+                        createAttribute(input: $input) {
+                            id
+                            code
+                            attributeValues {
+                                id
+                                code
+                                attributeId
+                            }
+                        }
+                    }
+                `,
+                variables: { input },
+            });
+
+            await dryer.makeSuccessRequest({
+                query: `
+                    mutation DeleteAttribute($id: String!) {
+                        deleteAttribute(id: $id) {
+                            id
+                        }
+                    }
+                `,
+                variables: { id: createAttribute.id },
+            });
+
+            const { allAttributeValues } = await dryer.makeSuccessRequest({
+                query: `
+                    query AllAttributeValues($filter: AttributeValueFilter!) {
+                        allAttributeValues(filter: $filter) {
+                            code
+                        }
+                    }
+                `,
+                variables: {
+                    filter: {
+                        attributeId: {
+                            eq: createAttribute.id,
+                        },
+                    },
+                },
+            });
+
+            expect(allAttributeValues).toHaveLength(0);
         });
     });
 

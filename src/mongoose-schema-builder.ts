@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ModelDefinition } from './shared';
+import { ModelDefinition, ObjectId, RelationKind } from './shared';
 import { MetaKey } from './metadata';
 import * as util from './util';
 import { inspect } from './inspect';
@@ -34,6 +34,7 @@ export class MongooseSchemaBuilder {
                 Date,
                 Number,
                 Boolean,
+                ObjectId,
             };
 
             const scalarArrayType = property.isArray() && property.getMetaValue(MetaKey.ScalarArrayType);
@@ -55,6 +56,13 @@ export class MongooseSchemaBuilder {
             result[property.name] = { type: typeConfig[property.typeInClass.name] };
         }
 
+        for (const property of inspect(modelDefinition).getRelationProperties()) {
+            const relation = property.getRelation();
+            if (relation.kind === RelationKind.BelongsTo) {
+                result[relation.from] = { type: ObjectId };
+                continue;
+            }
+        }
         return new Schema(result, isRoot ? { timestamps: true } : {});
     }
 }
