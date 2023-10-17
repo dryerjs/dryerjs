@@ -254,7 +254,7 @@ describe('Belongs and HasMany works', () => {
             expect(createAttribute.id).toEqual(createAttribute.attributeValues[0].attributeId);
         });
 
-        it("delete attribute's attribute values", async () => {
+        it('delete attribute values', async () => {
             const input = {
                 code: 'SIZE',
                 attributeValues: [

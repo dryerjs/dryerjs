@@ -10,14 +10,25 @@ export class DeleteService {
         _context: Context,
         model: Model<T>,
     ) {
-        const deleted = await model.db.findByIdAndDelete(id);
-        must.found(deleted, model, id);
+        const deleteDoc = await model.db.findById(id);
+        must.found(deleteDoc, model, id);
+
+        await model.db.deleteOne({ _id: id });
 
         for (const property of inspect(model.definition).getRelationProperties()) {
             const relation = property.getRelation();
-            if (relation.kind === RelationKind.HasMany) {
-                const relationModel = _context.dryer.model(property.getRelationModelDefinition());
-                await relationModel.db.deleteMany({ [relation.to]: id });
+            const relationModel = _context.dryer.model(property.getRelationModelDefinition());
+
+            if (relation.kind === RelationKind.HasMany || relation.kind === RelationKind.HasOne) {
+                const relationDocs = await relationModel.db.find<T>({ [relation.to]: id });
+                await Promise.all(relationDocs.map(doc => this.delete(doc['_id'], _context, relationModel)));
+            }
+
+            if (relation.kind === RelationKind.ReferencesMany) {
+                const relationIds = (deleteDoc && deleteDoc[relation.from]) || [];
+                if (relationIds.length === 0) continue;
+                const relationDocs = await relationModel.db.find<T>({ _id: { $in: relationIds } });
+                await Promise.all(relationDocs.map(doc => this.delete(doc['_id'], _context, relationModel)));
             }
         }
     }

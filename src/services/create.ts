@@ -2,6 +2,7 @@ import { MetaKey } from '../metadata';
 import { Model } from '../model';
 import { inspect } from '../inspect';
 import * as util from '../util';
+import * as must from './must';
 import { BaseContext } from '../dryer';
 
 import { OutputService } from './output';
@@ -29,6 +30,19 @@ export class CreateService {
             modelDefinition: model.definition,
             metaKey: MetaKey.TransformOnCreate,
         });
+
+        for (const property of inspect(model.definition).getRelationProperties()) {
+            const relation = property.getRelation();
+            const relationModel = context.dryer.model(property.getRelationModelDefinition());
+            if (relation.kind === RelationKind.BelongsTo) {
+                must.found(
+                    await relationModel.db.exists({ _id: input[relation.from] }),
+                    relationModel,
+                    input[relation.from],
+                );
+                continue;
+            }
+        }
 
         const value = await model.db.create(transformedInput);
         return await OutputService.output<T, Context>(value, context, model);

@@ -1,7 +1,6 @@
 import * as util from '../util';
-import * as must from './must';
 import { MetaKey } from '../metadata';
-import { ModelDefinition, RelationKind } from '../shared';
+import { ModelDefinition } from '../shared';
 import { inspect } from '../inspect';
 import { BaseContext } from '../dryer';
 
@@ -40,19 +39,6 @@ export class ObjectProcessor {
                 context,
                 modelDefinition: property.getEmbeddedModelDefinition(),
             });
-        }
-
-        for (const property of inspect(modelDefinition).getRelationProperties()) {
-            const relation = property.getRelation();
-            const relationModel = context.dryer.model(property.getRelationModelDefinition());
-            if (relation.kind === RelationKind.BelongsTo) {
-                must.found(
-                    await relationModel.db.exists({ _id: input[relation.from] }),
-                    relationModel,
-                    input[relation.from],
-                );
-                continue;
-            }
         }
     }
 
