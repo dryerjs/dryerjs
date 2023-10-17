@@ -69,17 +69,16 @@ export class Metadata {
         return result;
     }
 
-    public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
-        const constructor = typeof target === 'function' ? target : target.constructor;
-        return constructor[METADATA]?.[property]?.[metaKey];
+    private static getConstructor(target: TargetClass) {
+        return typeof target === 'function' ? target : target.constructor;
     }
 
-    public static unsetProperty(
-        target: TargetClass,
-        metaKey: MetaKey,
-        property: string | symbol
-    ): void {
-        const constructor = typeof target === 'function' ? target : target.constructor;
+    public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
+        return this.getConstructor(target)[METADATA]?.[property]?.[metaKey];
+    }
+
+    public static unsetProperty(target: TargetClass, metaKey: MetaKey, property: string | symbol): void {
+        const constructor = this.getConstructor(target);
         if (!util.isUndefined(constructor[METADATA][property][metaKey])) {
             constructor[METADATA][property][metaKey] = undefined;
         }
@@ -91,7 +90,7 @@ export class Metadata {
         property: string | symbol,
         value: MetaValue = true,
     ): void {
-        const constructor = typeof target === 'function' ? target : target.constructor;
+        const constructor = this.getConstructor(target);
         if (util.isUndefined(constructor[METADATA])) {
             constructor[METADATA] = {};
         }

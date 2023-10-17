@@ -20,6 +20,7 @@ export class ResolverProcessor {
                 return Metadata.getModelMetaValue(resolver, MetaKey.Resolver);
             })();
 
+            /* istanbul ignore if */
             if (!util.isFunction(type)) {
                 throw new Error(`Unable to determine type for ${resolver.name}.${property.name}`);
             }

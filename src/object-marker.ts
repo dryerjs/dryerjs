@@ -9,6 +9,7 @@ export class ObjectMaker {
         return obj;
     }
 
+    /* istanbul ignore next */
     public static getClass<T>(obj: T) {
         return obj[ObjectProcessedWithClass];
     }
