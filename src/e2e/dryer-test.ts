@@ -3,7 +3,9 @@ import { Dryer, DryerConfig } from '../';
 import * as util from '../util';
 
 export class DryerTest extends Dryer<any> {
-    public static init<Context>(config: Pick<DryerConfig<Context>, 'modelDefinitions' | 'appendContext'>) {
+    public static init<Context>(
+        config: Pick<DryerConfig<Context>, 'modelDefinitions' | 'appendContext' | 'resolvers' | 'providers'>,
+    ) {
         return new DryerTest({
             ...config,
             mongoUri: util.defaultTo(process.env.E2E_MONGO_URI, 'mongodb://127.0.0.1:27017/dryer-e2e'),

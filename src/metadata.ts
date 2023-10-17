@@ -80,7 +80,7 @@ export class Metadata {
         property: string | symbol
     ): void {
         const constructor = typeof target === 'function' ? target : target.constructor;
-        if (util.isUndefined(constructor[METADATA][property][metaKey])) {
+        if (!util.isUndefined(constructor[METADATA][property][metaKey])) {
             constructor[METADATA][property][metaKey] = undefined;
         }
     }
@@ -103,7 +103,7 @@ export class Metadata {
 
     public static copyProperty(from: TargetClass, to: TargetClass, property: string | symbol): void {
         if (util.isUndefined(to[METADATA])) to[METADATA] = {};
-        to[METADATA][property] = from[METADATA]?.[property];
+        to[METADATA][property] = { ...from[METADATA]?.[property] };
     }
 
     public static addArgs(target: TargetClass, property: string | symbol, argument: Argument): void {

@@ -22,17 +22,9 @@ describe('Example app', () => {
             'String',
             'Int',
             'Boolean',
-            '__Schema',
-            '__Type',
-            '__TypeKind',
-            '__Field',
-            '__InputValue',
-            '__EnumValue',
-            '__Directive',
-            '__DirectiveLocation',
         ];
         const types = response.body['singleResult'].data.__schema.types.filter(({ name }) => {
-            return !ignoreTypeNames.includes(name);
+            return !ignoreTypeNames.includes(name) && !name.startsWith('__');
         });
         expect(types).toMatchSnapshot();
     });
