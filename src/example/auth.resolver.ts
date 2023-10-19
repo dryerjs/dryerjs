@@ -1,8 +1,8 @@
 import * as graphql from 'graphql';
-import { Arg, Context, Ctx, Dryer, Mutation, Pick, Property, Query, Resolver } from 'dryerjs';
+import { Arg, Ctx, Dryer, Mutation, Pick, Property, Query, Resolver } from 'dryerjs';
 import { User } from './user';
 import { JWTService } from './jwt.service';
-import { ExtraContext } from './context';
+import { Context } from './context';
 
 class AuthResponse {
     @Property()
@@ -54,14 +54,14 @@ export class AuthResolver {
     }
 
     @Query(AuthResponse)
-    public async refreshToken(@Ctx() context: Context<ExtraContext>) {
+    public async refreshToken(@Ctx() context: Context) {
         const user = await this.dryer.model(User).inContext(context).getOrThrow(context.user!.userId);
         const token = await this.jwtService.sign({ userId: user.id, role: context.user!.role });
         return { token, id: user.id };
     }
 
     @Query()
-    public async whoAmI(@Ctx() context: Context<ExtraContext>) {
+    public async whoAmI(@Ctx() context: Context) {
         return await this.dryer.model(User).inContext(context).getOrThrow(context.user!.userId);
     }
 

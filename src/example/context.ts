@@ -1,4 +1,4 @@
-import { BaseContext } from 'dryerjs';
+import { Context as DryerContext } from 'dryerjs';
 
 export type ExtraContext = {
     user: {
@@ -7,4 +7,4 @@ export type ExtraContext = {
     } | null;
 };
 
-export type Context = ExtraContext & BaseContext;
+export type Context = DryerContext<ExtraContext>;
