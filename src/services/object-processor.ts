@@ -1,17 +1,19 @@
+import { Injectable } from 'injection-js';
 import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { ModelDefinition } from '../shared';
 import { inspect } from '../inspect';
-import { BaseContext } from '../dryer';
+import { Context } from '../dryer';
 
-export class ObjectProcessor {
-    public static async validate<T, Context extends BaseContext>({
+@Injectable()
+export class ObjectProcessor<T, ExtraContext> {
+    public async validate({
         input,
         context,
         modelDefinition,
     }: {
         input: Partial<T>;
-        context: Context;
+        context: Context<ExtraContext>;
         modelDefinition: ModelDefinition<T>;
     }) {
         for (const property of inspect(modelDefinition).getProperties(MetaKey.Validate)) {
@@ -42,16 +44,16 @@ export class ObjectProcessor {
         }
     }
 
-    public static async setDefault<T, Context extends BaseContext>(input: {
+    public async setDefault(input: {
         obj: T;
-        context: Context;
+        context: Context<ExtraContext>;
         modelDefinition: ModelDefinition<T>;
         metaKey: MetaKey;
     }): Promise<T> {
         return (await this.setDefaultPartial(input)) as T;
     }
 
-    public static lean<T>(input: { obj: Partial<T>; modelDefinition: ModelDefinition<T> }) {
+    public lean(input: { obj: Partial<T>; modelDefinition: ModelDefinition<T> }) {
         const { obj, modelDefinition } = input;
 
         const leanObject = util.isFunction(obj['toObject']) ? obj['toObject']() : obj;
@@ -78,9 +80,9 @@ export class ObjectProcessor {
         return leanObject;
     }
 
-    public static async setDefaultPartial<T, Context extends BaseContext>(input: {
+    public async setDefaultPartial(input: {
         obj: Partial<T>;
-        context: Context;
+        context: Context<ExtraContext>;
         modelDefinition: ModelDefinition<T>;
         metaKey: MetaKey;
     }) {
@@ -118,18 +120,18 @@ export class ObjectProcessor {
         return obj;
     }
 
-    public static async transform<T, Context extends BaseContext>(input: {
+    public async transform(input: {
         obj: T;
-        context: Context;
+        context: Context<ExtraContext>;
         modelDefinition: ModelDefinition<T>;
         metaKey: MetaKey;
     }): Promise<T> {
         return (await this.transformPartial(input)) as T;
     }
 
-    public static async transformPartial<T, Context extends BaseContext>(input: {
+    public async transformPartial(input: {
         obj: Partial<T>;
-        context: Context;
+        context: Context<ExtraContext>;
         modelDefinition: ModelDefinition<T>;
         metaKey: MetaKey;
     }) {

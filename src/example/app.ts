@@ -1,10 +1,10 @@
 import { Dryer, DryerConfig } from 'dryerjs';
-import { AdditionalContext } from './context';
+import { ExtraContext } from './context';
 import { User } from './user';
 import { AuthResolver } from './auth.resolver';
 import { JWTService } from './jwt.service';
 
-export const dryerConfig: DryerConfig<AdditionalContext> = {
+export const dryerConfig: DryerConfig<ExtraContext> = {
     modelDefinitions: [User],
     beforeApplicationInit: () => console.log('beforeApplicationInit'),
     afterApplicationInit: () => console.log('afterApplicationInit'),
@@ -13,11 +13,12 @@ export const dryerConfig: DryerConfig<AdditionalContext> = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     appendContext: async (req, dryer) => {
         const token = req.headers.authorization?.replace('Bearer ', '');
-        if (!token) return { userId: null, role: null };
-        return await (dryer.injector.get(JWTService) as JWTService).verify(token);
+        if (!token) return { user: null };
+        const user = await (dryer.injector.get(JWTService) as JWTService).verify(token);
+        return { user };
     },
     providers: [JWTService],
     resolvers: [AuthResolver],
 };
 
-export const dryer = Dryer.init<AdditionalContext>(dryerConfig);
+export const dryer = Dryer.init<ExtraContext>(dryerConfig);

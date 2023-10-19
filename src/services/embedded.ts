@@ -1,7 +1,8 @@
+import { Injector } from 'injection-js';
 import * as graphql from 'graphql';
 import * as util from '../util';
 import { Model } from '../model';
-import { BaseContext } from '../dryer';
+import { Context } from '../dryer';
 import { NonPrimitiveArrayKeyOf, UnwrapArray } from '../shared';
 import { GetService } from './get';
 import { UpdateService } from './update';
@@ -13,32 +14,26 @@ interface EmbeddedModelInput<T, K extends NonPrimitiveArrayKeyOf<T>, Context> {
     propertyName: K;
 }
 
-export class EmbeddedService {
-    public static getEmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context extends BaseContext>(
-        input: EmbeddedModelInput<T, K, Context>,
-    ) {
-        return new EmbeddedModel<T, K, Context>(input);
-    }
-}
-
-export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context extends BaseContext> {
-    constructor(private embeddedModelInput: EmbeddedModelInput<T, K, Context>) {}
+export class EmbeddedModelService<T, K extends NonPrimitiveArrayKeyOf<T>, ExtraContext> {
+    constructor(
+        private embeddedModelInput: EmbeddedModelInput<T, K, Context<ExtraContext>>,
+        private readonly injector: Injector,
+    ) {}
 
     private async getObjects(): Promise<UnwrapArray<T[K]>[]> {
         const { parentId, context, model, propertyName } = this.embeddedModelInput;
-        const parent = await GetService.getOrThrow<T, Context>(parentId, context, model);
+        const parent = await this.injector
+            .get(GetService<T, ExtraContext>)
+            .getOrThrow(parentId, context, model);
         return parent[propertyName] as any;
     }
 
     public async create(input: Partial<UnwrapArray<T[K]>>): Promise<UnwrapArray<T[K]>> {
         const objects = await this.getObjects();
         const { propertyName, parentId, model, context } = this.embeddedModelInput;
-        const updatedParent = await UpdateService.update<T, Context>(
-            parentId,
-            { [propertyName]: [...objects, input] } as any,
-            context,
-            model,
-        );
+        const updatedParent = await this.injector
+            .get(UpdateService<T, ExtraContext>)
+            .update(parentId, { [propertyName]: [...objects, input] } as any, context, model);
         return util.last(updatedParent[propertyName] as any);
     }
 
@@ -53,12 +48,9 @@ export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context exten
             }
             return item;
         });
-        const updatedParent = await UpdateService.update<T, Context>(
-            parentId,
-            { [propertyName]: newArrayOfEmbeddedObjects } as any,
-            context,
-            model,
-        );
+        const updatedParent = await this.injector
+            .get(UpdateService<T, ExtraContext>)
+            .update(parentId, { [propertyName]: newArrayOfEmbeddedObjects } as any, context, model);
 
         return updatedParent[propertyName as any].find((item: any) => item.id === id);
     }
@@ -70,12 +62,9 @@ export class EmbeddedModel<T, K extends NonPrimitiveArrayKeyOf<T>, Context exten
         const newArrayOfEmbeddedObjects = objects.filter((item: any) => {
             return item.id !== id;
         });
-        await UpdateService.update<T, Context>(
-            parentId,
-            { [propertyName]: newArrayOfEmbeddedObjects } as any,
-            context,
-            model,
-        );
+        await this.injector
+            .get(UpdateService<T, ExtraContext>)
+            .update(parentId, { [propertyName]: newArrayOfEmbeddedObjects } as any, context, model);
         return { deleted: true, id };
     }
 

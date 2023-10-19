@@ -1,4 +1,10 @@
-export type AdditionalContext = {
-    userId: string | null;
-    role: string | null;
+import { BaseContext } from 'dryerjs';
+
+export type ExtraContext = {
+    user: {
+        userId: string;
+        role: string;
+    } | null;
 };
+
+export type Context = ExtraContext & BaseContext;

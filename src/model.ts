@@ -1,5 +1,6 @@
 import mongoose, { FilterQuery } from 'mongoose';
 import * as mongoosePaginate from 'mongoose-paginate-v2';
+import { Injector } from 'injection-js';
 import { MongooseSchemaBuilder } from './mongoose-schema-builder';
 import * as util from './util';
 import { ModelDefinition, NonPrimitiveArrayKeyOf, Sort } from './shared';
@@ -11,16 +12,19 @@ import {
     PaginateService,
     OutputService,
     GetAllService,
-    EmbeddedService,
+    EmbeddedModelService,
 } from './services';
-import { BaseContext } from './dryer';
+import { Context } from './dryer';
 import { MetaKey, Metadata } from './metadata';
 
 export class Model<T = any> {
     public readonly name: string;
     public readonly db: mongoose.PaginateModel<T>;
 
-    constructor(public readonly definition: ModelDefinition<T>) {
+    constructor(
+        public readonly definition: ModelDefinition<T>,
+        public readonly injector: Injector,
+    ) {
         const mongooseSchema = MongooseSchemaBuilder.build(definition);
         mongooseSchema.plugin(mongoosePaginate);
         const indexes = util.defaultTo(Metadata.getModelMetaValue(definition, MetaKey.Index), []);
@@ -30,49 +34,62 @@ export class Model<T = any> {
         this.db = mongoose.model<T, mongoose.PaginateModel<T>>(definition.name, mongooseSchema);
     }
 
-    public inContext<Context extends BaseContext>(context: Context) {
+    public inContext<ExtraContext>(context: Context<ExtraContext>) {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const model = this;
         return {
             create: async (input: Partial<T>): Promise<T> => {
-                return await CreateService.create(input, context, this);
+                return await this.injector.get(CreateService<T, ExtraContext>).create(input, context, this);
             },
             createRecursive: async (input: Partial<T>): Promise<T> => {
-                return await CreateService.createRecursive(input, context, this);
+                return await this.injector
+                    .get(CreateService<T, ExtraContext>)
+                    .createRecursive(input, context, this);
             },
             update: async (id: string, input: Partial<T>): Promise<T> => {
-                return await UpdateService.update<T, Context>(id, input, context, this);
+                return await this.injector
+                    .get(UpdateService<T, ExtraContext>)
+                    .update(id, input, context, this);
             },
             delete: async (id: string) => {
-                return await DeleteService.delete<T, Context>(id, context, this);
+                return await this.injector.get(DeleteService<T, ExtraContext>).delete(id, context, this);
             },
             get: async (id: string): Promise<T | null> => {
-                return await GetService.get<T, Context>(id, context, this);
+                return await this.injector.get(GetService<T, ExtraContext>).get(id, context, this);
             },
             getOne: async (filter: FilterQuery<T>): Promise<T | null> => {
-                return await GetService.getOne<T, Context>(context, this, filter);
+                return await this.injector.get(GetService<T, ExtraContext>).getOne(context, this, filter);
             },
             getOrThrow: async (id: string): Promise<T> => {
-                return await GetService.getOrThrow<T, Context>(id, context, this);
+                return await this.injector.get(GetService<T, ExtraContext>).getOrThrow(id, context, this);
             },
             paginate: async (query: FilterQuery<T>, options: { limit: number; page: number; sort: Sort }) => {
-                return await PaginateService.paginate<T, Context>(query, options, context, this);
+                return await this.injector
+                    .get(PaginateService<T, ExtraContext>)
+                    .paginate(query, options, context, this);
             },
             getAll: async (query: FilterQuery<T>, sort: Sort = {}) => {
-                return await GetAllService.getAll(query, sort, context, this);
+                return await this.injector
+                    .get(GetAllService<T, ExtraContext>)
+                    .getAll(query, sort, context, this);
             },
             output: async (raw: T): Promise<T> => {
-                return await OutputService.output<T, Context>(raw, context, this.definition);
+                return await this.injector
+                    .get(OutputService<T, ExtraContext>)
+                    .output(raw, context, this.definition);
             },
             onProperty: <K extends NonPrimitiveArrayKeyOf<T>>(propertyName: K) => {
                 return {
                     withParent(parentId: string) {
-                        return EmbeddedService.getEmbeddedModel<T, K, Context>({
-                            parentId,
-                            context,
-                            model,
-                            propertyName,
-                        });
+                        return new EmbeddedModelService(
+                            {
+                                parentId,
+                                context,
+                                model,
+                                propertyName,
+                            },
+                            model.injector,
+                        );
                     },
                 };
             },

@@ -1,9 +1,10 @@
+import { Injectable } from 'injection-js';
 import { MetaKey } from '../metadata';
 import { Model } from '../model';
 import { inspect } from '../inspect';
 import * as util from '../util';
 import * as must from './must';
-import { BaseContext } from '../dryer';
+import { Context } from '../dryer';
 
 import { OutputService } from './output';
 import { ObjectProcessor } from './object-processor';
@@ -11,20 +12,24 @@ import { RelationKind } from '../shared';
 import { UpdateService } from './update';
 import { GetService } from './get';
 
-export class CreateService {
-    public static async create<T, Context extends BaseContext>(
-        input: Partial<T>,
-        context: Context,
-        model: Model<T>,
-    ) {
-        await ObjectProcessor.validate({ input, context, modelDefinition: model.definition });
-        const defaultAppliedInput = await ObjectProcessor.setDefaultPartial({
+@Injectable()
+export class CreateService<T, ExtraContext> {
+    constructor(
+        private readonly objectProcessor: ObjectProcessor<T, ExtraContext>,
+        private readonly outputService: OutputService<T, ExtraContext>,
+        private readonly getService: GetService<T, ExtraContext>,
+        private readonly updateService: UpdateService<T, ExtraContext>,
+    ) {}
+
+    public async create(input: Partial<T>, context: Context<ExtraContext>, model: Model<T>) {
+        await this.objectProcessor.validate({ input, context, modelDefinition: model.definition });
+        const defaultAppliedInput = await this.objectProcessor.setDefaultPartial({
             obj: input,
             context,
             modelDefinition: model.definition,
             metaKey: MetaKey.DefaultOnCreate,
         });
-        const transformedInput = await ObjectProcessor.transform({
+        const transformedInput = await this.objectProcessor.transformPartial({
             obj: defaultAppliedInput,
             context,
             modelDefinition: model.definition,
@@ -45,14 +50,10 @@ export class CreateService {
         }
 
         const value = await model.db.create(transformedInput);
-        return await OutputService.output<T, Context>(value, context, model.definition);
+        return await this.outputService.output(value, context, model.definition);
     }
 
-    public static async createRecursive<T, Context extends BaseContext>(
-        input: Partial<T>,
-        context: Context,
-        model: Model<T>,
-    ) {
+    public async createRecursive(input: Partial<T>, context: Context<ExtraContext>, model: Model<T>) {
         const result = await this.create(input, context, model);
 
         for (const property of inspect(model.definition).getRelationProperties()) {
@@ -65,19 +66,19 @@ export class CreateService {
 
             if (relation.kind === RelationKind.HasMany) {
                 for (const relatedInputItem of relatedInput as any[]) {
-                    await CreateService.createRecursive(
+                    await this.createRecursive(
                         { ...relatedInputItem, [relation.to]: result['_id'] },
                         context,
-                        relationModel,
+                        relationModel as any,
                     );
                 }
             }
 
             if (relation.kind === RelationKind.HasOne) {
-                await CreateService.createRecursive(
+                await this.createRecursive(
                     { ...relatedInput, [relation.to]: result['_id'] },
                     context,
-                    relationModel,
+                    relationModel as any,
                 );
                 return result;
             }
@@ -85,14 +86,14 @@ export class CreateService {
             if (relation.kind === RelationKind.ReferencesMany) {
                 const ids: string[] = [];
                 for (const relatedInputItem of relatedInput as any[]) {
-                    const { id } = (await CreateService.createRecursive(
+                    const { id } = (await this.createRecursive(
                         relatedInputItem,
                         context,
-                        relationModel,
+                        relationModel as any,
                     )) as any;
                     ids.push(id);
                 }
-                await UpdateService.update(
+                await this.updateService.update(
                     result['_id'],
                     { [relation.from]: [...result[relation.from], ...ids] } as any,
                     context,
@@ -101,6 +102,6 @@ export class CreateService {
             }
         }
 
-        return await GetService.getOrThrow<T, Context>(result['_id'], context, model);
+        return await this.getService.getOrThrow(result['_id'], context, model);
     }
 }

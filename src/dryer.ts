@@ -8,27 +8,37 @@ import { ModelDefinition } from './shared';
 import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
 import { ResolverProcessor } from './resolver-processor';
+import {
+    CreateService,
+    DeleteService,
+    GetAllService,
+    GetService,
+    OutputService,
+    PaginateService,
+    UpdateService,
+} from './services';
+import { ObjectProcessor } from './services/object-processor';
 
-export type ContextFunction<Context> = (
+export type ContextFunction<ExtraContext> = (
     req: express.Request,
-    dryer: Dryer<Context>,
-) => Context | Promise<Context>;
+    dryer: Dryer<ExtraContext>,
+) => Promise<ExtraContext>;
 
-export interface DryerConfig<Context> {
+export interface DryerConfig<ExtraContext> {
     modelDefinitions: ModelDefinition[];
     beforeApplicationInit?: () => void | Promise<void>;
     afterApplicationInit?: () => void | Promise<void>;
     mongoUri: string;
     port: number;
-    appendContext?: ContextFunction<Context>;
+    appendContext?: ContextFunction<ExtraContext>;
     providers?: Provider[];
     resolvers?: Provider[];
 }
 
-export class Dryer<Context> {
-    protected constructor(private readonly config: DryerConfig<Context>) {}
+export class Dryer<ExtraContext> {
+    protected constructor(private readonly config: DryerConfig<ExtraContext>) {}
 
-    public static init<Context>(config: DryerConfig<Context>) {
+    public static init<ExtraContext>(config: DryerConfig<ExtraContext>) {
         return new Dryer(config);
     }
 
@@ -52,12 +62,20 @@ export class Dryer<Context> {
                 provide: Dryer,
                 useValue: this,
             },
+            CreateService,
+            UpdateService,
+            DeleteService,
+            GetService,
+            PaginateService,
+            OutputService,
+            GetAllService,
+            ObjectProcessor,
         ]);
         let mutationFields = {};
         let queryFields = {};
 
         for (const modelDefinition of this.config.modelDefinitions) {
-            const model = new Model(modelDefinition);
+            const model = new Model(modelDefinition, this.injector);
             this.models[modelDefinition.name] = model;
 
             const apis = new ApisBuilder(model).build();
@@ -117,3 +135,5 @@ export class Dryer<Context> {
 }
 
 export type BaseContext = { dryer: Dryer<any> };
+
+export type Context<ExtraContext> = BaseContext & ExtraContext;

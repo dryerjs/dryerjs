@@ -1,29 +1,30 @@
+import { Injectable } from 'injection-js';
 import { Model } from '../model';
 import { MetaKey } from '../metadata';
-import { BaseContext } from '../dryer';
+import { Context } from '../dryer';
 import { OutputService } from './output';
 import { ObjectProcessor } from './object-processor';
 import * as must from './must';
 
-export class UpdateService {
-    public static async update<T, Context extends BaseContext>(
-        id: string,
-        input: Partial<T>,
-        context: Context,
-        model: Model<T>,
-    ) {
-        await ObjectProcessor.validate({
+@Injectable()
+export class UpdateService<T, ExtraContext> {
+    constructor(
+        private readonly objectProcessor: ObjectProcessor<T, ExtraContext>,
+        private readonly outputService: OutputService<T, ExtraContext>,
+    ) {}
+    public async update(id: string, input: Partial<T>, context: Context<ExtraContext>, model: Model<T>) {
+        await this.objectProcessor.validate({
             input,
             context,
             modelDefinition: model.definition,
         });
-        const defaultAppliedInput = await ObjectProcessor.setDefault({
+        const defaultAppliedInput = await this.objectProcessor.setDefaultPartial({
             obj: input,
             context,
             modelDefinition: model.definition,
             metaKey: MetaKey.DefaultOnUpdate,
         });
-        const transformedInput = await ObjectProcessor.transform({
+        const transformedInput = await this.objectProcessor.transformPartial({
             obj: defaultAppliedInput,
             context,
             modelDefinition: model.definition,
@@ -33,6 +34,6 @@ export class UpdateService {
             new: true,
         });
         const found = must.found(updated, model, id);
-        return await OutputService.output<T, Context>(found, context, model.definition);
+        return await this.outputService.output(found, context, model.definition);
     }
 }

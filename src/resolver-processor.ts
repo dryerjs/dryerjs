@@ -38,10 +38,10 @@ export class ResolverProcessor {
                             return args[name];
                         });
 
-                    const result = await service[property.name](...definedArgs);
+                    const result = await service[property.name].bind(service)(...definedArgs);
                     if (ObjectMarker.isProcessed(result)) return result;
                     try {
-                        return await OutputService.output(result, ctx, type);
+                        return await injector.get(OutputService).output(result, ctx, type);
                     } catch (error) {
                         return result;
                     }

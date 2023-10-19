@@ -1,26 +1,26 @@
+import { Injectable } from 'injection-js';
 import { MetaKey } from '../metadata';
-import { BaseContext } from '../dryer';
+import { Context } from '../dryer';
 import { ObjectProcessor } from './object-processor';
 import { ModelDefinition } from '../shared';
 import { ObjectMarker } from '../object-marker';
 
-export class OutputService {
-    public static async output<T, Context extends BaseContext>(
-        rawValue: T,
-        context: Context,
-        modelDefinition: ModelDefinition,
-    ) {
-        const leanedObject = await ObjectProcessor.lean<T>({
+@Injectable()
+export class OutputService<T, ExtraContext> {
+    constructor(private readonly objectProcessor: ObjectProcessor<T, ExtraContext>) {}
+
+    public async output(rawValue: T, context: Context<ExtraContext>, modelDefinition: ModelDefinition) {
+        const leanedObject = await this.objectProcessor.lean({
             obj: rawValue,
             modelDefinition,
         });
-        const defaultAppliedResult = await ObjectProcessor.setDefault<T, Context>({
+        const defaultAppliedResult = await this.objectProcessor.setDefault({
             obj: leanedObject,
             context,
             modelDefinition,
             metaKey: MetaKey.DefaultOnOutput,
         });
-        const result = await ObjectProcessor.transform<T, Context>({
+        const result = await this.objectProcessor.transform({
             obj: defaultAppliedResult,
             context,
             modelDefinition,

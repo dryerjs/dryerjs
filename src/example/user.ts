@@ -22,7 +22,7 @@ import {
 } from 'dryerjs';
 import { Phone } from './phone';
 import { Address } from './address';
-import { AdditionalContext } from './context';
+import { Context } from './context';
 
 enum UserStatus {
     ACTIVE = 'ACTIVE',
@@ -37,8 +37,8 @@ export class User {
 
     @Property()
     @ExcludeOnUpdate()
-    @TransformOnOutput((email: string, ctx: AdditionalContext) => {
-        if (ctx?.role === 'admin') return email;
+    @TransformOnOutput((email: string, ctx: Context) => {
+        if (ctx.user?.role === 'admin') return email;
         return `***@${email.split('@')[1]}`;
     })
     @Validate((email: string) => {
