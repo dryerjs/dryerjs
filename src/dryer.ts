@@ -8,7 +8,7 @@ import { ModelDefinition } from './shared';
 import { Model } from './model';
 import { ApisBuilder } from './apis-builder';
 import { ResolverProcessor } from './resolver-processor';
-import type { PubSub } from 'graphql-subscriptions';
+import { PubSubEngine } from 'graphql-subscriptions';
 
 export type ContextFunction<Context> = (
     req: express.Request,
@@ -24,7 +24,7 @@ export interface DryerConfig<Context> {
     appendContext?: ContextFunction<Context>;
     providers?: Provider[];
     resolvers?: Provider[];
-    pubSub?: PubSub;
+    pubSub?: PubSubEngine;
 }
 
 export class Dryer<Context> {
@@ -126,4 +126,4 @@ export class Dryer<Context> {
     }
 }
 
-export type BaseContext = { dryer: Dryer<any>; pubSub: PubSub };
+export type BaseContext = { dryer: Dryer<any>; pubSub: PubSubEngine };
