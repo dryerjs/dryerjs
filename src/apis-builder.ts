@@ -26,22 +26,26 @@ export class ApisBuilder<T, Context extends BaseContext> {
 
         let subscriptionFields: GraphQLFieldConfigMap = {};
 
-        const apiConfigs: { api: () => GraphQLFieldConfigMap; kind: 'query' | 'mutation' | 'subscription'; type: ApiType }[] =
-            [
-                { api: () => this.getOne(), kind: 'query', type: 'get' },
-                { api: () => this.paginate(), kind: 'query', type: 'paginate' },
-                { api: () => this.getAll(), kind: 'query', type: 'all' },
-                { api: () => this.create(), kind: 'mutation', type: 'create' },
-                { api: () => this.update(), kind: 'mutation', type: 'update' },
-                { api: () => this.delete(), kind: 'mutation', type: 'delete' },
-                { api: () => this.onCreated(), kind: 'subscription', type: 'create' },
-            ];
+        const apiConfigs: {
+            api: () => GraphQLFieldConfigMap;
+            kind: 'query' | 'mutation' | 'subscription';
+            type: ApiType;
+        }[] = [
+            { api: () => this.getOne(), kind: 'query', type: 'get' },
+            { api: () => this.paginate(), kind: 'query', type: 'paginate' },
+            { api: () => this.getAll(), kind: 'query', type: 'all' },
+            { api: () => this.create(), kind: 'mutation', type: 'create' },
+            { api: () => this.update(), kind: 'mutation', type: 'update' },
+            { api: () => this.delete(), kind: 'mutation', type: 'delete' },
+            { api: () => this.onCreated(), kind: 'subscription', type: 'create' },
+        ];
 
         for (const apiConfig of apiConfigs) {
             if (inspect(this.model.definition).isApiExcluded(apiConfig.type)) continue;
             if (apiConfig.kind === 'query') queryFields = { ...queryFields, ...apiConfig.api() };
             if (apiConfig.kind === 'mutation') mutationFields = { ...mutationFields, ...apiConfig.api() };
-            if (apiConfig.kind === 'subscription') subscriptionFields = { ...subscriptionFields, ...apiConfig.api() };
+            if (apiConfig.kind === 'subscription')
+                subscriptionFields = { ...subscriptionFields, ...apiConfig.api() };
         }
 
         const embeddedArrayProperties = inspect(this.model.definition)
@@ -306,7 +310,7 @@ export class ApisBuilder<T, Context extends BaseContext> {
                 type: Typer.get(this.model.definition).nonNullOutput,
                 subscribe: (_parent, _args, context: Context) => {
                     return context.pubSub.asyncIterator(util.toUpperCase(`${this.model.name}_CREATED`));
-                }
+                },
             },
         };
     }
