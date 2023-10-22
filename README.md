@@ -7,13 +7,9 @@
 DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
 
 [![codecov](https://codecov.io/gh/dryerjs/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/dryerjs/dryerjs)
-[![Build Status]( https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
-[![Release Status]( https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
+[![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
+[![Release Status](https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
-
-## Notice
-
-### We are building a new version of DryerJS from scratch. The new version will be based on NestJS. The documentation for the new version will be available soon. The new version will be released as a separate package. The current version will be supported until the new version is released.
 
 ## Features
 
@@ -28,22 +24,16 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 
 To get started with DryerJS, follow these steps:
 
-1. Init working directory with typescript:
+1. Init NestJS project:
 
    ```bash
-    mkdir my-project &&
-    cd my-project &&
-    npm init -y &&
-    npm install typescript ts-node --save-dev &&
-    echo '{
-        "compilerOptions": {
-            "emitDecoratorMetadata": true,
-            "experimentalDecorators": true,
-            "module": "CommonJS",
-            "target": "ES2021"
-        }
-    }' >> tsconfig.json &&
-    touch main.ts
+   npm i -g @nestjs/cli && nest new project-name
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql class-transformer class-validator @nestjs/mongoose
    ```
 
 3. Install DryerJS as a dependency in your project
@@ -52,92 +42,69 @@ To get started with DryerJS, follow these steps:
    npm install dryerjs
    ```
 
-3. Declare a model and init DryerJS in `main.ts`:
-    ```typescript
-    import { Dryer, Property } from 'dryerjs';
+4. Declare your first model on `src/user.ts`:
 
-    export class User {
-        @Property()
-        id: string;
+   ```typescript
+   import { Property } from 'dryerjs';
 
-        @Property()
-        email: string;
+   export class User {
+     @Property()
+     id: string;
 
-        @Property()
-        password: string;
+     @Property()
+     email: string;
 
-        @Property()
-        name: string;
-    }
+     @Property()
+     password: string;
 
-    Dryer.init({
-        modelDefinitions: [User],
-        mongoUri: 'mongodb://127.0.0.1:27017/test',
-        port: 3000,
-    }).start();
-    ```
+     @Property()
+     name: string;
+   }
+   ```
 
-4. Start server
-    ```bash
-    npm run env -- ts-node main.ts
-    ```
+5. Import your model and DryerJSModule in AppModule with other modules:
 
-5. Open browser and go to [http://localhost:3000](http://localhost:3000) to see the GraphQL playground.
+   ```typescript
+   import { Module } from '@nestjs/common';
+   import { GraphQLModule } from '@nestjs/graphql';
+   import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+   import { MongooseModule } from '@nestjs/mongoose';
+   import { DryerModule } from 'dryerjs';
+   import { User } from './user.ts';
 
-6. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/dryerjs/dryerjs/tree/master/src/example/app.ts).
+   @Module({
+     imports: [
+       GraphQLModule.forRoot<ApolloDriverConfig>({
+         driver: ApolloDriver,
+         autoSchemaFile: true,
+         sortSchema: true,
+         installSubscriptionHandlers: true,
+         playground: true,
+       }),
+       MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
+       DryerModule.register({ definitions: [User] }),
+     ],
+   })
+   export class AppModule {}
+   ```
+
+6. Start server
+
+   ```bash
+   npm run start:dev
+   ```
+
+7. Open browser and go to [http://localhost:3000/graphql](http://localhost:3000/graphql) to see the GraphQL playground.
+
+8. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/dryerjs/dryerjs/tree/master/src).
 
 ## Documentation
 
-We are actively working on documentation. In the meantime, you can explore our [example project](https://github.com/dryerjs/dryerjs/tree/master/src/example) to see DryerJS in action.
+We are actively working on documentation. In the meantime, you can explore our [example project](https://github.com/dryerjs/dryerjs/tree/master/src) to see DryerJS in action.
 
 ## Contributing
 
-We welcome contributions to DryerJS! If you find a bug or have a feature request, please open an issue on our GitHub repository. If you'd like to contribute code, feel free to open a pull request.
-
-## Development Guide
-
-To contribute to the development of "DryerJS" or work on your own projects using this library, follow these steps:
-
-### Set Up Your Environment
-
-* Copy the .env.example file to a new .env file:
-
-   ```bash
-   cp .env.example .env
-    ```
-
-* Start the Example Application
-
-   ```bash
-   npm run start
-   ```
-
-* Visit [http://localhost:PORT](http://localhost:PORT) in your web browser, where PORT is the port number specified in your .env file. You should see the GraphQL Playground, allowing you to interact with the API.
-
-### Unit testing
-
-To run unit tests for DryerJS, use the following command:
-
-
-   ```bash
-    npm run test
-   ```
-
-### End-to-End Testing
-
-To run end-to-end tests, use the following command:
-
-   ```bash
-   npm run test:e2e
-   ```
-
-### Updating Snapshots
-
-To update snapshots for end-to-end tests, use the following command:
-
-   ```bash
-   npm run test:e2e -- --updateSnapshot
-   ```
+Please read [CONTRIBUTING.md](https://github.com/dryerjs/dryerjs/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
