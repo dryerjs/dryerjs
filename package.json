@@ -1,7 +1,6 @@
 {
-  "name": "nest-mongo-graphql",
-  "version": "0.0.1",
-  "private": true,
+  "name": "dryerjs",
+  "version": "0.5.0",
   "description": "A platform for building GraphQL APIs with TypeScript and MongoDB in a declarative way.",
   "license": "MIT",
   "type": "commonjs",
