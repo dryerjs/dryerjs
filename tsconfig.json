@@ -2,25 +2,15 @@
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
+    "noImplicitAny": false,
     "removeComments": true,
+    "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": false,
     "target": "ES2021",
     "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
-    "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
-    "noImplicitAny": false,
-    "esModuleInterop": false,
-    "resolveJsonModule": true,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "dryerjs": ["./src/index.ts"],
-    }
-  },
-  "include": ["src/**/*"]
+    "strict": true,
+    "strictPropertyInitialization": false
+  }
 }

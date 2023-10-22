@@ -1,0 +1,8 @@
+## To encourage contributors to use issue templates, we don't allow blank issues
+blank_issues_enabled: false
+
+contact_links:
+  - name: "\u2753 Questions"
+    url: "https://github.com/dryerjs/dryerjs"
+    about: "Ask questions and find answers about DryerJS"
+    email: "dev@dryerjs.com"

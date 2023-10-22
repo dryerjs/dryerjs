@@ -1,24 +1,20 @@
 {
   "moduleNameMapper": {
-    "dryerjs": "<rootDir>/index.ts"
+    "dryerjs": "<rootDir>/lib/index.ts"
   },
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": "src",
+  "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e.spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "collectCoverageFrom": [
-    "**/*.ts"
+    "<rootDir>/lib**/*.ts"
   ],
   "coveragePathIgnorePatterns": [
-    "<rootDir>/e2e/",
-    "<rootDir>/dist/",
-    "<rootDir>/coverage/",
-    "<rootDir>/example/",
     ".spec.ts"
   ],
-  "coverageDirectory": "../coverage/e2e",
+  "coverageDirectory": "./coverage/e2e",
   "coverageReporters": ["json", "html"]
 }

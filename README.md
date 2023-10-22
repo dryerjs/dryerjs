@@ -11,6 +11,10 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 [![Release Status]( https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
 
+## Notice
+
+### We are building a new version of DryerJS from scratch. The new version will be based on NestJS. The documentation for the new version will be available soon. The new version will be released as a separate package. The current version will be supported until the new version is released.
+
 ## Features
 
 - Declarative schema definition for GraphQL APIs.
