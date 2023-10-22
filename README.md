@@ -27,7 +27,7 @@ To get started with DryerJS, follow these steps:
 1. Init NestJS project:
 
    ```bash
-   npm i -g @nestjs/cli && nest new project-name
+   npm i -g @nestjs/cli && nest new my-project
    ```
 
 2. Install dependencies:
@@ -45,8 +45,9 @@ To get started with DryerJS, follow these steps:
 4. Declare your first model on `src/user.ts`:
 
    ```typescript
-   import { Property } from 'dryerjs';
+   import { Entity, Property } from 'dryerjs';
 
+   @Entity()
    export class User {
      @Property()
      id: string;
@@ -62,7 +63,7 @@ To get started with DryerJS, follow these steps:
    }
    ```
 
-5. Import your model and DryerJSModule in AppModule with other modules:
+5. Import your model and DryerJSModule in AppModule with other modules inside app.module.ts:
 
    ```typescript
    import { Module } from '@nestjs/common';
@@ -70,20 +71,19 @@ To get started with DryerJS, follow these steps:
    import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
    import { MongooseModule } from '@nestjs/mongoose';
    import { DryerModule } from 'dryerjs';
-   import { User } from './user.ts';
+
+   import { User } from './user';
 
    @Module({
-     imports: [
-       GraphQLModule.forRoot<ApolloDriverConfig>({
-         driver: ApolloDriver,
-         autoSchemaFile: true,
-         sortSchema: true,
-         installSubscriptionHandlers: true,
-         playground: true,
-       }),
-       MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
-       DryerModule.register({ definitions: [User] }),
-     ],
+      imports: [
+         GraphQLModule.forRoot<ApolloDriverConfig>({
+            driver: ApolloDriver,
+            autoSchemaFile: true,
+            playground: true,
+         }),
+         MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
+         DryerModule.register({ definitions: [User] }),
+      ],
    })
    export class AppModule {}
    ```
