@@ -1,3 +1,12 @@
+## [0.6.1](https://github.com/dryerjs/dryerjs/compare/v0.6.0...v0.6.1) (2023-10-23)
+
+
+### Bug Fixes
+
+* error on example ([#47](https://github.com/dryerjs/dryerjs/issues/47)) ([7de8b25](https://github.com/dryerjs/dryerjs/commit/7de8b254dd94739e3b65b37edf5c933ed4e69bee))
+* return id on create ([#45](https://github.com/dryerjs/dryerjs/issues/45)) ([7d20a31](https://github.com/dryerjs/dryerjs/commit/7d20a31941860fc6000cfa88eaecacafcfc69814))
+* returns id on get one and e2e ([#46](https://github.com/dryerjs/dryerjs/issues/46)) ([7a6fe47](https://github.com/dryerjs/dryerjs/commit/7a6fe47f9649c7196c9a0ce32f37c4c3ff07eb43))
+
 # [0.6.0](https://github.com/dryerjs/dryerjs/compare/v0.5.0...v0.6.0) (2023-10-22)
 
 

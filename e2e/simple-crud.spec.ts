@@ -1,14 +1,12 @@
 import { TestServer } from './test-server';
-import { Author, Product, Tag, User } from '../src/models';
-import { AuthResolver } from '../src/resolvers';
+import { Tag } from '../src/models';
 
 const server = TestServer.init({
-  definitions: [User, Product, Tag, Author],
-  providers: [AuthResolver],
+  definitions: [Tag],
 });
 
 describe('Simple CRUD works', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await server.start();
   });
 
