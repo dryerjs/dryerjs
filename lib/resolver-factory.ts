@@ -60,10 +60,10 @@ export function createResolver(definition: Definition) {
         });
       }
       const preTransformed = await this.model.findById(created._id);
-      const result = plainToInstance(
-        Typer.getObjectType(definition),
-        preTransformed.toObject(),
-      );
+      const result = plainToInstance(Typer.getObjectType(definition), {
+        id: created._id.toString(),
+        ...preTransformed.toObject(),
+      });
       result[preTransformed] = preTransformed;
       return result;
     }
