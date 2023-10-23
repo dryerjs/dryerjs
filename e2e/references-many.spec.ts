@@ -17,7 +17,7 @@ describe('References many works', () => {
     for (const name of names) {
       const { createTag } = await server.makeSuccessRequest({
         query: `
-          mutation CreateTag($input: TagInput!) {
+          mutation CreateTag($input: CreateTagInput!) {
             createTag(input: $input) {
               id
               name
@@ -37,7 +37,7 @@ describe('References many works', () => {
   it('Create product with tags', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateProduct($input: ProductInput!) {
+        mutation CreateProduct($input: CreateProductInput!) {
           createProduct(input: $input) {
             id
             name

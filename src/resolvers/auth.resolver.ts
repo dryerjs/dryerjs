@@ -15,10 +15,10 @@ export class AuthResolver {
   async signUp(
     @Args(
       'input',
-      { type: () => Typer.getInputType(User) },
+      { type: () => Typer.getCreateInputType(User) },
       new ValidationPipe({
         transform: true,
-        expectedType: Typer.getInputType(User),
+        expectedType: Typer.getCreateInputType(User),
       }),
     )
     input: Omit<User, 'id'>,
