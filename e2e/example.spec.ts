@@ -8,7 +8,7 @@ const server = TestServer.init({
 });
 
 describe('Example app works', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await server.start();
   });
 
