@@ -73,10 +73,10 @@ export function createResolver(definition: Definition) {
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
       const result = await this.model.findById(id);
-      return plainToInstance(
-        Typer.getObjectType(definition),
-        result.toObject(),
-      ) as any;
+      return plainToInstance(Typer.getObjectType(definition), {
+        id: result._id.toString(),
+        ...result.toObject(),
+      }) as any;
     }
 
     @Query(() => [Typer.getObjectType(definition)])

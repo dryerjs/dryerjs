@@ -26,7 +26,7 @@
     "test:unit": "jest --config jest-unit.json",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "e2e": "npm run test:e2e",
-    "test:e2e": "jest --config ./jest-e2e.json",
+    "test:e2e": "jest --config ./jest-e2e.json --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "NODE_ENV=test npm run clean-cov && npm run test:unit -- --coverage && npm run test:e2e -- --coverage && npm run collect-cov && npm run merge-cov",
     "clean-cov": "rm -rf coverage",
