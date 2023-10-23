@@ -54,17 +54,16 @@ export function createResolver(definition: Definition) {
           const createdRelation = await relationModel.create(subObject);
           newIds.push(createdRelation._id);
         }
-        console.log({ newIds });
         await this.model.findByIdAndUpdate(created._id, {
           $addToSet: { tagIds: { $each: newIds } },
         });
       }
-      const preTransformed = await this.model.findById(created._id);
+      const preTransformedResult = await this.model.findById(created._id);
       const result = plainToInstance(Typer.getObjectType(definition), {
         id: created._id.toString(),
-        ...preTransformed.toObject(),
+        ...preTransformedResult.toObject(),
       });
-      result[preTransformed] = preTransformed;
+      result[preTransformed] = preTransformedResult;
       return result;
     }
 
@@ -175,10 +174,10 @@ export function createResolverForReferencesMany(
         _id: { $in: parent[preTransformed]['tagIds'] },
       });
       return items.map((item) =>
-        plainToInstance(
-          Typer.getObjectType(relationDefinition),
-          item.toObject(),
-        ),
+        plainToInstance(Typer.getObjectType(relationDefinition), {
+          id: item._id.toString(),
+          ...item.toObject(),
+        }),
       ) as any;
     }
   }
