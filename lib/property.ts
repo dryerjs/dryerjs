@@ -4,6 +4,7 @@ import {
   FieldOptions,
   GqlTypeReference,
 } from '@nestjs/graphql';
+import { Prop } from '@nestjs/mongoose';
 
 export const defaultCached = {};
 type FieldOptionsExtractor<T> = T extends [GqlTypeReference<infer P>]
@@ -16,7 +17,10 @@ export function Property<T extends ReturnTypeFuncValue>(
   returnTypeFunction?: ReturnTypeFunc<T>,
   options?: FieldOptionsExtractor<T>,
 ): PropertyDecorator & MethodDecorator {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
+    if (propertyKey !== 'id') {
+      Prop()(target, propertyKey);
+    }
     defaultCached[target.constructor.name] = {
       ...(defaultCached[target.constructor.name] || {}),
       [propertyKey]: {
@@ -32,7 +36,7 @@ export function OutputProperty<T extends ReturnTypeFuncValue>(
   returnTypeFunction?: ReturnTypeFunc<T>,
   options?: FieldOptionsExtractor<T>,
 ): PropertyDecorator & MethodDecorator {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     objectCached[target.constructor.name] = {
       ...(objectCached[target.constructor.name] || {}),
       [propertyKey]: {
@@ -45,7 +49,7 @@ export function OutputProperty<T extends ReturnTypeFuncValue>(
 
 export const thunkCached = {};
 export function Thunk(value: any): PropertyDecorator & MethodDecorator {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     thunkCached[target.constructor.name] = {
       ...(thunkCached[target.constructor.name] || {}),
       [propertyKey]: [
@@ -58,7 +62,7 @@ export function Thunk(value: any): PropertyDecorator & MethodDecorator {
 
 export const embeddedCached = {};
 export function Embedded(fn: any) {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     embeddedCached[target.constructor.name] = {
       ...(embeddedCached[target.constructor.name] || {}),
       [propertyKey]: fn,
@@ -68,7 +72,7 @@ export function Embedded(fn: any) {
 
 export const hasManyCached = {};
 export function HasMany(fn: any) {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     hasManyCached[target.constructor.name] = {
       ...(hasManyCached[target.constructor.name] || {}),
       [propertyKey]: fn,
@@ -78,7 +82,7 @@ export function HasMany(fn: any) {
 
 export const hasOneCached = {};
 export function HasOne(fn: any) {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     hasOneCached[target.constructor.name] = {
       ...(hasOneCached[target.constructor.name] || {}),
       [propertyKey]: fn,
@@ -88,7 +92,7 @@ export function HasOne(fn: any) {
 
 export const belongToCache = {};
 export function BelongsTo(fn: any) {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     belongToCache[target.constructor.name] = {
       ...(belongToCache[target.constructor.name] || {}),
       [propertyKey]: fn,
@@ -98,7 +102,7 @@ export function BelongsTo(fn: any) {
 
 export const referencesManyCache = {};
 export function ReferencesMany(fn: any) {
-  return (target: object, propertyKey: string | symbol | number) => {
+  return (target: object, propertyKey: string | symbol) => {
     referencesManyCache[target.constructor.name] = {
       ...(referencesManyCache[target.constructor.name] || {}),
       [propertyKey]: fn,
