@@ -1,10 +1,11 @@
 import { ObjectType, Field, InputType } from '@nestjs/graphql';
 
+import * as util from './util';
 import { Definition } from './shared';
 import { defaultCached, objectCached, thunkCached } from './property';
 
-function getInputType(definition: Definition) {
-  @InputType(`${definition.name}Input`)
+function getCreateInputType(definition: Definition) {
+  @InputType(`Create${definition.name}Input`)
   class AbstractInput {}
   for (const property of Object.keys(defaultCached[definition.name])) {
     if (property === 'id') continue;
@@ -29,8 +30,45 @@ function getInputType(definition: Definition) {
       property as string,
     );
 
-    for (const thunkFunction of thunkCached[definition.name]?.[property] ||
-      []) {
+    for (const thunkFunction of util.defaultTo(
+      thunkCached[definition.name]?.[property],
+      [],
+    )) {
+      thunkFunction(AbstractInput.prototype, property as string);
+    }
+  }
+  return AbstractInput;
+}
+
+function getUpdateInputType(definition: Definition) {
+  @InputType(`Update${definition.name}Input`)
+  class AbstractInput {}
+  for (const property of Object.keys(defaultCached[definition.name])) {
+    const designType = Reflect.getMetadata(
+      'design:type',
+      definition.prototype,
+      property,
+    );
+
+    Reflect.defineMetadata(
+      'design:type',
+      designType,
+      AbstractInput.prototype,
+      property,
+    );
+
+    const { returnTypeFunction, options } =
+      defaultCached[definition.name][property];
+
+    Field(returnTypeFunction, options)(
+      AbstractInput.prototype,
+      property as string,
+    );
+
+    for (const thunkFunction of util.defaultTo(
+      thunkCached[definition.name]?.[property],
+      [],
+    )) {
       thunkFunction(AbstractInput.prototype, property as string);
     }
   }
@@ -67,9 +105,16 @@ function getObjectType(definition: Definition) {
 const builtInput = Symbol('builtInput');
 const builtOutput = Symbol('builtOutput');
 export class Typer {
-  public static getInputType(definition: Definition) {
+  public static getCreateInputType(definition: Definition) {
     if (definition[builtInput]) return definition[builtInput];
-    const result = getInputType(definition);
+    const result = getCreateInputType(definition);
+    definition[builtInput] = result;
+    return definition[builtInput];
+  }
+
+  public static getUpdateInputType(definition: Definition) {
+    if (definition[builtInput]) return definition[builtInput];
+    const result = getUpdateInputType(definition);
     definition[builtInput] = result;
     return definition[builtInput];
   }

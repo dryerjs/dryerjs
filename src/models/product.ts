@@ -36,7 +36,7 @@ export class Product {
   tagIds: string[];
 
   @ReferencesMany(() => Tag)
-  @Property(() => [Typer.getInputType(Tag)], { nullable: true })
+  @Property(() => [Typer.getCreateInputType(Tag)], { nullable: true })
   @OutputProperty(() => [Typer.getObjectType(Tag)])
   tags: Tag[];
 }

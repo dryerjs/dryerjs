@@ -3,7 +3,8 @@ import { Typer } from './typer';
 
 export function Entity(): ClassDecorator {
   return (target: object) => {
-    Typer.getInputType(target);
+    Typer.getCreateInputType(target);
+    Typer.getUpdateInputType(target);
     Typer.getObjectType(target);
     Schema()(target as any);
   };

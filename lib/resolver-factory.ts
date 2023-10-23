@@ -32,10 +32,10 @@ export function createResolver(definition: Definition) {
     async [`create${definition.name}`](
       @Args(
         'input',
-        { type: () => Typer.getInputType(definition) },
+        { type: () => Typer.getCreateInputType(definition) },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getInputType(definition),
+          expectedType: Typer.getCreateInputType(definition),
         }),
       )
       input: any,
@@ -111,10 +111,10 @@ export function createResolverForEmbedded(
     )}`](
       @Args(
         'input',
-        { type: () => Typer.getInputType(embeddedDefinition) },
+        { type: () => Typer.getCreateInputType(embeddedDefinition) },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getInputType(embeddedDefinition),
+          expectedType: Typer.getCreateInputType(embeddedDefinition),
         }),
       )
       input: any,

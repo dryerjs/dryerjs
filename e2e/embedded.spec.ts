@@ -13,7 +13,7 @@ describe('Embedded works', () => {
   it('Create author with books', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthor($input: AuthorInput!) {
+        mutation CreateAuthor($input: CreateAuthorInput!) {
           createAuthor(input: $input) {
             name
             books {

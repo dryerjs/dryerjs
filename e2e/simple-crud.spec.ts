@@ -15,7 +15,7 @@ describe('Simple CRUD works', () => {
     for (const name of names) {
       await server.makeSuccessRequest({
         query: `
-          mutation CreateTag($input: TagInput!) {
+          mutation CreateTag($input: CreateTagInput!) {
             createTag(input: $input) {
               id
               name
