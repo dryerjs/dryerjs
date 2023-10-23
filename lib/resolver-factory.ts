@@ -17,6 +17,7 @@ import * as util from './util';
 import { Definition } from './shared';
 import { Typer } from './typer';
 import { embeddedCached, referencesManyCache } from './property';
+import { SuccessResponse } from './types';
 
 const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;
@@ -116,6 +117,23 @@ export function createResolver(definition: Definition) {
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
+    }
+
+    @Mutation(() => SuccessResponse)
+    async [`remove${definition.name}`](
+      @Args('id', { type: () => graphql.GraphQLID }) id: string,
+    ) {
+      try {
+        const result = await this.model.findByIdAndRemove(id);
+
+        if (result) {
+          return { success: true };
+        } else {
+          throw new Error(`No ${definition.name} found with ID: ${id}`);
+        }
+      } catch (error) {
+        throw new Error(`Failed to remove ${definition.name}`);
+      }
     }
   }
 
