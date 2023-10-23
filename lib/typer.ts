@@ -102,21 +102,22 @@ function getObjectType(definition: Definition) {
   return AbstractOutput;
 }
 
-const builtInput = Symbol('builtInput');
+const builtCreateInput = Symbol('builtCreateInput');
+const builtUpdateInput = Symbol('builtUpdateInput');
 const builtOutput = Symbol('builtOutput');
 export class Typer {
   public static getCreateInputType(definition: Definition) {
-    if (definition[builtInput]) return definition[builtInput];
+    if (definition[builtCreateInput]) return definition[builtCreateInput];
     const result = getCreateInputType(definition);
-    definition[builtInput] = result;
-    return definition[builtInput];
+    definition[builtCreateInput] = result;
+    return definition[builtCreateInput];
   }
 
   public static getUpdateInputType(definition: Definition) {
-    if (definition[builtInput]) return definition[builtInput];
+    if (definition[builtUpdateInput]) return definition[builtUpdateInput];
     const result = getUpdateInputType(definition);
-    definition[builtInput] = result;
-    return definition[builtInput];
+    definition[builtUpdateInput] = result;
+    return definition[builtUpdateInput];
   }
 
   public static getObjectType(definition: Definition) {

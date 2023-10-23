@@ -69,6 +69,27 @@ describe('Simple CRUD works', () => {
     expect(response.tag.name).toEqual(allTags[0].name);
   });
 
+  it('Update one tag', async () => {
+    // TODO: update test when update is implemented
+    await server.makeFailRequest({
+      query: `
+      mutation UpdateTag($input: UpdateTagInput!) {
+        updateTag(input: $input) {
+          id
+          name
+        }
+      }
+      `,
+      variables: {
+        input: {
+          id: allTags[0].id,
+          name: '70s',
+        },
+      },
+      errorMessageMustContains: 'Not implemented yet',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });

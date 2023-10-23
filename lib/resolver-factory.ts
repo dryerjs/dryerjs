@@ -67,6 +67,22 @@ export function createResolver(definition: Definition) {
       return result;
     }
 
+    @Mutation(() => Typer.getObjectType(definition))
+    async [`update${definition.name}`](
+      @Args(
+        'input',
+        { type: () => Typer.getUpdateInputType(definition) },
+        new ValidationPipe({
+          transform: true,
+          expectedType: Typer.getUpdateInputType(definition),
+        }),
+      )
+      input: any,
+    ) {
+      input;
+      throw new graphql.GraphQLError('Not implemented yet');
+    }
+
     @Query(() => Typer.getObjectType(definition))
     async [definition.name.toLowerCase()](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
