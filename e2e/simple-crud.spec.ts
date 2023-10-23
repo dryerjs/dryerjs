@@ -90,6 +90,22 @@ describe('Simple CRUD works', () => {
     });
   });
 
+  it('Remove one tag', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+      mutation RemoveTag($id: ID!) {
+        removeTag(id: $id) {
+          success
+        }
+      }
+      `,
+      variables: {
+        id: allTags[0].id,
+      },
+    });
+    expect(response.removeTag.success).toEqual(true);
+  });
+
   afterAll(async () => {
     await server.stop();
   });
