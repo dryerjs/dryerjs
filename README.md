@@ -10,6 +10,7 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 [![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![Release Status](https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
+![Discord Shield](https://discordapp.com/api/guilds/1165841842873565264/widget.png?style=shield)
 
 ## Features
 
@@ -33,7 +34,7 @@ To get started with DryerJS, follow these steps:
 2. Install dependencies:
 
    ```bash
-   npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql class-transformer class-validator @nestjs/mongoose
+   npm i @nestjs/graphql @nestjs/apollo @apollo/server class-transformer class-validator @nestjs/mongoose
    ```
 
 3. Install DryerJS as a dependency in your project
@@ -75,15 +76,15 @@ To get started with DryerJS, follow these steps:
    import { User } from './user';
 
    @Module({
-      imports: [
-         GraphQLModule.forRoot<ApolloDriverConfig>({
-            driver: ApolloDriver,
-            autoSchemaFile: true,
-            playground: true,
-         }),
-         MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
-         DryerModule.register({ definitions: [User] }),
-      ],
+     imports: [
+       GraphQLModule.forRoot<ApolloDriverConfig>({
+         driver: ApolloDriver,
+         autoSchemaFile: true,
+         playground: true,
+       }),
+       MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
+       DryerModule.register({ definitions: [User] }),
+     ],
    })
    export class AppModule {}
    ```
