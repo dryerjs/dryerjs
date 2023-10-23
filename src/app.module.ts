@@ -20,7 +20,7 @@ const definitions: Definition[] = [Author, User, Product, Tag];
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/test'),
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-debug'),
     DryerModule.register({ definitions }),
     MongooseModule.forFeature(
       definitions.map((definition) => ({

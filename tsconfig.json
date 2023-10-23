@@ -11,6 +11,9 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "paths": {
+      "dryerjs": ["./lib/index.ts"],
+    }
   }
 }
