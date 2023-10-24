@@ -137,6 +137,38 @@ describe('Embedded works', () => {
     });
   });
 
+  it("Remove author's books", async () => {
+    const { allAuthors } = await server.makeSuccessRequest({
+      query: `
+        query Authors {
+          allAuthors {
+            id
+            books {
+              id
+            }
+          }
+        }
+      `,
+    });
+
+    const author = allAuthors[0];
+
+    const response = await server.makeSuccessRequest({
+      query: `
+        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+          removeAuthorBooks(authorId: $authorId, bookIds: $bookIds) {
+            success
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        bookIds: [author.books[0].id],
+      },
+    });
+    expect(response.removeAuthorBooks).toEqual({ success: true });
+  });
+
   afterAll(async () => {
     await server.stop();
   });

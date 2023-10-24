@@ -9,6 +9,7 @@ import { Definition } from '../shared';
 import { Typer } from '../typer';
 import { embeddedCached } from '../property';
 import { appendIdAndTransform } from './shared';
+import { SuccessResponse } from '../types';
 
 export function createResolverForEmbedded(
   definition: Definition,
@@ -46,6 +47,33 @@ export function createResolverForEmbedded(
         embeddedDefinition,
         util.last(updatedParent[field]) as any,
       );
+    }
+
+    @Mutation(() => SuccessResponse)
+    async [`remove${util.toPascalCase(definition.name)}${util.toPascalCase(
+      field,
+    )}`](
+      @Args(`${util.toCamelCase(definition.name)}Id`, {
+        type: () => graphql.GraphQLID,
+      })
+      parentId: string,
+      @Args(`${util.toCamelCase(embeddedDefinition.name)}Ids`, {
+        type: () => [graphql.GraphQLID],
+      })
+      ids: string[],
+    ) {
+      const parent = await this.model.findById(parentId);
+      if (!parent) {
+        throw new Error(
+          `No ${util.toCamelCase(definition.name)} found with ID ${parentId}`,
+        );
+      }
+
+      parent[field] = parent[field].filter(
+        (item: any) => !ids.includes(item._id.toString()),
+      );
+      await parent.save();
+      return { success: true };
     }
 
     @Query(() => Typer.getObjectType(embeddedDefinition))
