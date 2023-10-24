@@ -33,7 +33,7 @@ export class AuthResolver {
   ) {
     const user = await this.User.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new graphql.GraphQLError('User not found');
     }
     return plainToInstance(Typer.getObjectType(User), user.toObject());
   }

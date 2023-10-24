@@ -110,6 +110,10 @@ export function createResolver(definition: Definition) {
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
       const result = await this.model.findById(id);
+      if (util.isNil(result))
+        throw new graphql.GraphQLError(
+          `No ${definition.name} found with ID: ${id}`,
+        );
       return appendIdAndTransform(definition, result) as any;
     }
 
