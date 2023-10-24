@@ -48,8 +48,10 @@ export function createResolverForEmbedded(
       );
     }
 
-    @Query(() => Typer.getObjectType(definition))
-    async [`${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`](
+    @Query(() => Typer.getObjectType(embeddedDefinition))
+    async [`${util.toCamelCase(definition.name)}${util.toPascalCase(
+      util.singular(field),
+    )}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,

@@ -1,11 +1,13 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+
+import * as util from './util';
 import { Definition } from './shared';
 import {
   createResolver,
   createResolverForEmbedded,
   createResolverForReferencesMany,
 } from './resolvers';
-import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import { embeddedCached, referencesManyCache } from './property';
 
 @Module({})
@@ -18,10 +20,16 @@ export class DryerModule {
       providers.push(createResolver(definition)),
     );
     input.definitions.forEach((definition) => {
-      for (const property in embeddedCached[definition.name] || {}) {
+      for (const property in util.defaultTo(
+        embeddedCached[definition.name],
+        {},
+      )) {
         providers.push(createResolverForEmbedded(definition, property));
       }
-      for (const property in referencesManyCache[definition.name] || {}) {
+      for (const property in util.defaultTo(
+        referencesManyCache[definition.name],
+        {},
+      )) {
         providers.push(createResolverForReferencesMany(definition, property));
       }
     });

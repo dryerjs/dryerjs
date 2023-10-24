@@ -15,6 +15,7 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     embeddedCached[definition.name],
     {},
   )) {
+    /* istanbul ignore if */
     if (util.isNil(output[propertyName])) continue;
     const embeddedDefinition = embeddedCached[definition.name][propertyName]();
     if (util.isArray(output[propertyName])) {
