@@ -10,11 +10,14 @@ describe('Embedded works', () => {
     await server.start();
   });
 
+  let author: Author;
+
   it('Create author with books', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateAuthor($input: CreateAuthorInput!) {
           createAuthor(input: $input) {
+            id
             name
             books {
               id
@@ -31,13 +34,63 @@ describe('Embedded works', () => {
       },
     });
     expect(response.createAuthor).toEqual({
+      id: expect.any(String),
       name: 'Awesome author',
       books: [
         { id: expect.any(String), name: 'Awesome book 1' },
         { id: expect.any(String), name: 'Awesome book 2' },
       ],
     });
+
+    author = response.createAuthor;
   });
+
+  it('Create book within author', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+        mutation CreateAuthorBook($input: CreateBookInput!, $authorId: ID!) {
+          createAuthorBook(input: $input, authorId: $authorId) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome book 3',
+        },
+        authorId: author.id,
+      },
+    });
+    expect(response.createAuthorBook).toEqual({
+      id: expect.any(String),
+      name: 'Awesome book 3',
+    });
+
+    const { author: updatedAuthor } = await server.makeSuccessRequest({
+      query: `
+        query GetAuthor($id: ID!) {
+          author(id: $id) {
+            id
+            name
+            books {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        id: author.id,
+      },
+    });
+
+    expect(updatedAuthor.books).toEqual([
+      ...author.books,
+      { id: expect.any(String), name: 'Awesome book 3' },
+    ]);
+  });
+
   afterAll(async () => {
     await server.stop();
   });

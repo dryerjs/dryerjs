@@ -4,7 +4,7 @@ import {
   createResolver,
   createResolverForEmbedded,
   createResolverForReferencesMany,
-} from './resolver-factory';
+} from './resolvers';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import { embeddedCached, referencesManyCache } from './property';
 

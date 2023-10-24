@@ -18,7 +18,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "collectCoverageFrom": [
-    "<rootDir>/lib**/*.ts"
+    "<rootDir>/lib/**/*.ts"
   ],
   "coveragePathIgnorePatterns": [
     ".spec.ts"
