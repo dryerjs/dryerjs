@@ -31,7 +31,7 @@ export class Product {
   @Prop()
   name: string;
 
-  @Property(() => [graphql.GraphQLString])
+  @Property(() => [graphql.GraphQLString], { nullable: true })
   @Prop({ type: [ObjectId], default: [] })
   @Thunk(Type(() => String))
   @Thunk(

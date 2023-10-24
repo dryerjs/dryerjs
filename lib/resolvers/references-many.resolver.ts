@@ -19,9 +19,8 @@ export function createResolverForReferencesMany(
       @InjectModel(relationDefinition.name) public model: Model<any>,
     ) {}
 
-    @ResolveField(() => [Typer.getObjectType(relationDefinition)])
+    @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
-      // TODO: remove hardcoded tagIds
       const items = await this.model.find({
         _id: { $in: parent['tagIds'] },
       });
