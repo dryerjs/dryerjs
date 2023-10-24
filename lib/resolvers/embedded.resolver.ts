@@ -42,8 +42,6 @@ export function createResolverForEmbedded(
       parent[field].push(input);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      console.log(updatedParent);
-      console.log(updatedParent[field]);
       return appendIdAndTransform(
         embeddedDefinition,
         util.last(updatedParent[field]) as any,

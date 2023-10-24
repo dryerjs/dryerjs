@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
-import { IsEmail } from 'class-validator';
+import { IsEmail, MinLength } from 'class-validator';
 import { Property, Entity, Thunk } from '../../lib';
 
 @Entity()
@@ -14,10 +14,11 @@ export class User {
 
   @Property()
   @Prop({ unique: true })
-  @Thunk(IsEmail())
+  @Thunk(IsEmail(), { scopes: ['input'] })
   email: string;
 
   @Property()
   @Prop()
+  @Thunk(MinLength(5), { scopes: ['create'] })
   password: string;
 }
