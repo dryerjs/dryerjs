@@ -8,7 +8,6 @@ export class Book {
   id: string;
 
   @Property(() => graphql.GraphQLString)
-  @Prop()
   name: string;
 }
 
