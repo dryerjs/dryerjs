@@ -1,7 +1,6 @@
 import { TestServer } from './test-server';
 import { User } from '../src/models';
 import { AuthResolver } from '../src/resolvers';
-import * as graphql from 'graphql';
 
 const server = TestServer.init({
   definitions: [User],
