@@ -123,17 +123,12 @@ export function createResolver(definition: Definition) {
     async [`remove${definition.name}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ) {
-      try {
-        const result = await this.model.findByIdAndRemove(id);
-
-        if (result) {
-          return { success: true };
-        } else {
-          throw new Error(`No ${definition.name} found with ID: ${id}`);
-        }
-      } catch (error) {
-        throw new Error(`Failed to remove ${definition.name}`);
-      }
+      const removed = await this.model.findByIdAndRemove(id);
+      if (util.isNil(removed))
+        throw new graphql.GraphQLError(
+          `No ${definition.name} found with ID: ${id}`,
+        );
+      return { success: true };
     }
   }
 
