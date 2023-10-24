@@ -25,20 +25,19 @@ describe('signUp Works', () => {
       }
       `,
       variables: {
-        "input": {
-          "email": "dryerjs_123@dryerjs.io",
-          "name": "dryerjs_123",
-          "password": "dryerjs_123"
-        }
+        input: {
+          email: 'dryerjs_123@dryerjs.io',
+          name: 'dryerjs_123',
+          password: 'dryerjs_123',
+        },
       },
     });
 
     expect(signUpResponse.signUp).toEqual({
       email: 'dryerjs_123@dryerjs.io',
       name: 'dryerjs_123',
-      password: `dryerjs_123`
+      password: `dryerjs_123`,
     });
-
   });
 
   afterAll(async () => {
@@ -62,11 +61,11 @@ describe('whoAmI works', () => {
       }
       `,
       variables: {
-        "input": {
-          "email": "dryerjs_123@dryerjs.io",
-          "name": "dryerjs_123",
-          "password": "dryerjs_123"
-        }
+        input: {
+          email: 'dryerjs_123@dryerjs.io',
+          name: 'dryerjs_123',
+          password: 'dryerjs_123',
+        },
       },
     });
 
@@ -81,8 +80,7 @@ describe('whoAmI works', () => {
           }
         }
       `,
-      variables: {
-      },
+      variables: {},
     });
     userId = getAllUsersResponse.allUsers[0].id;
   });
@@ -99,7 +97,7 @@ describe('whoAmI works', () => {
         }
       `,
       variables: {
-        "userId": userId
+        userId: userId,
       },
     });
 
@@ -117,7 +115,7 @@ describe('invalid email throw error', () => {
   });
 
   test('invalid email throw error', async () => {
-     await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
       mutation SignUp($input: CreateUserInput!) {
         signUp(input: $input) {
@@ -128,15 +126,14 @@ describe('invalid email throw error', () => {
       }
       `,
       variables: {
-        "input": {
-          "email": "dryerjs_123@dryerjs",
-          "name": "dryerjs_123",
-          "password": "dryerjs_123"
-        }
+        input: {
+          email: 'dryerjs_123@dryerjs',
+          name: 'dryerjs_123',
+          password: 'dryerjs_123',
+        },
       },
       errorMessageMustContains: 'Bad Request Exception',
     });
-
   });
 
   afterAll(async () => {
