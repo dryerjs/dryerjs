@@ -156,7 +156,7 @@ describe('Embedded works', () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
-          removeAuthorBooks(authorId: $authorId, bookIds: $bookIds) {
+          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
             success
           }
         }
@@ -167,6 +167,42 @@ describe('Embedded works', () => {
       },
     });
     expect(response.removeAuthorBooks).toEqual({ success: true });
+  });
+
+  it("Remove author's books: return error if parent not found", async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
+            success
+          }
+        }
+      `,
+      variables: {
+        authorId: '5e6b4b5b1c9d440000d2c7f3',
+        bookIds: ['5e6b4b5b1c9d440000d2c7f3'],
+      },
+    });
+    expect(response[0].message).toEqual(
+      'No author found with ID 5e6b4b5b1c9d440000d2c7f3',
+    );
+  });
+
+  it("Remove author's books: return error if no IDs provided", async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
+            success
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        bookIds: [],
+      },
+    });
+    expect(response[0].message).toEqual('No book IDs provided');
   });
 
   afterAll(async () => {

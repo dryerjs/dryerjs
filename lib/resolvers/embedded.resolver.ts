@@ -57,15 +57,19 @@ export function createResolverForEmbedded(
         type: () => graphql.GraphQLID,
       })
       parentId: string,
-      @Args(`${util.toCamelCase(embeddedDefinition.name)}Ids`, {
-        type: () => [graphql.GraphQLID],
-      })
+      @Args('ids', { type: () => [graphql.GraphQLID] })
       ids: string[],
     ) {
       const parent = await this.model.findById(parentId);
       if (!parent) {
-        throw new Error(
+        throw new graphql.GraphQLError(
           `No ${util.toCamelCase(definition.name)} found with ID ${parentId}`,
+        );
+      }
+
+      if (ids.length === 0) {
+        throw new graphql.GraphQLError(
+          `No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`,
         );
       }
 
