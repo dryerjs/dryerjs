@@ -17,6 +17,7 @@ import * as util from './util';
 import { Definition } from './shared';
 import { Typer } from './typer';
 import { embeddedCached, referencesManyCache } from './property';
+import { SuccessResponse } from './types';
 
 const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;
@@ -109,6 +110,10 @@ export function createResolver(definition: Definition) {
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
       const result = await this.model.findById(id);
+      if (util.isNil(result))
+        throw new graphql.GraphQLError(
+          `No ${definition.name} found with ID: ${id}`,
+        );
       return appendIdAndTransform(definition, result) as any;
     }
 
@@ -116,6 +121,18 @@ export function createResolver(definition: Definition) {
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
+    }
+
+    @Mutation(() => SuccessResponse)
+    async [`remove${definition.name}`](
+      @Args('id', { type: () => graphql.GraphQLID }) id: string,
+    ) {
+      const removed = await this.model.findByIdAndRemove(id);
+      if (util.isNil(removed))
+        throw new graphql.GraphQLError(
+          `No ${definition.name} found with ID: ${id}`,
+        );
+      return { success: true };
     }
   }
 

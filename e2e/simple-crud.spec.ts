@@ -90,6 +90,37 @@ describe('Simple CRUD works', () => {
     });
   });
 
+  it('Remove one tag and ensure it is gone', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+      mutation RemoveTag($id: ID!) {
+        removeTag(id: $id) {
+          success
+        }
+      }
+      `,
+      variables: {
+        id: allTags[0].id,
+      },
+    });
+    expect(response.removeTag.success).toEqual(true);
+
+    // Try to fetch the removed tag by its ID
+    await server.makeFailRequest({
+      query: `
+      query GetTag($id: ID!) {
+        tag(id: $id) {
+          name
+        }
+      }
+      `,
+      variables: {
+        id: allTags[0].id,
+      },
+      errorMessageMustContains: `No Tag found with ID: ${allTags[0].id}`,
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });
