@@ -17,6 +17,7 @@ describe('Embedded works', () => {
           createAuthor(input: $input) {
             name
             books {
+              id
               name
             }
           }
@@ -31,10 +32,12 @@ describe('Embedded works', () => {
     });
     expect(response.createAuthor).toEqual({
       name: 'Awesome author',
-      books: [{ name: 'Awesome book 1' }, { name: 'Awesome book 2' }],
+      books: [
+        { id: expect.any(String), name: 'Awesome book 1' },
+        { id: expect.any(String), name: 'Awesome book 2' },
+      ],
     });
   });
-
   afterAll(async () => {
     await server.stop();
   });

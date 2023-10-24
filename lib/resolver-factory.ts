@@ -18,7 +18,31 @@ import { Definition } from './shared';
 import { Typer } from './typer';
 import { embeddedCached, referencesManyCache } from './property';
 
-const preTransformed = Symbol('preTransformed');
+const appendIdAndTransform = (definition: Definition, item: any) => {
+  const output = item['toObject']?.() || item;
+  if (util.isNil(output.id) && util.isObject(output._id)) {
+    output.id = output._id.toHexString();
+  }
+
+  for (const propertyName in util.defaultTo(
+    embeddedCached[definition.name],
+    {},
+  )) {
+    if (util.isNil(output[propertyName])) continue;
+    const embeddedDefinition = embeddedCached[definition.name][propertyName]();
+    if (util.isArray(output[propertyName])) {
+      output[propertyName] = output[propertyName].map((subItem: any) =>
+        appendIdAndTransform(embeddedDefinition, subItem),
+      );
+    }
+    output[propertyName] = appendIdAndTransform(
+      embeddedDefinition,
+      output[propertyName],
+    );
+  }
+
+  return plainToInstance(Typer.getObjectType(definition), output);
+};
 
 export function createResolver(definition: Definition) {
   @Resolver()
@@ -58,13 +82,10 @@ export function createResolver(definition: Definition) {
           $addToSet: { tagIds: { $each: newIds } },
         });
       }
-      const preTransformedResult = await this.model.findById(created._id);
-      const result = plainToInstance(Typer.getObjectType(definition), {
-        id: created._id.toString(),
-        ...preTransformedResult.toObject(),
-      });
-      result[preTransformed] = preTransformedResult;
-      return result;
+      return appendIdAndTransform(
+        definition,
+        await this.model.findById(created._id),
+      );
     }
 
     @Mutation(() => Typer.getObjectType(definition))
@@ -88,23 +109,13 @@ export function createResolver(definition: Definition) {
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
       const result = await this.model.findById(id);
-      return plainToInstance(Typer.getObjectType(definition), {
-        id: result._id.toString(),
-        ...result.toObject(),
-      }) as any;
+      return appendIdAndTransform(definition, result) as any;
     }
 
     @Query(() => [Typer.getObjectType(definition)])
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
-      return items.map((item) => {
-        const result = plainToInstance(Typer.getObjectType(definition), {
-          id: item._id.toString(),
-          ...item.toObject(),
-        });
-        result[preTransformed] = item;
-        return result;
-      }) as any;
+      return items.map((item) => appendIdAndTransform(definition, item)) as any;
     }
   }
 
@@ -143,9 +154,9 @@ export function createResolverForEmbedded(
       parent[field].push(input);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return plainToInstance(
+      return appendIdAndTransform(
         Typer.getObjectType(embeddedDefinition),
-        (util.last(updatedParent[field]) as any).toObject(),
+        util.last(updatedParent[field]) as any,
       );
     }
 
@@ -161,9 +172,9 @@ export function createResolverForEmbedded(
       const result = parent[field].find(
         (item: any) => item._id.toString() === id,
       );
-      return plainToInstance(
+      return appendIdAndTransform(
         Typer.getObjectType(embeddedDefinition),
-        result.toObject(),
+        result,
       ) as any;
     }
   }
@@ -187,13 +198,10 @@ export function createResolverForReferencesMany(
     async [field](@Parent() parent: any): Promise<T[]> {
       // TODO: remove hardcoded tagIds
       const items = await this.model.find({
-        _id: { $in: parent[preTransformed]['tagIds'] },
+        _id: { $in: parent['tagIds'] },
       });
       return items.map((item) =>
-        plainToInstance(Typer.getObjectType(relationDefinition), {
-          id: item._id.toString(),
-          ...item.toObject(),
-        }),
+        appendIdAndTransform(relationDefinition, item),
       ) as any;
     }
   }

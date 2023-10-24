@@ -21,9 +21,9 @@ export class Author {
   @Prop()
   name: string;
 
-  @Embedded(() => Book)
   @Property(() => [Typer.getCreateInputType(Book)], { nullable: true })
   @OutputProperty(() => [Typer.getObjectType(Book)])
   @Prop({ type: [SchemaFactory.createForClass(Book)] })
+  @Embedded(() => Book)
   books: Book[];
 }
