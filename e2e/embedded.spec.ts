@@ -64,16 +64,12 @@ describe('Embedded works', () => {
       name: 'Awesome book 1',
     });
 
-    const { author: authorDetail } = await server.makeSuccessRequest({
+    const { authorBooks } = await server.makeSuccessRequest({
       query: `
-        query Author($authorId: ID!) {
-          author(authorId: $authorId) {
+        query AuthorBooks($authorId: ID!) {
+          authorBooks(authorId: $authorId) {
             id
             name
-            books {
-              id
-              name
-            }
           }
         }
       `,
@@ -82,14 +78,10 @@ describe('Embedded works', () => {
       },
     });
 
-    expect(response.createAuthor).toEqual({
-      id: authorDetail.id,
-      name: authorDetail.name,
-      books: [
-        { id: expect.any(String), name: 'Awesome book 1' },
-        { id: expect.any(String), name: 'Awesome book 2' },
-      ],
-    });
+    expect(authorBooks).toEqual([
+      { id: expect.any(String), name: 'Awesome book 1' },
+      { id: expect.any(String), name: 'Awesome book 2' },
+    ]);
 
   });
 
