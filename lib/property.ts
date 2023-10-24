@@ -5,6 +5,7 @@ import {
   GqlTypeReference,
 } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
+import * as util from './util';
 
 export const defaultCached = {};
 type FieldOptionsExtractor<T> = T extends [GqlTypeReference<infer P>]
@@ -18,7 +19,10 @@ export function Property<T extends ReturnTypeFuncValue>(
   options?: FieldOptionsExtractor<T>,
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
-    if (propertyKey !== 'id') {
+    if (
+      propertyKey !== 'id' &&
+      util.isUndefined(embeddedCached[target.constructor.name]?.[propertyKey])
+    ) {
       Prop()(target, propertyKey);
     }
     defaultCached[target.constructor.name] = {
@@ -47,14 +51,41 @@ export function OutputProperty<T extends ReturnTypeFuncValue>(
   };
 }
 
+type ThunkScope = 'all' | 'create' | 'update' | 'input' | 'output';
+
+type ThunkOptions = {
+  scopes: Array<ThunkScope> | ThunkScope;
+};
+
+export const hasScope = (option: ThunkOptions, checkScope: ThunkScope) => {
+  const mapping = {
+    all: ['create', 'update', 'output'],
+    input: ['create', 'update'],
+  };
+
+  const normalizedScopes = util.isArray(option.scopes)
+    ? option.scopes
+    : [option.scopes];
+
+  for (const scope of normalizedScopes) {
+    if (mapping[scope as string]?.includes(checkScope)) return true;
+    if (scope === checkScope) return true;
+  }
+
+  return false;
+};
+
 export const thunkCached = {};
-export function Thunk(value: any): PropertyDecorator & MethodDecorator {
+export function Thunk(
+  fn: any,
+  options: ThunkOptions = { scopes: 'all' },
+): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
     thunkCached[target.constructor.name] = {
       ...(thunkCached[target.constructor.name] || {}),
       [propertyKey]: [
         ...(thunkCached[target.constructor.name]?.[propertyKey] || []),
-        value,
+        { fn, options },
       ],
     };
   };
