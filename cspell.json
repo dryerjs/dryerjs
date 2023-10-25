@@ -1,13 +1,25 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
   "version": "0.2",
-  "dictionaryDefinitions": [
-    {
-      "name": "project-words",
-      "path": "./project-words.txt",
-      "addWords": true
-    }
+  "ignoreWords": [
+    "codecov",
+    "dryerjs",
+    "nestjs",
+    "srcset",
+    "Typer",
+    "QLID",
+    "automerge",
+    "precommit",
+    "lcov",
+    "paramtypes",
+    "returntype"
   ],
-  "dictionaries": ["project-words"],
-  "ignorePaths": ["node_modules", "/project-words.txt"]
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ],
+  "words": [
+    "Aissue"
+  ]
 }

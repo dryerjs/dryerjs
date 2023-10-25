@@ -34,7 +34,7 @@
     "merge-cov": "nyc report -t coverage --report-dir coverage --reporter=text-summary --reporter=lcov",
     "show-cov": "open coverage/lcov-report/index.html",
     "semantic-release": "semantic-release",
-    "cspell": "npm run cspell \"**\""
+    "cspell": "cspell \"**\""
   },
   "devDependencies": {
     "@commitlint/cli": "17.7.1",
