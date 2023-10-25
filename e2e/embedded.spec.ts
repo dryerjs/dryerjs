@@ -63,6 +63,25 @@ describe('Embedded works', () => {
       id: author.books[0].id,
       name: 'Awesome book 1',
     });
+
+    const { authorBooks } = await server.makeSuccessRequest({
+      query: `
+        query AuthorBooks($authorId: ID!) {
+          authorBooks(authorId: $authorId) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+      },
+    });
+
+    expect(authorBooks).toEqual([
+      { id: expect.any(String), name: 'Awesome book 1' },
+      { id: expect.any(String), name: 'Awesome book 2' },
+    ]);
   });
 
   it('Create book within author', async () => {
