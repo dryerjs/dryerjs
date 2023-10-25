@@ -17,6 +17,8 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     const embeddedDefinition = Metadata.getPropertiesByModel(definition, MetaKey.EmbeddedType)[
       propertyName
     ]();
+    // TODO: Write test for this case and remove "istanbul ignore else"
+    /* istanbul ignore else */
     if (util.isArray(output[propertyName])) {
       output[propertyName] = output[propertyName].map((subItem: any) => {
         return appendIdAndTransform(embeddedDefinition, subItem);

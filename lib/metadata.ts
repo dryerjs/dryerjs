@@ -4,7 +4,6 @@ type TargetClass = any;
 type MetaValue = any;
 
 const METADATA = Symbol('metadata');
-const MODEL_KEY = Symbol('model_key');
 
 export enum MetaKey {
   DesignType = 'design:type',
@@ -45,7 +44,7 @@ export class Metadata {
     target: TargetClass,
     metaKey: MetaKey,
     property: string | symbol,
-    value: MetaValue = true,
+    value: MetaValue,
   ): void {
     const constructor = this.getConstructor(target);
     if (util.isUndefined(constructor[METADATA])) {
@@ -55,18 +54,5 @@ export class Metadata {
       constructor[METADATA][property] = {};
     }
     constructor[METADATA][property][metaKey] = value;
-  }
-
-  public static copyProperty(from: TargetClass, to: TargetClass, property: string | symbol): void {
-    if (util.isUndefined(to[METADATA])) to[METADATA] = {};
-    to[METADATA][property] = { ...from[METADATA]?.[property] };
-  }
-
-  public static getModelMetaValue(target: TargetClass, metaKey: MetaKey): MetaValue {
-    return this.getMetaValue(target, metaKey, MODEL_KEY);
-  }
-
-  public static setModelProperty(target: TargetClass, metaKey: MetaKey, value: MetaValue): void {
-    this.setProperty(target, metaKey, MODEL_KEY, value);
   }
 }
