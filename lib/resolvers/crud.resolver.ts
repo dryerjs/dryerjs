@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Model } from 'mongoose';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
-import { ValidationPipe } from '@nestjs/common';
+import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
@@ -12,7 +12,7 @@ import { referencesManyCache } from '../property';
 import { SuccessResponse } from '../types';
 import { appendIdAndTransform } from './shared';
 
-export function createResolver(definition: Definition) {
+export function createResolver(definition: Definition): Provider {
   @Resolver()
   class GeneratedResolver<T> {
     constructor(
@@ -36,7 +36,7 @@ export function createResolver(definition: Definition) {
       for (const propertyName in referencesManyCache[definition.name] || {}) {
         if (!input[propertyName] || input[propertyName].length === 0) continue;
         const relationDefinition =
-          referencesManyCache[definition.name][propertyName]();
+          referencesManyCache[definition.name][propertyName].fn();
         const newIds: string[] = [];
         for (const subObject of input[propertyName]) {
           const relationModel = this.moduleRef.get(
@@ -103,5 +103,5 @@ export function createResolver(definition: Definition) {
     }
   }
 
-  return GeneratedResolver;
+  return GeneratedResolver as any;
 }

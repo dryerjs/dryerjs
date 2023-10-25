@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "ignoreWords": [
+    "codecov",
+    "dryerjs",
+    "nestjs",
+    "srcset",
+    "Typer",
+    "QLID",
+    "automerge",
+    "precommit",
+    "lcov",
+    "paramtypes",
+    "returntype"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ],
+  "words": [
+    "Aissue"
+  ]
+}

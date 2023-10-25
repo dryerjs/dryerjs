@@ -6,12 +6,14 @@ import { appendIdAndTransform } from './shared';
 import { Typer } from '../typer';
 import { referencesManyCache } from '../property';
 import { Definition } from '../shared';
+import { Provider } from '@nestjs/common';
 
 export function createResolverForReferencesMany(
   definition: Definition,
   field: string,
-) {
-  const relationDefinition = referencesManyCache[definition.name][field]();
+): Provider {
+  const relation = referencesManyCache[definition.name][field];
+  const relationDefinition = relation.fn();
 
   @Resolver(() => Typer.getObjectType(definition))
   class GeneratedResolverForReferencesMany<T> {
@@ -22,7 +24,7 @@ export function createResolverForReferencesMany(
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
       const items = await this.model.find({
-        _id: { $in: parent['tagIds'] },
+        [relation.to || '_id']: { $in: parent[relation.from] },
       });
       return items.map((item) =>
         appendIdAndTransform(relationDefinition, item),

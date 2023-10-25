@@ -102,11 +102,14 @@ export function Embedded(fn: any) {
 }
 
 export const referencesManyCache = {};
-export function ReferencesMany(fn: any) {
+export function ReferencesMany(
+  fn: any,
+  options: { from: string; to?: string },
+) {
   return (target: object, propertyKey: string | symbol) => {
     referencesManyCache[target.constructor.name] = {
       ...(referencesManyCache[target.constructor.name] || {}),
-      [propertyKey]: fn,
+      [propertyKey]: { fn, ...options },
     };
   };
 }
