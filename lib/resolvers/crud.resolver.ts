@@ -8,7 +8,6 @@ import { ModuleRef } from '@nestjs/core';
 import * as util from '../util';
 import { Definition } from '../shared';
 import { Typer } from '../typer';
-import { referencesManyCache } from '../property';
 import { SuccessResponse } from '../types';
 import { appendIdAndTransform } from './shared';
 

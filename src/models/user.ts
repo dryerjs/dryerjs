@@ -1,15 +1,17 @@
 import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
 import { IsEmail, MinLength } from 'class-validator';
-import { Property, Entity, Thunk } from '../../lib';
+import { Property, Entity, Thunk, ExcludeOnDatabase, ExcludeOnCreate } from '../../lib';
+import { Field } from '@nestjs/graphql';
 
 @Entity()
 export class User {
-  @Property(() => graphql.GraphQLID)
+  @Thunk(Field(() => graphql.GraphQLID))
+  @ExcludeOnDatabase()
+  @ExcludeOnCreate()
   id: string;
 
-  @Property(() => graphql.GraphQLString)
-  @Prop()
+  @Property()
   name: string;
 
   @Property()
@@ -18,7 +20,9 @@ export class User {
   email: string;
 
   @Property()
-  @Prop()
   @Thunk(MinLength(5), { scopes: ['create'] })
   password: string;
 }
+
+// @Thunk should be applied before Property which do the rest
+// @ExcludeOnDatabase()

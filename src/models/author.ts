@@ -1,6 +1,7 @@
 import * as graphql from 'graphql';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { OutputProperty, Property, Typer, Entity, Embedded } from '../../lib';
+import { Field } from '@nestjs/graphql';
+import { Property, Typer, Entity, Embedded, Thunk } from '../../lib';
 
 @Entity()
 export class Book {
@@ -21,7 +22,7 @@ export class Author {
   name: string;
 
   @Property(() => [Typer.getCreateInputType(Book)], { nullable: true })
-  @OutputProperty(() => [Typer.getObjectType(Book)])
+  @Thunk(Field(() => [Typer.getObjectType(Book)]), { scopes: 'output' })
   @Prop({ type: [SchemaFactory.createForClass(Book)] })
   @Embedded(() => Book)
   books: Book[];

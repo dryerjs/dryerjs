@@ -2,7 +2,8 @@ import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Transform, Type } from 'class-transformer';
-import { OutputProperty, Property, Typer, Entity, ReferencesMany, ObjectId, Thunk } from '../../lib';
+import { Property, Typer, Entity, ReferencesMany, ObjectId, Thunk } from '../../lib';
+import { Field } from '@nestjs/graphql';
 
 @Entity()
 export class Tag {
@@ -36,6 +37,6 @@ export class Product {
 
   @ReferencesMany(() => Tag, { from: 'tagIds' })
   @Property(() => [Typer.getCreateInputType(Tag)], { nullable: true })
-  @OutputProperty(() => [Typer.getObjectType(Tag)])
+  @Thunk(Field(() => [Typer.getObjectType(Tag)]), { scopes: 'output' })
   tags: Tag[];
 }
