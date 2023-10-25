@@ -2,8 +2,8 @@ import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import { Definition } from '../shared';
-import { embeddedCached } from '../property';
 import { Typer } from '../typer';
+import { MetaKey, Metadata } from '../metadata';
 
 export const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;
@@ -11,10 +11,12 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     output.id = output._id.toHexString();
   }
 
-  for (const propertyName in util.defaultTo(embeddedCached[definition.name], {})) {
+  for (const propertyName in Metadata.getPropertiesByModel(definition, MetaKey.EmbeddedType)) {
     /* istanbul ignore if */
     if (util.isNil(output[propertyName])) continue;
-    const embeddedDefinition = embeddedCached[definition.name][propertyName]();
+    const embeddedDefinition = Metadata.getPropertiesByModel(definition, MetaKey.EmbeddedType)[
+      propertyName
+    ]();
     if (util.isArray(output[propertyName])) {
       output[propertyName] = output[propertyName].map((subItem: any) =>
         appendIdAndTransform(embeddedDefinition, subItem),

@@ -18,11 +18,10 @@ export class Author {
   id: string;
 
   @Property(() => graphql.GraphQLString)
-  @Prop()
   name: string;
 
-  @Property(() => [Typer.getCreateInputType(Book)], { nullable: true })
   @Thunk(Field(() => [Typer.getObjectType(Book)]), { scopes: 'output' })
+  @Thunk(Field(() => [Typer.getObjectType(Book)], { nullable: true }), { scopes: 'input' })
   @Prop({ type: [SchemaFactory.createForClass(Book)] })
   @Embedded(() => Book)
   books: Book[];

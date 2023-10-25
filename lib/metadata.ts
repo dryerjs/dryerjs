@@ -15,6 +15,7 @@ export enum MetaKey {
   EmbeddedType = 'EmbeddedType',
   ReferencesManyType = 'ReferencesManyType',
   Thunk = 'Thunk',
+  UseProperty = 'UseProperty',
 }
 
 export class Metadata {
@@ -37,13 +38,6 @@ export class Metadata {
 
   public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
     return this.getConstructor(target)[METADATA]?.[property]?.[metaKey];
-  }
-
-  public static unsetProperty(target: TargetClass, metaKey: MetaKey, property: string | symbol): void {
-    const constructor = this.getConstructor(target);
-    if (!util.isUndefined(constructor[METADATA][property][metaKey])) {
-      constructor[METADATA][property][metaKey] = undefined;
-    }
   }
 
   public static setProperty(

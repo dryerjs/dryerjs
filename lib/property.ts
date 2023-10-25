@@ -3,7 +3,6 @@ import { Prop } from '@nestjs/mongoose';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 
-export const defaultCached = {};
 type FieldOptionsExtractor<T> = T extends [GqlTypeReference<infer P>]
   ? FieldOptions<P[]>
   : T extends GqlTypeReference<infer P>
@@ -12,10 +11,26 @@ type FieldOptionsExtractor<T> = T extends [GqlTypeReference<infer P>]
 
 export function Property<T extends ReturnTypeFuncValue>(
   returnTypeFunction?: ReturnTypeFunc<T>,
-  options?: FieldOptionsExtractor<T>,
+  options: FieldOptionsExtractor<T> = {} as any,
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
-    Thunk(Field(returnTypeFunction, options), { scopes: 'all' })(target, propertyKey);
+    if (Metadata.getMetaValue(target, MetaKey.Thunk, propertyKey)) {
+      throw new Error(`Property ${propertyKey.toString()} already has a @Thunk decorator`);
+    }
+    const isId = propertyKey === 'id';
+    if (isId) {
+      Thunk(Field(returnTypeFunction, { ...options, nullable: false }), { scopes: ['update', 'output'] })(
+        target,
+        propertyKey,
+      );
+    } else {
+      Thunk(Field(returnTypeFunction, { ...options, nullable: true }), { scopes: 'update' })(
+        target,
+        propertyKey,
+      );
+      Thunk(Field(returnTypeFunction, options), { scopes: ['output', 'create'] })(target, propertyKey);
+    }
+    Metadata.setProperty(target.constructor.name, MetaKey.UseProperty, propertyKey, true);
   };
 }
 
@@ -46,30 +61,33 @@ export function Thunk(
   options: ThunkOptions = { scopes: 'all' },
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
+    if (Metadata.getMetaValue(target, MetaKey.UseProperty, propertyKey)) {
+      throw new Error(`Property ${propertyKey.toString()} already has a @Property decorator`);
+    }
     const prevThunks = Metadata.getMetaValue(target, MetaKey.Thunk, propertyKey);
     if (
       propertyKey !== 'id' &&
-      util.isFunction(Metadata.getMetaValue(target, MetaKey.ExcludeOnDatabase, propertyKey)) &&
+      !Metadata.getMetaValue(target, MetaKey.ExcludeOnDatabase, propertyKey) &&
       util.isNil(prevThunks)
     ) {
       Prop()(target, propertyKey);
     }
     const newThunks = util.defaultTo(prevThunks, []).concat({ fn, options });
-    Metadata.setProperty(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey, newThunks);
+    Metadata.setProperty(target, MetaKey.Thunk, propertyKey, newThunks);
   };
 }
 
 export function Embedded(fn: any) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setProperty(target.constructor.name, MetaKey.EmbeddedType, propertyKey, fn);
+    Metadata.setProperty(target, MetaKey.EmbeddedType, propertyKey, fn);
   };
 }
 
 export function ReferencesMany(fn: any, options: { from: string; to?: string }) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setProperty(target.constructor.name, MetaKey.EmbeddedType, propertyKey, { fn, options });
+    Metadata.setProperty(target, MetaKey.ReferencesManyType, propertyKey, { fn, options });
   };
 }
 

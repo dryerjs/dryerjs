@@ -1,5 +1,5 @@
 import { TestServer } from './test-server';
-import { Tag } from '../src/models';
+import { Tag } from '../src/models/product';
 
 const server = TestServer.init({
   definitions: [Tag],

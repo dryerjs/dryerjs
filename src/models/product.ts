@@ -11,7 +11,6 @@ export class Tag {
   id: string;
 
   @Property(() => graphql.GraphQLString)
-  @Prop()
   name: string;
 }
 
@@ -24,8 +23,9 @@ export class Product {
   @Prop()
   name: string;
 
-  @Property(() => [graphql.GraphQLString], { nullable: true })
   @Prop({ type: [ObjectId], default: [] })
+  @Thunk(Field(() => [graphql.GraphQLString], { nullable: true }), { scopes: 'input' })
+  @Thunk(Field(() => [graphql.GraphQLString]), { scopes: 'output' })
   @Thunk(Type(() => String))
   @Thunk(
     Transform(({ value: tagIds }) => {
@@ -36,7 +36,7 @@ export class Product {
   tagIds: string[];
 
   @ReferencesMany(() => Tag, { from: 'tagIds' })
-  @Property(() => [Typer.getCreateInputType(Tag)], { nullable: true })
   @Thunk(Field(() => [Typer.getObjectType(Tag)]), { scopes: 'output' })
+  @Thunk(Field(() => [Typer.getCreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
   tags: Tag[];
 }

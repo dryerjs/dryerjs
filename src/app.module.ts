@@ -5,10 +5,10 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
-import { AuthResolver } from './resolvers';
-import { Product, Tag, User, Author } from './models';
+// import { AuthResolver } from './resolvers';
+import { Product, Tag } from './models/product';
 
-const definitions: Definition[] = [Author, User, Product, Tag];
+const definitions: Definition[] = [Product, Tag];
 
 @Module({
   imports: [
@@ -29,6 +29,6 @@ const definitions: Definition[] = [Author, User, Product, Tag];
       })),
     ),
   ],
-  providers: [AuthResolver],
+  // providers: [AuthResolver],
 })
 export class AppModule {}
