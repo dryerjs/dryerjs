@@ -2,35 +2,26 @@ import { plural, singular } from './js/pluralize';
 
 export { plural, singular };
 
-export const isNil = (value: any): value is null | undefined =>
-  value === null || value === undefined;
+export const isNil = (value: any): value is null | undefined => value === null || value === undefined;
 
 export const isNotNil = (value: any) => !isNil(value);
 
-export const isObject = (value: any): value is object =>
-  typeof value === 'object';
+export const isObject = (value: any): value is object => typeof value === 'object';
 
 export const isArray = (value: any) => Array.isArray(value);
 
-export const isNotNullObject = (value: any): value is object =>
-  typeof value === 'object' && value !== null;
+export const isNotNullObject = (value: any): value is object => typeof value === 'object' && value !== null;
 
 export const isFunction = (value: any) => typeof value === 'function';
 
-export const isUndefined = (value: any): value is undefined =>
-  typeof value === 'undefined';
+export const isUndefined = (value: any): value is undefined => typeof value === 'undefined';
 
 export const isTruthy = (value: any) => !!value;
 
-export const isString = (value: any): value is string =>
-  typeof value === 'string';
+export const isString = (value: any): value is string => typeof value === 'string';
 
-export const defaultTo = <T>(
-  value: T | null | undefined,
-  defaultValue: T,
-): T => {
-  const shouldUseDefaultValue =
-    isNil(value) || (typeof value === 'number' && isNaN(value));
+export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
+  const shouldUseDefaultValue = isNil(value) || (typeof value === 'number' && isNaN(value));
   return shouldUseDefaultValue ? defaultValue : (value as T);
 };
 
@@ -55,10 +46,8 @@ export const deepOmit = (object: any, omitKeys: string[]) => {
   return result;
 };
 
-export const toPascalCase = (str: string) =>
-  str.replace(str[0], str[0].toUpperCase());
+export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperCase());
 
-export const toCamelCase = (str: string) =>
-  str.replace(str[0], str[0].toLowerCase());
+export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
 
 export const last = <T>(array: T[]) => array[array.length - 1];

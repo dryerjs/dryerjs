@@ -1,9 +1,4 @@
-import {
-  DynamicModule,
-  INestApplication,
-  Module,
-  Provider,
-} from '@nestjs/common';
+import { DynamicModule, INestApplication, Module, Provider } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, SchemaFactory, getModelToken } from '@nestjs/mongoose';

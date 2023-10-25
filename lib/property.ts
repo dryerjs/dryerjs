@@ -1,9 +1,4 @@
-import {
-  ReturnTypeFunc,
-  ReturnTypeFuncValue,
-  FieldOptions,
-  GqlTypeReference,
-} from '@nestjs/graphql';
+import { ReturnTypeFunc, ReturnTypeFuncValue, FieldOptions, GqlTypeReference } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
 import * as util from './util';
 
@@ -19,10 +14,7 @@ export function Property<T extends ReturnTypeFuncValue>(
   options?: FieldOptionsExtractor<T>,
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
-    if (
-      propertyKey !== 'id' &&
-      util.isUndefined(embeddedCached[target.constructor.name]?.[propertyKey])
-    ) {
+    if (propertyKey !== 'id' && util.isUndefined(embeddedCached[target.constructor.name]?.[propertyKey])) {
       Prop()(target, propertyKey);
     }
     defaultCached[target.constructor.name] = {
@@ -63,9 +55,7 @@ export const hasScope = (option: ThunkOptions, checkScope: ThunkScope) => {
     input: ['create', 'update'],
   };
 
-  const normalizedScopes = util.isArray(option.scopes)
-    ? option.scopes
-    : [option.scopes];
+  const normalizedScopes = util.isArray(option.scopes) ? option.scopes : [option.scopes];
 
   for (const scope of normalizedScopes) {
     if (mapping[scope as string]?.includes(checkScope)) return true;
@@ -83,10 +73,7 @@ export function Thunk(
   return (target: object, propertyKey: string | symbol) => {
     thunkCached[target.constructor.name] = {
       ...(thunkCached[target.constructor.name] || {}),
-      [propertyKey]: [
-        ...(thunkCached[target.constructor.name]?.[propertyKey] || []),
-        { fn, options },
-      ],
+      [propertyKey]: [...(thunkCached[target.constructor.name]?.[propertyKey] || []), { fn, options }],
     };
   };
 }
@@ -102,10 +89,7 @@ export function Embedded(fn: any) {
 }
 
 export const referencesManyCache = {};
-export function ReferencesMany(
-  fn: any,
-  options: { from: string; to?: string },
-) {
+export function ReferencesMany(fn: any, options: { from: string; to?: string }) {
   return (target: object, propertyKey: string | symbol) => {
     referencesManyCache[target.constructor.name] = {
       ...(referencesManyCache[target.constructor.name] || {}),

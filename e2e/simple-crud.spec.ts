@@ -133,8 +133,7 @@ describe('Simple CRUD works', () => {
       variables: {
         id: '000000000000000000000000',
       },
-      errorMessageMustContains:
-        'No Tag found with ID: 000000000000000000000000',
+      errorMessageMustContains: 'No Tag found with ID: 000000000000000000000000',
     });
   });
 
