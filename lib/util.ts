@@ -1,4 +1,4 @@
-import { plural, singular } from 'pluralize';
+import { plural, singular } from './js/pluralize';
 
 export { plural, singular };
 
@@ -31,7 +31,7 @@ export const defaultTo = <T>(
 ): T => {
   const shouldUseDefaultValue =
     isNil(value) || (typeof value === 'number' && isNaN(value));
-  return shouldUseDefaultValue ? defaultValue : value;
+  return shouldUseDefaultValue ? defaultValue : (value as T);
 };
 
 export const deepOmit = (object: any, omitKeys: string[]) => {

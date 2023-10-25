@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ValidationPipe } from '@nestjs/common';
+import { Provider, ValidationPipe } from '@nestjs/common';
 
 import * as util from '../util';
 import { Definition } from '../shared';
@@ -14,7 +14,7 @@ import { SuccessResponse } from '../types';
 export function createResolverForEmbedded(
   definition: Definition,
   field: string,
-) {
+): Provider {
   const embeddedDefinition = embeddedCached[definition.name][field]();
 
   @Resolver()
