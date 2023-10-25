@@ -35,14 +35,10 @@ export function createResolver(definition: Definition): Provider {
       const created = await this.model.create(input);
       for (const propertyName in referencesManyCache[definition.name] || {}) {
         if (!input[propertyName] || input[propertyName].length === 0) continue;
-        const relationDefinition =
-          referencesManyCache[definition.name][propertyName].fn();
+        const relationDefinition = referencesManyCache[definition.name][propertyName].fn();
         const newIds: string[] = [];
         for (const subObject of input[propertyName]) {
-          const relationModel = this.moduleRef.get(
-            getModelToken(relationDefinition.name),
-            { strict: false },
-          );
+          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
           const createdRelation = await relationModel.create(subObject);
           newIds.push(createdRelation._id);
         }
@@ -50,10 +46,7 @@ export function createResolver(definition: Definition): Provider {
           $addToSet: { tagIds: { $each: newIds } },
         });
       }
-      return appendIdAndTransform(
-        definition,
-        await this.model.findById(created._id),
-      );
+      return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
     @Mutation(() => Typer.getObjectType(definition))
@@ -77,10 +70,7 @@ export function createResolver(definition: Definition): Provider {
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
       const result = await this.model.findById(id);
-      if (util.isNil(result))
-        throw new graphql.GraphQLError(
-          `No ${definition.name} found with ID: ${id}`,
-        );
+      if (util.isNil(result)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return appendIdAndTransform(definition, result) as any;
     }
 
@@ -91,14 +81,9 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @Mutation(() => SuccessResponse)
-    async [`remove${definition.name}`](
-      @Args('id', { type: () => graphql.GraphQLID }) id: string,
-    ) {
+    async [`remove${definition.name}`](@Args('id', { type: () => graphql.GraphQLID }) id: string) {
       const removed = await this.model.findByIdAndRemove(id);
-      if (util.isNil(removed))
-        throw new graphql.GraphQLError(
-          `No ${definition.name} found with ID: ${id}`,
-        );
+      if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return { success: true };
     }
   }

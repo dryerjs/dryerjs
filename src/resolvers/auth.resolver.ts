@@ -28,9 +28,7 @@ export class AuthResolver {
   }
 
   @Query(() => Typer.getObjectType(User))
-  async whoAmI(
-    @Args('userId', { type: () => graphql.GraphQLString }) userId: string,
-  ) {
+  async whoAmI(@Args('userId', { type: () => graphql.GraphQLString }) userId: string) {
     const user = await this.User.findById(userId);
     if (!user) {
       throw new graphql.GraphQLError('User not found');

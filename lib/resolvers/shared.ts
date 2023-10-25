@@ -11,10 +11,7 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     output.id = output._id.toHexString();
   }
 
-  for (const propertyName in util.defaultTo(
-    embeddedCached[definition.name],
-    {},
-  )) {
+  for (const propertyName in util.defaultTo(embeddedCached[definition.name], {})) {
     /* istanbul ignore if */
     if (util.isNil(output[propertyName])) continue;
     const embeddedDefinition = embeddedCached[definition.name][propertyName]();
@@ -23,10 +20,7 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
         appendIdAndTransform(embeddedDefinition, subItem),
       );
     }
-    output[propertyName] = appendIdAndTransform(
-      embeddedDefinition,
-      output[propertyName],
-    );
+    output[propertyName] = appendIdAndTransform(embeddedDefinition, output[propertyName]);
   }
 
   return plainToInstance(Typer.getObjectType(definition), output);
