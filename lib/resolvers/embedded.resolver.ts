@@ -105,7 +105,9 @@ export function createResolverForEmbedded(
       parentId: string,
     ): Promise<T[]> {
       const parent = await this.model.findById(parentId).select(field);
-      return parent[field].map(item => appendIdAndTransform(embeddedDefinition, item)) as any;
+      return parent[field].map((item: any) =>
+        appendIdAndTransform(embeddedDefinition, item),
+      ) as any;
     }
   }
 
