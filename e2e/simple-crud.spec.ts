@@ -121,6 +121,23 @@ describe('Simple CRUD works', () => {
     });
   });
 
+  it('Remove not found tag', async () => {
+    await server.makeFailRequest({
+      query: `
+      mutation RemoveTag($id: ID!) {
+        removeTag(id: $id) {
+          success
+        }
+      }
+      `,
+      variables: {
+        id: '000000000000000000000000',
+      },
+      errorMessageMustContains:
+        'No Tag found with ID: 000000000000000000000000',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });

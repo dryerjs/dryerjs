@@ -80,7 +80,7 @@ function getUpdateInputType(definition: Definition) {
 }
 
 function getObjectType(definition: Definition) {
-  @ObjectType(definition.name, { isAbstract: true })
+  @ObjectType(definition.name)
   class AbstractOutput {}
   for (const property of Object.keys(defaultCached[definition.name])) {
     const designType = Reflect.getMetadata(

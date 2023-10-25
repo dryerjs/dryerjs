@@ -101,36 +101,6 @@ export function Embedded(fn: any) {
   };
 }
 
-export const hasManyCached = {};
-export function HasMany(fn: any) {
-  return (target: object, propertyKey: string | symbol) => {
-    hasManyCached[target.constructor.name] = {
-      ...(hasManyCached[target.constructor.name] || {}),
-      [propertyKey]: fn,
-    };
-  };
-}
-
-export const hasOneCached = {};
-export function HasOne(fn: any) {
-  return (target: object, propertyKey: string | symbol) => {
-    hasOneCached[target.constructor.name] = {
-      ...(hasOneCached[target.constructor.name] || {}),
-      [propertyKey]: fn,
-    };
-  };
-}
-
-export const belongToCache = {};
-export function BelongsTo(fn: any) {
-  return (target: object, propertyKey: string | symbol) => {
-    belongToCache[target.constructor.name] = {
-      ...(belongToCache[target.constructor.name] || {}),
-      [propertyKey]: fn,
-    };
-  };
-}
-
 export const referencesManyCache = {};
 export function ReferencesMany(fn: any) {
   return (target: object, propertyKey: string | symbol) => {
