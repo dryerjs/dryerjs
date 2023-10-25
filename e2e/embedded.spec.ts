@@ -156,6 +156,65 @@ describe('Embedded works', () => {
     });
   });
 
+  it('Update books within author', async () => {
+    const books = author.books.map((book: any) => {
+      return { ...book, name: `${book.name}-edit` };
+    });
+    const { updateAuthorBooks } = await server.makeSuccessRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        input: books,
+      },
+    });
+    expect(updateAuthorBooks).toEqual(books);
+  });
+
+  it('Update books within author: return error if parent not found', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: '5e6b4b5b1c9d440000d2c7f3',
+        input: author.books,
+      },
+    });
+    expect(response[0].message).toEqual('No author found with ID 5e6b4b5b1c9d440000d2c7f3');
+  });
+
+  it('Update books within author: return error if book not found', async () => {
+    const books = [...author.books];
+    books[0].id = '5e6b4b5b1c9d440000d2c7f3';
+    const response = await server.makeFailRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        input: books,
+      },
+    });
+    expect(response[0].message).toEqual('No book found with ID 5e6b4b5b1c9d440000d2c7f3');
+  });
+
   it("Remove author's books", async () => {
     const { allAuthors } = await server.makeSuccessRequest({
       query: `
