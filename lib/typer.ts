@@ -1,23 +1,16 @@
-import { ObjectType, Field, InputType } from '@nestjs/graphql';
-
-import * as util from './util';
+import { ObjectType, InputType } from '@nestjs/graphql';
 import { Definition } from './shared';
-import { defaultCached, hasScope, objectCached, thunkCached } from './property';
+import { hasScope } from './property';
+import { MetaKey, Metadata } from './metadata';
 
 function getCreateInputType(definition: Definition) {
   @InputType(`Create${definition.name}Input`)
   class AbstractCreateInput {}
-  for (const property of Object.keys(defaultCached[definition.name])) {
+  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
     if (property === 'id') continue;
     const designType = Reflect.getMetadata('design:type', definition.prototype, property);
-
     Reflect.defineMetadata('design:type', designType, AbstractCreateInput.prototype, property);
-
-    const { returnTypeFunction, options } = defaultCached[definition.name][property];
-
-    Field(returnTypeFunction, options)(AbstractCreateInput.prototype, property as string);
-
-    for (const { fn, options } of util.defaultTo(thunkCached[definition.name]?.[property], [])) {
+    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
       if (hasScope(options, 'create')) {
         fn(AbstractCreateInput.prototype, property as string);
       }
@@ -29,16 +22,10 @@ function getCreateInputType(definition: Definition) {
 function getUpdateInputType(definition: Definition) {
   @InputType(`Update${definition.name}Input`)
   class AbstractUpdateInput {}
-  for (const property of Object.keys(defaultCached[definition.name])) {
+  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
     const designType = Reflect.getMetadata('design:type', definition.prototype, property);
-
     Reflect.defineMetadata('design:type', designType, AbstractUpdateInput.prototype, property);
-
-    const { returnTypeFunction, options } = defaultCached[definition.name][property];
-
-    Field(returnTypeFunction, options)(AbstractUpdateInput.prototype, property as string);
-
-    for (const { fn, options } of util.defaultTo(thunkCached[definition.name]?.[property], [])) {
+    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
       if (hasScope(options, 'update')) {
         fn(AbstractUpdateInput.prototype, property as string);
       }
@@ -50,14 +37,10 @@ function getUpdateInputType(definition: Definition) {
 function getObjectType(definition: Definition) {
   @ObjectType(definition.name)
   class AbstractOutput {}
-  for (const property of Object.keys(defaultCached[definition.name])) {
+  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
     const designType = Reflect.getMetadata('design:type', definition.prototype, property);
     Reflect.defineMetadata('design:type', designType, AbstractOutput.prototype, property);
-    const { returnTypeFunction, options } =
-      objectCached?.[definition.name]?.[property] || defaultCached[definition.name][property];
-
-    Field(returnTypeFunction, options)(AbstractOutput.prototype, property as string);
-    for (const { fn, options } of util.defaultTo(thunkCached[definition.name]?.[property], [])) {
+    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
       if (hasScope(options, 'output')) {
         fn(AbstractOutput.prototype, property as string);
       }
@@ -69,6 +52,7 @@ function getObjectType(definition: Definition) {
 const builtCreateInput = Symbol('builtCreateInput');
 const builtUpdateInput = Symbol('builtUpdateInput');
 const builtOutput = Symbol('builtOutput');
+
 export class Typer {
   public static getCreateInputType(definition: Definition) {
     if (definition[builtCreateInput]) return definition[builtCreateInput];
