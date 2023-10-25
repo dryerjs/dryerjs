@@ -96,6 +96,19 @@ export function createResolverForEmbedded(
       );
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
+
+    @Query(() => [Typer.getObjectType(embeddedDefinition)])
+    async [`${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`](
+      @Args(`${util.toCamelCase(definition.name)}Id`, {
+        type: () => graphql.GraphQLID,
+      })
+      parentId: string,
+    ): Promise<T[]> {
+      const parent = await this.model.findById(parentId).select(field);
+      return parent[field].map((item: any) =>
+        appendIdAndTransform(embeddedDefinition, item),
+      ) as any;
+    }
   }
 
   return GeneratedResolverForEmbedded;
