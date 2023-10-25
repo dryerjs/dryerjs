@@ -20,8 +20,12 @@ export const isTruthy = (value: any) => !!value;
 
 export const isString = (value: any): value is string => typeof value === 'string';
 
-export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
-  const shouldUseDefaultValue = isNil(value) || (typeof value === 'number' && isNaN(value));
+export const defaultTo = <T>(
+  value: T | null | undefined,
+  defaultValue: T,
+): T => {
+  const shouldUseDefaultValue =
+    isNil(value) || (typeof value === 'number' && isNaN(value));
   return shouldUseDefaultValue ? defaultValue : (value as T);
 };
 

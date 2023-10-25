@@ -11,8 +11,11 @@ import { appendIdAndTransform } from './shared';
 import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 
-export function createResolverForEmbedded(definition: Definition, field: string): Provider {
-  const embeddedDefinition = Metadata.getMetaValue(definition, MetaKey.EmbeddedType, field)();
+export function createResolverForEmbedded(
+  definition: Definition,
+  field: string,
+): Provider {
+  const embeddedDefinition = embeddedCached[definition.name][field]();
 
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
