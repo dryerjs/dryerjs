@@ -36,7 +36,7 @@ export function createResolver(definition: Definition): Provider {
       for (const propertyName in referencesManyCache[definition.name] || {}) {
         if (!input[propertyName] || input[propertyName].length === 0) continue;
         const relationDefinition =
-          referencesManyCache[definition.name][propertyName]();
+          referencesManyCache[definition.name][propertyName].fn();
         const newIds: string[] = [];
         for (const subObject of input[propertyName]) {
           const relationModel = this.moduleRef.get(

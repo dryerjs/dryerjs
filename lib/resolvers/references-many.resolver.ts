@@ -12,7 +12,8 @@ export function createResolverForReferencesMany(
   definition: Definition,
   field: string,
 ): Provider {
-  const relationDefinition = referencesManyCache[definition.name][field]();
+  const relation = referencesManyCache[definition.name][field];
+  const relationDefinition = relation.fn();
 
   @Resolver(() => Typer.getObjectType(definition))
   class GeneratedResolverForReferencesMany<T> {
@@ -23,7 +24,7 @@ export function createResolverForReferencesMany(
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
       const items = await this.model.find({
-        _id: { $in: parent['tagIds'] },
+        [relation.to || '_id']: { $in: parent[relation.from] },
       });
       return items.map((item) =>
         appendIdAndTransform(relationDefinition, item),
