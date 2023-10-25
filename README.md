@@ -10,7 +10,8 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 [![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![Release Status](https://github.com/dryerjs/dryerjs/workflows/Release/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
 [![npm version](https://badge.fury.io/js/dryerjs.svg)](https://badge.fury.io/js/dryerjs)
-![Discord Shield](https://discordapp.com/api/guilds/1165841842873565264/widget.png?style=shield)
+[![Discord](https://img.shields.io/discord/1165841842873565264)](https://discord.gg/ay7zTHaC)
+[![Paypal](https://img.shields.io/badge/Donate-PayPal-ff3f59.svg)](https://paypal.me/briandryerjs)
 
 ## Features
 
