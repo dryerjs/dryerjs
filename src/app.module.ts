@@ -6,9 +6,9 @@ import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 // import { AuthResolver } from './resolvers';
-import { Product, Tag } from './models/product';
+import { Author } from './models/author';
 
-const definitions: Definition[] = [Product, Tag];
+const definitions: Definition[] = [Author];
 
 @Module({
   imports: [

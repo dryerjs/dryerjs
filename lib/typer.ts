@@ -52,6 +52,7 @@ function getObjectType(definition: Definition) {
 const builtCreateInput = Symbol('builtCreateInput');
 const builtUpdateInput = Symbol('builtUpdateInput');
 const builtOutput = Symbol('builtOutput');
+
 export class Typer {
   public static getCreateInputType(definition: Definition) {
     if (definition[builtCreateInput]) return definition[builtCreateInput];

@@ -18,11 +18,12 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
       propertyName
     ]();
     if (util.isArray(output[propertyName])) {
-      output[propertyName] = output[propertyName].map((subItem: any) =>
-        appendIdAndTransform(embeddedDefinition, subItem),
-      );
+      output[propertyName] = output[propertyName].map((subItem: any) => {
+        return appendIdAndTransform(embeddedDefinition, subItem);
+      });
+    } else {
+      output[propertyName] = appendIdAndTransform(embeddedDefinition, output[propertyName]);
     }
-    output[propertyName] = appendIdAndTransform(embeddedDefinition, output[propertyName]);
   }
 
   return plainToInstance(Typer.getObjectType(definition), output);

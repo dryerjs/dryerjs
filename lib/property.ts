@@ -1,18 +1,11 @@
-import { ReturnTypeFunc, ReturnTypeFuncValue, FieldOptions, GqlTypeReference, Field } from '@nestjs/graphql';
+import { Field } from '@nestjs/graphql';
 import { Prop } from '@nestjs/mongoose';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 
-type FieldOptionsExtractor<T> = T extends [GqlTypeReference<infer P>]
-  ? FieldOptions<P[]>
-  : T extends GqlTypeReference<infer P>
-  ? FieldOptions<P>
-  : never;
-
-export function Property<T extends ReturnTypeFuncValue>(
-  returnTypeFunction?: ReturnTypeFunc<T>,
-  options: FieldOptionsExtractor<T> = {} as any,
-): PropertyDecorator & MethodDecorator {
+export function Property(...input: Parameters<typeof Field>): PropertyDecorator & MethodDecorator {
+  // TODO: Add validation for input
+  const [returnTypeFunction, options] = input;
   return (target: object, propertyKey: string | symbol) => {
     if (Metadata.getMetaValue(target, MetaKey.Thunk, propertyKey)) {
       throw new Error(`Property ${propertyKey.toString()} already has a @Thunk decorator`);
@@ -30,7 +23,7 @@ export function Property<T extends ReturnTypeFuncValue>(
       );
       Thunk(Field(returnTypeFunction, options), { scopes: ['output', 'create'] })(target, propertyKey);
     }
-    Metadata.setProperty(target.constructor.name, MetaKey.UseProperty, propertyKey, true);
+    Metadata.setProperty(target, MetaKey.UseProperty, propertyKey, true);
   };
 }
 
@@ -93,12 +86,20 @@ export function ReferencesMany(fn: any, options: { from: string; to?: string }) 
 
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setProperty(target.constructor.name, MetaKey.ExcludeOnDatabase, propertyKey, true);
+    Metadata.setProperty(target, MetaKey.ExcludeOnDatabase, propertyKey, true);
   };
 }
 
 export function ExcludeOnCreate() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setProperty(target.constructor.name, MetaKey.ExcludeOnCreate, propertyKey, true);
+    Metadata.setProperty(target, MetaKey.ExcludeOnCreate, propertyKey, true);
+  };
+}
+
+export function OverrideDatabase(...input: Parameters<typeof Prop>) {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.setProperty(target, MetaKey.OverrideDatabase, propertyKey, input);
+    Prop(...input)(target, propertyKey);
+    ExcludeOnDatabase()(target, propertyKey);
   };
 }
