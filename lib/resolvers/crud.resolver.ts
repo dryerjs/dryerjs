@@ -63,8 +63,25 @@ export function createResolver(definition: Definition): Provider {
       )
       input: any,
     ) {
-      input;
-      throw new graphql.GraphQLError('Not implemented yet');
+      const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
+      if (util.isNil(updated))
+        throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${input.id}`);
+      for (const propertyName in Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)) {
+        if (!input[propertyName] || input[propertyName].length === 0) continue;
+        const relationDefinition = Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)[
+          propertyName
+        ].fn();
+        const newIds: string[] = [];
+        for (const subObject of input[propertyName]) {
+          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+          const createdRelation = await relationModel.create(subObject);
+          newIds.push(createdRelation._id);
+        }
+        await this.model.findByIdAndUpdate(updated._id, {
+          $addToSet: { tagIds: { $each: newIds } },
+        });
+      }
+      return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
     @Query(() => Typer.getObjectType(definition))
