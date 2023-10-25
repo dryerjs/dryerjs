@@ -19,7 +19,7 @@ export function createResolverForReferencesMany(definition: Definition, field: s
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
       const items = await this.model.find({
-        [relation.to || '_id']: { $in: parent[relation.from] },
+        [relation.options.to || '_id']: { $in: parent[relation.options.from] },
       });
       return items.map((item) => appendIdAndTransform(relationDefinition, item)) as any;
     }

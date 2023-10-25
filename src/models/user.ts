@@ -14,12 +14,13 @@ export class User {
   @Property()
   name: string;
 
-  @Property()
+  @Thunk(Field(), { scopes: ['create', 'output'] })
+  @Thunk(Field(() => graphql.GraphQLString, { nullable: true }), { scopes: 'update' })
   @Prop({ unique: true })
   @Thunk(IsEmail(), { scopes: ['input'] })
   email: string;
 
-  @Property()
+  @Thunk(Field(), { scopes: ['create'] })
   @Thunk(MinLength(5), { scopes: ['create'] })
   password: string;
 }
