@@ -41,7 +41,7 @@ jobs:
         - name: Test
           run: npm run test:cov
         - name: CSpell
-          run: cspell "**"
+          run: npm run cspell "**"
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3
           env:
