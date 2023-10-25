@@ -11,10 +11,7 @@ import { embeddedCached } from '../property';
 import { appendIdAndTransform } from './shared';
 import { SuccessResponse } from '../types';
 
-export function createResolverForEmbedded(
-  definition: Definition,
-  field: string,
-): Provider {
+export function createResolverForEmbedded(definition: Definition, field: string): Provider {
   const embeddedDefinition = embeddedCached[definition.name][field]();
 
   @Resolver()
@@ -22,9 +19,7 @@ export function createResolverForEmbedded(
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
     @Mutation(() => Typer.getObjectType(embeddedDefinition))
-    async [`create${util.toPascalCase(definition.name)}${util.toPascalCase(
-      util.singular(field),
-    )}`](
+    async [`create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args(
         'input',
         { type: () => Typer.getCreateInputType(embeddedDefinition) },
@@ -43,16 +38,11 @@ export function createResolverForEmbedded(
       parent[field].push(input);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return appendIdAndTransform(
-        embeddedDefinition,
-        util.last(updatedParent[field]) as any,
-      );
+      return appendIdAndTransform(embeddedDefinition, util.last(updatedParent[field]) as any);
     }
 
     @Mutation(() => SuccessResponse)
-    async [`remove${util.toPascalCase(definition.name)}${util.toPascalCase(
-      field,
-    )}`](
+    async [`remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
       })
@@ -62,28 +52,20 @@ export function createResolverForEmbedded(
     ) {
       const parent = await this.model.findById(parentId);
       if (!parent) {
-        throw new graphql.GraphQLError(
-          `No ${util.toCamelCase(definition.name)} found with ID ${parentId}`,
-        );
+        throw new graphql.GraphQLError(`No ${util.toCamelCase(definition.name)} found with ID ${parentId}`);
       }
 
       if (ids.length === 0) {
-        throw new graphql.GraphQLError(
-          `No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`,
-        );
+        throw new graphql.GraphQLError(`No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`);
       }
 
-      parent[field] = parent[field].filter(
-        (item: any) => !ids.includes(item._id.toString()),
-      );
+      parent[field] = parent[field].filter((item: any) => !ids.includes(item._id.toString()));
       await parent.save();
       return { success: true };
     }
 
     @Query(() => Typer.getObjectType(embeddedDefinition))
-    async [`${util.toCamelCase(definition.name)}${util.toPascalCase(
-      util.singular(field),
-    )}`](
+    async [`${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -91,9 +73,7 @@ export function createResolverForEmbedded(
       parentId: string,
     ): Promise<T> {
       const parent = await this.model.findById(parentId).select(field);
-      const result = parent[field].find(
-        (item: any) => item._id.toString() === id,
-      );
+      const result = parent[field].find((item: any) => item._id.toString() === id);
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
 
@@ -105,9 +85,7 @@ export function createResolverForEmbedded(
       parentId: string,
     ): Promise<T[]> {
       const parent = await this.model.findById(parentId).select(field);
-      return parent[field].map((item: any) =>
-        appendIdAndTransform(embeddedDefinition, item),
-      ) as any;
+      return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
   }
 
