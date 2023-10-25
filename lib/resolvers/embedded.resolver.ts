@@ -7,12 +7,12 @@ import { Provider, ValidationPipe } from '@nestjs/common';
 import * as util from '../util';
 import { Definition } from '../shared';
 import { Typer } from '../typer';
-import { embeddedCached } from '../property';
 import { appendIdAndTransform } from './shared';
 import { SuccessResponse } from '../types';
+import { MetaKey, Metadata } from '../metadata';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
-  const embeddedDefinition = embeddedCached[definition.name][field]();
+  const embeddedDefinition = Metadata.getMetaValue(definition, MetaKey.EmbeddedType, field)();
 
   @Resolver()
   class GeneratedResolverForEmbedded<T> {

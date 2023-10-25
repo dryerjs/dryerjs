@@ -8,7 +8,7 @@ import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
 import { Product, Tag, User, Author } from './models';
 
-const definitions: Definition[] = [Author, User, Product, Tag];
+const definitions: Definition[] = [Product, Tag, User, Author];
 
 @Module({
   imports: [
