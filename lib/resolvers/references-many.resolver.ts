@@ -6,11 +6,12 @@ import { appendIdAndTransform } from './shared';
 import { Typer } from '../typer';
 import { referencesManyCache } from '../property';
 import { Definition } from '../shared';
+import { Provider } from '@nestjs/common';
 
 export function createResolverForReferencesMany(
   definition: Definition,
   field: string,
-) {
+): Provider {
   const relationDefinition = referencesManyCache[definition.name][field]();
 
   @Resolver(() => Typer.getObjectType(definition))
