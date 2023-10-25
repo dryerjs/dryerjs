@@ -82,7 +82,6 @@ describe('Embedded works', () => {
       { id: expect.any(String), name: 'Awesome book 1' },
       { id: expect.any(String), name: 'Awesome book 2' },
     ]);
-
   });
 
   it('Create book within author', async () => {
