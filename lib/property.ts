@@ -95,11 +95,3 @@ export function ExcludeOnCreate() {
     Metadata.setProperty(target, MetaKey.ExcludeOnCreate, propertyKey, true);
   };
 }
-
-export function OverrideDatabase(...input: Parameters<typeof Prop>) {
-  return (target: object, propertyKey: string | symbol) => {
-    Metadata.setProperty(target, MetaKey.OverrideDatabase, propertyKey, input);
-    Prop(...input)(target, propertyKey);
-    ExcludeOnDatabase()(target, propertyKey);
-  };
-}

@@ -14,9 +14,9 @@ export class User {
   @Property()
   name: string;
 
+  @Prop({ unique: true })
   @Thunk(Field(), { scopes: ['create', 'output'] })
   @Thunk(Field(() => graphql.GraphQLString, { nullable: true }), { scopes: 'update' })
-  @Prop({ unique: true })
   @Thunk(IsEmail(), { scopes: ['input'] })
   email: string;
 
@@ -24,6 +24,3 @@ export class User {
   @Thunk(MinLength(5), { scopes: ['create'] })
   password: string;
 }
-
-// @Thunk should be applied before Property which do the rest
-// @ExcludeOnDatabase()
