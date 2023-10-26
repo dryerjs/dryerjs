@@ -63,8 +63,10 @@ export function createResolver(definition: Definition): Provider {
       )
       input: any,
     ) {
-      input;
-      throw new graphql.GraphQLError('Not implemented yet');
+      const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
+      if (util.isNil(updated))
+        throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${input.id}`);
+      return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
     @Query(() => Typer.getObjectType(definition))
