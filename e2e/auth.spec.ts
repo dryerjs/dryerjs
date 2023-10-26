@@ -60,7 +60,7 @@ describe('Auth Resolver works', () => {
         },
       },
     });
-  
+
     const getAllUsersResponse = await server.makeSuccessRequest({
       query: `
         query AllUsers {
@@ -74,9 +74,9 @@ describe('Auth Resolver works', () => {
       `,
       variables: {},
     });
-  
+
     userId = getAllUsersResponse.allUsers[0].id;
-  
+
     const whoAmIResponse = await server.makeSuccessRequest({
       query: `
         query WhoAmI($userId: String!) {
@@ -91,10 +91,9 @@ describe('Auth Resolver works', () => {
         userId: userId,
       },
     });
-  
+
     expect(whoAmIResponse.whoAmI).toBeTruthy();
   });
-  
 
   it('invalid email throw error', async () => {
     await server.makeFailRequest({
@@ -122,4 +121,3 @@ describe('Auth Resolver works', () => {
     await server.stop();
   });
 });
-
