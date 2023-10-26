@@ -5,6 +5,8 @@ const server = TestServer.init({
   definitions: [Author],
 });
 
+const NOT_FOUND_ID = '000000000000000000000000';
+
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
@@ -188,16 +190,16 @@ describe('Embedded works', () => {
         }
       `,
       variables: {
-        authorId: '5e6b4b5b1c9d440000d2c7f3',
+        authorId: NOT_FOUND_ID,
         input: author.books,
       },
     });
-    expect(response[0].message).toEqual('No author found with ID 5e6b4b5b1c9d440000d2c7f3');
+    expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
   });
 
   it('Update books within author: return error if book not found', async () => {
     const books = [...author.books];
-    books[0].id = '5e6b4b5b1c9d440000d2c7f3';
+    books[0].id = NOT_FOUND_ID;
     const response = await server.makeFailRequest({
       query: `
         mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
@@ -212,7 +214,7 @@ describe('Embedded works', () => {
         input: books,
       },
     });
-    expect(response[0].message).toEqual('No book found with ID 5e6b4b5b1c9d440000d2c7f3');
+    expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
   });
 
   it("Remove author's books", async () => {

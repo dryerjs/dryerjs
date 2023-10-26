@@ -105,10 +105,9 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       parentId: string,
     ): Promise<T[]> {
       const parent = await this.model.findById(parentId);
-      if (!parent) {
+      if (util.isNil(parent)) {
         throw new graphql.GraphQLError(`No ${util.toCamelCase(definition.name)} found with ID ${parentId}`);
       }
-      parent[field] = parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
 
       for (const book of input) {
         if (!parent[field].find((item: any) => item._id.toString() === book.id.toString())) {
