@@ -5,6 +5,8 @@ const server = TestServer.init({
   definitions: [Author],
 });
 
+const NOT_FOUND_ID = '000000000000000000000000';
+
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
@@ -158,6 +160,65 @@ describe('Embedded works', () => {
       name: 'Awesome author 2',
       books: [],
     });
+  });
+
+  it('Update books within author', async () => {
+    const books = author.books.map((book: any) => {
+      return { ...book, name: `${book.name}-edit` };
+    });
+    const { updateAuthorBooks } = await server.makeSuccessRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        inputs: books,
+      },
+    });
+    expect(updateAuthorBooks).toEqual(books);
+  });
+
+  it('Update books within author: return error if parent not found', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: NOT_FOUND_ID,
+        inputs: author.books,
+      },
+    });
+    expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
+  });
+
+  it('Update books within author: return error if book not found', async () => {
+    const books = [...author.books];
+    books[0].id = NOT_FOUND_ID;
+    const response = await server.makeFailRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        inputs: books,
+      },
+    });
+    expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
   });
 
   it("Remove author's books", async () => {

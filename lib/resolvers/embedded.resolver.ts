@@ -87,6 +87,40 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       const parent = await this.model.findById(parentId).select(field);
       return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
+
+    @Mutation(() => [Typer.getObjectType(embeddedDefinition)])
+    async [`update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
+      @Args(
+        'inputs',
+        { type: () => [Typer.getUpdateInputType(embeddedDefinition)] },
+        new ValidationPipe({
+          transform: true,
+          expectedType: Typer.getUpdateInputType(embeddedDefinition),
+        }),
+      )
+      inputs: any[],
+      @Args(`${util.toCamelCase(definition.name)}Id`, {
+        type: () => graphql.GraphQLID,
+      })
+      parentId: string,
+    ): Promise<T[]> {
+      const parent = await this.model.findById(parentId);
+      if (util.isNil(parent)) {
+        throw new graphql.GraphQLError(`No ${util.toCamelCase(definition.name)} found with ID ${parentId}`);
+      }
+
+      for (const subDocumentInput of inputs) {
+        if (!parent[field].find((item: any) => item._id.toString() === subDocumentInput.id.toString())) {
+          throw new graphql.GraphQLError(
+            `No ${util.toCamelCase(embeddedDefinition.name)} found with ID ${subDocumentInput.id.toString()}`,
+          );
+        }
+      }
+      parent[field] = inputs;
+      await parent.save();
+      const updatedParent = await this.model.findById(parentId).select(field);
+      return updatedParent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
+    }
   }
 
   return GeneratedResolverForEmbedded;
