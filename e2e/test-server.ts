@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, DynamicModule, ExceptionFilter, INestApplication, Module, Provider } from '@nestjs/common';
+import { Catch, DynamicModule, ExceptionFilter, INestApplication, Module, Provider } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, SchemaFactory, getModelToken } from '@nestjs/mongoose';
@@ -13,18 +13,19 @@ import { APP_FILTER } from '@nestjs/core';
 
 @Catch(GraphQLError)
 export class GraphQLExceptionFilter implements ExceptionFilter {
-  catch(err: GraphQLError, host: ArgumentsHost):any  {
-      throw err;
+  catch(err: GraphQLError) {
+    throw err;
   }
 }
 
-
-@Module({providers: [
-  {
-    provide: APP_FILTER,
-    useClass: GraphQLExceptionFilter,
-  },
-],})
+@Module({
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GraphQLExceptionFilter,
+    },
+  ],
+})
 class TestAppModule {
   public static init(config: TestServerConfig): DynamicModule {
     return {
