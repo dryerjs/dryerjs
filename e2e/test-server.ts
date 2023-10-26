@@ -1,15 +1,30 @@
-import { DynamicModule, INestApplication, Module, Provider } from '@nestjs/common';
+import { ArgumentsHost, Catch, DynamicModule, ExceptionFilter, INestApplication, Module, Provider } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, SchemaFactory, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Definition, DryerModule } from 'dryerjs';
+import { GraphQLError } from 'graphql';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
 import * as mongoosePaginateV2 from '../lib/js/mongoose-paginate-v2';
 import * as util from '../lib/util';
+import { APP_FILTER } from '@nestjs/core';
 
-@Module({})
+@Catch(GraphQLError)
+export class GraphQLExceptionFilter implements ExceptionFilter {
+  catch(err: GraphQLError, host: ArgumentsHost):any  {
+      throw err;
+  }
+}
+
+
+@Module({providers: [
+  {
+    provide: APP_FILTER,
+    useClass: GraphQLExceptionFilter,
+  },
+],})
 class TestAppModule {
   public static init(config: TestServerConfig): DynamicModule {
     return {
