@@ -11,31 +11,31 @@ import { User } from '../models';
 export class AuthResolver {
   constructor(@InjectModel('User') private readonly User: Model<User>) {}
 
-  @Mutation(() => Typer.for(User).get('output'))
+  @Mutation(() => Typer.for(User).output)
   async signUp(
     @Args(
       'input',
-      { type: () => Typer.for(User).get('create') },
+      { type: () => Typer.for(User).create },
       new ValidationPipe({
         transform: true,
-        expectedType: Typer.for(User).get('create'),
+        expectedType: Typer.for(User).create,
       }),
     )
     input: Omit<User, 'id'>,
   ) {
     const user = await this.User.create(input);
-    return plainToInstance(Typer.for(User).get('output'), {
+    return plainToInstance(Typer.for(User).output, {
       ...user.toObject(),
       id: user._id.toHexString(),
     });
   }
 
-  @Query(() => Typer.for(User).get('output'))
+  @Query(() => Typer.for(User).output)
   async whoAmI(@Args('userId', { type: () => graphql.GraphQLString }) userId: string) {
     const user = await this.User.findById(userId);
     if (!user) {
       throw new graphql.GraphQLError('User not found');
     }
-    return plainToInstance(Typer.for(User).get('output'), user.toObject());
+    return plainToInstance(Typer.for(User).output, user.toObject());
   }
 }
