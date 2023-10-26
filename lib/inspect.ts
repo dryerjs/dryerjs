@@ -51,21 +51,10 @@ export class HydratedProperty {
     return Metadata.for(this.definition).with(this.name).get(key);
   }
 
-  public set(key: MetaKey, value: any) {
-    return Metadata.for(this.definition).with(this.name).set(key, value);
-  }
-
-  public isArray() {
-    return util.isFunction(this.designType) && this.designType.name === 'Array';
-  }
-
-  public isEmbedded() {
-    return util.isObject(this.get(MetaKey.EmbeddedType));
-  }
-
   public getEmbeddedDefinition() {
     const fn = this.get(MetaKey.EmbeddedType);
 
+    /* istanbul ignore if */
     if (!util.isFunction(fn)) {
       throw new Error(`Property ${this.name} is not an embedded property`);
     }
@@ -76,6 +65,7 @@ export class HydratedProperty {
   public getReferencesMany() {
     const referencesMany = this.get(MetaKey.ReferencesManyType);
 
+    /* istanbul ignore if */
     if (util.isNil(referencesMany)) {
       throw new Error(`Property ${this.name} is not an references many property`);
     }

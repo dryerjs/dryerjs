@@ -20,7 +20,7 @@ export enum MetaKey {
 export class Metadata {
   public static getPropertiesByModel(
     target: TargetClass,
-    metaKey: MetaKey = MetaKey.Thunk,
+    metaKey: MetaKey,
   ): { [property: string]: MetaValue } {
     const result = {};
     for (const property of Object.keys(util.defaultTo(target[METADATA], []))) {
