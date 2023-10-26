@@ -1,18 +1,19 @@
 import { ObjectType, InputType } from '@nestjs/graphql';
 import { Definition } from './shared';
 import { hasScope } from './property';
-import { MetaKey, Metadata } from './metadata';
+import { MetaKey } from './metadata';
+import { inspect } from './inspect';
 
 function getCreateInputType(definition: Definition) {
   @InputType(`Create${definition.name}Input`)
   class AbstractCreateInput {}
-  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
-    if (property === 'id') continue;
-    const designType = Reflect.getMetadata('design:type', definition.prototype, property);
-    Reflect.defineMetadata('design:type', designType, AbstractCreateInput.prototype, property);
-    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
+  for (const property of inspect(definition).getProperties()) {
+    if (property.name === 'id') continue;
+    const designType = Reflect.getMetadata('design:type', definition.prototype, property.name);
+    Reflect.defineMetadata('design:type', designType, AbstractCreateInput.prototype, property.name);
+    for (const { fn, options } of inspect(definition).for(property.name).get(MetaKey.Thunk)) {
       if (hasScope(options, 'create')) {
-        fn(AbstractCreateInput.prototype, property as string);
+        fn(AbstractCreateInput.prototype, property.name);
       }
     }
   }
@@ -22,12 +23,12 @@ function getCreateInputType(definition: Definition) {
 function getUpdateInputType(definition: Definition) {
   @InputType(`Update${definition.name}Input`)
   class AbstractUpdateInput {}
-  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
-    const designType = Reflect.getMetadata('design:type', definition.prototype, property);
-    Reflect.defineMetadata('design:type', designType, AbstractUpdateInput.prototype, property);
-    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
+  for (const property of inspect(definition).getProperties()) {
+    const designType = Reflect.getMetadata('design:type', definition.prototype, property.name);
+    Reflect.defineMetadata('design:type', designType, AbstractUpdateInput.prototype, property.name);
+    for (const { fn, options } of inspect(definition).for(property.name).get(MetaKey.Thunk)) {
       if (hasScope(options, 'update')) {
-        fn(AbstractUpdateInput.prototype, property as string);
+        fn(AbstractUpdateInput.prototype, property.name);
       }
     }
   }
@@ -37,12 +38,12 @@ function getUpdateInputType(definition: Definition) {
 function getObjectType(definition: Definition) {
   @ObjectType(definition.name)
   class AbstractOutput {}
-  for (const property of Object.keys(Metadata.getPropertiesByModel(definition, MetaKey.Thunk))) {
-    const designType = Reflect.getMetadata('design:type', definition.prototype, property);
-    Reflect.defineMetadata('design:type', designType, AbstractOutput.prototype, property);
-    for (const { fn, options } of Metadata.getMetaValue(definition.prototype, MetaKey.Thunk, property)) {
+  for (const property of inspect(definition).getProperties()) {
+    const designType = Reflect.getMetadata('design:type', definition.prototype, property.name);
+    Reflect.defineMetadata('design:type', designType, AbstractOutput.prototype, property.name);
+    for (const { fn, options } of inspect(definition).for(property.name).get(MetaKey.Thunk)) {
       if (hasScope(options, 'output')) {
-        fn(AbstractOutput.prototype, property as string);
+        fn(AbstractOutput.prototype, property.name);
       }
     }
   }

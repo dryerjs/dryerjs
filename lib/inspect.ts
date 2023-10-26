@@ -48,11 +48,11 @@ export class HydratedProperty {
   ) {}
 
   public get(key: MetaKey) {
-    return Metadata.getMetaValue(this.definition, key, this.name);
+    return Metadata.for(this.definition).with(this.name).get(key);
   }
 
   public set(key: MetaKey, value: any) {
-    return Metadata.setMetaValue(this.definition, key, this.name, value);
+    return Metadata.for(this.definition).with(this.name).set(key, value);
   }
 
   public isArray() {
@@ -66,7 +66,7 @@ export class HydratedProperty {
   public getEmbeddedDefinition() {
     const fn = this.get(MetaKey.EmbeddedType);
 
-    if (util.isFunction(fn)) {
+    if (!util.isFunction(fn)) {
       throw new Error(`Property ${this.name} is not an embedded property`);
     }
 

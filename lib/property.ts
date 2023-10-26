@@ -7,7 +7,8 @@ export function Property(...input: Parameters<typeof Field>): PropertyDecorator 
   // TODO: Add validation for input
   const [returnTypeFunction, options] = input;
   return (target: object, propertyKey: string | symbol) => {
-    if (Metadata.getMetaValue(target, MetaKey.Thunk, propertyKey)) {
+    const property = Metadata.for(target).with(propertyKey);
+    if (util.isArray(property.get(MetaKey.Thunk))) {
       throw new Error(`Property ${propertyKey.toString()} already has a @Thunk decorator`);
     }
     const isId = propertyKey === 'id';
@@ -23,7 +24,7 @@ export function Property(...input: Parameters<typeof Field>): PropertyDecorator 
       );
       Thunk(Field(returnTypeFunction, options), { scopes: ['output', 'create'] })(target, propertyKey);
     }
-    Metadata.setMetaValue(target, MetaKey.UseProperty, propertyKey, true);
+    property.set(MetaKey.UseProperty, true);
   };
 }
 
@@ -54,44 +55,41 @@ export function Thunk(
   options: ThunkOptions = { scopes: 'all' },
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
-    if (Metadata.getMetaValue(target, MetaKey.UseProperty, propertyKey)) {
+    const property = Metadata.for(target).with(propertyKey);
+    if (property.get(MetaKey.UseProperty)) {
       throw new Error(`Property ${propertyKey.toString()} already has a @Property decorator`);
     }
-    const prevThunks = Metadata.getMetaValue(target, MetaKey.Thunk, propertyKey);
-    if (
-      propertyKey !== 'id' &&
-      !Metadata.getMetaValue(target, MetaKey.ExcludeOnDatabase, propertyKey) &&
-      util.isNil(prevThunks)
-    ) {
+    const prevThunks = property.get(MetaKey.Thunk);
+    if (propertyKey !== 'id' && !property.get(MetaKey.ExcludeOnDatabase) && util.isNil(prevThunks)) {
       Prop()(target, propertyKey);
     }
     const newThunks = util.defaultTo(prevThunks, []).concat({ fn, options });
-    Metadata.setMetaValue(target, MetaKey.Thunk, propertyKey, newThunks);
+    property.set(MetaKey.Thunk, newThunks);
   };
 }
 
 export function Embedded(fn: any) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setMetaValue(target, MetaKey.EmbeddedType, propertyKey, fn);
+    Metadata.for(target).with(propertyKey).set(MetaKey.EmbeddedType, fn);
   };
 }
 
 export function ReferencesMany(fn: any, options: { from: string; to?: string }) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setMetaValue(target, MetaKey.ReferencesManyType, propertyKey, { fn, options });
+    Metadata.for(target).with(propertyKey).set(MetaKey.ReferencesManyType, { fn, options });
   };
 }
 
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setMetaValue(target, MetaKey.ExcludeOnDatabase, propertyKey, true);
+    Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
   };
 }
 
 export function ExcludeOnCreate() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setMetaValue(target, MetaKey.ExcludeOnCreate, propertyKey, true);
+    Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnCreate, true);
   };
 }

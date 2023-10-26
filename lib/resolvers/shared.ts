@@ -3,7 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import * as util from '../util';
 import { Definition } from '../shared';
 import { Typer } from '../typer';
-import { MetaKey, Metadata } from '../metadata';
+import { inspect } from '../inspect';
 
 export const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;
@@ -11,20 +11,18 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     output.id = output._id.toHexString();
   }
 
-  for (const propertyName in Metadata.getPropertiesByModel(definition, MetaKey.EmbeddedType)) {
+  for (const property of inspect(definition).embeddedProperties) {
     /* istanbul ignore if */
-    if (util.isNil(output[propertyName])) continue;
-    const embeddedDefinition = Metadata.getPropertiesByModel(definition, MetaKey.EmbeddedType)[
-      propertyName
-    ]();
+    if (util.isNil(output[property.name])) continue;
+    const embeddedDefinition = property.getEmbeddedDefinition();
     // TODO: Write test for this case and remove "istanbul ignore else"
     /* istanbul ignore else */
-    if (util.isArray(output[propertyName])) {
-      output[propertyName] = output[propertyName].map((subItem: any) => {
+    if (util.isArray(output[property.name])) {
+      output[property.name] = output[property.name].map((subItem: any) => {
         return appendIdAndTransform(embeddedDefinition, subItem);
       });
     } else {
-      output[propertyName] = appendIdAndTransform(embeddedDefinition, output[propertyName]);
+      output[property.name] = appendIdAndTransform(embeddedDefinition, output[property.name]);
     }
   }
 

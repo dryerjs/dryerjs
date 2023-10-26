@@ -9,7 +9,7 @@ import { Provider } from '@nestjs/common';
 import { MetaKey, Metadata } from '../metadata';
 
 export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
-  const relation = Metadata.getMetaValue(definition, MetaKey.ReferencesManyType, field);
+  const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
   const relationDefinition = relation.fn();
 
   @Resolver(() => Typer.getObjectType(definition))
