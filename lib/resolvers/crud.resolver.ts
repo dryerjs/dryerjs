@@ -21,14 +21,14 @@ export function createResolver(definition: Definition): Provider {
       public moduleRef: ModuleRef,
     ) {}
 
-    @Mutation(() => Typer.getObjectType(definition))
+    @Mutation(() => Typer.for(definition).get('output'))
     async [`create${definition.name}`](
       @Args(
         'input',
-        { type: () => Typer.getCreateInputType(definition) },
+        { type: () => Typer.for(definition).get('create') },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getCreateInputType(definition),
+          expectedType: Typer.for(definition).get('create'),
         }),
       )
       input: any,
@@ -51,14 +51,14 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
-    @Mutation(() => Typer.getObjectType(definition))
+    @Mutation(() => Typer.for(definition).get('output'))
     async [`update${definition.name}`](
       @Args(
         'input',
-        { type: () => Typer.getUpdateInputType(definition) },
+        { type: () => Typer.for(definition).get('update') },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getUpdateInputType(definition),
+          expectedType: Typer.for(definition).get('update'),
         }),
       )
       input: any,
@@ -69,7 +69,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
-    @Query(() => Typer.getObjectType(definition))
+    @Query(() => Typer.for(definition).get('output'))
     async [definition.name.toLowerCase()](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
@@ -78,7 +78,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, result) as any;
     }
 
-    @Query(() => [Typer.getObjectType(definition)])
+    @Query(() => [Typer.for(definition).get('output')])
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
@@ -91,10 +91,10 @@ export function createResolver(definition: Definition): Provider {
       return { success: true };
     }
 
-    @Query(() => Typer.getPaginatedOutputType(definition))
+    @Query(() => Typer.for(definition).get('paginate'))
     async [`paginate${util.plural(definition.name)}`]() {
       const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
-      return plainToInstance(Typer.getPaginatedOutputType(definition), {
+      return plainToInstance(Typer.for(definition).get('paginate'), {
         docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
         totalDocs,
         page,

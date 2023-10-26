@@ -12,7 +12,7 @@ export function createResolverForReferencesMany(definition: Definition, field: s
   const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
   const relationDefinition = relation.fn();
 
-  @Resolver(() => Typer.getObjectType(definition))
+  @Resolver(() => Typer.for(definition).get('output'))
   class GeneratedResolverForReferencesMany<T> {
     constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
 
