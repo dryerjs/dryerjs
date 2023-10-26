@@ -1,5 +1,5 @@
 import { TestServer } from './test-server';
-import { Tag } from '../src/models';
+import { Tag } from '../src/models/product';
 
 const server = TestServer.init({
   definitions: [Tag],
@@ -70,8 +70,7 @@ describe('Simple CRUD works', () => {
   });
 
   it('Update one tag', async () => {
-    // TODO: update test when update is implemented
-    await server.makeFailRequest({
+    const response = await server.makeSuccessRequest({
       query: `
       mutation UpdateTag($input: UpdateTagInput!) {
         updateTag(input: $input) {
@@ -83,10 +82,30 @@ describe('Simple CRUD works', () => {
       variables: {
         input: {
           id: allTags[0].id,
-          name: '70s',
+          name: '80s',
         },
       },
-      errorMessageMustContains: 'Not implemented yet',
+    });
+    expect(response.updateTag.name).toEqual('80s');
+  });
+
+  it('Update not found tag', async () => {
+    await server.makeFailRequest({
+      query: `
+      mutation UpdateTag($input: UpdateTagInput!) {
+        updateTag(input: $input) {
+          id
+          name
+        }
+      }
+      `,
+      variables: {
+        input: {
+          id: '000000000000000000000000',
+          name: '80s',
+        },
+      },
+      errorMessageMustContains: 'No Tag found with ID: 000000000000000000000000',
     });
   });
 
