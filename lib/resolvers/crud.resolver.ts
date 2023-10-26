@@ -7,7 +7,7 @@ import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
 import { Definition } from '../shared';
-import { Typer } from '../typer';
+import { CreateInputType, OutputType, PaginatedOutputType, UpdateInputType } from '../type-functions';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { appendIdAndTransform } from './shared';
@@ -21,14 +21,14 @@ export function createResolver(definition: Definition): Provider {
       public moduleRef: ModuleRef,
     ) {}
 
-    @Mutation(() => Typer(definition).output)
+    @Mutation(() => OutputType(definition))
     async [`create${definition.name}`](
       @Args(
         'input',
-        { type: () => Typer(definition).create },
+        { type: () => CreateInputType(definition) },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer(definition).create,
+          expectedType: CreateInputType(definition),
         }),
       )
       input: any,
@@ -51,14 +51,14 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
-    @Mutation(() => Typer(definition).output)
+    @Mutation(() => OutputType(definition))
     async [`update${definition.name}`](
       @Args(
         'input',
-        { type: () => Typer(definition).update },
+        { type: () => UpdateInputType(definition) },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer(definition).update,
+          expectedType: UpdateInputType(definition),
         }),
       )
       input: any,
@@ -69,7 +69,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
-    @Query(() => Typer(definition).output)
+    @Query(() => OutputType(definition))
     async [definition.name.toLowerCase()](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
@@ -78,7 +78,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, result) as any;
     }
 
-    @Query(() => [Typer(definition).output])
+    @Query(() => [OutputType(definition)])
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
@@ -91,10 +91,10 @@ export function createResolver(definition: Definition): Provider {
       return { success: true };
     }
 
-    @Query(() => Typer(definition).paginate)
+    @Query(() => PaginatedOutputType(definition))
     async [`paginate${util.plural(definition.name)}`]() {
       const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
-      return plainToInstance(Typer(definition).paginate, {
+      return plainToInstance(PaginatedOutputType(definition), {
         docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
         totalDocs,
         page,

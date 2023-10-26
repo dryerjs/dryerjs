@@ -6,10 +6,10 @@ import { Provider, ValidationPipe } from '@nestjs/common';
 
 import * as util from '../util';
 import { Definition } from '../shared';
-import { Typer } from '../typer';
 import { appendIdAndTransform } from './shared';
 import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
+import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
   const embeddedDefinition = Metadata.for(definition).with(field).get(MetaKey.EmbeddedType)();
@@ -18,14 +18,14 @@ export function createResolverForEmbedded(definition: Definition, field: string)
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
-    @Mutation(() => Typer(embeddedDefinition).output)
+    @Mutation(() => OutputType(embeddedDefinition))
     async [`create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args(
         'input',
-        { type: () => Typer(embeddedDefinition).create },
+        { type: () => CreateInputType(embeddedDefinition) },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer(embeddedDefinition).create,
+          expectedType: CreateInputType(embeddedDefinition),
         }),
       )
       input: any,
@@ -64,7 +64,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return { success: true };
     }
 
-    @Query(() => Typer(embeddedDefinition).output)
+    @Query(() => OutputType(embeddedDefinition))
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
@@ -77,7 +77,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
 
-    @Query(() => [Typer(embeddedDefinition).output])
+    @Query(() => [OutputType(embeddedDefinition)])
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -88,14 +88,14 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
 
-    @Mutation(() => [Typer(embeddedDefinition).output])
+    @Mutation(() => [OutputType(embeddedDefinition)])
     async [`update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(
         'inputs',
-        { type: () => [Typer(embeddedDefinition).update] },
+        { type: () => [UpdateInputType(embeddedDefinition)] },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer(embeddedDefinition).update,
+          expectedType: UpdateInputType(embeddedDefinition),
         }),
       )
       inputs: any[],

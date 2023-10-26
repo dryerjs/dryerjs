@@ -1,12 +1,12 @@
 import { Schema } from '@nestjs/mongoose';
-import { Typer } from './typer';
+import { CreateInputType, UpdateInputType, OutputType, PaginatedOutputType } from './type-functions';
 
 export function Entity(): ClassDecorator {
   return (target: object) => {
-    Typer(target).create;
-    Typer(target).update;
-    Typer(target).output;
-    Typer(target).paginate;
+    CreateInputType(target);
+    UpdateInputType(target);
+    OutputType(target);
+    PaginatedOutputType(target);
     Schema()(target as any);
   };
 }

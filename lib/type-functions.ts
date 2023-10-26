@@ -10,7 +10,7 @@ import { inspect } from './inspect';
 
 const cacheKey = Symbol('cached');
 
-class TyperClass {
+class Typer {
   private static getBaseType(input: {
     definition: Definition;
     name: string;
@@ -55,7 +55,7 @@ class TyperClass {
       {
         type: 'create',
         fn: () =>
-          TyperClass.getBaseType({
+          Typer.getBaseType({
             definition,
             name: `Create${definition.name}Input`,
             scope: 'create',
@@ -64,7 +64,7 @@ class TyperClass {
       {
         type: 'update',
         fn: () =>
-          TyperClass.getBaseType({
+          Typer.getBaseType({
             definition,
             name: `Update${definition.name}Input`,
             scope: 'update',
@@ -73,7 +73,7 @@ class TyperClass {
       {
         type: 'output',
         fn: () =>
-          TyperClass.getBaseType({
+          Typer.getBaseType({
             definition,
             name: definition.name,
             scope: 'output',
@@ -81,7 +81,7 @@ class TyperClass {
       },
       {
         type: 'paginate',
-        fn: () => TyperClass.getPaginatedOutputType(definition),
+        fn: () => Typer.getPaginatedOutputType(definition),
       },
     ];
 
@@ -95,20 +95,18 @@ class TyperClass {
   }
 }
 
-export function Typer(definition: Definition) {
-  return {
-    get: (type: 'create' | 'update' | 'output' | 'paginate') => TyperClass.getType(definition, type),
-    get output() {
-      return TyperClass.getType(definition, 'output');
-    },
-    get create() {
-      return TyperClass.getType(definition, 'create');
-    },
-    get update() {
-      return TyperClass.getType(definition, 'update');
-    },
-    get paginate() {
-      return TyperClass.getType(definition, 'paginate');
-    },
-  };
+export function CreateInputType(definition: Definition) {
+  return Typer.getType(definition, 'create');
+}
+
+export function UpdateInputType(definition: Definition) {
+  return Typer.getType(definition, 'update');
+}
+
+export function OutputType(definition: Definition) {
+  return Typer.getType(definition, 'output');
+}
+
+export function PaginatedOutputType(definition: Definition) {
+  return Typer.getType(definition, 'paginate');
 }

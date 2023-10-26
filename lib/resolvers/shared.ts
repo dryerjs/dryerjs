@@ -2,8 +2,8 @@ import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import { Definition } from '../shared';
-import { Typer } from '../typer';
 import { inspect } from '../inspect';
+import { OutputType } from '../type-functions';
 
 export const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;
@@ -26,5 +26,5 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     }
   }
 
-  return plainToInstance(Typer(definition).output, output);
+  return plainToInstance(OutputType(definition), output);
 };
