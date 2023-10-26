@@ -12,7 +12,7 @@ import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
-  const embeddedDefinition = Metadata.getMetaValue(definition, MetaKey.EmbeddedType, field)();
+  const embeddedDefinition = Metadata.for(definition).with(field).get(MetaKey.EmbeddedType)();
 
   @Resolver()
   class GeneratedResolverForEmbedded<T> {

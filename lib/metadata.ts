@@ -35,11 +35,26 @@ export class Metadata {
     return typeof target === 'function' ? target : target.constructor;
   }
 
-  public static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
+  private static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
     return this.getConstructor(target)[METADATA]?.[property]?.[metaKey];
   }
 
-  public static setProperty(
+  public static for(target: TargetClass) {
+    return {
+      with(property: string | symbol) {
+        return {
+          set(key: MetaKey, value: MetaValue) {
+            Metadata.setMetaValue(target, key, property, value);
+          },
+          get(key: MetaKey) {
+            return Metadata.getMetaValue(target, key, property);
+          },
+        };
+      },
+    };
+  }
+
+  private static setMetaValue(
     target: TargetClass,
     metaKey: MetaKey,
     property: string | symbol,

@@ -2,8 +2,8 @@ import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Transform, Type } from 'class-transformer';
-import { Property, Typer, Entity, ReferencesMany, ObjectId, Thunk } from '../../lib';
 import { Field } from '@nestjs/graphql';
+import { Property, Typer, Entity, ReferencesMany, ObjectId, Thunk } from '../../lib';
 
 @Entity()
 export class Tag {
