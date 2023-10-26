@@ -1,4 +1,7 @@
-import { ObjectType, InputType } from '@nestjs/graphql';
+import * as graphql from 'graphql';
+import { ObjectType, InputType, Field } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
+
 import * as util from './util';
 import { Definition } from './shared';
 import { hasScope } from './property';
@@ -59,5 +62,24 @@ export class Typer {
       name: definition.name,
       scope: 'output',
     });
+  }
+
+  public static getPaginatedOutputType(definition: Definition): any {
+    const cached = definition[cacheKey]?.['paginated'];
+    if (cached) return cached;
+    @ObjectType(`Paginated${util.plural(definition.name)}`)
+    class Placeholder {
+      @Field(() => [this.getObjectType(definition)])
+      @Type(() => this.getObjectType(definition))
+      docs: any[];
+
+      @Field(() => graphql.GraphQLInt)
+      totalDocs: number;
+
+      @Field(() => graphql.GraphQLInt)
+      page: number;
+    }
+    definition[cacheKey]['paginated'] = Placeholder;
+    return definition[cacheKey]['paginated'];
   }
 }

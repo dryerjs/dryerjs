@@ -6,6 +6,7 @@ export function Entity(): ClassDecorator {
     Typer.getCreateInputType(target);
     Typer.getUpdateInputType(target);
     Typer.getObjectType(target);
+    Typer.getPaginatedOutputType(target);
     Schema()(target as any);
   };
 }
