@@ -88,6 +88,16 @@ export function createResolver(definition: Definition): Provider {
       if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return { success: true };
     }
+
+    @Query(() => Typer.getPaginatedOutputType(definition))
+    async [`paginate${util.plural(definition.name)}`]() {
+      const docs = await this.model.find({});
+      return {
+        docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
+        totalDocs: 10,
+        page: 1,
+      };
+    }
   }
 
   return GeneratedResolver as any;
