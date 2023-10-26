@@ -45,7 +45,9 @@ describe('Embedded works', () => {
     });
 
     author = response.createAuthor;
+  });
 
+  it('Get one book within author', async () => {
     const { authorBook } = await server.makeSuccessRequest({
       query: `
         query AuthorBook($authorId: ID!, $bookId: ID!) {
@@ -65,7 +67,9 @@ describe('Embedded works', () => {
       id: author.books[0].id,
       name: 'Awesome book 1',
     });
+  });
 
+  it('Get all books within author', async () => {
     const { authorBooks } = await server.makeSuccessRequest({
       query: `
         query AuthorBooks($authorId: ID!) {

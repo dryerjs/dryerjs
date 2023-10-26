@@ -8,9 +8,9 @@ import { ModuleRef } from '@nestjs/core';
 import * as util from '../util';
 import { Definition } from '../shared';
 import { Typer } from '../typer';
-import { referencesManyCache } from '../property';
 import { SuccessResponse } from '../types';
 import { appendIdAndTransform } from './shared';
+import { MetaKey, Metadata } from '../metadata';
 
 export function createResolver(definition: Definition): Provider {
   @Resolver()
@@ -33,9 +33,11 @@ export function createResolver(definition: Definition): Provider {
       input: any,
     ) {
       const created = await this.model.create(input);
-      for (const propertyName in referencesManyCache[definition.name] || {}) {
+      for (const propertyName in Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)) {
         if (!input[propertyName] || input[propertyName].length === 0) continue;
-        const relationDefinition = referencesManyCache[definition.name][propertyName].fn();
+        const relationDefinition = Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)[
+          propertyName
+        ].fn();
         const newIds: string[] = [];
         for (const subObject of input[propertyName]) {
           const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
@@ -61,8 +63,10 @@ export function createResolver(definition: Definition): Provider {
       )
       input: any,
     ) {
-      input;
-      throw new graphql.GraphQLError('Not implemented yet');
+      const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
+      if (util.isNil(updated))
+        throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${input.id}`);
+      return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
     @Query(() => Typer.getObjectType(definition))

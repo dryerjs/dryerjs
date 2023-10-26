@@ -4,12 +4,12 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { appendIdAndTransform } from './shared';
 import { Typer } from '../typer';
-import { referencesManyCache } from '../property';
 import { Definition } from '../shared';
 import { Provider } from '@nestjs/common';
+import { MetaKey, Metadata } from '../metadata';
 
 export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
-  const relation = referencesManyCache[definition.name][field];
+  const relation = Metadata.getMetaValue(definition, MetaKey.ReferencesManyType, field);
   const relationDefinition = relation.fn();
 
   @Resolver(() => Typer.getObjectType(definition))
@@ -19,7 +19,7 @@ export function createResolverForReferencesMany(definition: Definition, field: s
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
       const items = await this.model.find({
-        [relation.to || '_id']: { $in: parent[relation.from] },
+        [relation.options.to || '_id']: { $in: parent[relation.options.from] },
       });
       return items.map((item) => appendIdAndTransform(relationDefinition, item)) as any;
     }
