@@ -10,7 +10,6 @@ export enum MetaKey {
   ParamTypes = 'design:paramtypes',
   ReturnType = 'design:returntype',
   ExcludeOnDatabase = 'ExcludeOnDatabase',
-  ExcludeOnCreate = 'ExcludeOnCreate',
   EmbeddedType = 'EmbeddedType',
   ReferencesManyType = 'ReferencesManyType',
   Thunk = 'Thunk',
