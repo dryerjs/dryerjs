@@ -24,7 +24,10 @@ export class AuthResolver {
     input: Omit<User, 'id'>,
   ) {
     const user = await this.User.create(input);
-    return plainToInstance(Typer.getObjectType(User), user.toObject());
+    return plainToInstance(Typer.getObjectType(User), {
+      ...user.toObject(),
+      id: user._id.toHexString(),
+    });
   }
 
   @Query(() => Typer.getObjectType(User))
