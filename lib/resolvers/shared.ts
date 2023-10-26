@@ -26,5 +26,5 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     }
   }
 
-  return plainToInstance(Typer.getObjectType(definition), output);
+  return plainToInstance(Typer(definition).output, output);
 };

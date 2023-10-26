@@ -18,14 +18,14 @@ export function createResolverForEmbedded(definition: Definition, field: string)
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
-    @Mutation(() => Typer.getObjectType(embeddedDefinition))
+    @Mutation(() => Typer(embeddedDefinition).output)
     async [`create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args(
         'input',
-        { type: () => Typer.getCreateInputType(embeddedDefinition) },
+        { type: () => Typer(embeddedDefinition).create },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getCreateInputType(embeddedDefinition),
+          expectedType: Typer(embeddedDefinition).create,
         }),
       )
       input: any,
@@ -64,7 +64,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return { success: true };
     }
 
-    @Query(() => Typer.getObjectType(embeddedDefinition))
+    @Query(() => Typer(embeddedDefinition).output)
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
@@ -77,7 +77,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
 
-    @Query(() => [Typer.getObjectType(embeddedDefinition)])
+    @Query(() => [Typer(embeddedDefinition).output])
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -88,14 +88,14 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
 
-    @Mutation(() => [Typer.getObjectType(embeddedDefinition)])
+    @Mutation(() => [Typer(embeddedDefinition).output])
     async [`update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(
         'inputs',
-        { type: () => [Typer.getUpdateInputType(embeddedDefinition)] },
+        { type: () => [Typer(embeddedDefinition).update] },
         new ValidationPipe({
           transform: true,
-          expectedType: Typer.getUpdateInputType(embeddedDefinition),
+          expectedType: Typer(embeddedDefinition).update,
         }),
       )
       inputs: any[],

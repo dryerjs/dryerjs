@@ -36,7 +36,7 @@ export class Product {
   tagIds: string[];
 
   @ReferencesMany(() => Tag, { from: 'tagIds' })
-  @Thunk(Field(() => [Typer.getObjectType(Tag)]), { scopes: 'output' })
-  @Thunk(Field(() => [Typer.getCreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
+  @Thunk(Field(() => [Typer(Tag).output]), { scopes: 'output' })
+  @Thunk(Field(() => [Typer(Tag).create], { nullable: true }), { scopes: 'create' })
   tags: Tag[];
 }

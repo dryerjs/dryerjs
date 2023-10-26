@@ -34,6 +34,22 @@ export class Metadata {
     return typeof target === 'function' ? target : target.constructor;
   }
 
+  private static setMetaValue(
+    target: TargetClass,
+    metaKey: MetaKey,
+    property: string | symbol,
+    value: MetaValue,
+  ): void {
+    const constructor = this.getConstructor(target);
+    if (util.isUndefined(constructor[METADATA])) {
+      constructor[METADATA] = {};
+    }
+    if (util.isUndefined(constructor[METADATA][property])) {
+      constructor[METADATA][property] = {};
+    }
+    constructor[METADATA][property][metaKey] = value;
+  }
+
   private static getMetaValue(target: TargetClass, metaKey: MetaKey, property: string | symbol): MetaValue {
     return this.getConstructor(target)[METADATA]?.[property]?.[metaKey];
   }
@@ -51,21 +67,5 @@ export class Metadata {
         };
       },
     };
-  }
-
-  private static setMetaValue(
-    target: TargetClass,
-    metaKey: MetaKey,
-    property: string | symbol,
-    value: MetaValue,
-  ): void {
-    const constructor = this.getConstructor(target);
-    if (util.isUndefined(constructor[METADATA])) {
-      constructor[METADATA] = {};
-    }
-    if (util.isUndefined(constructor[METADATA][property])) {
-      constructor[METADATA][property] = {};
-    }
-    constructor[METADATA][property][metaKey] = value;
   }
 }
