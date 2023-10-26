@@ -21,9 +21,9 @@ export class Author {
   name: string;
 
   @Prop({ type: [SchemaFactory.createForClass(Book)] })
-  @Thunk(Field(() => [Typer.for(Book).output]), { scopes: 'output' })
-  @Thunk(Field(() => [Typer.for(Book).create], { nullable: true }), { scopes: 'create' })
-  @Thunk(Field(() => [Typer.for(Book).update], { nullable: true }), { scopes: 'update' })
+  @Thunk(Field(() => [Typer(Book).output]), { scopes: 'output' })
+  @Thunk(Field(() => [Typer(Book).create], { nullable: true }), { scopes: 'create' })
+  @Thunk(Field(() => [Typer(Book).update], { nullable: true }), { scopes: 'update' })
   @Embedded(() => Book)
   books: Book[];
 }

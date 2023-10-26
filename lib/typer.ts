@@ -10,7 +10,7 @@ import { inspect } from './inspect';
 
 const cacheKey = Symbol('cached');
 
-export class Typer {
+class TyperClass {
   private static getBaseType(input: {
     definition: Definition;
     name: string;
@@ -33,8 +33,6 @@ export class Typer {
   }
 
   private static getPaginatedOutputType(definition: Definition): any {
-    const cached = definition[cacheKey]?.['paginated'];
-    if (cached) return cached;
     @ObjectType(`Paginated${util.plural(definition.name)}`)
     class Placeholder {
       @Field(() => [this.getType(definition, 'output')])
@@ -47,18 +45,17 @@ export class Typer {
       @Field(() => graphql.GraphQLInt)
       page: number;
     }
-    definition[cacheKey]['paginated'] = Placeholder;
-    return definition[cacheKey]['paginated'];
+    return Placeholder;
   }
 
-  private static getType(definition: Definition, type: 'create' | 'update' | 'output' | 'paginate') {
+  public static getType(definition: Definition, type: 'create' | 'update' | 'output' | 'paginate') {
     const cached = definition[cacheKey]?.[type];
     if (cached) return cached;
     const typeConfigs = [
       {
         type: 'create',
         fn: () =>
-          Typer.getBaseType({
+          TyperClass.getBaseType({
             definition,
             name: `Create${definition.name}Input`,
             scope: 'create',
@@ -67,7 +64,7 @@ export class Typer {
       {
         type: 'update',
         fn: () =>
-          Typer.getBaseType({
+          TyperClass.getBaseType({
             definition,
             name: `Update${definition.name}Input`,
             scope: 'update',
@@ -76,7 +73,7 @@ export class Typer {
       {
         type: 'output',
         fn: () =>
-          Typer.getBaseType({
+          TyperClass.getBaseType({
             definition,
             name: definition.name,
             scope: 'output',
@@ -84,7 +81,7 @@ export class Typer {
       },
       {
         type: 'paginate',
-        fn: () => Typer.getPaginatedOutputType(definition),
+        fn: () => TyperClass.getPaginatedOutputType(definition),
       },
     ];
 
@@ -96,22 +93,22 @@ export class Typer {
     };
     return typeInstance;
   }
+}
 
-  public static for(definition: Definition) {
-    return {
-      get: (type: 'create' | 'update' | 'output' | 'paginate') => Typer.getType(definition, type),
-      get output() {
-        return Typer.getType(definition, 'output');
-      },
-      get create() {
-        return Typer.getType(definition, 'create');
-      },
-      get update() {
-        return Typer.getType(definition, 'update');
-      },
-      get paginate() {
-        return Typer.getType(definition, 'paginate');
-      },
-    };
-  }
+export function Typer(definition: Definition) {
+  return {
+    get: (type: 'create' | 'update' | 'output' | 'paginate') => TyperClass.getType(definition, type),
+    get output() {
+      return TyperClass.getType(definition, 'output');
+    },
+    get create() {
+      return TyperClass.getType(definition, 'create');
+    },
+    get update() {
+      return TyperClass.getType(definition, 'update');
+    },
+    get paginate() {
+      return TyperClass.getType(definition, 'paginate');
+    },
+  };
 }

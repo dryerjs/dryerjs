@@ -3,10 +3,10 @@ import { Typer } from './typer';
 
 export function Entity(): ClassDecorator {
   return (target: object) => {
-    Typer.for(target).create;
-    Typer.for(target).update;
-    Typer.for(target).output;
-    Typer.for(target).paginate;
+    Typer(target).create;
+    Typer(target).update;
+    Typer(target).output;
+    Typer(target).paginate;
     Schema()(target as any);
   };
 }
