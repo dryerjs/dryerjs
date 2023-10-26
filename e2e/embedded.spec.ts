@@ -168,8 +168,8 @@ describe('Embedded works', () => {
     });
     const { updateAuthorBooks } = await server.makeSuccessRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, input: $input) {
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
           }
@@ -177,7 +177,7 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        input: books,
+        inputs: books,
       },
     });
     expect(updateAuthorBooks).toEqual(books);
@@ -186,8 +186,8 @@ describe('Embedded works', () => {
   it('Update books within author: return error if parent not found', async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, input: $input) {
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
           }
@@ -195,7 +195,7 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: NOT_FOUND_ID,
-        input: author.books,
+        inputs: author.books,
       },
     });
     expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
@@ -206,8 +206,8 @@ describe('Embedded works', () => {
     books[0].id = NOT_FOUND_ID;
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $input: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, input: $input) {
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
           }
@@ -215,7 +215,7 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        input: books,
+        inputs: books,
       },
     });
     expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
