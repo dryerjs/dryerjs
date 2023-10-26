@@ -87,9 +87,3 @@ export function ExcludeOnDatabase() {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
   };
 }
-
-export function ExcludeOnCreate() {
-  return (target: object, propertyKey: string | symbol) => {
-    Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnCreate, true);
-  };
-}
