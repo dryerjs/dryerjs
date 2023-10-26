@@ -52,6 +52,32 @@ describe('Simple CRUD works', () => {
     ]);
   });
 
+  it('paginate tags', async () => {
+    const { paginateTags } = await server.makeSuccessRequest({
+      query: `
+      {
+        paginateTags {
+          docs {
+            id
+            name
+          }
+          totalDocs
+          page
+        }
+      }
+      `,
+    });
+    expect(paginateTags).toEqual({
+      docs: [
+        { id: expect.any(String), name: '70s' },
+        { id: expect.any(String), name: '80s' },
+        { id: expect.any(String), name: '90s' },
+      ],
+      totalDocs: 3,
+      page: 1,
+    });
+  });
+
   it('Get one tag', async () => {
     const response = await server.makeSuccessRequest({
       query: `

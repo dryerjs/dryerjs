@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -11,12 +11,13 @@ import { Typer } from '../typer';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { appendIdAndTransform } from './shared';
+import { plainToInstance } from 'class-transformer';
 
 export function createResolver(definition: Definition): Provider {
   @Resolver()
   class GeneratedResolver<T> {
     constructor(
-      @InjectModel(definition.name) public model: Model<any>,
+      @InjectModel(definition.name) public model: PaginateModel<any>,
       public moduleRef: ModuleRef,
     ) {}
 
@@ -91,12 +92,13 @@ export function createResolver(definition: Definition): Provider {
 
     @Query(() => Typer.getPaginatedOutputType(definition))
     async [`paginate${util.plural(definition.name)}`]() {
-      const docs = await this.model.find({});
-      return {
+      const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
+      return plainToInstance(Typer.getPaginatedOutputType(definition), {
         docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
-        totalDocs: 10,
-        page: 1,
-      };
+        totalDocs,
+        page,
+        totalPages,
+      });
     }
   }
 

@@ -1,5 +1,6 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
 import { Definition } from './shared';
 import { createResolver, createResolverForEmbedded, createResolverForReferencesMany } from './resolvers';
 import { inspect } from './inspect';
@@ -24,10 +25,14 @@ export class DryerModule {
       module: DryerModule,
       imports: [
         MongooseModule.forFeature(
-          input.definitions.map((definition) => ({
-            name: definition.name,
-            schema: SchemaFactory.createForClass(definition),
-          })),
+          input.definitions.map((definition) => {
+            const schema = SchemaFactory.createForClass(definition);
+            schema.plugin(mongoosePaginateV2);
+            return {
+              name: definition.name,
+              schema,
+            };
+          }),
         ),
       ],
       providers,
