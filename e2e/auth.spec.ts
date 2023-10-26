@@ -7,12 +7,14 @@ const server = TestServer.init({
   providers: [AuthResolver],
 });
 
-describe('signUp Works', () => {
+describe('Auth Resolver works', () => {
+  let userId;
+
   beforeAll(async () => {
     await server.start();
   });
 
-  test('Create a user', async () => {
+  it('signUp works', async () => {
     const signUpResponse = await server.makeSuccessRequest({
       query: `
       mutation SignUp($input: CreateUserInput!) {
@@ -39,16 +41,7 @@ describe('signUp Works', () => {
     });
   });
 
-  afterAll(async () => {
-    await server.stop();
-  });
-});
-
-describe('whoAmI works', () => {
-  let userId;
-
-  beforeAll(async () => {
-    await server.start();
+  it('whoIamI works', async () => {
     await server.makeSuccessRequest({
       query: `
       mutation SignUp($input: CreateUserInput!) {
@@ -67,7 +60,7 @@ describe('whoAmI works', () => {
         },
       },
     });
-
+  
     const getAllUsersResponse = await server.makeSuccessRequest({
       query: `
         query AllUsers {
@@ -81,10 +74,9 @@ describe('whoAmI works', () => {
       `,
       variables: {},
     });
+  
     userId = getAllUsersResponse.allUsers[0].id;
-  });
-
-  test('query whoAmI by userId', async () => {
+  
     const whoAmIResponse = await server.makeSuccessRequest({
       query: `
         query WhoAmI($userId: String!) {
@@ -99,21 +91,12 @@ describe('whoAmI works', () => {
         userId: userId,
       },
     });
-
+  
     expect(whoAmIResponse.whoAmI).toBeTruthy();
   });
+  
 
-  afterAll(async () => {
-    await server.stop();
-  });
-});
-
-describe('invalid email throw error', () => {
-  beforeAll(async () => {
-    await server.start();
-  });
-
-  test('invalid email throw error', async () => {
+  it('invalid email throw error', async () => {
     await server.makeFailRequest({
       query: `
       mutation SignUp($input: CreateUserInput!) {
@@ -139,3 +122,4 @@ describe('invalid email throw error', () => {
     await server.stop();
   });
 });
+
