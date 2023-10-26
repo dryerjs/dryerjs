@@ -36,7 +36,8 @@ export function createResolver(definition: Definition): Provider {
       const created = await this.model.create(input);
       for (const property of inspect(definition).referencesManyProperties) {
         if (!input[property.name] || input[property.name].length === 0) continue;
-        const relationDefinition = property.getReferencesMany().fn();
+        const relation = property.getReferencesMany();
+        const relationDefinition = relation.fn();
         const newIds: string[] = [];
         for (const subObject of input[property.name]) {
           const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
@@ -44,7 +45,7 @@ export function createResolver(definition: Definition): Provider {
           newIds.push(createdRelation._id);
         }
         await this.model.findByIdAndUpdate(created._id, {
-          $addToSet: { tagIds: { $each: newIds } },
+          $addToSet: { [relation.options.from]: { $each: newIds } },
         });
       }
       return appendIdAndTransform(definition, await this.model.findById(created._id));
