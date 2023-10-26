@@ -54,6 +54,14 @@ const builtUpdateInput = Symbol('builtUpdateInput');
 const builtOutput = Symbol('builtOutput');
 
 export class Typer {
+  // private static getBaseType(input: {
+  //   definition: Definition;
+  //   name: string;
+  //   scope: 'create' | 'update' | 'output';
+  // }) {
+  //   class Abstract
+  // }
+
   public static getCreateInputType(definition: Definition) {
     if (definition[builtCreateInput]) return definition[builtCreateInput];
     const result = getCreateInputType(definition);

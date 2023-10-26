@@ -39,7 +39,7 @@ export class Metadata {
     return this.getConstructor(target)[METADATA]?.[property]?.[metaKey];
   }
 
-  public static setProperty(
+  public static setMetaValue(
     target: TargetClass,
     metaKey: MetaKey,
     property: string | symbol,

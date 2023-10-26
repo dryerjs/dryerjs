@@ -23,7 +23,7 @@ export function Property(...input: Parameters<typeof Field>): PropertyDecorator 
       );
       Thunk(Field(returnTypeFunction, options), { scopes: ['output', 'create'] })(target, propertyKey);
     }
-    Metadata.setProperty(target, MetaKey.UseProperty, propertyKey, true);
+    Metadata.setMetaValue(target, MetaKey.UseProperty, propertyKey, true);
   };
 }
 
@@ -66,32 +66,32 @@ export function Thunk(
       Prop()(target, propertyKey);
     }
     const newThunks = util.defaultTo(prevThunks, []).concat({ fn, options });
-    Metadata.setProperty(target, MetaKey.Thunk, propertyKey, newThunks);
+    Metadata.setMetaValue(target, MetaKey.Thunk, propertyKey, newThunks);
   };
 }
 
 export function Embedded(fn: any) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setProperty(target, MetaKey.EmbeddedType, propertyKey, fn);
+    Metadata.setMetaValue(target, MetaKey.EmbeddedType, propertyKey, fn);
   };
 }
 
 export function ReferencesMany(fn: any, options: { from: string; to?: string }) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.setProperty(target, MetaKey.ReferencesManyType, propertyKey, { fn, options });
+    Metadata.setMetaValue(target, MetaKey.ReferencesManyType, propertyKey, { fn, options });
   };
 }
 
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setProperty(target, MetaKey.ExcludeOnDatabase, propertyKey, true);
+    Metadata.setMetaValue(target, MetaKey.ExcludeOnDatabase, propertyKey, true);
   };
 }
 
 export function ExcludeOnCreate() {
   return (target: object, propertyKey: string | symbol) => {
-    Metadata.setProperty(target, MetaKey.ExcludeOnCreate, propertyKey, true);
+    Metadata.setMetaValue(target, MetaKey.ExcludeOnCreate, propertyKey, true);
   };
 }

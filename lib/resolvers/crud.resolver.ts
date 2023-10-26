@@ -9,8 +9,8 @@ import * as util from '../util';
 import { Definition } from '../shared';
 import { Typer } from '../typer';
 import { SuccessResponse } from '../types';
+import { inspect } from '../inspect';
 import { appendIdAndTransform } from './shared';
-import { MetaKey, Metadata } from '../metadata';
 
 export function createResolver(definition: Definition): Provider {
   @Resolver()
@@ -33,13 +33,11 @@ export function createResolver(definition: Definition): Provider {
       input: any,
     ) {
       const created = await this.model.create(input);
-      for (const propertyName in Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)) {
-        if (!input[propertyName] || input[propertyName].length === 0) continue;
-        const relationDefinition = Metadata.getPropertiesByModel(definition, MetaKey.ReferencesManyType)[
-          propertyName
-        ].fn();
+      for (const property of inspect(definition).referencesManyProperties) {
+        if (!input[property.name] || input[property.name].length === 0) continue;
+        const relationDefinition = property.getReferencesMany().fn();
         const newIds: string[] = [];
-        for (const subObject of input[propertyName]) {
+        for (const subObject of input[property.name]) {
           const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
           const createdRelation = await relationModel.create(subObject);
           newIds.push(createdRelation._id);
