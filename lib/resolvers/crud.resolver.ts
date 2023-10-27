@@ -106,18 +106,10 @@ export function createResolver(definition: Definition): Provider {
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
     ) {
-      const { docs, totalDocs, totalPages, page: pageResult, limit: limitResult, hasNextPage, nextPage, hasPrevPage, prevPage, pagingCounter } = await this.model.paginate({}, { page, limit });
+      const response = await this.model.paginate({}, { page, limit });
       return plainToInstance(PaginatedOutputType(definition), {
-        docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
-        totalDocs,
-        page: pageResult,
-        limit: limitResult,
-        totalPages,
-        hasNextPage,
-        nextPage,
-        hasPrevPage,
-        prevPage,
-        pagingCounter,
+        ...response,
+        docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
       });
     }
   }
