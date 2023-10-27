@@ -1,11 +1,11 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType } from './shared';
+import { ApiType, Definition } from './shared';
 
 const INSPECTED = Symbol('inspected');
 const CACHED_PROPERTIES = Symbol('cached_properties');
 
-function inspectWithoutCache(definition: any) {
+function inspectWithoutCache(definition: Definition) {
   return {
     [CACHED_PROPERTIES]: {},
     getProperties(metaKey: MetaKey = MetaKey.Thunk): HydratedProperty[] {
