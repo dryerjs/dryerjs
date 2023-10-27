@@ -8,7 +8,7 @@ const server = TestServer.init({
 });
 
 describe('Auth Resolver works', () => {
-    let user;
+  let user;
 
   beforeAll(async () => {
     await server.start();
