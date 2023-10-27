@@ -6,6 +6,7 @@ import * as util from './util';
 import { hasScope } from './property';
 import { MetaKey } from './metadata';
 import { inspect } from './inspect';
+import { GraphQLJSONObject } from './js/graphql-type-json';
 import { Definition } from './definition';
 
 const cacheKey = Symbol('cached');
@@ -48,7 +49,29 @@ class Typer {
     return Placeholder;
   }
 
-  public static getType(definition: Definition, type: 'create' | 'update' | 'output' | 'paginate') {
+  private static getBulkCreateOutputType(definition: Definition): any {
+    @ObjectType(`BulkCreate${util.plural(definition.name)}Result`)
+    class Placeholder {
+      // output as json.  search for scalar json
+      @Field(() => GraphQLJSONObject)
+      input: object;
+
+      @Field(() => this.getType(definition, 'output'))
+      result: boolean;
+
+      @Field(() => graphql.GraphQLBoolean)
+      success: boolean;
+
+      @Field(() => graphql.GraphQLString, { nullable: true })
+      errorMessage?: string;
+    }
+    return Placeholder;
+  }
+
+  public static getType(
+    definition: Definition,
+    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate',
+  ) {
     const cached = definition[cacheKey]?.[type];
     if (cached) return cached;
     const typeConfigs = [
@@ -83,6 +106,10 @@ class Typer {
         type: 'paginate',
         fn: () => Typer.getPaginatedOutputType(definition),
       },
+      {
+        type: 'bulkCreate',
+        fn: () => Typer.getBulkCreateOutputType(definition),
+      },
     ];
 
     const typeConfig = typeConfigs.find((config) => config.type === type);
@@ -109,4 +136,8 @@ export function OutputType(definition: Definition) {
 
 export function PaginatedOutputType(definition: Definition) {
   return Typer.getType(definition, 'paginate');
+}
+
+export function BulkCreateOutputType(definition: Definition) {
+  return Typer.getType(definition, 'bulkCreate');
 }
