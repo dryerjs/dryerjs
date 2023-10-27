@@ -1,5 +1,6 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
+import { ApiType } from './shared';
 
 const INSPECTED = Symbol('inspected');
 const CACHED_PROPERTIES = Symbol('cached_properties');
@@ -27,6 +28,18 @@ function inspectWithoutCache(definition: any) {
     for(propertyName: string | symbol): HydratedProperty {
       const designType = Reflect.getMetadata(MetaKey.DesignType, definition.prototype, propertyName);
       return new HydratedProperty(definition, propertyName as string, designType);
+    },
+    isApiAllowed(api: ApiType): boolean {
+      const allowedApis = Metadata.for(definition).get(MetaKey.Entity);
+      const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
+      for (const allowedApi of normalizedAllowedApis) {
+        if (allowedApi === '*') return true;
+        if (allowedApi === 'essentials') {
+          return ['create', 'update', 'getOne', 'getAll', 'remove'].includes(api);
+        }
+        if (allowedApi === api) return true;
+      }
+      return false;
     },
   };
 }

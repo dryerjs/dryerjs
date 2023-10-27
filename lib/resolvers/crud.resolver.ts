@@ -14,6 +14,14 @@ import { appendIdAndTransform } from './shared';
 import { plainToInstance } from 'class-transformer';
 
 export function createResolver(definition: Definition): Provider {
+  function DoNothing(): MethodDecorator {
+    return () => {};
+  }
+
+  function MutationIfAllowed(api: string): MethodDecorator {
+    return inspect(definition).isApiAllowed(api) ? Mutation : DoNothing;
+  }
+
   @Resolver()
   class GeneratedResolver<T> {
     constructor(
@@ -21,7 +29,7 @@ export function createResolver(definition: Definition): Provider {
       public moduleRef: ModuleRef,
     ) {}
 
-    @Mutation(() => OutputType(definition))
+    @MutationIfAllowed(ap)(() => OutputType(definition))
     async [`create${definition.name}`](
       @Args(
         'input',
