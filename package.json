@@ -91,11 +91,6 @@
     "class-validator": "^0.14.0"
   },
   "lint-staged": {
-    "*.ts": [
-      "npm run lint",
-      "npm run format",
-      "npm run cspell",
-      "git add ."
-    ]
-}
+    "**/*.{ts,json}": []
+  }
 }
