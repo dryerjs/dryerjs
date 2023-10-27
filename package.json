@@ -34,7 +34,8 @@
     "merge-cov": "nyc report -t coverage --report-dir coverage --reporter=text-summary --reporter=lcov",
     "show-cov": "open coverage/lcov-report/index.html",
     "semantic-release": "semantic-release",
-    "cspell": "cspell \"**\""
+    "cspell": "cspell \"**\"",
+    "postinstall": "husky install"
   },
   "devDependencies": {
     "@commitlint/cli": "17.7.1",
@@ -90,6 +91,11 @@
     "class-validator": "^0.14.0"
   },
   "lint-staged": {
-    "**/*.{ts,json}": []
-  }
+    "*.ts": [
+      "npm run lint",
+      "npm run format",
+      "npm run cspell",
+      "git add ."
+    ]
+}
 }
