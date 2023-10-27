@@ -1,9 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
-import { Definition } from '../shared';
 import { inspect } from '../inspect';
 import { OutputType } from '../type-functions';
+import { Definition } from '../definition';
 
 export const appendIdAndTransform = (definition: Definition, item: any) => {
   const output = item['toObject']?.() || item;

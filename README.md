@@ -48,9 +48,9 @@ To get started with DryerJS, follow these steps:
 4. Declare your first model on `src/user.ts`:
 
    ```typescript
-   import { Entity, Property } from 'dryerjs';
+   import { Definition, Property } from 'dryerjs';
 
-   @Entity()
+   @Definition()
    export class User {
      @Property()
      id: string;

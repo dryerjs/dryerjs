@@ -1,9 +1,17 @@
 import * as graphql from 'graphql';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Field } from '@nestjs/graphql';
-import { Property, Entity, Embedded, Thunk, OutputType, CreateInputType, UpdateInputType } from '../../lib';
+import {
+  Property,
+  Definition,
+  Embedded,
+  Thunk,
+  OutputType,
+  CreateInputType,
+  UpdateInputType,
+} from '../../lib';
 
-@Entity()
+@Definition()
 export class Book {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -12,7 +20,7 @@ export class Book {
   name: string;
 }
 
-@Entity({ allowedApis: '*' })
+@Definition({ allowedApis: '*' })
 export class Author {
   @Property(() => graphql.GraphQLID)
   id: string;

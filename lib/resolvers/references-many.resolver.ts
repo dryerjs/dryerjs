@@ -4,9 +4,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 
 import { appendIdAndTransform } from './shared';
-import { Definition } from '../shared';
 import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
+import { Definition } from '../definition';
 
 export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
   const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);

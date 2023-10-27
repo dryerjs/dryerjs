@@ -15,7 +15,7 @@ export enum MetaKey {
   ReferencesManyType = 'ReferencesManyType',
   Thunk = 'Thunk',
   UseProperty = 'UseProperty',
-  Entity = 'Entity',
+  Definition = 'Definition',
 }
 
 export class Metadata {

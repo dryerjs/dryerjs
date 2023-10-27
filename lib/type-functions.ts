@@ -3,10 +3,10 @@ import { ObjectType, InputType, Field } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 
 import * as util from './util';
-import { Definition } from './shared';
 import { hasScope } from './property';
 import { MetaKey } from './metadata';
 import { inspect } from './inspect';
+import { Definition } from './definition';
 
 const cacheKey = Symbol('cached');
 

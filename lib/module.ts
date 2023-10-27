@@ -1,9 +1,9 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
-import { Definition } from './shared';
 import { createResolver, createResolverForEmbedded, createResolverForReferencesMany } from './resolvers';
 import { inspect } from './inspect';
+import { Definition } from './definition';
 
 @Module({})
 export class DryerModule {

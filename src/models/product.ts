@@ -3,9 +3,17 @@ import { Prop } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Transform, Type } from 'class-transformer';
 import { Field } from '@nestjs/graphql';
-import { Property, Entity, ReferencesMany, ObjectId, Thunk, OutputType, CreateInputType } from '../../lib';
+import {
+  Property,
+  Definition,
+  ReferencesMany,
+  ObjectId,
+  Thunk,
+  OutputType,
+  CreateInputType,
+} from '../../lib';
 
-@Entity({ allowedApis: '*' })
+@Definition({ allowedApis: '*' })
 export class Tag {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -14,7 +22,7 @@ export class Tag {
   name: string;
 }
 
-@Entity({ allowedApis: '*' })
+@Definition({ allowedApis: '*' })
 export class Product {
   @Property(() => graphql.GraphQLID)
   id: string;

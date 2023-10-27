@@ -4,14 +4,15 @@ import { PaginateModel } from 'mongoose';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { plainToInstance } from 'class-transformer';
 
+import { appendIdAndTransform } from './shared';
 import * as util from '../util';
-import { ApiType, Definition } from '../shared';
+import { ApiType } from '../shared';
 import { CreateInputType, OutputType, PaginatedOutputType, UpdateInputType } from '../type-functions';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
-import { appendIdAndTransform } from './shared';
-import { plainToInstance } from 'class-transformer';
+import { Definition } from '../definition';
 
 export function createResolver(definition: Definition): Provider {
   function IfApiAllowed(decorator: MethodDecorator, apiType: ApiType) {

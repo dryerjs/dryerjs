@@ -1,6 +1,7 @@
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType, Definition } from './shared';
+import { ApiType } from './shared';
+import { Definition } from './definition';
 
 const INSPECTED = Symbol('inspected');
 const CACHED_PROPERTIES = Symbol('cached_properties');
@@ -30,7 +31,7 @@ function inspectWithoutCache(definition: Definition) {
       return new HydratedProperty(definition, propertyName as string, designType);
     },
     isApiAllowed(api: ApiType): boolean {
-      const { allowedApis } = Metadata.for(definition).get(MetaKey.Entity);
+      const { allowedApis } = Metadata.for(definition).get(MetaKey.Definition);
       const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
       for (const allowedApi of normalizedAllowedApis) {
         if (allowedApi === '*') return true;
