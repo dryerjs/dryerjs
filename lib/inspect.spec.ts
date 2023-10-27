@@ -1,4 +1,4 @@
-import { Definition } from './entity';
+import { Definition } from './definition';
 import { inspect } from './inspect';
 
 describe('inspect', () => {
