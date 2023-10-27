@@ -4,7 +4,7 @@ import { IsEmail, MinLength } from 'class-validator';
 import { Property, Entity, Thunk, ExcludeOnDatabase } from '../../lib';
 import { Field } from '@nestjs/graphql';
 
-@Entity()
+@Entity({ allowedApis: '*' })
 export class User {
   @Thunk(Field(() => graphql.GraphQLID), { scopes: ['output', 'update'] })
   @ExcludeOnDatabase()

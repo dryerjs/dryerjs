@@ -6,7 +6,7 @@ import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
-import { Definition } from '../shared';
+import { ApiType, Definition } from '../shared';
 import { CreateInputType, OutputType, PaginatedOutputType, UpdateInputType } from '../type-functions';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
@@ -14,6 +14,15 @@ import { appendIdAndTransform } from './shared';
 import { plainToInstance } from 'class-transformer';
 
 export function createResolver(definition: Definition): Provider {
+  function IfApiAllowed(decorator: MethodDecorator, apiType: ApiType) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (inspect(definition).isApiAllowed(apiType)) {
+        decorator(target, propertyKey, descriptor);
+      }
+      return descriptor;
+    };
+  }
+
   @Resolver()
   class GeneratedResolver<T> {
     constructor(
@@ -21,7 +30,7 @@ export function createResolver(definition: Definition): Provider {
       public moduleRef: ModuleRef,
     ) {}
 
-    @Mutation(() => OutputType(definition))
+    @IfApiAllowed(Mutation(() => OutputType(definition)), 'create')
     async [`create${definition.name}`](
       @Args(
         'input',
@@ -51,7 +60,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
-    @Mutation(() => OutputType(definition))
+    @IfApiAllowed(Mutation(() => OutputType(definition)), 'update')
     async [`update${definition.name}`](
       @Args(
         'input',
@@ -69,7 +78,7 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
-    @Query(() => OutputType(definition))
+    @IfApiAllowed(Query(() => OutputType(definition)), 'getOne')
     async [definition.name.toLowerCase()](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
     ): Promise<T> {
@@ -78,20 +87,20 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, result) as any;
     }
 
-    @Query(() => [OutputType(definition)])
+    @IfApiAllowed(Query(() => [OutputType(definition)]), 'getAll')
     async [`all${util.plural(definition.name)}`](): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
     }
 
-    @Mutation(() => SuccessResponse)
+    @IfApiAllowed(Mutation(() => SuccessResponse), 'remove')
     async [`remove${definition.name}`](@Args('id', { type: () => graphql.GraphQLID }) id: string) {
       const removed = await this.model.findByIdAndRemove(id);
       if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return { success: true };
     }
 
-    @Query(() => PaginatedOutputType(definition))
+    @IfApiAllowed(Query(() => PaginatedOutputType(definition)), 'paginate')
     async [`paginate${util.plural(definition.name)}`]() {
       const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
       return plainToInstance(PaginatedOutputType(definition), {

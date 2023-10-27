@@ -4,6 +4,7 @@ type TargetClass = any;
 type MetaValue = any;
 
 const METADATA = Symbol('metadata');
+const ENTITY = Symbol('entity');
 
 export enum MetaKey {
   DesignType = 'design:type',
@@ -14,6 +15,7 @@ export enum MetaKey {
   ReferencesManyType = 'ReferencesManyType',
   Thunk = 'Thunk',
   UseProperty = 'UseProperty',
+  Entity = 'Entity',
 }
 
 export class Metadata {
@@ -56,6 +58,12 @@ export class Metadata {
 
   public static for(target: TargetClass) {
     return {
+      set(key: MetaKey, value: MetaValue) {
+        Metadata.setMetaValue(target, key, ENTITY, value);
+      },
+      get(key: MetaKey) {
+        return Metadata.getMetaValue(target, key, ENTITY);
+      },
       with(property: string | symbol) {
         return {
           set(key: MetaKey, value: MetaValue) {
