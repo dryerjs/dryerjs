@@ -68,7 +68,9 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(
-      Mutation(() => [BulkCreateOutputType(definition)], { name: `bulkCreate${definition.name}` }),
+      Mutation(() => [BulkCreateOutputType(definition)], {
+        name: `bulkCreate${util.plural(definition.name)}`,
+      }),
     )
     async bulkCreate(
       @Args(
@@ -91,7 +93,13 @@ export function createResolver(definition: Definition): Provider {
           response.push({
             input,
             success: false,
-            errorMessage: error instanceof graphql.GraphQLError ? 'INTERNAL_SERVER_ERROR' : error.message,
+            result: null,
+            errorMessage: (() => {
+              // TODO: handle server errors
+              /* istanbul ignore if */
+              if (error instanceof graphql.GraphQLError) return error.message;
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
           });
         }
       }

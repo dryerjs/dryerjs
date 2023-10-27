@@ -108,11 +108,11 @@ describe('Simple CRUD works', () => {
       variables: {
         input: {
           id: allTags[0].id,
-          name: '80s',
+          name: '60s',
         },
       },
     });
-    expect(response.updateTag.name).toEqual('80s');
+    expect(response.updateTag.name).toEqual('60s');
   });
 
   it('Update not found tag', async () => {

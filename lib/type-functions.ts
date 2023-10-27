@@ -56,7 +56,7 @@ class Typer {
       @Field(() => GraphQLJSONObject)
       input: object;
 
-      @Field(() => this.getType(definition, 'output'))
+      @Field(() => this.getType(definition, 'output'), { nullable: true })
       result: boolean;
 
       @Field(() => graphql.GraphQLBoolean)
