@@ -3,13 +3,15 @@ import { CreateInputType, UpdateInputType, OutputType, PaginatedOutputType } fro
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
 
-type EntityOptions = {
+type DefinitionOptions = {
   allowedApis: AllowedApiType | AllowedApiType[];
 };
 
-export function Entity(options: EntityOptions = { allowedApis: 'essentials' }): ClassDecorator {
+export type Definition = any;
+
+export function Definition(options: DefinitionOptions = { allowedApis: 'essentials' }): ClassDecorator {
   return (target: object) => {
-    Metadata.for(target).set(MetaKey.Entity, options);
+    Metadata.for(target).set(MetaKey.Definition, options);
     CreateInputType(target);
     UpdateInputType(target);
     OutputType(target);

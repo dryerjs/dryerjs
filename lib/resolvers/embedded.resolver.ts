@@ -5,11 +5,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 
 import * as util from '../util';
-import { Definition } from '../shared';
-import { appendIdAndTransform } from './shared';
 import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
+import { Definition } from '../definition';
+import { appendIdAndTransform } from './shared';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
   const embeddedDefinition = Metadata.for(definition).with(field).get(MetaKey.EmbeddedType)();
