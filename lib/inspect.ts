@@ -30,12 +30,12 @@ function inspectWithoutCache(definition: any) {
       return new HydratedProperty(definition, propertyName as string, designType);
     },
     isApiAllowed(api: ApiType): boolean {
-      const allowedApis = Metadata.for(definition).get(MetaKey.Entity);
+      const { allowedApis } = Metadata.for(definition).get(MetaKey.Entity);
       const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
       for (const allowedApi of normalizedAllowedApis) {
         if (allowedApi === '*') return true;
         if (allowedApi === 'essentials') {
-          return ['create', 'update', 'getOne', 'getAll', 'remove'].includes(api);
+          return ['create', 'update', 'getOne', 'remove', 'paginate'].includes(api);
         }
         if (allowedApi === api) return true;
       }

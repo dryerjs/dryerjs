@@ -12,7 +12,7 @@ export class Book {
   name: string;
 }
 
-@Entity()
+@Entity({ allowedApis: '*' })
 export class Author {
   @Property(() => graphql.GraphQLID)
   id: string;
