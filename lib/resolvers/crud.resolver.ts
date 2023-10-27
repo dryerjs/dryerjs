@@ -102,13 +102,22 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(Query(() => PaginatedOutputType(definition)), 'paginate')
-    async [`paginate${util.plural(definition.name)}`]() {
-      const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
+    async [`paginate${util.plural(definition.name)}`](
+      @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
+      @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
+    ) {
+      const { docs, totalDocs, totalPages, page: pageResult, limit: limitResult, hasNextPage, nextPage, hasPrevPage, prevPage, pagingCounter } = await this.model.paginate({}, { page, limit });
       return plainToInstance(PaginatedOutputType(definition), {
         docs: docs.map((doc) => appendIdAndTransform(definition, doc)),
         totalDocs,
-        page,
+        page: pageResult,
+        limit: limitResult,
         totalPages,
+        hasNextPage,
+        nextPage,
+        hasPrevPage,
+        prevPage,
+        pagingCounter,
       });
     }
   }

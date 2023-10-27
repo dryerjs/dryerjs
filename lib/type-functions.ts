@@ -44,6 +44,27 @@ class Typer {
 
       @Field(() => graphql.GraphQLInt)
       page: number;
+
+      @Field(() => graphql.GraphQLInt)
+      limit: number;
+
+      @Field(() => graphql.GraphQLInt)
+      totalPages: number;
+
+      @Field(() => graphql.GraphQLBoolean)
+      hasNextPage: boolean;
+
+      @Field(() => graphql.GraphQLInt)
+      nextPage: number;
+
+      @Field(() => graphql.GraphQLBoolean)
+      hasPrevPage: boolean;
+
+      @Field(() => graphql.GraphQLInt)
+      prevPage: number;
+
+      @Field(() => graphql.GraphQLInt)
+      pagingCounter: number;
     }
     return Placeholder;
   }
