@@ -35,7 +35,7 @@
     "show-cov": "open coverage/lcov-report/index.html",
     "semantic-release": "semantic-release",
     "cspell": "cspell \"**\"",
-    "postinstall": "husky install"
+    "postinstall": "husky install || echo 'husky not found'"
   },
   "devDependencies": {
     "@commitlint/cli": "17.7.1",
