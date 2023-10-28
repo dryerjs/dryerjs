@@ -7,7 +7,6 @@ import { Definition, DryerModule } from 'dryerjs';
 import { GraphQLError } from 'graphql';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
-import * as mongoosePaginateV2 from '../lib/js/mongoose-paginate-v2';
 import * as util from '../lib/util';
 import { APP_FILTER } from '@nestjs/core';
 
@@ -42,7 +41,7 @@ class TestAppModule {
         MongooseModule.forFeature(
           config.definitions.map((definition) => {
             const schema = SchemaFactory.createForClass(definition);
-            schema.plugin(mongoosePaginateV2);
+            // schema.plugin(mongoosePaginateV2);
             return {
               name: definition.name,
               schema,
