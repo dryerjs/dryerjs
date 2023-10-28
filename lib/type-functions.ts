@@ -6,7 +6,7 @@ import * as util from './util';
 import { hasScope } from './property';
 import { MetaKey } from './metadata';
 import { inspect } from './inspect';
-import { GraphQLJSONObject } from './js/graphql-type-json';
+import { GraphQLJSONObject } from './js/graphql-json-type';
 import { Definition } from './definition';
 
 const cacheKey = Symbol('cached');
