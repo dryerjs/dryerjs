@@ -76,15 +76,20 @@ export class TestServer {
 
     this.app = moduleFixture.createNestApplication();
     await this.app.init();
+    await this.cleanDatabase();
   }
 
-  public async stop() {
+  private async cleanDatabase() {
     for (const definition of this.config.definitions) {
       const model = this.app.get(getModelToken(definition.name), {
         strict: false,
       });
       await model.deleteMany({});
     }
+  }
+
+  public async stop() {
+    await this.cleanDatabase();
     await this.app.close();
     for (const connection of mongoose.connections) {
       await connection.close();
