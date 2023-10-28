@@ -1,5 +1,11 @@
 import { Schema } from '@nestjs/mongoose';
-import { CreateInputType, UpdateInputType, OutputType, PaginatedOutputType } from './type-functions';
+import {
+  CreateInputType,
+  UpdateInputType,
+  OutputType,
+  PaginatedOutputType,
+  BulkCreateOutputType,
+} from './type-functions';
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
 
@@ -15,6 +21,7 @@ export function Definition(options: DefinitionOptions = { allowedApis: 'essentia
     CreateInputType(target);
     UpdateInputType(target);
     OutputType(target);
+    BulkCreateOutputType(target);
     PaginatedOutputType(target);
     Schema()(target as any);
   };
