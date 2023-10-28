@@ -158,7 +158,6 @@ export function createResolver(definition: Definition): Provider {
       });
     }
   }
-  }
 
   return GeneratedResolver as any;
 }
