@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
@@ -22,12 +22,6 @@ const definitions: Definition[] = [Product, Tag, User, Author];
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-debug'),
     DryerModule.register({ definitions }),
-    MongooseModule.forFeature(
-      definitions.map((definition) => ({
-        name: definition.name,
-        schema: SchemaFactory.createForClass(definition),
-      })),
-    ),
   ],
   providers: [AuthResolver],
 })

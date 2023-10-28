@@ -21,21 +21,23 @@ export class DryerModule {
       }
     });
 
+    const mongooseForFeatureModule = MongooseModule.forFeature(
+      input.definitions.map((definition) => {
+        const schema = SchemaFactory.createForClass(definition);
+        schema.plugin(mongoosePaginateV2);
+        return {
+          name: definition.name,
+          schema,
+        };
+      }),
+    );
+
+    const mongooseModuleExports = (mongooseForFeatureModule.exports as any) || [];
+
     return {
       module: DryerModule,
-      imports: [
-        MongooseModule.forFeature(
-          input.definitions.map((definition) => {
-            const schema = SchemaFactory.createForClass(definition);
-            schema.plugin(mongoosePaginateV2);
-            return {
-              name: definition.name,
-              schema,
-            };
-          }),
-        ),
-      ],
-      providers,
+      providers: [...providers, ...mongooseModuleExports],
+      exports: [...mongooseModuleExports],
     };
   }
 }
