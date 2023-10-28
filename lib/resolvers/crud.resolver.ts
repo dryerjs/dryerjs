@@ -147,8 +147,7 @@ export function createResolver(definition: Definition): Provider {
     @IfApiAllowed(
       Query(() => PaginatedOutputType(definition), { name: `paginate${util.plural(definition.name)}` }),
     )
-    async paginate() {
-      const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
+    async paginate(
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
     ) {
@@ -158,6 +157,7 @@ export function createResolver(definition: Definition): Provider {
         docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
       });
     }
+  }
   }
 
   return GeneratedResolver as any;
