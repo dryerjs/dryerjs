@@ -9,7 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import * as util from '../util';
 import {
   BulkCreateOutputType,
-  BulkDeleteOutputType,
+  BulkRemoveOutputType,
   CreateInputType,
   OutputType,
   PaginatedOutputType,
@@ -108,23 +108,23 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(
-      Mutation(() => [BulkDeleteOutputType(definition)], {
-        name: `bulkDelete${util.plural(definition.name)}`,
+      Mutation(() => [BulkRemoveOutputType(definition)], {
+        name: `bulkRemove${util.plural(definition.name)}`,
       }),
     )
-    async bulkDelete(
+    async bulkRemove(
       @Args('ids', { type: () => [graphql.GraphQLID!]! })
       ids: string[],
     ) {
       const response: any[] = [];
       for (const id of ids) {
         try {
-          const result = await this.remove(id);
-          response.push({ id, result: result.success ? 'success' : 'fail' });
+          await this.remove(id);
+          response.push({ id, success: true });
         } catch (error: any) {
           response.push({
             id,
-            result: 'fail',
+            success: false,
             errorMessage: (() => {
               if (error instanceof graphql.GraphQLError) return error.message;
               /* istanbul ignore next */
@@ -133,7 +133,7 @@ export function createResolver(definition: Definition): Provider {
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkDeleteOutputType(definition), item)) as any;
+      return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
     }
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))

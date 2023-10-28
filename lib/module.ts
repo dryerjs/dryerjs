@@ -32,7 +32,7 @@ export class DryerModule {
       }),
     );
 
-    const mongooseModuleExports = (mongooseForFeatureModule.exports as any) || [];
+    const mongooseModuleExports = mongooseForFeatureModule.exports as any;
 
     return {
       module: DryerModule,
