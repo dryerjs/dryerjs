@@ -66,10 +66,10 @@ export class Metadata {
       },
       with(property: string | symbol) {
         return {
-          set(key: MetaKey, value: MetaValue) {
+          set<T = any>(key: MetaKey, value: T) {
             Metadata.setMetaValue(target, key, property, value);
           },
-          get(key: MetaKey) {
+          get<T = any>(key: MetaKey): T {
             return Metadata.getMetaValue(target, key, property);
           },
         };
