@@ -89,9 +89,24 @@ class Typer {
     return Placeholder;
   }
 
+  private static getBulkDeleteOutputType(definition: Definition): any {
+    @ObjectType(`BulkDelete${util.plural(definition.name)}Result`)
+    class Placeholder {
+      @Field(() => graphql.GraphQLID)
+      id: string;
+
+      @Field(() => graphql.GraphQLString)
+      result: string;
+
+      @Field(() => graphql.GraphQLString, { nullable: true })
+      errorMessage?: string;
+    }
+    return Placeholder;
+  }
+
   public static getType(
     definition: Definition,
-    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate',
+    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate' | 'bulkDelete',
   ) {
     const cached = definition[cacheKey]?.[type];
     if (cached) return cached;
@@ -131,6 +146,10 @@ class Typer {
         type: 'bulkCreate',
         fn: () => Typer.getBulkCreateOutputType(definition),
       },
+      {
+        type: 'bulkDelete',
+        fn: () => Typer.getBulkDeleteOutputType(definition),
+      },
     ];
 
     const typeConfig = typeConfigs.find((config) => config.type === type);
@@ -161,4 +180,8 @@ export function PaginatedOutputType(definition: Definition) {
 
 export function BulkCreateOutputType(definition: Definition) {
   return Typer.getType(definition, 'bulkCreate');
+}
+
+export function BulkDeleteOutputType(definition: Definition) {
+  return Typer.getType(definition, 'bulkDelete');
 }

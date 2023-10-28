@@ -52,6 +52,57 @@ describe('bulk apis work', () => {
     ]);
   });
 
+  let allTags: Tag[] = [];
+
+  it('Get all tags', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+      {
+        allTags {
+          id
+          name
+        }
+      }
+      `,
+    });
+    allTags = response.allTags;
+  });
+
+  it('Bulk delete tags', async () => {
+    const { bulkDeleteTags } = await server.makeSuccessRequest({
+      query: `
+        mutation BulkDeleteTag($ids: [ID!]!){
+          bulkDeleteTags(ids: $ids){
+            id
+            result
+            errorMessage
+          }
+        }
+      `,
+      variables: {
+        ids: [allTags[0].id, allTags[1].id, allTags[1].id],
+      },
+    });
+
+    expect(bulkDeleteTags).toEqual([
+      {
+        id: allTags[0].id,
+        result: 'success',
+        errorMessage: null,
+      },
+      {
+        id: allTags[1].id,
+        result: 'success',
+        errorMessage: null,
+      },
+      {
+        id: allTags[1].id,
+        result: 'fail',
+        errorMessage: 'No Tag found with ID: ' + allTags[1].id,
+      },
+    ]);
+  });
+
   afterAll(async () => {
     await server.stop();
   });
