@@ -7,10 +7,11 @@ import { appendIdAndTransform } from './shared';
 import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
+import { ReferencesManyConfig } from '../property';
 
 export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
-  const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
-  const relationDefinition = relation.fn();
+  const relation = Metadata.for(definition).with(field).get<ReferencesManyConfig>(MetaKey.ReferencesManyType);
+  const relationDefinition = relation.typeFunction();
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForReferencesMany<T> {

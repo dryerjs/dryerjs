@@ -54,7 +54,7 @@ export function createResolver(definition: Definition): Provider {
       for (const property of inspect(definition).referencesManyProperties) {
         if (!input[property.name] || input[property.name].length === 0) continue;
         const relation = property.getReferencesMany();
-        const relationDefinition = relation.fn();
+        const relationDefinition = relation.typeFunction();
         const newIds: string[] = [];
         for (const subObject of input[property.name]) {
           const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });

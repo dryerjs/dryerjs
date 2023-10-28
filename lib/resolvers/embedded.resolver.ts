@@ -10,9 +10,13 @@ import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
+import { EmbeddedConfig } from '../property';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
-  const embeddedDefinition = Metadata.for(definition).with(field).get(MetaKey.EmbeddedType)();
+  const embeddedDefinition = Metadata.for(definition)
+    .with(field)
+    .get<EmbeddedConfig>(MetaKey.EmbeddedType)
+    .typeFunction();
 
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
