@@ -6,18 +6,24 @@ import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { plainToInstance } from 'class-transformer';
 
-import { appendIdAndTransform } from './shared';
 import * as util from '../util';
+import {
+  BulkCreateOutputType,
+  CreateInputType,
+  OutputType,
+  PaginatedOutputType,
+  UpdateInputType,
+} from '../type-functions';
 import { ApiType } from '../shared';
-import { CreateInputType, OutputType, PaginatedOutputType, UpdateInputType } from '../type-functions';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
+import { appendIdAndTransform } from './shared';
 
 export function createResolver(definition: Definition): Provider {
-  function IfApiAllowed(decorator: MethodDecorator, apiType: ApiType) {
+  function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if (inspect(definition).isApiAllowed(apiType)) {
+      if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -31,8 +37,8 @@ export function createResolver(definition: Definition): Provider {
       public moduleRef: ModuleRef,
     ) {}
 
-    @IfApiAllowed(Mutation(() => OutputType(definition)), 'create')
-    async [`create${definition.name}`](
+    @IfApiAllowed(Mutation(() => OutputType(definition), { name: `create${definition.name}` }))
+    async create(
       @Args(
         'input',
         { type: () => CreateInputType(definition) },
@@ -61,8 +67,47 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
-    @IfApiAllowed(Mutation(() => OutputType(definition)), 'update')
-    async [`update${definition.name}`](
+    @IfApiAllowed(
+      Mutation(() => [BulkCreateOutputType(definition)], {
+        name: `bulkCreate${util.plural(definition.name)}`,
+      }),
+    )
+    async bulkCreate(
+      @Args(
+        'inputs',
+        { type: () => [CreateInputType(definition)] },
+        // note check this for array
+        new ValidationPipe({
+          transform: true,
+          expectedType: CreateInputType(definition),
+        }),
+      )
+      inputs: any,
+    ) {
+      const response: any[] = [];
+      for (const input of inputs) {
+        try {
+          const result = await this.create(input);
+          response.push({ input, result, success: true });
+        } catch (error: any) {
+          response.push({
+            input,
+            success: false,
+            result: null,
+            errorMessage: (() => {
+              // TODO: handle server errors
+              /* istanbul ignore if */
+              if (error instanceof graphql.GraphQLError) return error.message;
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
+          });
+        }
+      }
+      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+    }
+
+    @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
+    async update(
       @Args(
         'input',
         { type: () => UpdateInputType(definition) },
@@ -79,30 +124,30 @@ export function createResolver(definition: Definition): Provider {
       return appendIdAndTransform(definition, await this.model.findById(updated._id));
     }
 
-    @IfApiAllowed(Query(() => OutputType(definition)), 'getOne')
-    async [definition.name.toLowerCase()](
-      @Args('id', { type: () => graphql.GraphQLID }) id: string,
-    ): Promise<T> {
+    @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
+    async getOne(@Args('id', { type: () => graphql.GraphQLID }) id: string): Promise<T> {
       const result = await this.model.findById(id);
       if (util.isNil(result)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return appendIdAndTransform(definition, result) as any;
     }
 
-    @IfApiAllowed(Query(() => [OutputType(definition)]), 'getAll')
-    async [`all${util.plural(definition.name)}`](): Promise<T[]> {
+    @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
+    async getAll(): Promise<T[]> {
       const items = await this.model.find({});
       return items.map((item) => appendIdAndTransform(definition, item)) as any;
     }
 
-    @IfApiAllowed(Mutation(() => SuccessResponse), 'remove')
-    async [`remove${definition.name}`](@Args('id', { type: () => graphql.GraphQLID }) id: string) {
+    @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
+    async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string) {
       const removed = await this.model.findByIdAndRemove(id);
       if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
       return { success: true };
     }
 
-    @IfApiAllowed(Query(() => PaginatedOutputType(definition)), 'paginate')
-    async [`paginate${util.plural(definition.name)}`]() {
+    @IfApiAllowed(
+      Query(() => PaginatedOutputType(definition), { name: `paginate${util.plural(definition.name)}` }),
+    )
+    async paginate() {
       const { docs, totalDocs, totalPages, page } = await this.model.paginate({}, { page: 1, limit: 10 });
       return plainToInstance(PaginatedOutputType(definition), {
         docs: docs.map((doc) => appendIdAndTransform(definition, doc)),

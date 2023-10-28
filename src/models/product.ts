@@ -18,6 +18,7 @@ export class Tag {
   @Property(() => graphql.GraphQLID)
   id: string;
 
+  @Prop({ unique: true })
   @Property(() => graphql.GraphQLString)
   name: string;
 }
