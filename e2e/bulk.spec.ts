@@ -69,12 +69,12 @@ describe('bulk apis work', () => {
   });
 
   it('Bulk delete tags', async () => {
-    const { bulkDeleteTags } = await server.makeSuccessRequest({
+    const { bulkRemoveTags } = await server.makeSuccessRequest({
       query: `
-        mutation BulkDeleteTag($ids: [ID!]!){
-          bulkDeleteTags(ids: $ids){
+        mutation BulkRemoveTag($ids: [ID!]!){
+          bulkRemoveTags(ids: $ids){
             id
-            result
+            success
             errorMessage
           }
         }
@@ -84,20 +84,20 @@ describe('bulk apis work', () => {
       },
     });
 
-    expect(bulkDeleteTags).toEqual([
+    expect(bulkRemoveTags).toEqual([
       {
         id: allTags[0].id,
-        result: 'success',
+        success: true,
         errorMessage: null,
       },
       {
         id: allTags[1].id,
-        result: 'success',
+        success: true,
         errorMessage: null,
       },
       {
         id: allTags[1].id,
-        result: 'fail',
+        success: false,
         errorMessage: 'No Tag found with ID: ' + allTags[1].id,
       },
     ]);

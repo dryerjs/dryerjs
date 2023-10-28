@@ -89,14 +89,14 @@ class Typer {
     return Placeholder;
   }
 
-  private static getBulkDeleteOutputType(definition: Definition): any {
-    @ObjectType(`BulkDelete${util.plural(definition.name)}Result`)
+  private static getBulkRemoveOutputType(definition: Definition): any {
+    @ObjectType(`BulkRemove${util.plural(definition.name)}Result`)
     class Placeholder {
       @Field(() => graphql.GraphQLID)
       id: string;
 
-      @Field(() => graphql.GraphQLString)
-      result: string;
+      @Field(() => graphql.GraphQLBoolean)
+      success: boolean;
 
       @Field(() => graphql.GraphQLString, { nullable: true })
       errorMessage?: string;
@@ -106,7 +106,7 @@ class Typer {
 
   public static getType(
     definition: Definition,
-    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate' | 'bulkDelete',
+    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate' | 'bulkRemove',
   ) {
     const cached = definition[cacheKey]?.[type];
     if (cached) return cached;
@@ -147,8 +147,8 @@ class Typer {
         fn: () => Typer.getBulkCreateOutputType(definition),
       },
       {
-        type: 'bulkDelete',
-        fn: () => Typer.getBulkDeleteOutputType(definition),
+        type: 'bulkRemove',
+        fn: () => Typer.getBulkRemoveOutputType(definition),
       },
     ];
 
@@ -182,6 +182,6 @@ export function BulkCreateOutputType(definition: Definition) {
   return Typer.getType(definition, 'bulkCreate');
 }
 
-export function BulkDeleteOutputType(definition: Definition) {
-  return Typer.getType(definition, 'bulkDelete');
+export function BulkRemoveOutputType(definition: Definition) {
+  return Typer.getType(definition, 'bulkRemove');
 }
