@@ -1,15 +1,15 @@
+import { APP_FILTER } from '@nestjs/core';
 import { Catch, DynamicModule, ExceptionFilter, INestApplication, Module, Provider } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { MongooseModule, SchemaFactory, getModelToken } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Definition, DryerModule } from 'dryerjs';
 import { GraphQLError } from 'graphql';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
-import * as mongoosePaginateV2 from '../lib/js/mongoose-paginate-v2';
+
 import * as util from '../lib/util';
-import { APP_FILTER } from '@nestjs/core';
 
 @Catch(GraphQLError)
 export class GraphQLExceptionFilter implements ExceptionFilter {
@@ -39,16 +39,6 @@ class TestAppModule {
         }),
         MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-test'),
         DryerModule.register({ definitions: config.definitions }),
-        MongooseModule.forFeature(
-          config.definitions.map((definition) => {
-            const schema = SchemaFactory.createForClass(definition);
-            schema.plugin(mongoosePaginateV2);
-            return {
-              name: definition.name,
-              schema,
-            };
-          }),
-        ),
       ],
       providers: config.providers || [],
     };
