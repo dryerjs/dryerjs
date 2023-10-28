@@ -126,8 +126,8 @@ export function createResolver(definition: Definition): Provider {
             id,
             result: 'fail',
             errorMessage: (() => {
-              /* istanbul ignore if */
               if (error instanceof graphql.GraphQLError) return error.message;
+              /* istanbul ignore next */
               return 'INTERNAL_SERVER_ERROR';
             })(),
           });
