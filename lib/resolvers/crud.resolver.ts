@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import * as util from '../util';
 import {
   BulkCreateOutputType,
+  BulkDeleteOutputType,
   CreateInputType,
   OutputType,
   PaginatedOutputType,
@@ -104,6 +105,34 @@ export function createResolver(definition: Definition): Provider {
         }
       }
       return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+    }
+
+    @IfApiAllowed(
+      Mutation(() => [BulkDeleteOutputType(definition)], {
+        name: `bulkDelete${util.plural(definition.name)}`,
+      }),
+    )
+    async bulkDelete(
+      @Args('ids', { type: () => [graphql.GraphQLID!]! })
+      ids: string[],
+    ) {
+      const response: any[] = [];
+      for (const id of ids) {
+        try {
+          const result = await this.remove(id);
+          response.push({ id, result: result.success ? 'success' : 'fail' });
+        } catch (error: any) {
+          response.push({
+            id,
+            result: 'fail',
+            errorMessage: (() => {
+              if (error instanceof graphql.GraphQLError) return error.message;
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
+          });
+        }
+      }
+      return response.map((item) => appendIdAndTransform(BulkDeleteOutputType(definition), item)) as any;
     }
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
