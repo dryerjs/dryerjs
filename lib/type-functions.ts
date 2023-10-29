@@ -190,7 +190,7 @@ export function BulkRemoveOutputType(definition: Definition) {
   return Typer.getType(definition, 'bulkRemove');
 }
 
-export function getFilterForOneField(definition: Definition, property: HydratedProperty) {
+function getFilterForOneField(definition: Definition, property: HydratedProperty) {
   @InputType(`${definition.name}${util.toPascalCase(property.name)}Filter`)
   class FilterForOneField {}
 
