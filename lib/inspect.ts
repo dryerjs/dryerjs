@@ -27,6 +27,15 @@ function inspectWithoutCache(definition: Definition) {
     get referencesManyProperties(): HydratedProperty[] {
       return this.getProperties(MetaKey.ReferencesManyType);
     },
+    get hasOneProperties(): HydratedProperty[] {
+      return this.getProperties(MetaKey.HasOneType);
+    },
+    get hasManyProperties(): HydratedProperty[] {
+      return this.getProperties(MetaKey.HasManyType);
+    },
+    get belongToProperties(): HydratedProperty[] {
+      return this.getProperties(MetaKey.BelongToType);
+    },
     for(propertyName: string | symbol): HydratedProperty {
       const designType = Reflect.getMetadata(MetaKey.DesignType, definition.prototype, propertyName);
       return new HydratedProperty(definition, propertyName as string, designType);

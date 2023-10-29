@@ -99,6 +99,47 @@ export function ReferencesMany(
   };
 }
 
+export type HasOneConfig = {
+  typeFunction: () => any;
+  options: {
+    to: string;
+  };
+};
+export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {
+  return (target: object, propertyKey: string | symbol) => {
+    ExcludeOnDatabase()(target, propertyKey);
+    Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
+  };
+}
+
+export type HasManyConfig = {
+  typeFunction: () => any;
+  options: {
+    from: string;
+  };
+};
+export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
+  return (target: object, propertyKey: string | symbol) => {
+    ExcludeOnDatabase()(target, propertyKey);
+    Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
+  };
+}
+
+export type BelongToConfig = {
+  typeFunction: () => any;
+  options: {
+    from: string;
+  };
+};
+export function BelongTo(typeFunction: BelongToConfig['typeFunction'], options: BelongToConfig['options']) {
+  return (target: object, propertyKey: string | symbol) => {
+    ExcludeOnDatabase()(target, propertyKey);
+    Metadata.for(target)
+      .with(propertyKey)
+      .set<BelongToConfig>(MetaKey.BelongToType, { typeFunction, options });
+  };
+}
+
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);

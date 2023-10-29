@@ -11,7 +11,11 @@ import {
   Thunk,
   OutputType,
   CreateInputType,
+  HasMany,
+  HasOne,
 } from '../../lib';
+import { Variant } from './variant';
+import { Image } from './image';
 
 @Definition({ allowedApis: '*' })
 export class Tag {
@@ -48,4 +52,14 @@ export class Product {
   @Thunk(Field(() => [OutputType(Tag)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
   tags: Tag[];
+
+  @HasMany(() => Variant, { from: 'productId' })
+  @Thunk(Field(() => [OutputType(Variant)]), { scopes: 'output' })
+  @Thunk(Field(() => [CreateInputType(Variant)], { nullable: true }), { scopes: 'create' })
+  variants: Variant[];
+
+  @HasOne(() => Image, { to: 'productId' })
+  @Thunk(Field(() => OutputType(Image)), { scopes: 'output' })
+  @Thunk(Field(() => CreateInputType(Image), { nullable: true }), { scopes: 'create' })
+  image: Image;
 }

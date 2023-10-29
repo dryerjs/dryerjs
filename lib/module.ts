@@ -4,6 +4,9 @@ import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
 import { createResolver, createResolverForEmbedded, createResolverForReferencesMany } from './resolvers';
 import { inspect } from './inspect';
 import { Definition } from './definition';
+import { createResolverForHasMany } from './resolvers/has-many.resolver';
+import { createResolverForHasOne } from './resolvers/has-one.resolver';
+import { createResolverForBelongTo } from './resolvers/belong-to.resolver';
 
 @Module({})
 export class DryerModule {
@@ -18,6 +21,15 @@ export class DryerModule {
       }
       for (const property of inspect(definition).referencesManyProperties) {
         providers.push(createResolverForReferencesMany(definition, property.name));
+      }
+      for (const property of inspect(definition).hasManyProperties) {
+        providers.push(createResolverForHasMany(definition, property.name));
+      }
+      for (const property of inspect(definition).hasOneProperties) {
+        providers.push(createResolverForHasOne(definition, property.name));
+      }
+      for (const property of inspect(definition).belongToProperties) {
+        providers.push(createResolverForBelongTo(definition, property.name));
       }
     });
 
