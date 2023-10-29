@@ -136,6 +136,46 @@ export function createResolver(definition: Definition): Provider {
       return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
     }
 
+    @IfApiAllowed(
+      Mutation(() => [BulkCreateOutputType(definition)], {
+        name: `bulkUpdate${util.plural(definition.name)}`,
+      }),
+    )
+    async bulkUpdate(
+      @Args(
+        'inputs',
+        { type: () => [UpdateInputType(definition)] },
+        // note check this for array
+        new ValidationPipe({
+          transform: true,
+          expectedType: UpdateInputType(definition),
+        }),
+      )
+      inputs: any,
+    ) {
+      const response: any[] = [];
+      for (const input of inputs) {
+        try {
+          const result = await this.update(input);
+          response.push({ input, result, success: true });
+        } catch (error: any) {
+          response.push({
+            input,
+            success: false,
+            result: null,
+            errorMessage: (() => {
+              // TODO: handle server errors
+              /* istanbul ignore if */
+              if (error instanceof graphql.GraphQLError) return error.message;
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
+          });
+        }
+      }
+      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+    }
+
+
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
     async update(
       @Args(

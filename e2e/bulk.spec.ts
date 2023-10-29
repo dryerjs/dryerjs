@@ -68,6 +68,50 @@ describe('bulk apis work', () => {
     allTags = response.allTags;
   });
 
+  it('Bulk update tags', async () => {
+    const { bulkUpdateTags } = await server.makeSuccessRequest({
+      query: `
+        mutation bulkUpdateTags($inputs: [UpdateTagInput!]!){
+          bulkUpdateTags(inputs: $inputs){
+            input
+            success
+            errorMessage
+            result {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        inputs: [
+        {
+          id: allTags[0].id,
+          name: '50s',
+        },
+        {
+          id: allTags[1].id,
+          name: '60s',
+        }
+      ]},
+    });
+
+    expect(bulkUpdateTags).toEqual([
+      {
+        input: { id: expect.any(String), name: '50s' },
+        success: true,
+        errorMessage: null,
+        result: { id: expect.any(String), name: '50s' },        
+      },
+      {
+        input: { id: expect.any(String), name: '60s' },
+        success: true,
+        errorMessage: null,
+        result: { id: expect.any(String), name: '60s' },  
+      },
+    ]);
+  });
+
   it('Bulk delete tags', async () => {
     const { bulkRemoveTags } = await server.makeSuccessRequest({
       query: `
