@@ -16,6 +16,7 @@ export enum MetaKey {
   Thunk = 'Thunk',
   UseProperty = 'UseProperty',
   Definition = 'Definition',
+  Filterable = 'Filterable',
 }
 
 export class Metadata {

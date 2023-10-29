@@ -5,7 +5,7 @@ import { Type } from 'class-transformer';
 import * as util from './util';
 import { hasScope } from './property';
 import { MetaKey } from './metadata';
-import { inspect } from './inspect';
+import { HydratedProperty, inspect } from './inspect';
 import { GraphQLJSONObject } from './js/graphql-type-json';
 import { Definition } from './definition';
 
@@ -106,7 +106,7 @@ class Typer {
 
   public static getType(
     definition: Definition,
-    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate' | 'bulkRemove',
+    type: 'create' | 'update' | 'output' | 'paginate' | 'bulkCreate' | 'bulkRemove' | 'filter',
   ) {
     const cached = definition[cacheKey]?.[type];
     if (cached) return cached;
@@ -150,6 +150,10 @@ class Typer {
         type: 'bulkRemove',
         fn: () => Typer.getBulkRemoveOutputType(definition),
       },
+      {
+        type: 'filter',
+        fn: () => FilterTypeWithoutCache(definition),
+      },
     ];
 
     const typeConfig = typeConfigs.find((config) => config.type === type);
@@ -184,4 +188,41 @@ export function BulkCreateOutputType(definition: Definition) {
 
 export function BulkRemoveOutputType(definition: Definition) {
   return Typer.getType(definition, 'bulkRemove');
+}
+
+export function getFilterForOneField(definition: Definition, property: HydratedProperty) {
+  @InputType(`${definition.name}${util.toPascalCase(property.name)}Filter`)
+  class FilterForOneField {}
+
+  const { typeFn, input } = inspect(definition).for(property.name).get(MetaKey.Filterable);
+  for (const operator of input.operators) {
+    if (['in', 'nin', 'all'].includes(operator)) {
+      Field(() => [typeFn()], { nullable: true })(FilterForOneField.prototype, operator);
+      Reflect.defineMetadata('design:type', Array, FilterForOneField.prototype, property.name);
+    } else {
+      Field(typeFn, { nullable: true })(FilterForOneField.prototype, operator);
+      const designType = Reflect.getMetadata('design:type', definition.prototype, property.name);
+      Reflect.defineMetadata('design:type', designType, FilterForOneField.prototype, property.name);
+    }
+  }
+
+  return FilterForOneField;
+}
+
+function FilterTypeWithoutCache(definition: Definition) {
+  const filterableProperties = inspect(definition).getProperties(MetaKey.Filterable);
+  if (filterableProperties.length === 0) return null;
+
+  @InputType(`${definition.name}Filter`)
+  class FilterPlaceholder {}
+  for (const filterableProperty of inspect(definition).getProperties(MetaKey.Filterable)) {
+    Reflect.defineMetadata('design:type', Object, FilterPlaceholder.prototype, filterableProperty.name);
+    const OneField = getFilterForOneField(definition, filterableProperty);
+    Field(() => OneField, { nullable: true })(FilterPlaceholder.prototype, filterableProperty.name);
+  }
+  return FilterPlaceholder;
+}
+
+export function FilterType(definition: Definition) {
+  return Typer.getType(definition, 'filter');
 }
