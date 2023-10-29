@@ -175,7 +175,6 @@ export function createResolver(definition: Definition): Provider {
       return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
     }
 
-
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
     async update(
       @Args(
