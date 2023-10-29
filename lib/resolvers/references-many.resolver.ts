@@ -1,3 +1,4 @@
+import { ModuleRef } from '@nestjs/core';
 import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,13 +16,15 @@ export function createResolverForReferencesMany(definition: Definition, field: s
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForReferencesMany<T> {
-    constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
+    constructor(
+      @InjectModel(relationDefinition.name) public model: Model<any>,
+      private moduleRef: ModuleRef,
+    ) {}
 
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
-      const items = await this.model.find({
-        [relation.options.to || '_id']: { $in: parent[relation.options.from] },
-      });
+      const dataloader = await this.moduleRef.resolve(`${definition.name}Loader`);
+      const items = await dataloader.load(parent[relation.options.from]);
       return items.map((item) => appendIdAndTransform(relationDefinition, item)) as any;
     }
   }
