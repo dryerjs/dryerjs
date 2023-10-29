@@ -68,22 +68,81 @@ export function Thunk(
   };
 }
 
-export function Embedded(fn: any) {
+export type EmbeddedConfig = {
+  typeFunction: () => any;
+};
+
+export function Embedded(typeFunction: EmbeddedConfig['typeFunction']) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.for(target).with(propertyKey).set(MetaKey.EmbeddedType, fn);
+    Metadata.for(target).with(propertyKey).set<EmbeddedConfig>(MetaKey.EmbeddedType, { typeFunction });
   };
 }
 
-export function ReferencesMany(fn: any, options: { from: string; to?: string }) {
+export type ReferencesManyConfig = {
+  typeFunction: () => any;
+  options: {
+    from: string;
+    to?: string;
+  };
+};
+
+export function ReferencesMany(
+  typeFunction: ReferencesManyConfig['typeFunction'],
+  options: ReferencesManyConfig['options'],
+) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.for(target).with(propertyKey).set(MetaKey.ReferencesManyType, { fn, options });
+    Metadata.for(target)
+      .with(propertyKey)
+      .set<ReferencesManyConfig>(MetaKey.ReferencesManyType, { typeFunction, options });
   };
 }
 
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
+  };
+}
+
+export type FilterOperator =
+  | 'eq'
+  | 'in'
+  | 'notEq'
+  | 'notIn'
+  | 'contains'
+  | 'notContains'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'regex'
+  | 'notRegex'
+  | 'all'
+  | 'exists';
+
+export const allOperators: FilterOperator[] = [
+  'eq',
+  'in',
+  'notEq',
+  'notIn',
+  'contains',
+  'notContains',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+  'regex',
+  'notRegex',
+  'all',
+  'exists',
+];
+
+export function Filterable(typeFn: () => any, input: { operators: FilterOperator[] }) {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Filterable, {
+      typeFn,
+      input,
+    });
   };
 }

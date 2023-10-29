@@ -11,6 +11,7 @@ import {
   BulkCreateOutputType,
   BulkRemoveOutputType,
   CreateInputType,
+  FilterType,
   OutputType,
   PaginatedOutputType,
   UpdateInputType,
@@ -28,6 +29,14 @@ export function createResolver(definition: Definition): Provider {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
+    };
+  }
+
+  function IfArg(decorator: ParameterDecorator, condition: boolean) {
+    return function (target: any, propertyKey: string, parameterIndex: number) {
+      if (condition) {
+        decorator(target, propertyKey, parameterIndex);
+      }
     };
   }
 
@@ -54,7 +63,7 @@ export function createResolver(definition: Definition): Provider {
       for (const property of inspect(definition).referencesManyProperties) {
         if (!input[property.name] || input[property.name].length === 0) continue;
         const relation = property.getReferencesMany();
-        const relationDefinition = relation.fn();
+        const relationDefinition = relation.typeFunction();
         const newIds: string[] = [];
         for (const subObject of input[property.name]) {
           const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
@@ -219,8 +228,13 @@ export function createResolver(definition: Definition): Provider {
     async paginate(
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
+      @IfArg(
+        Args('filter', { type: () => FilterType(definition), defaultValue: {} }),
+        util.isNotNil(FilterType(definition)),
+      )
+      filter = {},
     ) {
-      const response = await this.model.paginate({}, { page, limit });
+      const response = await this.model.paginate(filter, { page, limit });
       return plainToInstance(PaginatedOutputType(definition), {
         ...response,
         docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
