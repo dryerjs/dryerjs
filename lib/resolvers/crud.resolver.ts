@@ -173,9 +173,9 @@ export function createResolver(definition: Definition): Provider {
             success: false,
             result: null,
             errorMessage: (() => {
+              if (error instanceof graphql.GraphQLError) return error.message;
               // TODO: handle server errors
               /* istanbul ignore if */
-              if (error instanceof graphql.GraphQLError) return error.message;
               return 'INTERNAL_SERVER_ERROR';
             })(),
           });
