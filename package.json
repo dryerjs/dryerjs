@@ -1,10 +1,17 @@
 {
   "name": "dryerjs",
   "version": "0.7.0",
-  "description": "A platform for building GraphQL APIs with TypeScript and MongoDB in a declarative way.",
+  "description": "The fastest way to build a GraphQL API with NestJS and Mongoose",
   "license": "MIT",
   "type": "commonjs",
   "author": "Brian Nguyen",
+  "keywords": [
+    "graphql",
+    "nest",
+    "mongodb",
+    "mongoose",
+    "server"
+  ],
   "repository": "https://github.com/dryerjs/dryerjs.git",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -34,8 +41,7 @@
     "merge-cov": "nyc report -t coverage --report-dir coverage --reporter=text-summary --reporter=lcov",
     "show-cov": "open coverage/lcov-report/index.html",
     "semantic-release": "semantic-release",
-    "cspell": "cspell \"**\"",
-    "postinstall": "husky install || echo 'husky not found'"
+    "cspell": "cspell \"**\""
   },
   "devDependencies": {
     "@commitlint/cli": "17.7.1",

@@ -56,6 +56,6 @@ To check test coverage, use the following command:
    npm run test:cov && npm run show-cov
    ```
 
-### Create PRs
+### Create first PR
 
-Follow [this instruction](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+Follow [this instruction](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) from GitHub.
