@@ -196,9 +196,12 @@ function getFilterForOneField(definition: Definition, property: HydratedProperty
 
   const { typeFn, input } = inspect(definition).for(property.name).get(MetaKey.Filterable);
   for (const operator of input.operators) {
-    if (['in', 'nin', 'all'].includes(operator)) {
+    if (['in', 'notIn', 'all'].includes(operator)) {
       Field(() => [typeFn()], { nullable: true })(FilterForOneField.prototype, operator);
       Reflect.defineMetadata('design:type', Array, FilterForOneField.prototype, property.name);
+    } else if (operator === 'exists') {
+      Field(() => graphql.GraphQLBoolean, { nullable: true })(FilterForOneField.prototype, operator);
+      Reflect.defineMetadata('design:type', Boolean, FilterForOneField.prototype, property.name);
     } else {
       Field(typeFn, { nullable: true })(FilterForOneField.prototype, operator);
       const designType = Reflect.getMetadata('design:type', definition.prototype, property.name);
