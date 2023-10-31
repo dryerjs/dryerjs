@@ -20,12 +20,12 @@ describe('Paginate works', () => {
     for (const customer of customers) {
       await server.makeSuccessRequest({
         query: `
-                  mutation CreateCustomer($input: CreateCustomerInput!) {
-                      createCustomer(input: $input) {
-                          id
-                      }
-                  }
-              `,
+          mutation CreateCustomer($input: CreateCustomerInput!) {
+            createCustomer(input: $input) {
+              id
+            }
+          }
+        `,
         variables: { input: customer },
       });
     }
@@ -33,32 +33,34 @@ describe('Paginate works', () => {
 
   it('should return all customers', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
-      query: `query PaginateCustomers($page: Int!, $limit: Int!, $filter : CustomerFilter) {
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $filter : CustomerFilter) {
           paginateCustomers(page: $page, limit: $limit,filter: $filter) {
-              docs {
-                  email
-                  numberOfOrders
-              }
-              totalDocs
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
           }
-      }
+        }
   `,
       variables: { page: 1, limit: 10, filter: {} },
     });
-
     expect(paginateCustomers.docs).toHaveLength(5);
     expect(paginateCustomers.totalDocs).toEqual(5);
   });
 
-  const query = `query PaginateCustomers($filter: CustomerFilter){
-    paginateCustomers(filter: $filter) {
-      docs {
-        email
-        numberOfOrders
+  const query = `
+    query PaginateCustomers($filter: CustomerFilter){
+      paginateCustomers(filter: $filter) {
+        docs {
+          email
+          numberOfOrders
+        }
+        totalDocs
       }
-      totalDocs
     }
-  }`;
+  `;
 
   it('eq', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
@@ -194,7 +196,7 @@ describe('Paginate works', () => {
   it('exists = true', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
-      variables: { filter: { email: { exists: true } } },
+      variables: { filter: { numberOfOrders: { exists: true } } },
     });
 
     expect(paginateCustomers).toEqual({
@@ -210,7 +212,7 @@ describe('Paginate works', () => {
   it('exists = false', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
-      variables: { filter: { email: { exists: false } } },
+      variables: { filter: { numberOfOrders: { exists: false } } },
     });
 
     expect(paginateCustomers).toEqual({
