@@ -21,6 +21,7 @@ import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
+import { MongoHelper } from '../mongo-helper';
 
 export function createResolver(definition: Definition): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -234,7 +235,8 @@ export function createResolver(definition: Definition): Provider {
       )
       filter = {},
     ) {
-      const response = await this.model.paginate(filter, { page, limit });
+      const mongoFilter = MongoHelper.toQuery(filter);
+      const response = await this.model.paginate(mongoFilter, { page, limit });
       return plainToInstance(PaginatedOutputType(definition), {
         ...response,
         docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
