@@ -65,6 +65,42 @@ export function createResolver(definition: Definition): Provider {
           $addToSet: { [relation.options.from]: { $each: newIds } },
         });
       }
+
+      for (const property of inspect(definition).belongToProperties) {
+        if (!input[property.name]) continue;
+        const relation = property.getBelongTo();
+        const relationDefinition = relation.typeFunction();
+        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+        await relationModel.create({
+          ...input[property.name],
+          [relation.options.from]: created._id,
+        });
+      }
+
+      for (const property of inspect(definition).hasOneProperties) {
+        if (!input[property.name]) continue;
+        const relation = property.getHasOne();
+        const relationDefinition = relation.typeFunction();
+        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+        await relationModel.create({
+          ...input[property.name],
+          [relation.options.from]: created._id,
+        });
+      }
+
+      for (const property of inspect(definition).hasManyProperties) {
+        if (!input[property.name] || input[property.name].length === 0) continue;
+        const relation = property.getHasMany();
+        const relationDefinition = relation.typeFunction();
+        for (const subObject of input[property.name]) {
+          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+          await relationModel.create({
+            ...subObject,
+            [relation.options.from]: created._id,
+          });
+        }
+      }
+
       return appendIdAndTransform(definition, await this.model.findById(created._id));
     }
 
