@@ -125,21 +125,6 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
   };
 }
 
-export type BelongToConfig = {
-  typeFunction: () => any;
-  options: {
-    from: string;
-  };
-};
-export function BelongTo(typeFunction: BelongToConfig['typeFunction'], options: BelongToConfig['options']) {
-  return (target: object, propertyKey: string | symbol) => {
-    ExcludeOnDatabase()(target, propertyKey);
-    Metadata.for(target)
-      .with(propertyKey)
-      .set<BelongToConfig>(MetaKey.BelongToType, { typeFunction, options });
-  };
-}
-
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);

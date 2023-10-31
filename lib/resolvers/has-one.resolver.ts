@@ -20,7 +20,7 @@ export function createResolverForHasOne(definition: Definition, field: string): 
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T> {
       const item = await this.model.findOne({
-        [relation.options.to || '_id']: parent._id,
+        [relation.options.to]: parent.id,
       });
       return appendIdAndTransform(relationDefinition, item) as any;
     }

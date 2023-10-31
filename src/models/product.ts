@@ -13,9 +13,9 @@ import {
   CreateInputType,
   HasMany,
   HasOne,
+  ExcludeOnDatabase,
 } from '../../lib';
 import { Variant } from './variant';
-import { Image } from './image';
 
 @Definition({ allowedApis: '*' })
 export class Tag {
@@ -25,6 +25,22 @@ export class Tag {
   @Prop({ unique: true })
   @Property(() => graphql.GraphQLString)
   name: string;
+}
+
+@Definition({ allowedApis: '*' })
+export class Image {
+  @Property(() => graphql.GraphQLID)
+  id: string;
+
+  @Prop()
+  @Property(() => graphql.GraphQLString)
+  name: string;
+
+  @Prop({
+    type: ObjectId,
+  })
+  @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
+  productId: string;
 }
 
 @Definition({ allowedApis: '*' })
@@ -56,10 +72,12 @@ export class Product {
   @HasMany(() => Variant, { from: 'productId' })
   @Thunk(Field(() => [OutputType(Variant)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Variant)], { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
   variants: Variant[];
 
   @HasOne(() => Image, { to: 'productId' })
-  @Thunk(Field(() => OutputType(Image)), { scopes: 'output' })
+  @Thunk(Field(() => OutputType(Image), { nullable: true }), { scopes: 'output' })
   @Thunk(Field(() => CreateInputType(Image), { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
   image: Image;
 }

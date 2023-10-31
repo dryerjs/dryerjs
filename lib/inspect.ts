@@ -1,5 +1,5 @@
 import * as util from './util';
-import { EmbeddedConfig, ReferencesManyConfig } from './property';
+import { EmbeddedConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType } from './shared';
 import { Definition } from './definition';
@@ -32,9 +32,6 @@ function inspectWithoutCache(definition: Definition) {
     },
     get hasManyProperties(): HydratedProperty[] {
       return this.getProperties(MetaKey.HasManyType);
-    },
-    get belongToProperties(): HydratedProperty[] {
-      return this.getProperties(MetaKey.BelongToType);
     },
     for(propertyName: string | symbol): HydratedProperty {
       const designType = Reflect.getMetadata(MetaKey.DesignType, definition.prototype, propertyName);
@@ -95,5 +92,27 @@ export class HydratedProperty {
     }
 
     return referencesMany;
+  }
+
+  public getHasOne() {
+    const hasOne = this.get<HasOneConfig>(MetaKey.HasOneType);
+
+    /* istanbul ignore if */
+    if (util.isNil(hasOne)) {
+      throw new Error(`Property ${this.name} is not an has one property`);
+    }
+
+    return hasOne;
+  }
+
+  public getHasMany() {
+    const hasMany = this.get<HasManyConfig>(MetaKey.HasManyType);
+
+    /* istanbul ignore if */
+    if (util.isNil(hasMany)) {
+      throw new Error(`Property ${this.name} is not an has many property`);
+    }
+
+    return hasMany;
   }
 }

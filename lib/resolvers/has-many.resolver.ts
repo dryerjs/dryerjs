@@ -10,7 +10,6 @@ import { Definition } from '../definition';
 import { HasManyConfig } from '../property';
 
 export function createResolverForHasMany(definition: Definition, field: string): Provider {
-  console.log('createResolverForHasMany', field);
   const relation = Metadata.for(definition).with(field).get<HasManyConfig>(MetaKey.HasManyType);
   const relationDefinition = relation.typeFunction();
 
@@ -19,11 +18,11 @@ export function createResolverForHasMany(definition: Definition, field: string):
     constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
 
     @ResolveField()
-    async [field](@Parent() parent: any): Promise<T> {
-      const item = await this.model.find({
-        [relation.options.from || '_id']: parent._id,
+    async [field](@Parent() parent: any): Promise<T[]> {
+      const items = await this.model.find({
+        [relation.options.from]: parent.id,
       });
-      return appendIdAndTransform(relationDefinition, item) as any;
+      return items.map((item) => appendIdAndTransform(relationDefinition, item) as any);
     }
   }
 
