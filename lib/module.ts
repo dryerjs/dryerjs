@@ -4,6 +4,7 @@ import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
 import { createResolver, createResolverForEmbedded, createResolverForReferencesMany } from './resolvers';
 import { inspect } from './inspect';
 import { Definition } from './definition';
+import { createBaseService, getBaseServiceToken } from './base.service';
 
 @Module({})
 export class DryerModule {
@@ -20,7 +21,6 @@ export class DryerModule {
         providers.push(createResolverForReferencesMany(definition, property.name));
       }
     });
-
     const mongooseForFeatureModule = MongooseModule.forFeature(
       input.definitions.map((definition) => {
         const schema = SchemaFactory.createForClass(definition);
@@ -33,11 +33,14 @@ export class DryerModule {
     );
 
     const mongooseModuleExports = mongooseForFeatureModule.exports as any;
-
+    const baseServicesProviders = input.definitions.map((definition) => ({
+      provide: getBaseServiceToken(definition),
+      useClass: createBaseService(definition),
+    }));
     return {
       module: DryerModule,
-      providers: [...providers, ...mongooseModuleExports],
-      exports: [...mongooseModuleExports],
+      providers: [...providers, ...mongooseModuleExports, ...baseServicesProviders],
+      exports: [...mongooseModuleExports, ...baseServicesProviders],
     };
   }
 }

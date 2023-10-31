@@ -1,7 +1,7 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { PaginateModel } from 'mongoose';
-import { InjectModel, getModelToken } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { plainToInstance } from 'class-transformer';
@@ -17,11 +17,13 @@ import {
   UpdateInputType,
 } from '../type-functions';
 import { ApiType } from '../shared';
+import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
 import { MongoHelper } from '../mongo-helper';
+import { InjectBaseService } from '../base.service';
 
 export function createResolver(definition: Definition): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -45,6 +47,7 @@ export function createResolver(definition: Definition): Provider {
   class GeneratedResolver<T> {
     constructor(
       @InjectModel(definition.name) public model: PaginateModel<any>,
+      @InjectBaseService(definition) public baseService: BaseService,
       public moduleRef: ModuleRef,
     ) {}
 
@@ -60,22 +63,8 @@ export function createResolver(definition: Definition): Provider {
       )
       input: any,
     ) {
-      const created = await this.model.create(input);
-      for (const property of inspect(definition).referencesManyProperties) {
-        if (!input[property.name] || input[property.name].length === 0) continue;
-        const relation = property.getReferencesMany();
-        const relationDefinition = relation.typeFunction();
-        const newIds: string[] = [];
-        for (const subObject of input[property.name]) {
-          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-          const createdRelation = await relationModel.create(subObject);
-          newIds.push(createdRelation._id);
-        }
-        await this.model.findByIdAndUpdate(created._id, {
-          $addToSet: { [relation.options.from]: { $each: newIds } },
-        });
-      }
-      return appendIdAndTransform(definition, await this.model.findById(created._id));
+      const context = {};
+      return await this.baseService.create(context, input);
     }
 
     @IfApiAllowed(
