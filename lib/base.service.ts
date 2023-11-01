@@ -1,11 +1,17 @@
+import * as graphql from 'graphql';
 import { Inject, Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
+import { plainToInstance } from 'class-transformer';
 
 import { Definition } from './definition';
 import { inspect } from './inspect';
 import { appendIdAndTransform } from './resolvers/shared';
+import { SuccessResponse } from './types';
+import { MongoHelper } from './mongo-helper';
+import { PaginatedOutputType } from './type-functions';
+import * as util from './util';
 
 export class BaseService<T = any, Context = any> {
   protected model: PaginateModel<any>;
@@ -29,6 +35,39 @@ export class BaseService<T = any, Context = any> {
       });
     }
     return appendIdAndTransform(this.definition, await this.model.findById(created._id)) as any;
+  }
+
+  public async update(ctx: Context, input: Partial<T> & { id: string }): Promise<T> {
+    const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
+    if (util.isNil(updated))
+      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${input.id}`);
+    return appendIdAndTransform(this.definition, await this.model.findById(updated._id)) as any;
+  }
+
+  public async getOne(id: Partial<string>): Promise<T> {
+    const result = await this.model.findById(id);
+    if (util.isNil(result)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    return appendIdAndTransform(this.definition, result) as any;
+  }
+
+  public async getAll(): Promise<T> {
+    const items = await this.model.find({});
+    return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
+  }
+
+  public async remove(id: Partial<string>): Promise<SuccessResponse> {
+    const removed = await this.model.findByIdAndRemove(id);
+    if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    return { success: true };
+  }
+
+  public async paginate(filter: Partial<any>, page: number, limit: number): Promise<T> {
+    const mongoFilter = MongoHelper.toQuery(filter);
+    const response = await this.model.paginate(mongoFilter, { page, limit });
+    return plainToInstance(PaginatedOutputType(this.definition), {
+      ...response,
+      docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),
+    });
   }
 }
 
