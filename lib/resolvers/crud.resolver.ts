@@ -25,6 +25,7 @@ import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
 import { MongoHelper } from '../mongo-helper';
 import { InjectBaseService } from '../base.service';
+import { Ctx } from '../context';
 
 export function createResolver(definition: Definition): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -63,8 +64,8 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
+      @Ctx() context: any,
     ) {
-      const context = {};
       return await this.baseService.create(context, input);
     }
 
@@ -77,18 +78,18 @@ export function createResolver(definition: Definition): Provider {
       @Args(
         'inputs',
         { type: () => [CreateInputType(definition)] },
-        // note check this for array
         new ValidationPipe({
           transform: true,
           expectedType: CreateInputType(definition),
         }),
       )
       inputs: any,
+      @Ctx() context: any,
     ) {
       const response: any[] = [];
       for (const input of inputs) {
         try {
-          const result = await this.create(input);
+          const result = await this.create(input, context);
           response.push({ input, result, success: true });
         } catch (error: any) {
           response.push({
@@ -116,7 +117,6 @@ export function createResolver(definition: Definition): Provider {
       @Args(
         'inputs',
         { type: () => [UpdateInputType(definition)] },
-        // note check this for array
         new ValidationPipe({
           transform: true,
           expectedType: UpdateInputType(definition),

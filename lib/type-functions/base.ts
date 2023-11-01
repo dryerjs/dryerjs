@@ -23,5 +23,5 @@ export function getBaseType(input: {
       }
     }
   }
-  return Placeholder;
+  return Placeholder as any;
 }
