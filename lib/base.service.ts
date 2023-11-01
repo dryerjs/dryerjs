@@ -57,7 +57,8 @@ export class BaseService<T = any, Context = any> {
 
   public async remove(id: Partial<string>): Promise<SuccessResponse> {
     const removed = await this.model.findByIdAndRemove(id);
-    if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    if (util.isNil(removed))
+      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
     return { success: true };
   }
 
