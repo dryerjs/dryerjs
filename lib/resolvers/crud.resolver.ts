@@ -10,6 +10,7 @@ import * as util from '../util';
 import {
   BulkCreateOutputType,
   BulkRemoveOutputType,
+  BulkUpdateOutputType,
   CreateInputType,
   FilterType,
   OutputType,
@@ -107,36 +108,7 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(
-      Mutation(() => [BulkRemoveOutputType(definition)], {
-        name: `bulkRemove${util.plural(definition.name)}`,
-      }),
-    )
-    async bulkRemove(
-      @Args('ids', { type: () => [graphql.GraphQLID!]! })
-      ids: string[],
-    ) {
-      const response: any[] = [];
-      for (const id of ids) {
-        try {
-          await this.remove(id);
-          response.push({ id, success: true });
-        } catch (error: any) {
-          response.push({
-            id,
-            success: false,
-            errorMessage: (() => {
-              if (error instanceof graphql.GraphQLError) return error.message;
-              /* istanbul ignore next */
-              return 'INTERNAL_SERVER_ERROR';
-            })(),
-          });
-        }
-      }
-      return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
-    }
-
-    @IfApiAllowed(
-      Mutation(() => [BulkCreateOutputType(definition)], {
+      Mutation(() => [BulkUpdateOutputType(definition)], {
         name: `bulkUpdate${util.plural(definition.name)}`,
       }),
     )
@@ -172,6 +144,35 @@ export function createResolver(definition: Definition): Provider {
         }
       }
       return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+    }
+
+    @IfApiAllowed(
+      Mutation(() => [BulkRemoveOutputType(definition)], {
+        name: `bulkRemove${util.plural(definition.name)}`,
+      }),
+    )
+    async bulkRemove(
+      @Args('ids', { type: () => [graphql.GraphQLID!]! })
+      ids: string[],
+    ) {
+      const response: any[] = [];
+      for (const id of ids) {
+        try {
+          await this.remove(id);
+          response.push({ id, success: true });
+        } catch (error: any) {
+          response.push({
+            id,
+            success: false,
+            errorMessage: (() => {
+              if (error instanceof graphql.GraphQLError) return error.message;
+              /* istanbul ignore next */
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
+          });
+        }
+      }
+      return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
     }
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
