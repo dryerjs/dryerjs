@@ -287,6 +287,63 @@ describe('Embedded works', () => {
     expect(response[0].message).toEqual('No book IDs provided');
   });
 
+  it('test trim transform for book name', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+        mutation CreateAuthor($input: CreateAuthorInput!) {
+          createAuthor(input: $input) {
+            id
+            name
+            books {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome author 4',
+          books: [{ name: '   Awesome book 4    ' }, { name: '    Awesome book 5   ' }],
+        },
+      },
+    });
+
+    expect(response.createAuthor).toEqual({
+      id: expect.any(String),
+      name: 'Awesome author 4',
+      books: [
+        { id: expect.any(String), name: 'Awesome book 4' },
+        { id: expect.any(String), name: 'Awesome book 5' },
+      ],
+    });
+  });
+
+  it('test maxlength validation for book name', async () => {
+    await expect(
+      server.makeSuccessRequest({
+        query: `
+        mutation CreateAuthor($input: CreateAuthorInput!) {
+          createAuthor(input: $input) {
+            id
+            name
+            books {
+              id
+              name
+            }
+          }
+        }
+      `,
+        variables: {
+          input: {
+            name: 'Awesome author 5',
+            books: [{ name: 'J1uH4bY9u23z9rE28s8tY3b7u4o8c2Y5z0r7o6g1t2s3i4o5p6l7k8j9h1g21' }],
+          },
+        },
+      }),
+    ).rejects.toThrow('name must be shorter than or equal to 100 characters');
+  });
+
   afterAll(async () => {
     await server.stop();
   });
