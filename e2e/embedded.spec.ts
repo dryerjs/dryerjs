@@ -319,7 +319,7 @@ describe('Embedded works', () => {
     });
   });
 
-  it('test maxlength validation for book name', async () => {
+  it('test max length validation for book name', async () => {
     await expect(
       server.makeSuccessRequest({
         query: `
