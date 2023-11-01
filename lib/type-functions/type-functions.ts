@@ -2,12 +2,12 @@ import * as graphql from 'graphql';
 import { ObjectType, InputType, Field } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 
-import * as util from './util';
-import { hasScope } from './property';
-import { MetaKey } from './metadata';
-import { HydratedProperty, inspect } from './inspect';
-import { GraphQLJSONObject } from './js/graphql-type-json';
-import { Definition } from './definition';
+import * as util from '../util';
+import { hasScope } from '../property';
+import { MetaKey } from '../metadata';
+import { HydratedProperty, inspect } from '../inspect';
+import { GraphQLJSONObject } from '../js/graphql-type-json';
+import { Definition } from '../definition';
 
 const cacheKey = Symbol('cached');
 
