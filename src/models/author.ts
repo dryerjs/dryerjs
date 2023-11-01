@@ -10,13 +10,17 @@ import {
   CreateInputType,
   UpdateInputType,
 } from '../../lib';
+import { MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 @Definition()
 export class Book {
   @Property(() => graphql.GraphQLID)
   id: string;
 
-  @Property(() => graphql.GraphQLString)
+  @Thunk(MaxLength(100), { scopes: 'create' })
+  @Thunk(Transform(({ value }) => value.trim()))
+  @Thunk(Field(() => graphql.GraphQLString))
   name: string;
 }
 
