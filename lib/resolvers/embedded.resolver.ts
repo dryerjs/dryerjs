@@ -34,7 +34,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
     @IfApiAllowed(
-      Mutation(() => OutputType(embeddedDefinition), { 
+      Mutation(() => OutputType(embeddedDefinition), {
         name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
       }),
     )
@@ -61,8 +61,8 @@ export function createResolverForEmbedded(definition: Definition, field: string)
     }
 
     @IfApiAllowed(
-      Mutation(() => SuccessResponse, { 
-        name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`
+      Mutation(() => SuccessResponse, {
+        name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
     async remove(
@@ -113,7 +113,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
 
     @IfApiAllowed(
       Mutation(() => [OutputType(embeddedDefinition)], {
-        name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`
+        name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
     async update(
