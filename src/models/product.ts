@@ -11,6 +11,8 @@ import {
   Thunk,
   OutputType,
   CreateInputType,
+  Filterable,
+  Sortable,
 } from '../../lib';
 
 @Definition({ allowedApis: '*' })
@@ -29,6 +31,8 @@ export class Product {
   id: string;
 
   @Property(() => graphql.GraphQLString)
+  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
+  @Sortable()
   @Prop()
   name: string;
 

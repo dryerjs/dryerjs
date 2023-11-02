@@ -14,6 +14,7 @@ import {
   FilterType,
   OutputType,
   PaginatedOutputType,
+  SortType,
   UpdateInputType,
 } from '../type-functions';
 import { ApiType } from '../shared';
@@ -216,7 +217,13 @@ export function createResolver(definition: Definition): Provider {
         util.isNotNil(FilterType(definition)),
       )
       filter = {},
+      @IfArg(
+        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        util.isNotNil(SortType(definition)),
+      )
+      sort = {},
     ) {
+      console.log(sort);
       return await this.baseService.paginate(filter, page, limit);
     }
   }

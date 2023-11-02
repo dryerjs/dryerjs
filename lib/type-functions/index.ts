@@ -8,3 +8,4 @@ export * from './bulk-remove-output-type';
 
 export * from './paginate-output-type';
 export * from './filter-type';
+export * from './sort-type';

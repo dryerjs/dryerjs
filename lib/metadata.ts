@@ -17,6 +17,7 @@ export enum MetaKey {
   UseProperty = 'UseProperty',
   Definition = 'Definition',
   Filterable = 'Filterable',
+  Sortable = 'Sortable',
 }
 
 export class Metadata {
