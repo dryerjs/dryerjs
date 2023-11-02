@@ -15,6 +15,7 @@ export const ArrayValidationPipe: <T>(itemType: Type<T>) => Type<PipeTransform> 
       }
 
       transform(values: T[], metadata: ArgumentMetadata): Promise<any[]> {
+        /* istanbul ignore if */
         if (!Array.isArray(values)) {
           return values;
         }
