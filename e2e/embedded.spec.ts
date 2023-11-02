@@ -337,7 +337,7 @@ describe('Embedded works', () => {
         variables: {
           input: {
             name: 'Awesome author 5',
-            books: [{ name: 'J1uH4bY9u23z9rE28s8tY3b7u4o8c2Y5z0r7o6g1t2s3i4o5p6l7k8j9h1g21' }],
+            books: [{ name: 'a'.repeat(101) }],
           },
         },
       }),
