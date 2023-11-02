@@ -4,7 +4,6 @@ import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import {
@@ -23,7 +22,6 @@ import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
-import { MongoHelper } from '../mongo-helper';
 import { InjectBaseService } from '../base.service';
 import { Ctx } from '../context';
 
@@ -123,11 +121,12 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       inputs: any,
+      @Ctx() context: any,
     ) {
       const response: any[] = [];
       for (const input of inputs) {
         try {
-          const result = await this.update(input);
+          const result = await this.update(input, context);
           response.push({ input, result, success: true });
         } catch (error: any) {
           response.push({
@@ -186,31 +185,24 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
+      @Ctx() context: any,
     ) {
-      const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
-      if (util.isNil(updated))
-        throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${input.id}`);
-      return appendIdAndTransform(definition, await this.model.findById(updated._id));
+      return await this.baseService.update(context, input);
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
     async getOne(@Args('id', { type: () => graphql.GraphQLID }) id: string): Promise<T> {
-      const result = await this.model.findById(id);
-      if (util.isNil(result)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
-      return appendIdAndTransform(definition, result) as any;
+      return await this.baseService.getOne(id);
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
     async getAll(): Promise<T[]> {
-      const items = await this.model.find({});
-      return items.map((item) => appendIdAndTransform(definition, item)) as any;
+      return await this.baseService.getAll();
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
     async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string) {
-      const removed = await this.model.findByIdAndRemove(id);
-      if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
-      return { success: true };
+      return await this.baseService.remove(id);
     }
 
     @IfApiAllowed(
@@ -225,12 +217,7 @@ export function createResolver(definition: Definition): Provider {
       )
       filter = {},
     ) {
-      const mongoFilter = MongoHelper.toQuery(filter);
-      const response = await this.model.paginate(mongoFilter, { page, limit });
-      return plainToInstance(PaginatedOutputType(definition), {
-        ...response,
-        docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
-      });
+      return await this.baseService.paginate(filter, page, limit);
     }
   }
 
