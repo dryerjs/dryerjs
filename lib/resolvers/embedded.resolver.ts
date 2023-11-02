@@ -5,12 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 
 import * as util from '../util';
+import { ApiType } from '../shared';
 import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
 import { appendIdAndTransform } from './shared';
 import { EmbeddedConfig } from '../property';
+import { inspect } from '../inspect';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
   const embeddedDefinition = Metadata.for(definition)
@@ -18,12 +20,25 @@ export function createResolverForEmbedded(definition: Definition, field: string)
     .get<EmbeddedConfig>(MetaKey.EmbeddedType)
     .typeFunction();
 
+  function IfApiAllowed(decorator: MethodDecorator) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
+        decorator(target, propertyKey, descriptor);
+      }
+      return descriptor;
+    };
+  }
+
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
-    @Mutation(() => OutputType(embeddedDefinition))
-    async [`create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
+    @IfApiAllowed(
+      Mutation(() => OutputType(embeddedDefinition), { 
+        name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
+      }),
+    )
+    async create(
       @Args(
         'input',
         { type: () => CreateInputType(embeddedDefinition) },
@@ -45,8 +60,12 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return appendIdAndTransform(embeddedDefinition, util.last(updatedParent[field]) as any);
     }
 
-    @Mutation(() => SuccessResponse)
-    async [`remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
+    @IfApiAllowed(
+      Mutation(() => SuccessResponse, { 
+        name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`
+      }),
+    )
+    async remove(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
       })
@@ -68,7 +87,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return { success: true };
     }
 
-    @Query(() => OutputType(embeddedDefinition))
+    @IfApiAllowed(Query(() => OutputType(embeddedDefinition)))
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`](
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
@@ -81,7 +100,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
 
-    @Query(() => [OutputType(embeddedDefinition)])
+    @IfApiAllowed(Query(() => [OutputType(embeddedDefinition)]))
     async [`${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`](
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -92,8 +111,12 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
 
-    @Mutation(() => [OutputType(embeddedDefinition)])
-    async [`update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`](
+    @IfApiAllowed(
+      Mutation(() => [OutputType(embeddedDefinition)], {
+        name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`
+      }),
+    )
+    async update(
       @Args(
         'inputs',
         { type: () => [UpdateInputType(embeddedDefinition)] },
