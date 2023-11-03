@@ -70,8 +70,8 @@ export function Thunk(
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
-  options?: {
-    allowApis?: Array<'getAll' | 'getOne' | 'create' | 'update' | 'remove'>;
+  options: {
+    allowApis: Array<'getAll' | 'getOne' | 'create' | 'update' | 'remove'>;
   };
 };
 

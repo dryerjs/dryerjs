@@ -41,12 +41,6 @@ export class Author {
   @Thunk(Type(() => UpdateInputType(Book)), { scopes: 'update' })
   @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
   @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
-  @Embedded(() => Book)
+  @Embedded(() => Book, { allowApis: ['create'] })
   books: Book[];
 }
-
-// | 'create'
-// | 'update'
-// | 'getOne'
-// | 'remove'
-// | 'getAll'

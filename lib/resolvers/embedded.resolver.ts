@@ -18,18 +18,29 @@ export function createResolverForEmbedded(
   field: string,
   contextDecorator: ContextDecorator,
 ): Provider {
-  const embeddedDefinition = Metadata.for(definition)
+  const { typeFunction, options } = Metadata.for(definition)
     .with(field)
-    .get<EmbeddedConfig>(MetaKey.EmbeddedType)
-    .typeFunction();
+    .get<EmbeddedConfig>(MetaKey.EmbeddedType);
 
+  function IfApiAllowed(decorator: MethodDecorator) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (options.allowApis.includes(propertyKey as any)) {
+        decorator(target, propertyKey, descriptor);
+      }
+      return descriptor;
+    };
+  }
+
+  const embeddedDefinition = typeFunction();
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
-    @Mutation(() => OutputType(embeddedDefinition), {
-      name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
-    })
+    @IfApiAllowed(
+      Mutation(() => OutputType(embeddedDefinition), {
+        name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
+      }),
+    )
     async create(
       @Args(
         'input',
