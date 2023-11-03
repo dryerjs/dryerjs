@@ -21,7 +21,7 @@ import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { appendIdAndTransform } from './shared';
+import { ArrayValidationPipe, appendIdAndTransform } from './shared';
 import { InjectBaseService } from '../base.service';
 import { Ctx } from '../context';
 
@@ -76,10 +76,7 @@ export function createResolver(definition: Definition): Provider {
       @Args(
         'inputs',
         { type: () => [CreateInputType(definition)] },
-        new ValidationPipe({
-          transform: true,
-          expectedType: CreateInputType(definition),
-        }),
+        ArrayValidationPipe(CreateInputType(definition)),
       )
       inputs: any,
       @Ctx() context: any,
@@ -115,10 +112,7 @@ export function createResolver(definition: Definition): Provider {
       @Args(
         'inputs',
         { type: () => [UpdateInputType(definition)] },
-        new ValidationPipe({
-          transform: true,
-          expectedType: UpdateInputType(definition),
-        }),
+        ArrayValidationPipe(UpdateInputType(definition)),
       )
       inputs: any,
       @Ctx() context: any,
