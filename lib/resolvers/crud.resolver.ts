@@ -222,8 +222,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       )
       sort = {},
     ) {
-      console.log(sort);
-      return await this.baseService.paginate(filter, page, limit);
+      return await this.baseService.paginate(ctx, filter, sort, page, limit);
     }
   }
 

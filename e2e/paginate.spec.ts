@@ -31,6 +31,163 @@ describe('Paginate works', () => {
     }
   });
 
+  it('sort the data returned in ascending order', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort : CustomerSort) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { page: 1, limit: 10, sort: { email: 'ASC' } },
+    });
+    expect(paginateCustomers.docs).toHaveLength(5);
+    expect(paginateCustomers.totalDocs).toEqual(5);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'jack@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jill@example.com', numberOfOrders: null },
+        { email: 'joe@example.com', numberOfOrders: null },
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 5,
+    });
+  });
+
+  it('sort the data returned in descending order', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort : CustomerSort) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { page: 1, limit: 10, sort: { email: 'DESC' } },
+    });
+    expect(paginateCustomers.docs).toHaveLength(5);
+    expect(paginateCustomers.totalDocs).toEqual(5);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'joe@example.com', numberOfOrders: null },
+        { email: 'jill@example.com', numberOfOrders: null },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jack@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 5,
+    });
+  });
+
+  it('sort the data returned in descending order and filter', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort : CustomerSort , $filter: CustomerFilter) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort, filter: $filter) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: {
+        page: 1,
+        limit: 10,
+        sort: { email: 'DESC' },
+        filter: {
+          email: {
+            in: ["john@example.com", "jane@example.com"],
+          },
+        },
+      },
+    });
+    expect(paginateCustomers.docs).toHaveLength(2);
+    expect(paginateCustomers.totalDocs).toEqual(2);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 2,
+    });
+  });
+
+  it('sort the data returned in ascending order and filter', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort : CustomerSort , $filter: CustomerFilter) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort, filter: $filter) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: {
+        page: 1,
+        limit: 10,
+        sort: { email: 'ASC' },
+        filter: {
+          email: {
+            in: ["john@example.com", "jane@example.com"],
+          },
+        },
+      },
+    });
+    expect(paginateCustomers.docs).toHaveLength(2);
+    expect(paginateCustomers.totalDocs).toEqual(2);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 2,
+    });
+  });
+
+  it('sort the data returned in ascending order without page and limit', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($sort : CustomerSort) {
+          paginateCustomers(sort: $sort) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { sort: { email: 'ASC' } },
+    });
+    expect(paginateCustomers.docs).toHaveLength(5);
+    expect(paginateCustomers.totalDocs).toEqual(5);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'jack@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jill@example.com', numberOfOrders: null },
+        { email: 'joe@example.com', numberOfOrders: null },
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 5,
+    });
+  });
+
   it('should return all customers', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query: `
