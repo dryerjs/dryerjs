@@ -9,7 +9,7 @@ import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
-import { appendIdAndTransform } from './shared';
+import { ArrayValidationPipe, appendIdAndTransform } from './shared';
 import { EmbeddedConfig } from '../property';
 
 export function createResolverForEmbedded(definition: Definition, field: string): Provider {
@@ -97,10 +97,7 @@ export function createResolverForEmbedded(definition: Definition, field: string)
       @Args(
         'inputs',
         { type: () => [UpdateInputType(embeddedDefinition)] },
-        new ValidationPipe({
-          transform: true,
-          expectedType: UpdateInputType(embeddedDefinition),
-        }),
+        ArrayValidationPipe(UpdateInputType(embeddedDefinition)),
       )
       inputs: any[],
       @Args(`${util.toCamelCase(definition.name)}Id`, {
