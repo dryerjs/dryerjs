@@ -14,6 +14,7 @@ import {
   Filterable,
   Sortable,
 } from '../../lib';
+import { MaxLength } from 'class-validator';
 
 @Definition({ allowedApis: '*' })
 export class Tag {
@@ -21,7 +22,9 @@ export class Tag {
   id: string;
 
   @Prop({ unique: true })
-  @Property(() => graphql.GraphQLString)
+  @Thunk(Field(() => graphql.GraphQLString))
+  @Thunk(MaxLength(100), { scopes: 'input' })
+  @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   name: string;
 }
 

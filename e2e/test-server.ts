@@ -70,12 +70,15 @@ export class TestServer {
   }
 
   private async cleanDatabase() {
-    for (const definition of this.config.definitions) {
-      const model = this.app.get(getModelToken(definition.name), {
-        strict: false,
-      });
-      await model.deleteMany({});
-    }
+    await Promise.all(
+      this.config.definitions.map(async (definition) => {
+        const model = this.app.get(getModelToken(definition.name), {
+          strict: false,
+        }) as mongoose.Model<any>;
+        await model.deleteMany({});
+        await model.ensureIndexes({});
+      }),
+    );
   }
 
   public async stop() {
