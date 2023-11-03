@@ -44,7 +44,7 @@ export class BaseService<T = any, Context = any> {
     return appendIdAndTransform(this.definition, await this.model.findById(updated._id)) as any;
   }
 
-  public async getOne(id: Partial<string>): Promise<T> {
+  public async getOne(ctx: Context, id: Partial<string>): Promise<T> {
     const result = await this.model.findById(id);
     if (util.isNil(result)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
     return appendIdAndTransform(this.definition, result) as any;
@@ -55,14 +55,14 @@ export class BaseService<T = any, Context = any> {
     return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
   }
 
-  public async remove(id: Partial<string>): Promise<SuccessResponse> {
+  public async remove(ctx: Context, id: Partial<string>): Promise<SuccessResponse> {
     const removed = await this.model.findByIdAndRemove(id);
     if (util.isNil(removed))
       throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
     return { success: true };
   }
 
-  public async paginate(filter: Partial<any>, page: number, limit: number): Promise<T> {
+  public async paginate(ctx: Context, filter: Partial<any>, page: number, limit: number): Promise<T> {
     const mongoFilter = MongoHelper.toQuery(filter);
     const response = await this.model.paginate(mongoFilter, { page, limit });
     return plainToInstance(PaginatedOutputType(this.definition), {
