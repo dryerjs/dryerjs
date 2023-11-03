@@ -108,7 +108,7 @@ describe('Paginate works', () => {
         sort: { email: 'DESC' },
         filter: {
           email: {
-            in: ["john@example.com", "jane@example.com"],
+            in: ['john@example.com', 'jane@example.com'],
           },
         },
       },
@@ -143,7 +143,7 @@ describe('Paginate works', () => {
         sort: { email: 'ASC' },
         filter: {
           email: {
-            in: ["john@example.com", "jane@example.com"],
+            in: ['john@example.com', 'jane@example.com'],
           },
         },
       },
