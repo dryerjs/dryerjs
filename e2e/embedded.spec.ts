@@ -183,6 +183,56 @@ describe('Embedded works', () => {
     expect(updateAuthorBooks).toEqual(books);
   });
 
+  it('Update books have whitespace name within author', async () => {
+    const books = author.books.map((book: any) => {
+      return { ...book, name: `  ${book.name}  ` };
+    });
+
+    const trimmedBooks = books.map((book: any) => {
+      return { ...book, name: book.name.trim() };
+    });
+
+    const { updateAuthorBooks } = await server.makeSuccessRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        inputs: books,
+      },
+    });
+
+    expect(updateAuthorBooks).toEqual(trimmedBooks);
+  });
+
+  it('Update books within author: return error if book name exceed 100', async () => {
+    const books = author.books.map((book: any) => {
+      return { ...book, name: `${book.name}${'a'.repeat(101)}` };
+    });
+    const response = await server.makeFailRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        inputs: books,
+      },
+    });
+
+    const errorMessage = response[0].extensions.originalError.message[0];
+    expect(errorMessage).toEqual('name must be shorter than or equal to 100 characters');
+  });
+
   it('Update books within author: return error if parent not found', async () => {
     const response = await server.makeFailRequest({
       query: `
@@ -285,6 +335,63 @@ describe('Embedded works', () => {
       },
     });
     expect(response[0].message).toEqual('No book IDs provided');
+  });
+
+  it('test trim transform for book name', async () => {
+    const response = await server.makeSuccessRequest({
+      query: `
+        mutation CreateAuthor($input: CreateAuthorInput!) {
+          createAuthor(input: $input) {
+            id
+            name
+            books {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome author 4',
+          books: [{ name: '   Awesome book 4    ' }, { name: '    Awesome book 5   ' }],
+        },
+      },
+    });
+
+    expect(response.createAuthor).toEqual({
+      id: expect.any(String),
+      name: 'Awesome author 4',
+      books: [
+        { id: expect.any(String), name: 'Awesome book 4' },
+        { id: expect.any(String), name: 'Awesome book 5' },
+      ],
+    });
+  });
+
+  it('test max length validation for book name', async () => {
+    await expect(
+      server.makeSuccessRequest({
+        query: `
+        mutation CreateAuthor($input: CreateAuthorInput!) {
+          createAuthor(input: $input) {
+            id
+            name
+            books {
+              id
+              name
+            }
+          }
+        }
+      `,
+        variables: {
+          input: {
+            name: 'Awesome author 5',
+            books: [{ name: 'a'.repeat(101) }],
+          },
+        },
+      }),
+    ).rejects.toThrow('name must be shorter than or equal to 100 characters');
   });
 
   afterAll(async () => {
