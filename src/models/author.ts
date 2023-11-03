@@ -44,3 +44,9 @@ export class Author {
   @Embedded(() => Book)
   books: Book[];
 }
+
+// | 'create'
+// | 'update'
+// | 'getOne'
+// | 'remove'
+// | 'getAll'
