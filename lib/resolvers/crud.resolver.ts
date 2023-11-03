@@ -24,9 +24,9 @@ import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { ArrayValidationPipe, appendIdAndTransform } from './shared';
 import { InjectBaseService } from '../base.service';
-import { Ctx } from '../context';
+import { ContextDecorator } from '../context';
 
-export function createResolver(definition: Definition): Provider {
+export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
@@ -63,9 +63,9 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
-      @Ctx() context: any,
+      @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.create(context, input);
+      return await this.baseService.create(ctx, input);
     }
 
     @IfApiAllowed(
@@ -80,12 +80,12 @@ export function createResolver(definition: Definition): Provider {
         ArrayValidationPipe(CreateInputType(definition)),
       )
       inputs: any,
-      @Ctx() context: any,
+      @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const input of inputs) {
         try {
-          const result = await this.create(input, context);
+          const result = await this.create(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
           response.push({
@@ -116,12 +116,12 @@ export function createResolver(definition: Definition): Provider {
         ArrayValidationPipe(UpdateInputType(definition)),
       )
       inputs: any,
-      @Ctx() context: any,
+      @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const input of inputs) {
         try {
-          const result = await this.update(input, context);
+          const result = await this.update(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
           response.push({
@@ -148,11 +148,12 @@ export function createResolver(definition: Definition): Provider {
     async bulkRemove(
       @Args('ids', { type: () => [graphql.GraphQLID!]! })
       ids: string[],
+      @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const id of ids) {
         try {
-          await this.remove(id);
+          await this.baseService.remove(ctx, id);
           response.push({ id, success: true });
         } catch (error: any) {
           response.push({
@@ -180,14 +181,17 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
-      @Ctx() context: any,
+      @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.update(context, input);
+      return await this.baseService.update(ctx, input);
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
-    async getOne(@Args('id', { type: () => graphql.GraphQLID }) id: string): Promise<T> {
-      return await this.baseService.getOne(id);
+    async getOne(
+      @Args('id', { type: () => graphql.GraphQLID }) id: string,
+      @contextDecorator() ctx: any,
+    ): Promise<T> {
+      return await this.baseService.getOne(ctx, id);
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
@@ -196,14 +200,15 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
-    async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string) {
-      return await this.baseService.remove(id);
+    async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string, @contextDecorator() ctx: any) {
+      return await this.baseService.remove(ctx, id);
     }
 
     @IfApiAllowed(
       Query(() => PaginatedOutputType(definition), { name: `paginate${util.plural(definition.name)}` }),
     )
     async paginate(
+      @contextDecorator() ctx: any,
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
       @IfArg(
