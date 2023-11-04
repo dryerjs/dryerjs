@@ -36,7 +36,7 @@ To get started with DryerJS, follow these steps:
 2. Install dependencies:
 
    ```bash
-   npm i @nestjs/graphql @nestjs/apollo @apollo/server class-transformer class-validator @nestjs/mongoose
+   npm i @nestjs/graphql @nestjs/apollo @apollo/server class-transformer class-validator @nestjs/mongoose dataloader
    ```
 
 3. Install DryerJS as a dependency in your project

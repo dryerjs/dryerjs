@@ -8,6 +8,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasManyConfig } from '../property';
+import { ModuleRef } from '@nestjs/core';
 
 export function createResolverForHasMany(definition: Definition, field: string): Provider {
   const relation = Metadata.for(definition).with(field).get<HasManyConfig>(MetaKey.HasManyType);
@@ -15,13 +16,15 @@ export function createResolverForHasMany(definition: Definition, field: string):
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForHasMany<T> {
-    constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
+    constructor(
+      @InjectModel(relationDefinition.name) public model: Model<any>,
+      private moduleRef: ModuleRef,
+    ) {}
 
     @ResolveField()
     async [field](@Parent() parent: any): Promise<T[]> {
-      const items = await this.model.find({
-        [relation.options.from]: parent.id,
-      });
+      const dataloader = await this.moduleRef.resolve(`${definition.name}HasManyLoader`);
+      const items = await dataloader.load(parent.id);
       return items.map((item) => appendIdAndTransform(relationDefinition, item) as any);
     }
   }

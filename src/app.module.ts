@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
-import { Product, Tag, User, Author, Customer, Variant } from './models';
+import { Product, Tag, User, Author, Image, Customer, Variant } from './models';
 
 const definitions: Definition[] = [Product, Tag, User, Author, Image, Variant, Customer];
 
