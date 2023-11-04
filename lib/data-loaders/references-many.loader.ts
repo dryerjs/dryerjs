@@ -35,7 +35,7 @@ export function createReferencesManyLoader(definition: Definition, field: string
       dataKeys.map((dataKey) => {
         const items: any[] = [];
         dataKey.map((key) => {
-          const item = results.find((res) => (field === '_id' ? res[field].toString() : res[field]) === key);
+          const item = results.find((res) => res[field].toString() === key);
           if (item) items.push(item);
         });
         itemMap.push(items);
