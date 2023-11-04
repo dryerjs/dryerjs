@@ -56,14 +56,13 @@ export function createResolverForEmbedded(
     ) {
       ctx;
       const parent = await this.model.findById(parentId).select(field);
+      const beforeIds = parent[field].map((item: any) => item._id.toString());
       parent[field].push(...inputs);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
       return updatedParent[field]
-        .filter((item: any) => {
-          for (const input of inputs) if (item.name === input.name) return item;
-        })
-        .map((filteredItem: any) => appendIdAndTransform(embeddedDefinition, filteredItem)) as any;
+        .filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1)
+        .map((item: any) => appendIdAndTransform(embeddedDefinition, item));
     }
 
     @IfApiAllowed(
@@ -166,10 +165,8 @@ export function createResolverForEmbedded(
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
       return updatedParent[field]
-        .filter((item: any) => {
-          for (const input of inputs) if (item.name === input.name) return item;
-        })
-        .map((filteredItem: any) => appendIdAndTransform(embeddedDefinition, filteredItem)) as any;
+        .filter((item: any) => inputs.some((input) => input.id === item.id.toString()))
+        .map((item: any) => appendIdAndTransform(embeddedDefinition, item));
     }
   }
 
