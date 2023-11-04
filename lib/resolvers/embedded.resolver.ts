@@ -43,14 +43,11 @@ export function createResolverForEmbedded(
     )
     async create(
       @Args(
-        'input',
-        { type: () => CreateInputType(embeddedDefinition) },
-        new ValidationPipe({
-          transform: true,
-          expectedType: CreateInputType(embeddedDefinition),
-        }),
+        'inputs',
+        { type: () => [CreateInputType(embeddedDefinition)] },
+        ArrayValidationPipe(CreateInputType(embeddedDefinition)),
       )
-      input: any,
+      inputs: any[],
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
       })
@@ -59,15 +56,17 @@ export function createResolverForEmbedded(
     ) {
       ctx;
       const parent = await this.model.findById(parentId).select(field);
-      parent[field].push(input);
+      parent[field].push(...inputs);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return appendIdAndTransform(embeddedDefinition, util.last(updatedParent[field]) as any);
+      return updatedParent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
 
-    @Mutation(() => SuccessResponse, {
-      name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
-    })
+    @IfApiAllowed(
+      Mutation(() => SuccessResponse, {
+        name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
+      }),
+    )
     async remove(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -92,9 +91,11 @@ export function createResolverForEmbedded(
       return { success: true };
     }
 
-    @Query(() => OutputType(embeddedDefinition), {
-      name: `${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
-    })
+    @IfApiAllowed(
+      Query(() => OutputType(embeddedDefinition), {
+        name: `${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
+      }),
+    )
     async getOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
@@ -109,9 +110,11 @@ export function createResolverForEmbedded(
       return appendIdAndTransform(embeddedDefinition, result) as any;
     }
 
-    @Query(() => [OutputType(embeddedDefinition)], {
-      name: `${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`,
-    })
+    @IfApiAllowed(
+      Query(() => [OutputType(embeddedDefinition)], {
+        name: `${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`,
+      }),
+    )
     async getAll(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -124,9 +127,11 @@ export function createResolverForEmbedded(
       return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
     }
 
-    @Mutation(() => [OutputType(embeddedDefinition)], {
-      name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
-    })
+    @IfApiAllowed(
+      Mutation(() => [OutputType(embeddedDefinition)], {
+        name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
+      }),
+    )
     async update(
       @Args(
         'inputs',

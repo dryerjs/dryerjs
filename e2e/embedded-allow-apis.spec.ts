@@ -9,7 +9,7 @@ import { Field } from '@nestjs/graphql';
 import { Property, Definition, Embedded, Thunk, OutputType, CreateInputType, UpdateInputType } from '../lib';
 
 @Definition()
-export class Book {
+export class Novel {
   @Property(() => graphql.GraphQLID)
   id: string;
 
@@ -27,16 +27,16 @@ export class Author {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Prop({ type: [SchemaFactory.createForClass(Book)] })
-  @Thunk(Field(() => [OutputType(Book)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Book)], { nullable: true }), { scopes: 'create' })
-  @Thunk(Field(() => [UpdateInputType(Book)], { nullable: true }), { scopes: 'update' })
-  @Thunk(Type(() => CreateInputType(Book)), { scopes: 'create' })
-  @Thunk(Type(() => UpdateInputType(Book)), { scopes: 'update' })
+  @Prop({ type: [SchemaFactory.createForClass(Novel)] })
+  @Thunk(Field(() => [OutputType(Novel)]), { scopes: 'output' })
+  @Thunk(Field(() => [CreateInputType(Novel)], { nullable: true }), { scopes: 'create' })
+  @Thunk(Field(() => [UpdateInputType(Novel)], { nullable: true }), { scopes: 'update' })
+  @Thunk(Type(() => CreateInputType(Novel)), { scopes: 'create' })
+  @Thunk(Type(() => UpdateInputType(Novel)), { scopes: 'update' })
   @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
   @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
-  @Embedded(() => Book, { allowApis: ['getOne'] })
-  books: Book[];
+  @Embedded(() => Novel, { allowApis: ['create'] })
+  novels: Novel[];
 }
 
 const server = TestServer.init({
@@ -52,7 +52,7 @@ describe('Embedded works', () => {
 
   let author: Author;
 
-  it('Create author with books', async () => {
+  it('Create author with novels', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateAuthor($input: CreateAuthorInput!) {
@@ -69,27 +69,27 @@ describe('Embedded works', () => {
       variables: {
         input: {
           name: 'Awesome author',
-          books: [{ name: 'Awesome book 1' }, { name: 'Awesome book 2' }],
+          novels: [{ name: 'Awesome novel 1' }, { name: 'Awesome novel 2' }],
         },
       },
     });
     expect(response.createAuthor).toEqual({
       id: expect.any(String),
       name: 'Awesome author',
-      books: [
-        { id: expect.any(String), name: 'Awesome book 1' },
-        { id: expect.any(String), name: 'Awesome book 2' },
+      novels: [
+        { id: expect.any(String), name: 'Awesome novel 1' },
+        { id: expect.any(String), name: 'Awesome novel 2' },
       ],
     });
 
     author = response.createAuthor;
   });
 
-  it('Get one book within author', async () => {
-    const { authorBook } = await server.makeSuccessRequest({
+  it('Get one novel within author', async () => {
+    const response = await server.makeFailRequest({
       query: `
-        query AuthorBook($authorId: ID!, $bookId: ID!) {
-          authorBook(authorId: $authorId, id: $bookId) {
+        query Query($authorId: ID!, $novelId: ID!) {
+          authorNovel(authorId: $authorId, id: $novelId) {
             id
             name
           }
@@ -97,21 +97,18 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        bookId: author.books[0].id,
+        novelId: author.novels[0].id,
       },
     });
 
-    expect(authorBook).toEqual({
-      id: author.books[0].id,
-      name: 'Awesome book 1',
-    });
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it('Get all books within author', async () => {
-    const { authorBooks } = await server.makeSuccessRequest({
+  it('Get all novels within author', async () => {
+    const response = await server.makeFailRequest({
       query: `
-        query AuthorBooks($authorId: ID!) {
-          authorBooks(authorId: $authorId) {
+        query Query($authorId: ID!) {
+          authorNovels(authorId: $authorId) {
             id
             name
           }
@@ -122,32 +119,30 @@ describe('Embedded works', () => {
       },
     });
 
-    expect(authorBooks).toEqual([
-      { id: expect.any(String), name: 'Awesome book 1' },
-      { id: expect.any(String), name: 'Awesome book 2' },
-    ]);
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it('Create book within author', async () => {
+  it('Create novel within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorBook($input: CreateBookInput!, $authorId: ID!) {
-          createAuthorBook(input: $input, authorId: $authorId) {
+        mutation CreateAuthorNovel($inputs: [CreateBookInput!]!, $authorId: ID!) {
+          createAuthorNovel(inputs: $input, authorId: $authorId) {
             id
             name
           }
         }
       `,
       variables: {
-        input: {
-          name: 'Awesome book 3',
-        },
+        inputs: [
+          { name: 'Awesome novel 3' },
+          { name: 'Awesome novel 4'},
+        ],
         authorId: author.id,
       },
     });
-    expect(response.createAuthorBook).toEqual({
+    expect(response.createAuthorNovel).toEqual({
       id: expect.any(String),
-      name: 'Awesome book 3',
+      name: 'Awesome novel 3',
     });
 
     const { author: updatedAuthor } = await server.makeSuccessRequest({
@@ -169,7 +164,7 @@ describe('Embedded works', () => {
     });
 
     expect(updatedAuthor.books).toEqual([
-      ...author.books,
+      ...author.novels,
       { id: expect.any(String), name: 'Awesome book 3' },
     ]);
   });
@@ -201,7 +196,7 @@ describe('Embedded works', () => {
   });
 
   it('Update books within author', async () => {
-    const books = author.books.map((book: any) => {
+    const books = author.novels.map((book: any) => {
       return { ...book, name: `${book.name}-edit` };
     });
     const { updateAuthorBooks } = await server.makeSuccessRequest({
@@ -222,7 +217,7 @@ describe('Embedded works', () => {
   });
 
   it('Update books have whitespace name within author', async () => {
-    const books = author.books.map((book: any) => {
+    const books = author.novels.map((book: any) => {
       return { ...book, name: `  ${book.name}  ` };
     });
 
@@ -249,7 +244,7 @@ describe('Embedded works', () => {
   });
 
   it('Update books within author: return error if book name exceed 100', async () => {
-    const books = author.books.map((book: any) => {
+    const books = author.novels.map((book: any) => {
       return { ...book, name: `${book.name}${'a'.repeat(101)}` };
     });
     const response = await server.makeFailRequest({
@@ -283,14 +278,14 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: NOT_FOUND_ID,
-        inputs: author.books,
+        inputs: author.novels,
       },
     });
     expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
   });
 
   it('Update books within author: return error if book not found', async () => {
-    const books = [...author.books];
+    const books = [...author.novels];
     books[0].id = NOT_FOUND_ID;
     const response = await server.makeFailRequest({
       query: `
