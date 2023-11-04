@@ -34,6 +34,29 @@ export class BaseService<T = any, Context = any> {
         $addToSet: { [relation.options.from]: { $each: newIds } },
       });
     }
+    for (const property of inspect(this.definition).hasOneProperties) {
+      if (!input[property.name]) continue;
+      const relation = property.getHasOne();
+      const relationDefinition = relation.typeFunction();
+      const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+      await relationModel.create({
+        ...input[property.name],
+        [relation.options.to]: created._id,
+      });
+    }
+
+    for (const property of inspect(this.definition).hasManyProperties) {
+      if (!input[property.name] || input[property.name].length === 0) continue;
+      const relation = property.getHasMany();
+      const relationDefinition = relation.typeFunction();
+      for (const subObject of input[property.name]) {
+        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+        await relationModel.create({
+          ...subObject,
+          [relation.options.from]: created._id,
+        });
+      }
+    }
     return appendIdAndTransform(this.definition, await this.model.findById(created._id)) as any;
   }
 
