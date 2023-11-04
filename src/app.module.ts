@@ -6,7 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
-import { Product, Tag, User, Author, Image, Customer, Variant } from './models';
+import { Product, Tag, User, Author, UserHook, Image, Customer, Variant } from './models';
+import { Ctx } from './ctx';
 
 const definitions: Definition[] = [Product, Tag, User, Author, Image, Variant, Customer];
 
@@ -21,7 +22,11 @@ const definitions: Definition[] = [Product, Tag, User, Author, Image, Variant, C
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-debug'),
-    DryerModule.register({ definitions }),
+    DryerModule.register({
+      definitions,
+      contextDecorator: Ctx,
+      hooks: [UserHook],
+    }),
   ],
   providers: [AuthResolver],
 })

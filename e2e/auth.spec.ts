@@ -1,10 +1,12 @@
 import { TestServer } from './test-server';
 import { User } from '../src/models';
 import { AuthResolver } from '../src/resolvers';
+import { Ctx } from '../src/ctx';
 
 const server = TestServer.init({
   definitions: [User],
   providers: [AuthResolver],
+  contextDecorator: Ctx,
 });
 
 describe('Auth Resolver works', () => {
@@ -45,15 +47,15 @@ describe('Auth Resolver works', () => {
   it('whoIamI works', async () => {
     const whoAmIResponse = await server.makeSuccessRequest({
       query: `
-        query WhoAmI($userId: String!) {
-          whoAmI(userId: $userId) {
+        query WhoAmI {
+          whoAmI {
             email
             name
           }
         }
       `,
-      variables: {
-        userId: user.id,
+      headers: {
+        'fake-context': `{"userId":"${user.id}"}`,
       },
     });
 

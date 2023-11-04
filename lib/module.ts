@@ -19,6 +19,7 @@ export class DryerModule {
   public static register(input: {
     definitions: Definition[];
     contextDecorator?: ContextDecorator;
+    hooks?: Provider[];
   }): DynamicModule {
     const contextDecorator = util.defaultTo(input.contextDecorator, defaultContextDecorator);
     const providers: Provider[] = [];
@@ -61,13 +62,14 @@ export class DryerModule {
     );
 
     const mongooseModuleExports = mongooseForFeatureModule.exports as any;
+    const hooks = util.defaultTo(input.hooks, []);
     const baseServicesProviders = input.definitions.map((definition) => ({
       provide: getBaseServiceToken(definition),
-      useClass: createBaseService(definition),
+      useClass: createBaseService(definition, hooks),
     }));
     return {
       module: DryerModule,
-      providers: [...providers, ...mongooseModuleExports, ...baseServicesProviders],
+      providers: [...providers, ...mongooseModuleExports, ...baseServicesProviders, ...hooks],
       exports: [...mongooseModuleExports, ...baseServicesProviders],
     };
   }
