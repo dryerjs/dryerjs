@@ -43,8 +43,6 @@ const server = TestServer.init({
   definitions: [Author],
 });
 
-const NOT_FOUND_ID = '000000000000000000000000';
-
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
