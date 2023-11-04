@@ -93,8 +93,8 @@ describe('Embedded works', () => {
   it('Create book within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorBook($inputs: [CreateBookInput!]!, $authorId: ID!) {
-          createAuthorBook(inputs: $inputs, authorId: $authorId) {
+        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ID!) {
+          createAuthorBooks(inputs: $inputs, authorId: $authorId) {
             id
             name
           }
@@ -109,7 +109,8 @@ describe('Embedded works', () => {
         authorId: author.id,
       },
     });
-    expect(response.createAuthorBook).toEqual([
+
+    expect(response.createAuthorBooks).toEqual([
       {
         id: expect.any(String),
         name: 'Awesome book 3',
@@ -273,6 +274,50 @@ describe('Embedded works', () => {
       },
     });
     expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
+  });
+
+  it('create and update author books should only return relevant items', async () => {
+    const { createAuthorBooks } = await server.makeSuccessRequest({
+      query: `
+        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ID!) {
+          createAuthorBooks(inputs: $inputs, authorId: $authorId) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        inputs: [
+          {
+            name: 'one more book',
+          },
+        ],
+        authorId: author.id,
+      },
+    });
+
+    expect(createAuthorBooks).toEqual([
+      {
+        id: expect.any(String),
+        name: 'one more book',
+      },
+    ]);
+
+    const { updateAuthorBooks } = await server.makeSuccessRequest({
+      query: `
+        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        inputs: [{ id: createAuthorBooks[0].id, name: 'updated book' }],
+      },
+    });
+    expect(updateAuthorBooks).toEqual([{ id: createAuthorBooks[0].id, name: 'updated book' }]);
   });
 
   it("Remove author's books", async () => {

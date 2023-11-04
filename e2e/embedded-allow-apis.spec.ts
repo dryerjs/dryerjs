@@ -20,7 +20,7 @@ export class Novel {
 }
 
 @Definition({ allowedApis: '*' })
-export class Author {
+export class Novelist {
   @Property(() => graphql.GraphQLID)
   id: string;
 
@@ -40,7 +40,7 @@ export class Author {
 }
 
 const server = TestServer.init({
-  definitions: [Author],
+  definitions: [Novelist],
 });
 
 describe('Embedded works', () => {
@@ -48,13 +48,13 @@ describe('Embedded works', () => {
     await server.start();
   });
 
-  let author: Author;
+  let novelist: Novelist;
 
-  it('Create author with novels', async () => {
+  it('Create novelist with novels', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthor($input: CreateAuthorInput!) {
-          createAuthor(input: $input) {
+        mutation CreateNovelist($input: CreateNovelistInput!) {
+          createNovelist(input: $input) {
             id
             name
             novels {
@@ -66,65 +66,65 @@ describe('Embedded works', () => {
       `,
       variables: {
         input: {
-          name: 'Awesome author',
+          name: 'Awesome novelist',
           novels: [{ name: 'Awesome novel 1' }, { name: 'Awesome novel 2' }],
         },
       },
     });
-    expect(response.createAuthor).toEqual({
+    expect(response.createNovelist).toEqual({
       id: expect.any(String),
-      name: 'Awesome author',
+      name: 'Awesome novelist',
       novels: [
         { id: expect.any(String), name: 'Awesome novel 1' },
         { id: expect.any(String), name: 'Awesome novel 2' },
       ],
     });
 
-    author = response.createAuthor;
+    novelist = response.createNovelist;
   });
 
-  it('Get one novel within author', async () => {
+  it('Get one novel within novelist', async () => {
     const response = await server.makeFailRequest({
       query: `
-        query AuthorNovel($authorId: ID!, $novelId: ID!) {
-          authorNovel(authorId: $authorId, id: $novelId) {
+        query NovelistNovel($novelistId: ID!, $novelId: ID!) {
+          novelistNovel(novelistId: $novelistId, id: $novelId) {
             id
             name
           }
         }
       `,
       variables: {
-        authorId: author.id,
-        novelId: author.novels[0].id,
+        novelistId: novelist.id,
+        novelId: novelist.novels[0].id,
       },
     });
 
     expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it('Get all novels within author', async () => {
+  it('Get all novels within novelist', async () => {
     const response = await server.makeFailRequest({
       query: `
-        query AuthorNovels($authorId: ID!) {
-          authorNovels(authorId: $authorId) {
+        query NovelistNovels($novelistId: ID!) {
+          novelistNovels(novelistId: $novelistId) {
             id
             name
           }
         }
       `,
       variables: {
-        authorId: author.id,
+        novelistId: novelist.id,
       },
     });
 
     expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it('Create novel within author', async () => {
+  it('Create novel within novelist', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorNovel($inputs: [CreateNovelInput!]!, $authorId: ID!) {
-          createAuthorNovel(inputs: $inputs, authorId: $authorId) {
+        mutation CreateNovelistNovels($inputs: [CreateNovelInput!]!, $novelistId: ID!) {
+          createNovelistNovels(inputs: $inputs, novelistId: $novelistId) {
             id
             name
           }
@@ -132,10 +132,10 @@ describe('Embedded works', () => {
       `,
       variables: {
         inputs: [{ name: 'Awesome novel 3' }, { name: 'Awesome novel 4' }],
-        authorId: author.id,
+        novelistId: novelist.id,
       },
     });
-    expect(response.createAuthorNovel).toEqual([
+    expect(response.createNovelistNovels).toEqual([
       {
         id: expect.any(String),
         name: 'Awesome novel 3',
@@ -147,11 +147,11 @@ describe('Embedded works', () => {
     ]);
   });
 
-  it('Create author without novels', async () => {
+  it('Create novelist without novels', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthor($input: CreateAuthorInput!) {
-          createAuthor(input: $input) {
+        mutation CreateNovelist($input: CreateNovelistInput!) {
+          createNovelist(input: $input) {
             id
             name
             novels {
@@ -162,50 +162,50 @@ describe('Embedded works', () => {
       `,
       variables: {
         input: {
-          name: 'Awesome author 2',
+          name: 'Awesome novelist 2',
         },
       },
     });
-    expect(response.createAuthor).toEqual({
+    expect(response.createNovelist).toEqual({
       id: expect.any(String),
-      name: 'Awesome author 2',
+      name: 'Awesome novelist 2',
       novels: [],
     });
   });
 
-  it('Update novels within author: return error if BAD_REQUEST', async () => {
-    const novels = author.novels.map((novel: any) => {
+  it('Update novels within novelist: return error if BAD_REQUEST', async () => {
+    const novels = novelist.novels.map((novel: any) => {
       return { ...novel, name: `${novel.name}-edit` };
     });
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorNovels($authorId: ID!, $inputs: [UpdateNovelInput!]!) {
-          updateAuthorNovels(authorId: $authorId, inputs: $inputs) {
+        mutation updateNovelistNovels($novelistId: ID!, $inputs: [UpdateNovelInput!]!) {
+          updateNovelistNovels(novelistId: $novelistId, inputs: $inputs) {
             id
             name
           }
         }
       `,
       variables: {
-        authorId: author.id,
+        novelistId: novelist.id,
         inputs: novels,
       },
     });
     expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it("Remove author's novels", async () => {
+  it("Remove novelist's novels", async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation RemoveAuthorNovels($authorId: ID!, $novelIds: [ID!]!) {
-          removeAuthorNovels(authorId: $authorId, ids: $novelIds) {
+        mutation RemoveNovelistNovels($novelistId: ID!, $novelIds: [ID!]!) {
+          removeNovelistNovels(novelistId: $novelistId, ids: $novelIds) {
             success
           }
         }
       `,
       variables: {
-        authorId: author.id,
-        novelIds: [author.novels[0].id],
+        novelistId: novelist.id,
+        novelIds: [novelist.novels[0].id],
       },
     });
     expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
@@ -214,8 +214,8 @@ describe('Embedded works', () => {
   it('test trim transform for novel name', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthor($input: CreateAuthorInput!) {
-          createAuthor(input: $input) {
+        mutation CreateNovelist($input: CreateNovelistInput!) {
+          createNovelist(input: $input) {
             id
             name
             novels {
@@ -227,15 +227,15 @@ describe('Embedded works', () => {
       `,
       variables: {
         input: {
-          name: 'Awesome author 4',
+          name: 'Awesome novelist 4',
           novels: [{ name: '   Awesome novel 4    ' }, { name: '    Awesome novel 5   ' }],
         },
       },
     });
 
-    expect(response.createAuthor).toEqual({
+    expect(response.createNovelist).toEqual({
       id: expect.any(String),
-      name: 'Awesome author 4',
+      name: 'Awesome novelist 4',
       novels: [
         { id: expect.any(String), name: 'Awesome novel 4' },
         { id: expect.any(String), name: 'Awesome novel 5' },
@@ -247,8 +247,8 @@ describe('Embedded works', () => {
     await expect(
       server.makeSuccessRequest({
         query: `
-        mutation CreateAuthor($input: CreateAuthorInput!) {
-          createAuthor(input: $input) {
+        mutation CreateNovelist($input: CreateNovelistInput!) {
+          createNovelist(input: $input) {
             id
             name
             novels {
@@ -260,7 +260,7 @@ describe('Embedded works', () => {
       `,
         variables: {
           input: {
-            name: 'Awesome author 5',
+            name: 'Awesome novelist 5',
             novels: [{ name: 'a'.repeat(101) }],
           },
         },

@@ -38,7 +38,7 @@ export function createResolverForEmbedded(
 
     @IfApiAllowed(
       Mutation(() => [OutputType(embeddedDefinition)], {
-        name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
+        name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.plural(field))}`,
       }),
     )
     async create(
