@@ -8,7 +8,7 @@ import { HasOneConfig } from '../property';
 
 export type HasOneDataKeys = string[];
 
-export function createHasOneLoader(definition: Definition, field: string) {
+export function createHasOneLoader(definition: Definition, field: string): any {
   const relation = Metadata.for(definition).with(field).get<HasOneConfig>(MetaKey.HasOneType);
   const relationDefinition = relation.typeFunction();
 

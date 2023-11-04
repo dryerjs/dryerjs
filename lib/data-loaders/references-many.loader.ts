@@ -7,7 +7,7 @@ import { MetaKey, Metadata } from '../metadata';
 
 export type HasManyDataKey = any[];
 
-export function createReferencesManyLoader(definition: Definition, field: string) {
+export function createReferencesManyLoader(definition: Definition, field: string): any {
   const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
   const relationDefinition = relation.typeFunction();
 

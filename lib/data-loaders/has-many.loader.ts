@@ -8,7 +8,7 @@ import { HasManyConfig } from '../property';
 
 export type HasManyDataKeys = string[];
 
-export function createHasManyLoader(definition: Definition, field: string) {
+export function createHasManyLoader(definition: Definition, field: string): any {
   const relation = Metadata.for(definition).with(field).get<HasManyConfig>(MetaKey.HasManyType);
   const relationDefinition = relation.typeFunction();
 
