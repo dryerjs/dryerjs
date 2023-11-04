@@ -1,9 +1,9 @@
 import { TestServer } from './test-server';
-import { Author, Product, Tag, User } from '../src/models';
+import { Author, Image, Product, Tag, User, Variant } from '../src/models';
 import { AuthResolver } from '../src/resolvers';
 
 const server = TestServer.init({
-  definitions: [User, Product, Tag, Author],
+  definitions: [User, Product, Tag, Author, Variant, Image],
   providers: [AuthResolver],
 });
 

@@ -1,3 +1,22 @@
+# [0.8.0](https://github.com/dryerjs/dryerjs/compare/v0.7.0...v0.8.0) (2023-10-31)
+
+
+### Bug Fixes
+
+* index issue with e2e ([#122](https://github.com/dryerjs/dryerjs/issues/122)) ([9bce007](https://github.com/dryerjs/dryerjs/commit/9bce007e6da04d063f3fbebc981fc838d3423bc8))
+* remove monkey patch for this.model.paginate ([#123](https://github.com/dryerjs/dryerjs/issues/123)) ([9882cb9](https://github.com/dryerjs/dryerjs/commit/9882cb9d5338e7b7e6b2c7f8ea9825f4e16ff0ce))
+* some issue with socket dev ([#138](https://github.com/dryerjs/dryerjs/issues/138)) ([489b1c7](https://github.com/dryerjs/dryerjs/commit/489b1c792100d3988ea03cc5f66d8de15d411770))
+
+
+### Features
+
+* bulk create ([#115](https://github.com/dryerjs/dryerjs/issues/115)) ([91cb9ab](https://github.com/dryerjs/dryerjs/commit/91cb9ab14457e1a24568ea4969f2947d81eeeff6))
+* bulk delete ([#124](https://github.com/dryerjs/dryerjs/issues/124)) ([4ed9289](https://github.com/dryerjs/dryerjs/commit/4ed9289260b8c2addf5deb0f52c77afc5fda2171))
+* bulk update ([#133](https://github.com/dryerjs/dryerjs/issues/133)) ([0ba3f7a](https://github.com/dryerjs/dryerjs/commit/0ba3f7a152160ac9c0a4c5b8ffaafd61a935951b))
+* paginate with filter ([#136](https://github.com/dryerjs/dryerjs/issues/136)) ([9cac65e](https://github.com/dryerjs/dryerjs/commit/9cac65eaef60336f44a28c4b1f4b327282997b0c))
+* simple paginate api ([#120](https://github.com/dryerjs/dryerjs/issues/120)) ([1d05f8a](https://github.com/dryerjs/dryerjs/commit/1d05f8a018e80146811aa3d8168c7f5ca0cc9de3))
+* types for filterable ([#132](https://github.com/dryerjs/dryerjs/issues/132)) ([1d88805](https://github.com/dryerjs/dryerjs/commit/1d888053b6426c5fdb15dbff9aa1b5d451e5bbc9))
+
 # [0.7.0](https://github.com/dryerjs/dryerjs/compare/v0.6.1...v0.7.0) (2023-10-27)
 
 

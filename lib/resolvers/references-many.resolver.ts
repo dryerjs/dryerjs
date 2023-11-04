@@ -9,8 +9,13 @@ import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { ReferencesManyConfig } from '../property';
+import { ContextDecorator } from '../context';
 
-export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
+export function createResolverForReferencesMany(
+  definition: Definition,
+  field: string,
+  contextDecorator: ContextDecorator,
+): Provider {
   const relation = Metadata.for(definition).with(field).get<ReferencesManyConfig>(MetaKey.ReferencesManyType);
   const relationDefinition = relation.typeFunction();
 
@@ -22,8 +27,9 @@ export function createResolverForReferencesMany(definition: Definition, field: s
     ) {}
 
     @ResolveField()
-    async [field](@Parent() parent: any): Promise<T[]> {
-      const dataloader = await this.moduleRef.resolve(`${definition.name}Loader`);
+    async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T[]> {
+      ctx;
+      const dataloader = await this.moduleRef.resolve(`${definition.name}ReferencesManyLoader`);
       const items = await dataloader.load(parent[relation.options.from]);
       return items.map((item) => appendIdAndTransform(relationDefinition, item)) as any;
     }

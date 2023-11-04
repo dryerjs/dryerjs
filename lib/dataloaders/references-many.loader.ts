@@ -5,8 +5,7 @@ import * as DataLoader from 'dataloader';
 import { Definition } from '../definition';
 import { MetaKey, Metadata } from '../metadata';
 
-export type DataKey = any[];
-export type DataItem = DataKey;
+export type HasManyDataKey = any[];
 
 export function createReferencesManyLoader(definition: Definition, field: string) {
   const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
@@ -17,21 +16,21 @@ export function createReferencesManyLoader(definition: Definition, field: string
     constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
 
     loader = new DataLoader(async (keys: any) => {
-      return await this.getReferences(keys as DataKey[]);
+      return await this.getReferences(keys as HasManyDataKey[]);
     });
 
     public async load(key: any) {
       return await this.loader.load(key);
     }
 
-    public async getReferences(dataKeys: DataKey[]) {
+    public async getReferences(dataKeys: HasManyDataKey[]) {
       const flatenKeys: any[] = [];
       dataKeys.map((key: any[]) => flatenKeys.push(...key));
 
       const field = relation.options.to || '_id';
       const results = await this.model.find({ [field]: { $in: flatenKeys } });
 
-      const itemMap: DataItem[] = [];
+      const itemMap: any[] = [];
 
       dataKeys.map((dataKey) => {
         const items: any[] = [];
