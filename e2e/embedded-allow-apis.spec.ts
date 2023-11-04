@@ -133,10 +133,7 @@ describe('Embedded works', () => {
         }
       `,
       variables: {
-        inputs: [
-          { name: 'Awesome novel 3' },
-          { name: 'Awesome novel 4'},
-        ],
+        inputs: [{ name: 'Awesome novel 3' }, { name: 'Awesome novel 4' }],
         authorId: author.id,
       },
     });
