@@ -1,9 +1,9 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 
+import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { cacheType } from './cache-type';
 
 export enum SortDirection {
   ASC = 1,
@@ -27,6 +27,4 @@ function getType(definition: Definition) {
   return SortPlaceholder;
 }
 
-export function SortType(definition: Definition) {
-  return cacheType(() => getType(definition), definition, 'SortType');
-}
+export const SortType = util.memoize(getType);

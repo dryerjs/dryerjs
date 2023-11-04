@@ -1,17 +1,13 @@
+import * as util from '../util';
 import { Definition } from '../definition';
 import { getBaseType } from './base';
-import { cacheType } from './cache-type';
 
-export function UpdateInputType(definition: Definition) {
-  return cacheType(
-    () => {
-      return getBaseType({
-        definition,
-        name: `Update${definition.name}Input`,
-        scope: 'update',
-      });
-    },
+function getType(definition: Definition) {
+  return getBaseType({
     definition,
-    'UpdateInputType',
-  );
+    name: `Update${definition.name}Input`,
+    scope: 'update',
+  });
 }
+
+export const UpdateInputType = util.memoize(getType);

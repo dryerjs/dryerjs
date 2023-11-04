@@ -51,3 +51,21 @@ export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperC
 export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
 
 export const last = <T>(array: T[]) => array[array.length - 1];
+
+export function memoize<T extends Function>(func: T, resolver?: (...args: any[]) => any): T {
+  if (typeof func !== 'function' || (resolver && typeof resolver !== 'function')) {
+    throw new TypeError('FUNC_ERROR_TEXT');
+  }
+
+  const memoized = function (this: any, ...args: any[]) {
+    const key = resolver ? resolver.apply(this, args) : String(args[0]);
+    const cache = memoized.cache;
+    if (cache.has(key)) return cache.get(key);
+    const result = func.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+
+  memoized.cache = new Map();
+  return memoized as any;
+}

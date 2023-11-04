@@ -3,7 +3,6 @@ import { ObjectType, Field } from '@nestjs/graphql';
 
 import * as util from '../util';
 import { Definition } from '../definition';
-import { cacheType } from './cache-type';
 import { OutputType } from './output-type';
 
 function getType(definition: Definition): any {
@@ -25,6 +24,4 @@ function getType(definition: Definition): any {
   return Placeholder;
 }
 
-export function BulkRemoveOutputType(definition: Definition) {
-  return cacheType(() => getType(definition), definition, 'BulkRemoveOutputType');
-}
+export const BulkRemoveOutputType = util.memoize(getType);
