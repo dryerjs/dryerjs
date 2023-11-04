@@ -59,7 +59,7 @@ describe('Embedded works', () => {
           createAuthor(input: $input) {
             id
             name
-            books {
+            novels {
               id
               name
             }
@@ -88,7 +88,7 @@ describe('Embedded works', () => {
   it('Get one novel within author', async () => {
     const response = await server.makeFailRequest({
       query: `
-        query Query($authorId: ID!, $novelId: ID!) {
+        query AuthorNovel($authorId: ID!, $novelId: ID!) {
           authorNovel(authorId: $authorId, id: $novelId) {
             id
             name
@@ -107,7 +107,7 @@ describe('Embedded works', () => {
   it('Get all novels within author', async () => {
     const response = await server.makeFailRequest({
       query: `
-        query Query($authorId: ID!) {
+        query AuthorNovels($authorId: ID!) {
           authorNovels(authorId: $authorId) {
             id
             name
@@ -125,8 +125,8 @@ describe('Embedded works', () => {
   it('Create novel within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorNovel($inputs: [CreateBookInput!]!, $authorId: ID!) {
-          createAuthorNovel(inputs: $input, authorId: $authorId) {
+        mutation CreateAuthorNovel($inputs: [CreateNovelInput!]!, $authorId: ID!) {
+          createAuthorNovel(inputs: $inputs, authorId: $authorId) {
             id
             name
           }
@@ -137,43 +137,26 @@ describe('Embedded works', () => {
         authorId: author.id,
       },
     });
-    expect(response.createAuthorNovel).toEqual({
-      id: expect.any(String),
-      name: 'Awesome novel 3',
-    });
-
-    const { author: updatedAuthor } = await server.makeSuccessRequest({
-      query: `
-        query GetAuthor($id: ID!) {
-          author(id: $id) {
-            id
-            name
-            books {
-              id
-              name
-            }
-          }
-        }
-      `,
-      variables: {
-        id: author.id,
+    expect(response.createAuthorNovel).toEqual([
+      {
+        id: expect.any(String),
+        name: 'Awesome novel 3',
       },
-    });
-
-    expect(updatedAuthor.books).toEqual([
-      ...author.novels,
-      { id: expect.any(String), name: 'Awesome book 3' },
+      {
+        id: expect.any(String),
+        name: 'Awesome novel 4',
+      },
     ]);
   });
 
-  it('Create author without books', async () => {
+  it('Create author without novels', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateAuthor($input: CreateAuthorInput!) {
           createAuthor(input: $input) {
             id
             name
-            books {
+            novels {
               id
             }
           }
@@ -188,66 +171,18 @@ describe('Embedded works', () => {
     expect(response.createAuthor).toEqual({
       id: expect.any(String),
       name: 'Awesome author 2',
-      books: [],
+      novels: [],
     });
   });
 
-  it('Update books within author', async () => {
-    const books = author.novels.map((book: any) => {
-      return { ...book, name: `${book.name}-edit` };
-    });
-    const { updateAuthorBooks } = await server.makeSuccessRequest({
-      query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        authorId: author.id,
-        inputs: books,
-      },
-    });
-    expect(updateAuthorBooks).toEqual(books);
-  });
-
-  it('Update books have whitespace name within author', async () => {
-    const books = author.novels.map((book: any) => {
-      return { ...book, name: `  ${book.name}  ` };
-    });
-
-    const trimmedBooks = books.map((book: any) => {
-      return { ...book, name: book.name.trim() };
-    });
-
-    const { updateAuthorBooks } = await server.makeSuccessRequest({
-      query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        authorId: author.id,
-        inputs: books,
-      },
-    });
-
-    expect(updateAuthorBooks).toEqual(trimmedBooks);
-  });
-
-  it('Update books within author: return error if book name exceed 100', async () => {
-    const books = author.novels.map((book: any) => {
-      return { ...book, name: `${book.name}${'a'.repeat(101)}` };
+  it('Update novels within author: return error if BAD_REQUEST', async () => {
+    const novels = author.novels.map((novel: any) => {
+      return { ...novel, name: `${novel.name}-edit` };
     });
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
+        mutation updateAuthorNovels($authorId: ID!, $inputs: [UpdateNovelInput!]!) {
+          updateAuthorNovels(authorId: $authorId, inputs: $inputs) {
             id
             name
           }
@@ -255,126 +190,37 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        inputs: books,
+        inputs: novels,
       },
     });
-
-    const errorMessage = response[0].extensions.originalError.message[0];
-    expect(errorMessage).toEqual('name must be shorter than or equal to 100 characters');
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it('Update books within author: return error if parent not found', async () => {
+  it("Remove author's novels", async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        authorId: NOT_FOUND_ID,
-        inputs: author.novels,
-      },
-    });
-    expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
-  });
-
-  it('Update books within author: return error if book not found', async () => {
-    const books = [...author.novels];
-    books[0].id = NOT_FOUND_ID;
-    const response = await server.makeFailRequest({
-      query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
-          updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        authorId: author.id,
-        inputs: books,
-      },
-    });
-    expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
-  });
-
-  it("Remove author's books", async () => {
-    const { allAuthors } = await server.makeSuccessRequest({
-      query: `
-        query Authors {
-          allAuthors {
-            id
-            books {
-              id
-            }
-          }
-        }
-      `,
-    });
-
-    const author = allAuthors[0];
-
-    const response = await server.makeSuccessRequest({
-      query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
-          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
+        mutation RemoveAuthorNovels($authorId: ID!, $novelIds: [ID!]!) {
+          removeAuthorNovels(authorId: $authorId, ids: $novelIds) {
             success
           }
         }
       `,
       variables: {
         authorId: author.id,
-        bookIds: [author.books[0].id],
+        novelIds: [author.novels[0].id],
       },
     });
-    expect(response.removeAuthorBooks).toEqual({ success: true });
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
-  it("Remove author's books: return error if parent not found", async () => {
-    const response = await server.makeFailRequest({
-      query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
-          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
-            success
-          }
-        }
-      `,
-      variables: {
-        authorId: '5e6b4b5b1c9d440000d2c7f3',
-        bookIds: ['5e6b4b5b1c9d440000d2c7f3'],
-      },
-    });
-    expect(response[0].message).toEqual('No author found with ID 5e6b4b5b1c9d440000d2c7f3');
-  });
-
-  it("Remove author's books: return error if no IDs provided", async () => {
-    const response = await server.makeFailRequest({
-      query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
-          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
-            success
-          }
-        }
-      `,
-      variables: {
-        authorId: author.id,
-        bookIds: [],
-      },
-    });
-    expect(response[0].message).toEqual('No book IDs provided');
-  });
-
-  it('test trim transform for book name', async () => {
+  it('test trim transform for novel name', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateAuthor($input: CreateAuthorInput!) {
           createAuthor(input: $input) {
             id
             name
-            books {
+            novels {
               id
               name
             }
@@ -384,7 +230,7 @@ describe('Embedded works', () => {
       variables: {
         input: {
           name: 'Awesome author 4',
-          books: [{ name: '   Awesome book 4    ' }, { name: '    Awesome book 5   ' }],
+          novels: [{ name: '   Awesome novel 4    ' }, { name: '    Awesome novel 5   ' }],
         },
       },
     });
@@ -392,14 +238,14 @@ describe('Embedded works', () => {
     expect(response.createAuthor).toEqual({
       id: expect.any(String),
       name: 'Awesome author 4',
-      books: [
-        { id: expect.any(String), name: 'Awesome book 4' },
-        { id: expect.any(String), name: 'Awesome book 5' },
+      novels: [
+        { id: expect.any(String), name: 'Awesome novel 4' },
+        { id: expect.any(String), name: 'Awesome novel 5' },
       ],
     });
   });
 
-  it('test max length validation for book name', async () => {
+  it('test max length validation for novel name', async () => {
     await expect(
       server.makeSuccessRequest({
         query: `
@@ -407,7 +253,7 @@ describe('Embedded works', () => {
           createAuthor(input: $input) {
             id
             name
-            books {
+            novels {
               id
               name
             }
@@ -417,7 +263,7 @@ describe('Embedded works', () => {
         variables: {
           input: {
             name: 'Awesome author 5',
-            books: [{ name: 'a'.repeat(101) }],
+            novels: [{ name: 'a'.repeat(101) }],
           },
         },
       }),

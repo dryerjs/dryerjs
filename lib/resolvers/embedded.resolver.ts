@@ -37,7 +37,7 @@ export function createResolverForEmbedded(
     constructor(@InjectModel(definition.name) public model: Model<any>) {}
 
     @IfApiAllowed(
-      Mutation(() => OutputType(embeddedDefinition), {
+      Mutation(() => [OutputType(embeddedDefinition)], {
         name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
       }),
     )
@@ -59,7 +59,11 @@ export function createResolverForEmbedded(
       parent[field].push(...inputs);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return updatedParent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
+      return updatedParent[field]
+        .filter((item: any) => {
+          for (const input of inputs) if (item.name === input.name) return item;
+        })
+        .map((filteredItem: any) => appendIdAndTransform(embeddedDefinition, filteredItem)) as any;
     }
 
     @IfApiAllowed(
@@ -161,7 +165,11 @@ export function createResolverForEmbedded(
       parent[field] = inputs;
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return updatedParent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
+      return updatedParent[field]
+        .filter((item: any) => {
+          for (const input of inputs) if (item.name === input.name) return item;
+        })
+        .map((filteredItem: any) => appendIdAndTransform(embeddedDefinition, filteredItem)) as any;
     }
   }
 

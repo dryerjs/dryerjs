@@ -93,7 +93,7 @@ describe('Embedded works', () => {
   it('Create book within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorBook($inputs: [CreateBookInput]!, $authorId: ID!) {
+        mutation CreateAuthorBook($inputs: [CreateBookInput!]!, $authorId: ID!) {
           createAuthorBook(inputs: $inputs, authorId: $authorId) {
             id
             name
@@ -101,16 +101,20 @@ describe('Embedded works', () => {
         }
       `,
       variables: {
-        input: {
-          name: 'Awesome book 3',
-        },
+        inputs: [
+          {
+            name: 'Awesome book 3',
+          },
+        ],
         authorId: author.id,
       },
     });
-    expect(response.createAuthorBook).toEqual({
-      id: expect.any(String),
-      name: 'Awesome book 3',
-    });
+    expect(response.createAuthorBook).toEqual([
+      {
+        id: expect.any(String),
+        name: 'Awesome book 3',
+      },
+    ]);
 
     const { author: updatedAuthor } = await server.makeSuccessRequest({
       query: `
