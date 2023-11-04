@@ -62,9 +62,15 @@ export class BaseService<T = any, Context = any> {
     return { success: true };
   }
 
-  public async paginate(ctx: Context, filter: Partial<any>, page: number, limit: number): Promise<T> {
+  public async paginate(
+    ctx: Context,
+    filter: Partial<any>,
+    sort: Partial<any>,
+    page: number,
+    limit: number,
+  ): Promise<T> {
     const mongoFilter = MongoHelper.toQuery(filter);
-    const response = await this.model.paginate(mongoFilter, { page, limit });
+    const response = await this.model.paginate(mongoFilter, { page, limit, sort: sort });
     return plainToInstance(PaginatedOutputType(this.definition), {
       ...response,
       docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),

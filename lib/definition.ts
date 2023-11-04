@@ -6,8 +6,9 @@ import {
   PaginatedOutputType,
   BulkCreateOutputType,
   BulkRemoveOutputType,
-  FilterType,
   BulkUpdateOutputType,
+  FilterType,
+  SortType,
 } from './type-functions';
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
@@ -29,6 +30,7 @@ export function Definition(options: DefinitionOptions = { allowedApis: 'essentia
     BulkRemoveOutputType(target);
     PaginatedOutputType(target);
     FilterType(target);
+    SortType(target);
     Schema()(target as any);
   };
 }

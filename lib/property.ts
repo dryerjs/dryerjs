@@ -146,3 +146,9 @@ export function Filterable(typeFn: () => any, input: { operators: FilterOperator
     });
   };
 }
+
+export function Sortable() {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Sortable, true);
+  };
+}

@@ -11,6 +11,8 @@ import {
   Thunk,
   OutputType,
   CreateInputType,
+  Filterable,
+  Sortable,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 
@@ -32,6 +34,8 @@ export class Product {
   id: string;
 
   @Property(() => graphql.GraphQLString)
+  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
+  @Sortable()
   @Prop()
   name: string;
 

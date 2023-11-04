@@ -14,6 +14,7 @@ import {
   FilterType,
   OutputType,
   PaginatedOutputType,
+  SortType,
   UpdateInputType,
 } from '../type-functions';
 import { ApiType } from '../shared';
@@ -215,8 +216,13 @@ export function createResolver(definition: Definition, contextDecorator: Context
         util.isNotNil(FilterType(definition)),
       )
       filter = {},
+      @IfArg(
+        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        util.isNotNil(SortType(definition)),
+      )
+      sort = {},
     ) {
-      return await this.baseService.paginate(ctx, filter, page, limit);
+      return await this.baseService.paginate(ctx, filter, sort, page, limit);
     }
   }
 
