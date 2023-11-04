@@ -40,8 +40,16 @@ describe('Has many works', () => {
     });
 
     expect(createProduct.variants).toHaveLength(2);
-    expect(createProduct.variants[0].name).toEqual('Awesome variant');
-    expect(createProduct.variants[1].name).toEqual('Awesome variant 2');
+    expect(createProduct.variants).toEqual([
+      {
+        id: expect.any(String),
+        name: 'Awesome variant',
+      },
+      {
+        id: expect.any(String),
+        name: 'Awesome variant 2',
+      },
+    ]);
   });
 
   afterAll(async () => {
