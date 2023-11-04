@@ -130,3 +130,51 @@ export function ExcludeOnDatabase() {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
   };
 }
+
+export type FilterOperator =
+  | 'eq'
+  | 'in'
+  | 'notEq'
+  | 'notIn'
+  | 'contains'
+  | 'notContains'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'regex'
+  | 'notRegex'
+  | 'all'
+  | 'exists';
+
+export const allOperators: FilterOperator[] = [
+  'eq',
+  'in',
+  'notEq',
+  'notIn',
+  'contains',
+  'notContains',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+  'regex',
+  'notRegex',
+  'all',
+  'exists',
+];
+
+export function Filterable(typeFn: () => any, input: { operators: FilterOperator[] }) {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Filterable, {
+      typeFn,
+      input,
+    });
+  };
+}
+
+export function Sortable() {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Sortable, true);
+  };
+}

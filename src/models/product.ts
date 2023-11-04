@@ -11,10 +11,13 @@ import {
   Thunk,
   OutputType,
   CreateInputType,
+  Filterable,
+  Sortable,
   HasMany,
-  HasOne,
   ExcludeOnDatabase,
+  HasOne,
 } from '../../lib';
+import { MaxLength } from 'class-validator';
 import { Variant } from './variant';
 
 @Definition({ allowedApis: '*' })
@@ -23,7 +26,9 @@ export class Tag {
   id: string;
 
   @Prop({ unique: true })
-  @Property(() => graphql.GraphQLString)
+  @Thunk(Field(() => graphql.GraphQLString))
+  @Thunk(MaxLength(100), { scopes: 'input' })
+  @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   name: string;
 }
 
@@ -49,6 +54,8 @@ export class Product {
   id: string;
 
   @Property(() => graphql.GraphQLString)
+  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
+  @Sortable()
   @Prop()
   name: string;
 

@@ -8,8 +8,13 @@ import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { ReferencesManyConfig } from '../property';
+import { ContextDecorator } from '../context';
 
-export function createResolverForReferencesMany(definition: Definition, field: string): Provider {
+export function createResolverForReferencesMany(
+  definition: Definition,
+  field: string,
+  contextDecorator: ContextDecorator,
+): Provider {
   const relation = Metadata.for(definition).with(field).get<ReferencesManyConfig>(MetaKey.ReferencesManyType);
   const relationDefinition = relation.typeFunction();
 
@@ -18,7 +23,8 @@ export function createResolverForReferencesMany(definition: Definition, field: s
     constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
 
     @ResolveField()
-    async [field](@Parent() parent: any): Promise<T[]> {
+    async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T[]> {
+      ctx;
       const items = await this.model.find({
         [relation.options.to || '_id']: { $in: parent[relation.options.from] },
       });

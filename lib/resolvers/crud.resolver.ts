@@ -1,27 +1,32 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { PaginateModel } from 'mongoose';
-import { InjectModel, getModelToken } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import {
   BulkCreateOutputType,
   BulkRemoveOutputType,
+  BulkUpdateOutputType,
   CreateInputType,
+  FilterType,
   OutputType,
   PaginatedOutputType,
+  SortType,
   UpdateInputType,
 } from '../type-functions';
 import { ApiType } from '../shared';
+import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { appendIdAndTransform } from './shared';
+import { ArrayValidationPipe, appendIdAndTransform } from './shared';
+import { InjectBaseService } from '../base.service';
+import { ContextDecorator } from '../context';
 
-export function createResolver(definition: Definition): Provider {
+export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
@@ -31,10 +36,19 @@ export function createResolver(definition: Definition): Provider {
     };
   }
 
+  function IfArg(decorator: ParameterDecorator, condition: boolean) {
+    return function (target: any, propertyKey: string, parameterIndex: number) {
+      if (condition) {
+        decorator(target, propertyKey, parameterIndex);
+      }
+    };
+  }
+
   @Resolver()
   class GeneratedResolver<T> {
     constructor(
       @InjectModel(definition.name) public model: PaginateModel<any>,
+      @InjectBaseService(definition) public baseService: BaseService,
       public moduleRef: ModuleRef,
     ) {}
 
@@ -49,48 +63,9 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
+      @contextDecorator() ctx: any,
     ) {
-      const created = await this.model.create(input);
-      for (const property of inspect(definition).referencesManyProperties) {
-        if (!input[property.name] || input[property.name].length === 0) continue;
-        const relation = property.getReferencesMany();
-        const relationDefinition = relation.typeFunction();
-        const newIds: string[] = [];
-        for (const subObject of input[property.name]) {
-          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-          const createdRelation = await relationModel.create(subObject);
-          newIds.push(createdRelation._id);
-        }
-        await this.model.findByIdAndUpdate(created._id, {
-          $addToSet: { [relation.options.from]: { $each: newIds } },
-        });
-      }
-
-      for (const property of inspect(definition).hasOneProperties) {
-        if (!input[property.name]) continue;
-        const relation = property.getHasOne();
-        const relationDefinition = relation.typeFunction();
-        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-        await relationModel.create({
-          ...input[property.name],
-          [relation.options.to]: created._id,
-        });
-      }
-
-      for (const property of inspect(definition).hasManyProperties) {
-        if (!input[property.name] || input[property.name].length === 0) continue;
-        const relation = property.getHasMany();
-        const relationDefinition = relation.typeFunction();
-        for (const subObject of input[property.name]) {
-          const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-          await relationModel.create({
-            ...subObject,
-            [relation.options.from]: created._id,
-          });
-        }
-      }
-
-      return appendIdAndTransform(definition, await this.model.findById(created._id));
+      return await this.baseService.create(ctx, input);
     }
 
     @IfApiAllowed(
@@ -102,18 +77,15 @@ export function createResolver(definition: Definition): Provider {
       @Args(
         'inputs',
         { type: () => [CreateInputType(definition)] },
-        // note check this for array
-        new ValidationPipe({
-          transform: true,
-          expectedType: CreateInputType(definition),
-        }),
+        ArrayValidationPipe(CreateInputType(definition)),
       )
       inputs: any,
+      @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const input of inputs) {
         try {
-          const result = await this.create(input);
+          const result = await this.create(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
           response.push({
@@ -133,6 +105,42 @@ export function createResolver(definition: Definition): Provider {
     }
 
     @IfApiAllowed(
+      Mutation(() => [BulkUpdateOutputType(definition)], {
+        name: `bulkUpdate${util.plural(definition.name)}`,
+      }),
+    )
+    async bulkUpdate(
+      @Args(
+        'inputs',
+        { type: () => [UpdateInputType(definition)] },
+        ArrayValidationPipe(UpdateInputType(definition)),
+      )
+      inputs: any,
+      @contextDecorator() ctx: any,
+    ) {
+      const response: any[] = [];
+      for (const input of inputs) {
+        try {
+          const result = await this.update(input, ctx);
+          response.push({ input, result, success: true });
+        } catch (error: any) {
+          response.push({
+            input,
+            success: false,
+            result: null,
+            errorMessage: (() => {
+              if (error instanceof graphql.GraphQLError) return error.message;
+              // TODO: handle server errors
+              /* istanbul ignore next */
+              return 'INTERNAL_SERVER_ERROR';
+            })(),
+          });
+        }
+      }
+      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+    }
+
+    @IfApiAllowed(
       Mutation(() => [BulkRemoveOutputType(definition)], {
         name: `bulkRemove${util.plural(definition.name)}`,
       }),
@@ -140,11 +148,12 @@ export function createResolver(definition: Definition): Provider {
     async bulkRemove(
       @Args('ids', { type: () => [graphql.GraphQLID!]! })
       ids: string[],
+      @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const id of ids) {
         try {
-          await this.remove(id);
+          await this.baseService.remove(ctx, id);
           response.push({ id, success: true });
         } catch (error: any) {
           response.push({
@@ -172,45 +181,48 @@ export function createResolver(definition: Definition): Provider {
         }),
       )
       input: any,
+      @contextDecorator() ctx: any,
     ) {
-      const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
-      if (util.isNil(updated))
-        throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${input.id}`);
-      return appendIdAndTransform(definition, await this.model.findById(updated._id));
+      return await this.baseService.update(ctx, input);
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
-    async getOne(@Args('id', { type: () => graphql.GraphQLID }) id: string): Promise<T> {
-      const result = await this.model.findById(id);
-      if (util.isNil(result)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
-      return appendIdAndTransform(definition, result) as any;
+    async getOne(
+      @Args('id', { type: () => graphql.GraphQLID }) id: string,
+      @contextDecorator() ctx: any,
+    ): Promise<T> {
+      return await this.baseService.getOne(ctx, id);
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
     async getAll(): Promise<T[]> {
-      const items = await this.model.find({});
-      return items.map((item) => appendIdAndTransform(definition, item)) as any;
+      return await this.baseService.getAll();
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
-    async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string) {
-      const removed = await this.model.findByIdAndRemove(id);
-      if (util.isNil(removed)) throw new graphql.GraphQLError(`No ${definition.name} found with ID: ${id}`);
-      return { success: true };
+    async remove(@Args('id', { type: () => graphql.GraphQLID }) id: string, @contextDecorator() ctx: any) {
+      return await this.baseService.remove(ctx, id);
     }
 
     @IfApiAllowed(
       Query(() => PaginatedOutputType(definition), { name: `paginate${util.plural(definition.name)}` }),
     )
     async paginate(
+      @contextDecorator() ctx: any,
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
+      @IfArg(
+        Args('filter', { type: () => FilterType(definition), defaultValue: {} }),
+        util.isNotNil(FilterType(definition)),
+      )
+      filter = {},
+      @IfArg(
+        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        util.isNotNil(SortType(definition)),
+      )
+      sort = {},
     ) {
-      const response = await this.model.paginate({}, { page, limit });
-      return plainToInstance(PaginatedOutputType(definition), {
-        ...response,
-        docs: response.docs.map((doc) => appendIdAndTransform(definition, doc)),
-      });
+      return await this.baseService.paginate(ctx, filter, sort, page, limit);
     }
   }
 

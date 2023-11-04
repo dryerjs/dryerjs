@@ -4,60 +4,56 @@ import { MetaKey, Metadata } from './metadata';
 import { ApiType } from './shared';
 import { Definition } from './definition';
 
-const INSPECTED = Symbol('inspected');
-const CACHED_PROPERTIES = Symbol('cached_properties');
+class InspectedDefinition {
+  constructor(private definition: Definition) {}
 
-function inspectWithoutCache(definition: Definition) {
-  return {
-    [CACHED_PROPERTIES]: {},
-    getProperties(metaKey: MetaKey = MetaKey.Thunk): HydratedProperty[] {
-      if (this[CACHED_PROPERTIES][metaKey]) return this[CACHED_PROPERTIES][metaKey];
-      const result: HydratedProperty[] = [];
-      for (const propertyName in Metadata.getPropertiesByModel(definition, metaKey)) {
-        const designType = Reflect.getMetadata(MetaKey.DesignType, definition.prototype, propertyName);
-        const property = new HydratedProperty(definition, propertyName, designType);
-        result.push(property);
+  private getPropertiesUncached(metaKey: MetaKey = MetaKey.Thunk): HydratedProperty[] {
+    const result: HydratedProperty[] = [];
+    for (const propertyName in Metadata.getPropertiesByModel(this.definition, metaKey)) {
+      const designType = Reflect.getMetadata(MetaKey.DesignType, this.definition.prototype, propertyName);
+      const property = new HydratedProperty(this.definition, propertyName, designType);
+      result.push(property);
+    }
+    return result;
+  }
+
+  public getProperties = util.memoize(this.getPropertiesUncached);
+
+  public get embeddedProperties(): HydratedProperty[] {
+    return this.getProperties(MetaKey.EmbeddedType);
+  }
+
+  public get referencesManyProperties(): HydratedProperty[] {
+    return this.getProperties(MetaKey.ReferencesManyType);
+  }
+
+  public get hasOneProperties(): HydratedProperty[] {
+    return this.getProperties(MetaKey.HasOneType);
+  }
+  public get hasManyProperties(): HydratedProperty[] {
+    return this.getProperties(MetaKey.HasManyType);
+  }
+
+  public for(propertyName: string | symbol): HydratedProperty {
+    const designType = Reflect.getMetadata(MetaKey.DesignType, this.definition.prototype, propertyName);
+    return new HydratedProperty(this.definition, propertyName as string, designType);
+  }
+
+  public isApiAllowed(api: ApiType): boolean {
+    const { allowedApis } = Metadata.for(this.definition).get(MetaKey.Definition);
+    const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
+    for (const allowedApi of normalizedAllowedApis) {
+      if (allowedApi === '*') return true;
+      if (allowedApi === 'essentials') {
+        return ['create', 'update', 'getOne', 'remove', 'paginate'].includes(api);
       }
-      this[CACHED_PROPERTIES][metaKey] = result;
-      return result;
-    },
-    get embeddedProperties(): HydratedProperty[] {
-      return this.getProperties(MetaKey.EmbeddedType);
-    },
-    get referencesManyProperties(): HydratedProperty[] {
-      return this.getProperties(MetaKey.ReferencesManyType);
-    },
-    get hasOneProperties(): HydratedProperty[] {
-      return this.getProperties(MetaKey.HasOneType);
-    },
-    get hasManyProperties(): HydratedProperty[] {
-      return this.getProperties(MetaKey.HasManyType);
-    },
-    for(propertyName: string | symbol): HydratedProperty {
-      const designType = Reflect.getMetadata(MetaKey.DesignType, definition.prototype, propertyName);
-      return new HydratedProperty(definition, propertyName as string, designType);
-    },
-    isApiAllowed(api: ApiType): boolean {
-      const { allowedApis } = Metadata.for(definition).get(MetaKey.Definition);
-      const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
-      for (const allowedApi of normalizedAllowedApis) {
-        if (allowedApi === '*') return true;
-        if (allowedApi === 'essentials') {
-          return ['create', 'update', 'getOne', 'remove', 'paginate'].includes(api);
-        }
-        if (allowedApi === api) return true;
-      }
-      return false;
-    },
-  };
+      if (allowedApi === api) return true;
+    }
+    return false;
+  }
 }
 
-export function inspect(definition: any): ReturnType<typeof inspectWithoutCache> {
-  if (definition[INSPECTED]) return definition[INSPECTED];
-  const result = inspectWithoutCache(definition);
-  definition[INSPECTED] = result;
-  return definition[INSPECTED];
-}
+export const inspect = util.memoize((definition: Definition) => new InspectedDefinition(definition));
 
 type ClassType = any;
 
