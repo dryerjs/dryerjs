@@ -1,17 +1,13 @@
 import { Definition } from '../definition';
+import * as util from '../util';
 import { getBaseType } from './base';
-import { cacheType } from './cache-type';
 
-export function CreateInputType(definition: Definition) {
-  return cacheType(
-    () => {
-      return getBaseType({
-        definition,
-        name: `Create${definition.name}Input`,
-        scope: 'create',
-      });
-    },
+function getType(definition: Definition) {
+  return getBaseType({
     definition,
-    'CreateInputType',
-  );
+    name: `Create${definition.name}Input`,
+    scope: 'create',
+  });
 }
+
+export const CreateInputType = util.memoize(getType);

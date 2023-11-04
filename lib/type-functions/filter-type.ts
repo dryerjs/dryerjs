@@ -5,7 +5,6 @@ import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { HydratedProperty, inspect } from '../inspect';
 import { Definition } from '../definition';
-import { cacheType } from './cache-type';
 
 function getFilterForOneField(definition: Definition, property: HydratedProperty) {
   @InputType(`${definition.name}${util.toPascalCase(property.name)}Filter`)
@@ -40,9 +39,7 @@ function getType(definition: Definition) {
     const OneField = getFilterForOneField(definition, filterableProperty);
     Field(() => OneField, { nullable: true })(FilterPlaceholder.prototype, filterableProperty.name);
   }
-  return FilterPlaceholder;
+  return FilterPlaceholder as any;
 }
 
-export function FilterType(definition: Definition) {
-  return cacheType(() => getType(definition), definition, 'FilterType');
-}
+export const FilterType = util.memoize(getType);

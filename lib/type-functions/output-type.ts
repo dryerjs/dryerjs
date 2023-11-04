@@ -1,17 +1,13 @@
 import { Definition } from '../definition';
+import * as util from '../util';
 import { getBaseType } from './base';
-import { cacheType } from './cache-type';
 
-export function OutputType(definition: Definition) {
-  return cacheType(
-    () => {
-      return getBaseType({
-        definition,
-        name: definition.name,
-        scope: 'output',
-      });
-    },
+export function getType(definition: Definition) {
+  return getBaseType({
     definition,
-    'OutputType',
-  );
+    name: definition.name,
+    scope: 'output',
+  });
 }
+
+export const OutputType = util.memoize(getType);
