@@ -1,3 +1,16 @@
+# [0.9.0](https://github.com/dryerjs/dryerjs/compare/v0.8.0...v0.9.0) (2023-11-04)
+
+
+### Features
+
+* Add base service provider ([#139](https://github.com/dryerjs/dryerjs/issues/139)) ([1ea5a19](https://github.com/dryerjs/dryerjs/commit/1ea5a195859a950945463da300238875a2c941ef))
+* Add context into model ([#144](https://github.com/dryerjs/dryerjs/issues/144)) ([eb39d31](https://github.com/dryerjs/dryerjs/commit/eb39d31324f6ae47da8470d53792ffe1a625d06d))
+* Add ctx into all methods ([#151](https://github.com/dryerjs/dryerjs/issues/151)) ([c2e0540](https://github.com/dryerjs/dryerjs/commit/c2e0540d94883145c16f5eb809775e2a5e7d6e36))
+* Dataloader ([#131](https://github.com/dryerjs/dryerjs/issues/131)) ([e2fb7de](https://github.com/dryerjs/dryerjs/commit/e2fb7de652589aecd6f802d605a992e8050ed2ef))
+* has one has many ([#155](https://github.com/dryerjs/dryerjs/issues/155)) ([babaf06](https://github.com/dryerjs/dryerjs/commit/babaf0661209b32170841e0399d3018394543a0a))
+* skip api for embedded ([#154](https://github.com/dryerjs/dryerjs/issues/154)) ([21f4fd5](https://github.com/dryerjs/dryerjs/commit/21f4fd5925cff2e8aa0c676bbbd633c5067f7683))
+* sortable ([#152](https://github.com/dryerjs/dryerjs/issues/152)) ([e62779d](https://github.com/dryerjs/dryerjs/commit/e62779d18b4dd2e5558f31813338ab9c0addf089))
+
 # [0.8.0](https://github.com/dryerjs/dryerjs/compare/v0.7.0...v0.8.0) (2023-10-31)
 
 
