@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Provider, ValidationPipe } from '@nestjs/common';
+import { Provider } from '@nestjs/common';
 
 import * as util from '../util';
 import { SuccessResponse } from '../types';
