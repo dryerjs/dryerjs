@@ -195,8 +195,19 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
-    async getAll(): Promise<T[]> {
-      return await this.baseService.getAll();
+    async getAll(
+      @IfArg(
+        Args('filter', { type: () => FilterType(definition), defaultValue: {} }),
+        util.isNotNil(FilterType(definition)),
+      )
+      filter = {},
+      @IfArg(
+        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        util.isNotNil(SortType(definition)),
+      )
+      sort = {},
+    ): Promise<T[]> {
+      return await this.baseService.getAll(filter, sort);
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))

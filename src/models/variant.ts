@@ -1,5 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
-import { Definition, ObjectId, Property, Thunk } from '../../lib';
+import { Definition, ObjectId, Property, Thunk, Filterable, Sortable, allOperators } from '../../lib';
 import * as graphql from 'graphql';
 import { Field } from '@nestjs/graphql';
 
@@ -10,6 +10,8 @@ export class Variant {
 
   @Prop()
   @Property(() => graphql.GraphQLString)
+  @Filterable(() => graphql.GraphQLString, { operators: allOperators })
+  @Sortable()
   name: string;
 
   @Prop({
