@@ -39,7 +39,7 @@ function getType(definition: Definition) {
     const OneField = getFilterForOneField(definition, filterableProperty);
     Field(() => OneField, { nullable: true })(FilterPlaceholder.prototype, filterableProperty.name);
   }
-  return FilterPlaceholder;
+  return FilterPlaceholder as any;
 }
 
 export const FilterType = util.memoize(getType);

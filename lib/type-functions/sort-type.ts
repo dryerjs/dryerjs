@@ -24,7 +24,7 @@ function getType(definition: Definition) {
     Reflect.defineMetadata('design:type', Object, SortPlaceholder.prototype, filterableProperty.name);
     Field(() => SortDirection, { nullable: true })(SortPlaceholder.prototype, filterableProperty.name);
   }
-  return SortPlaceholder;
+  return SortPlaceholder as any;
 }
 
 export const SortType = util.memoize(getType);
