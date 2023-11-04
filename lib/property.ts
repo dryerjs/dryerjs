@@ -70,12 +70,22 @@ export function Thunk(
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
+  options: {
+    allowApis: Array<'getAll' | 'getOne' | 'create' | 'update' | 'remove'>;
+  };
 };
 
-export function Embedded(typeFunction: EmbeddedConfig['typeFunction']) {
+export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    Metadata.for(target).with(propertyKey).set<EmbeddedConfig>(MetaKey.EmbeddedType, { typeFunction });
+    Metadata.for(target)
+      .with(propertyKey)
+      .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
+        typeFunction,
+        options: util.defaultTo(options, {
+          allowApis: ['getAll', 'getOne', 'create', 'update', 'remove'],
+        }),
+      });
   };
 }
 
