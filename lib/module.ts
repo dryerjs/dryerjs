@@ -7,7 +7,7 @@ import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
 import { createResolver, createResolverForEmbedded, createResolverForReferencesMany } from './resolvers';
 import { inspect } from './inspect';
 import { Definition } from './definition';
-import { createHasManyLoader, createHasOneLoader, createReferencesManyLoader } from './dataloaders';
+import { createHasManyLoader, createHasOneLoader, createReferencesManyLoader } from './data-loaders';
 import { createResolverForHasMany } from './resolvers/has-many.resolver';
 import { createResolverForHasOne } from './resolvers/has-one.resolver';
 import { createBaseService, getBaseServiceToken } from './base.service';

@@ -24,11 +24,11 @@ export function createReferencesManyLoader(definition: Definition, field: string
     }
 
     public async getReferences(dataKeys: HasManyDataKey[]) {
-      const flatenKeys: any[] = [];
-      dataKeys.map((key: any[]) => flatenKeys.push(...key));
+      const flattenKeys: any[] = [];
+      dataKeys.map((key: any[]) => flattenKeys.push(...key));
 
       const field = relation.options.to || '_id';
-      const results = await this.model.find({ [field]: { $in: flatenKeys } });
+      const results = await this.model.find({ [field]: { $in: flattenKeys } });
 
       const itemMap: any[] = [];
 
