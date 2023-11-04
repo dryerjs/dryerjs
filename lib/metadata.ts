@@ -13,10 +13,14 @@ export enum MetaKey {
   ExcludeOnDatabase = 'ExcludeOnDatabase',
   EmbeddedType = 'EmbeddedType',
   ReferencesManyType = 'ReferencesManyType',
+  HasOneType = 'HasOneType',
+  HasManyType = 'HasManyType',
+  BelongToType = 'BelongToType',
   Thunk = 'Thunk',
   UseProperty = 'UseProperty',
   Definition = 'Definition',
   Filterable = 'Filterable',
+  Sortable = 'Sortable',
 }
 
 export class Metadata {

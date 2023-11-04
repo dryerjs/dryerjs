@@ -34,6 +34,29 @@ export class BaseService<T = any, Context = any> {
         $addToSet: { [relation.options.from]: { $each: newIds } },
       });
     }
+    for (const property of inspect(this.definition).hasOneProperties) {
+      if (!input[property.name]) continue;
+      const relation = property.getHasOne();
+      const relationDefinition = relation.typeFunction();
+      const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+      await relationModel.create({
+        ...input[property.name],
+        [relation.options.to]: created._id,
+      });
+    }
+
+    for (const property of inspect(this.definition).hasManyProperties) {
+      if (!input[property.name] || input[property.name].length === 0) continue;
+      const relation = property.getHasMany();
+      const relationDefinition = relation.typeFunction();
+      for (const subObject of input[property.name]) {
+        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
+        await relationModel.create({
+          ...subObject,
+          [relation.options.from]: created._id,
+        });
+      }
+    }
     return appendIdAndTransform(this.definition, await this.model.findById(created._id)) as any;
   }
 
@@ -62,9 +85,15 @@ export class BaseService<T = any, Context = any> {
     return { success: true };
   }
 
-  public async paginate(ctx: Context, filter: Partial<any>, page: number, limit: number): Promise<T> {
+  public async paginate(
+    ctx: Context,
+    filter: Partial<any>,
+    sort: Partial<any>,
+    page: number,
+    limit: number,
+  ): Promise<T> {
     const mongoFilter = MongoHelper.toQuery(filter);
-    const response = await this.model.paginate(mongoFilter, { page, limit });
+    const response = await this.model.paginate(mongoFilter, { page, limit, sort: sort });
     return plainToInstance(PaginatedOutputType(this.definition), {
       ...response,
       docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),

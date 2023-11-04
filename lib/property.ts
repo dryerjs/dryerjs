@@ -109,6 +109,32 @@ export function ReferencesMany(
   };
 }
 
+export type HasOneConfig = {
+  typeFunction: () => any;
+  options: {
+    to: string;
+  };
+};
+export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {
+  return (target: object, propertyKey: string | symbol) => {
+    ExcludeOnDatabase()(target, propertyKey);
+    Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
+  };
+}
+
+export type HasManyConfig = {
+  typeFunction: () => any;
+  options: {
+    from: string;
+  };
+};
+export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
+  return (target: object, propertyKey: string | symbol) => {
+    ExcludeOnDatabase()(target, propertyKey);
+    Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
+  };
+}
+
 export function ExcludeOnDatabase() {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
@@ -154,5 +180,11 @@ export function Filterable(typeFn: () => any, input: { operators: FilterOperator
       typeFn,
       input,
     });
+  };
+}
+
+export function Sortable() {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Sortable, true);
   };
 }

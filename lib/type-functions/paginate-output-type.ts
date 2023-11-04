@@ -4,7 +4,6 @@ import { Type } from 'class-transformer';
 
 import * as util from '../util';
 import { Definition } from '../definition';
-import { cacheType } from './cache-type';
 import { OutputType } from './output-type';
 
 function getType(definition: Definition): any {
@@ -44,6 +43,4 @@ function getType(definition: Definition): any {
   return Placeholder;
 }
 
-export function PaginatedOutputType(definition: Definition) {
-  return cacheType(() => getType(definition), definition, 'PaginatedOutputType');
-}
+export const PaginatedOutputType = util.memoize(getType);
