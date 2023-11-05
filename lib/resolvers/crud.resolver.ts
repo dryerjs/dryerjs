@@ -198,6 +198,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
     async findAll(
+      @contextDecorator() ctx: any,
       @IfArg(
         Args('filter', { type: () => FilterType(definition), nullable: true }),
         util.isNotNil(FilterType(definition)),
@@ -210,6 +211,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       sort: object,
     ): Promise<T[]> {
       return await this.baseService.findAll(
+        ctx,
         MongoHelper.toQuery(util.defaultTo(filter, {})),
         util.defaultTo(sort, {}),
       );

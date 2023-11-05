@@ -93,7 +93,7 @@ export abstract class BaseService<T = any, Context = any> {
       throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
     }
     for (const hook of this.getHooks('afterFindOne')) {
-      await hook.afterFindOne!({ ctx, result });
+      await hook.afterFindOne!({ ctx, result, filter });
     }
     return result;
   }

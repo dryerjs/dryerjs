@@ -1,8 +1,42 @@
 import { TestServer } from './test-server';
 import { Tag } from '../src/models/product';
+import { Hook } from '../lib/hook';
+import { createParamDecorator } from '@nestjs/common';
+
+type Context = any;
+
+const beforeCreate = jest.fn();
+const afterCreate = jest.fn();
+const beforeFindOne = jest.fn();
+const afterFindOne = jest.fn();
+const afterFindMany = jest.fn();
+const beforeFindMany = jest.fn();
+const beforeUpdate = jest.fn();
+const afterUpdate = jest.fn();
+const beforeRemove = jest.fn();
+const afterRemove = jest.fn();
+
+@Hook(() => Tag)
+class TagHook implements Hook<Tag, Context> {
+  beforeCreate = beforeCreate;
+  afterCreate = afterCreate;
+  beforeFindOne = beforeFindOne;
+  afterFindOne = afterFindOne;
+  beforeFindMany = beforeFindMany;
+  afterFindMany = afterFindMany;
+  beforeUpdate = beforeUpdate;
+  afterUpdate = afterUpdate;
+  beforeRemove = beforeRemove;
+  afterRemove = afterRemove;
+}
+
+@Hook(() => 'fake')
+class FakeHook {}
 
 const server = TestServer.init({
   definitions: [Tag],
+  hooks: [TagHook, FakeHook],
+  contextDecorator: createParamDecorator(() => 'fakeContext'),
 });
 
 describe('Simple CRUD works', () => {
@@ -27,6 +61,12 @@ describe('Simple CRUD works', () => {
             name,
           },
         },
+      });
+      expect(beforeCreate).toBeCalledWith({ ctx: 'fakeContext', input: { name } });
+      expect(afterCreate).toBeCalledWith({
+        ctx: 'fakeContext',
+        input: { name },
+        created: expect.any(Object),
       });
     }
   });
