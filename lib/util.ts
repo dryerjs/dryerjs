@@ -50,8 +50,6 @@ export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperC
 
 export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
 
-export const last = <T>(array: T[]) => array[array.length - 1];
-
 export function memoize<T extends Function>(func: T, resolver?: (...args: any[]) => any): T {
   /* istanbul ignore if */
   if (typeof func !== 'function' || (resolver && typeof resolver !== 'function')) {

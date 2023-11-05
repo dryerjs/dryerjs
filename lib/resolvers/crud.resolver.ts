@@ -197,17 +197,17 @@ export function createResolver(definition: Definition, contextDecorator: Context
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
     async getAll(
       @IfArg(
-        Args('filter', { type: () => FilterType(definition), defaultValue: {} }),
+        Args('filter', { type: () => FilterType(definition), nullable: true }),
         util.isNotNil(FilterType(definition)),
       )
-      filter = {},
+      filter: object,
       @IfArg(
-        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        Args('sort', { type: () => SortType(definition), nullable: true }),
         util.isNotNil(SortType(definition)),
       )
-      sort = {},
+      sort: object,
     ): Promise<T[]> {
-      return await this.baseService.getAll(filter, sort);
+      return await this.baseService.getAll(util.defaultTo(filter, {}), util.defaultTo(sort, {}));
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
@@ -223,17 +223,23 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
       @Args('limit', { type: () => graphql.GraphQLInt, defaultValue: 10 }) limit: number,
       @IfArg(
-        Args('filter', { type: () => FilterType(definition), defaultValue: {} }),
+        Args('filter', { type: () => FilterType(definition), nullable: true }),
         util.isNotNil(FilterType(definition)),
       )
-      filter = {},
+      filter: object,
       @IfArg(
-        Args('sort', { type: () => SortType(definition), defaultValue: {} }),
+        Args('sort', { type: () => SortType(definition), nullable: true }),
         util.isNotNil(SortType(definition)),
       )
-      sort = {},
+      sort: object,
     ) {
-      return await this.baseService.paginate(ctx, filter, sort, page, limit);
+      return await this.baseService.paginate(
+        ctx,
+        util.defaultTo(filter, {}),
+        util.defaultTo(sort, {}),
+        page,
+        limit,
+      );
     }
   }
 

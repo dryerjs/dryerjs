@@ -448,6 +448,34 @@ describe('Paginate works', () => {
     expect(paginateCustomers.limit).toEqual(2);
   });
 
+  it('Get all with filter and sort', async () => {
+    const { allCustomers } = await server.makeSuccessRequest({
+      query: `
+        query GetAllCustomers($filter: CustomerFilter, $sort: CustomerSort) {
+          allCustomers(filter: $filter, sort: $sort) {
+            email
+          }
+        }
+      `,
+      variables: {
+        filter: {
+          email: {
+            in: ['john@example.com', 'jack@example.com', 'jane@example.com'],
+          },
+        },
+        sort: {
+          email: 'ASC',
+        },
+      },
+    });
+
+    expect(allCustomers).toEqual([
+      { email: 'jack@example.com' },
+      { email: 'jane@example.com' },
+      { email: 'john@example.com' },
+    ]);
+  });
+
   afterAll(async () => {
     await server.stop();
   });
