@@ -11,7 +11,7 @@ import { appendIdAndTransform } from './resolvers/shared';
 import { SuccessResponse } from './types';
 import { PaginatedOutputType } from './type-functions';
 import * as util from './util';
-import { Hook } from './hook';
+import { AllDefinitions, Hook } from './hook';
 import { MetaKey, Metadata } from './metadata';
 
 export abstract class BaseService<T = any, Context = any> {
@@ -156,7 +156,8 @@ export function createBaseService(definition: Definition, hooks: Provider[]): ty
     private getHooksUncached(method: keyof Hook): Hook[] {
       return hooks
         .filter((hook) => {
-          if (Metadata.for(hook).get(MetaKey.Hook)() !== definition) return false;
+          const hookDefinition = Metadata.for(hook).get(MetaKey.Hook)();
+          if (hookDefinition !== AllDefinitions && hookDefinition !== definition) return false;
           const hookInstance = this.moduleRef.get(hook as any, { strict: false });
           return util.isFunction(hookInstance[method]);
         })
