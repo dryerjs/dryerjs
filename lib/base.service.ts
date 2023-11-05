@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Inject, Injectable, Provider } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
-import { PaginateModel } from 'mongoose';
+import { FilterQuery, PaginateModel } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
 
 import { Definition } from './definition';
@@ -23,6 +23,9 @@ export abstract class BaseService<T = any, Context = any> {
   protected abstract getHooks(method: keyof Hook): Hook[];
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
+    for (const hook of this.getHooks('beforeCreate')) {
+      await hook.beforeCreate!({ ctx, input });
+    }
     const created = await this.model.create(input);
     for (const property of inspect(this.definition).referencesManyProperties) {
       if (!input[property.name] || input[property.name].length === 0) continue;
@@ -61,27 +64,39 @@ export abstract class BaseService<T = any, Context = any> {
         });
       }
     }
-    return appendIdAndTransform(this.definition, await this.model.findById(created._id)) as any;
+    const result = await this.model.findById(created._id);
+    for (const hook of this.getHooks('afterCreate')) {
+      await hook.afterCreate!({ ctx, input, created: result });
+    }
+
+    return appendIdAndTransform(this.definition, result) as any;
   }
 
   public async update(ctx: Context, input: Partial<T> & { id: string }): Promise<T> {
+    const beforeUpdated = await this.getOne(ctx, { _id: input.id });
+    for (const hook of this.getHooks('beforeUpdate')) {
+      await hook.beforeUpdate!({ ctx, input, beforeUpdated });
+    }
     const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
-    if (util.isNil(updated))
-      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${input.id}`);
+    for (const hook of this.getHooks('afterUpdate')) {
+      await hook.afterUpdate!({ ctx, input, updated, beforeUpdated });
+    }
+
     return appendIdAndTransform(this.definition, await this.model.findById(updated._id)) as any;
   }
 
-  public async getOne(ctx: Context, id: Partial<string>): Promise<T> {
+  public async getOne(ctx: Context, filter: FilterQuery<any>): Promise<T> {
     for (const hook of this.getHooks('beforeGetOne')) {
-      const hookInstance = this.moduleRef.get(hook as any, { strict: false });
-      if (hookInstance.afterGetOne) await hookInstance.befo(ctx, id);
+      await hook.beforeGetOne!({ ctx, filter });
     }
-    const result = await this.model.findById(id);
-    if (util.isNil(result)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    const result = await this.model.findOne(filter);
+    if (util.isNil(result)) {
+      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
+    }
     for (const hook of this.getHooks('afterGetOne')) {
-      hook.afterGetOne!(ctx, result);
+      await hook.afterGetOne!({ ctx, result });
     }
-    return appendIdAndTransform(this.definition, result) as any;
+    return result;
   }
 
   public async getAll(filter: Partial<any>, sort: Partial<any>): Promise<T> {
@@ -91,9 +106,14 @@ export abstract class BaseService<T = any, Context = any> {
   }
 
   public async remove(ctx: Context, id: Partial<string>): Promise<SuccessResponse> {
+    const beforeRemoved = await this.getOne(ctx, { _id: id });
+    for (const hook of this.getHooks('beforeRemove')) {
+      await hook.beforeRemove!({ ctx, beforeRemoved });
+    }
     const removed = await this.model.findByIdAndRemove(id);
-    if (util.isNil(removed))
-      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    for (const hook of this.getHooks('afterRemove')) {
+      await hook.afterRemove!({ ctx, removed });
+    }
     return { success: true };
   }
 

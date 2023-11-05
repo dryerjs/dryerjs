@@ -191,7 +191,8 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      return await this.baseService.getOne(ctx, id);
+      const result = await this.baseService.getOne(ctx, { _id: id });
+      return appendIdAndTransform(definition, result) as any;
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))

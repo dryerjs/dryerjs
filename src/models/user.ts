@@ -27,6 +27,10 @@ export class User {
 
 @Hook(() => User)
 export class UserHook<T, Context> {
+  public beforeGetOne(ctx: Context, id: string) {
+    console.log('beforeGetOne', ctx, id);
+  }
+
   public afterGetOne(ctx: Context, value: T) {
     console.log('afterGetOne', ctx, value);
   }

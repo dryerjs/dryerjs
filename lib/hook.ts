@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterQuery } from 'mongoose';
 import { MetaKey, Metadata } from './metadata';
 
 export function Hook(typeFunc: () => any) {
@@ -9,21 +10,21 @@ export function Hook(typeFunc: () => any) {
 }
 
 export interface Hook<Context = any, T = any> {
-  beforeCreate?(ctx: Context, input: Partial<T>): Promise<void>;
-  afterCreate?(ctx: Context, result: T): Promise<void>;
+  beforeCreate?(input: { ctx: Context; input: Partial<T> }): Promise<void>;
+  afterCreate?(input: { ctx: Context; input: Partial<T>; created: T }): Promise<void>;
 
-  beforeUpdate?(ctx: Context, result: Partial<T>): Promise<void>;
-  afterUpdate?(ctx: Context, result: T): Promise<void>;
+  beforeUpdate?(input: { ctx: Context; input: Partial<T>; beforeUpdated: T }): Promise<void>;
+  afterUpdate?(input: { ctx: Context; input: Partial<T>; updated: T; beforeUpdated: T }): Promise<void>;
 
-  beforeGetOne?(ctx: Context, id: string): Promise<void>;
-  afterGetOne?(ctx: Context, result: T): Promise<void>;
+  beforeGetOne?(input: { ctx: Context; filter: FilterQuery<T> }): Promise<void>;
+  afterGetOne?(input: { ctx: Context; result: T }): Promise<void>;
 
-  beforeGetAll?(ctx: Context, result: T): Promise<void>;
-  afterGetAll?(ctx: Context, result: T): Promise<void>;
+  beforeGetAll?(input: { ctx: Context; result: T }): Promise<void>;
+  afterGetAll?(input: { ctx: Context; result: T }): Promise<void>;
 
-  beforeRemove?(ctx: Context, id: string): Promise<void>;
-  afterRemove?(ctx: Context, result: T): Promise<void>;
+  beforeRemove?(input: { ctx: Context; beforeRemoved: T }): Promise<void>;
+  afterRemove?(input: { ctx: Context; removed: T }): Promise<void>;
 
-  beforePaginate?(ctx: Context, result: T): Promise<void>;
-  afterPaginate?(ctx: Context, result: T): Promise<void>;
+  beforePaginate?(input: { ctx: Context; result: T }): Promise<void>;
+  afterPaginate?(input: { ctx: Context; result: T }): Promise<void>;
 }
