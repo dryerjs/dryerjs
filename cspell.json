@@ -14,14 +14,6 @@
     "paramtypes",
     "returntype"
   ],
-  "ignorePaths": [
-    "node_modules",
-    "dist",
-    "coverage"
-  ],
-  "words": [
-    "Aissue",
-    "metatype",
-    "QLJSON"
-  ]
+  "ignorePaths": ["node_modules", "dist", "coverage"],
+  "words": ["Aissue", "metatype", "Macbook", "QLJSON"]
 }
