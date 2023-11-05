@@ -9,14 +9,13 @@ import { Definition } from './definition';
 import { inspect } from './inspect';
 import { appendIdAndTransform } from './resolvers/shared';
 import { SuccessResponse } from './types';
-import { MongoHelper } from './mongo-helper';
 import { PaginatedOutputType } from './type-functions';
 import * as util from './util';
 import { Hook } from './hook';
 import { MetaKey, Metadata } from './metadata';
 
 export abstract class BaseService<T = any, Context = any> {
-  protected model: PaginateModel<any>;
+  protected model: PaginateModel<T>;
   protected moduleRef: ModuleRef;
   protected definition: Definition;
 
@@ -38,7 +37,7 @@ export abstract class BaseService<T = any, Context = any> {
         newIds.push(createdRelation._id);
       }
       await this.model.findByIdAndUpdate(created._id, {
-        $addToSet: { [relation.options.from]: { $each: newIds } },
+        $addToSet: { [relation.options.from]: { $each: newIds } } as any,
       });
     }
     for (const property of inspect(this.definition).hasOneProperties) {
@@ -82,10 +81,10 @@ export abstract class BaseService<T = any, Context = any> {
       await hook.afterUpdate!({ ctx, input, updated, beforeUpdated });
     }
 
-    return appendIdAndTransform(this.definition, await this.model.findById(updated._id)) as any;
+    return appendIdAndTransform(this.definition, await this.model.findById(updated!._id)) as any;
   }
 
-  public async findOne(ctx: Context, filter: FilterQuery<any>): Promise<T> {
+  public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
     for (const hook of this.getHooks('beforeFindOne')) {
       await hook.beforeFindOne!({ ctx, filter });
     }
@@ -99,9 +98,14 @@ export abstract class BaseService<T = any, Context = any> {
     return result;
   }
 
-  public async findAll(filter: Partial<any>, sort: Partial<any>): Promise<T> {
-    const mongoFilter = MongoHelper.toQuery(filter);
-    const items = await this.model.find(mongoFilter).sort(sort);
+  public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T> {
+    for (const hook of this.getHooks('beforeFindMany')) {
+      await hook.beforeFindMany!({ ctx, filter, sort });
+    }
+    const items = await this.model.find(filter).sort(sort as any);
+    for (const hook of this.getHooks('afterFindMany')) {
+      await hook.afterFindMany!({ ctx, filter, sort, items });
+    }
     return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
   }
 
@@ -119,13 +123,18 @@ export abstract class BaseService<T = any, Context = any> {
 
   public async paginate(
     ctx: Context,
-    filter: Partial<any>,
-    sort: Partial<any>,
+    filter: FilterQuery<T>,
+    sort: object,
     page: number,
     limit: number,
   ): Promise<T> {
-    const mongoFilter = MongoHelper.toQuery(filter);
-    const response = await this.model.paginate(mongoFilter, { page, limit, sort });
+    for (const hook of this.getHooks('beforeFindMany')) {
+      await hook.beforeFindMany!({ ctx, filter, sort, page, limit });
+    }
+    const response = await this.model.paginate(filter, { page, limit, sort });
+    for (const hook of this.getHooks('afterFindMany')) {
+      await hook.afterFindMany!({ ctx, filter, sort, items: response.docs, page, limit });
+    }
     return plainToInstance(PaginatedOutputType(this.definition), {
       ...response,
       docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),

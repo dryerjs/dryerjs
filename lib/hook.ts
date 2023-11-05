@@ -19,12 +19,22 @@ export interface Hook<Context = any, T = any> {
   beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T> }): Promise<void>;
   afterFindOne?(input: { ctx: Context; result: T }): Promise<void>;
 
-  beforeFindAll?(input: { ctx: Context; result: T }): Promise<void>;
-  afterFindAll?(input: { ctx: Context; result: T }): Promise<void>;
-
   beforeRemove?(input: { ctx: Context; beforeRemoved: T }): Promise<void>;
   afterRemove?(input: { ctx: Context; removed: T }): Promise<void>;
 
-  beforePaginate?(input: { ctx: Context; result: T }): Promise<void>;
-  afterPaginate?(input: { ctx: Context; result: T }): Promise<void>;
+  beforeFindMany?(input: {
+    ctx: Context;
+    filter: FilterQuery<T>;
+    sort: object;
+    limit?: number;
+    page?: number;
+  }): Promise<void>;
+  afterFindMany?(input: {
+    ctx: Context;
+    filter: FilterQuery<T>;
+    sort: object;
+    items: T[];
+    limit?: number;
+    page?: number;
+  }): Promise<void>;
 }
