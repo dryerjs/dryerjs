@@ -38,7 +38,6 @@ export const appendIdAndTransform = (definition: Definition, item: any) => {
     /* istanbul ignore if */
     if (util.isNil(output[property.name])) continue;
     const embeddedDefinition = property.getEmbeddedDefinition();
-    // TODO: Write test for this case and remove "istanbul ignore else"
     /* istanbul ignore else */
     if (util.isArray(output[property.name])) {
       output[property.name] = output[property.name].map((subItem: any) => {
