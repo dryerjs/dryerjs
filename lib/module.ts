@@ -26,7 +26,9 @@ export class DryerModule {
     input.definitions.forEach((definition) => providers.push(createResolver(definition, contextDecorator)));
     input.definitions.forEach((definition) => {
       for (const property of inspect(definition).embeddedProperties) {
-        providers.push(createResolverForEmbedded(definition, property.name, contextDecorator));
+        if (Reflect.getMetadata('design:type', definition.prototype, property.name) === Array) {
+          providers.push(createResolverForEmbedded(definition, property.name, contextDecorator));
+        }
       }
       for (const property of inspect(definition).referencesManyProperties) {
         providers.push(createResolverForReferencesMany(definition, property.name, contextDecorator));
