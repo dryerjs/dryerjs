@@ -36,12 +36,12 @@ describe('Simple CRUD works', () => {
   it('Get all tags', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-      {
-        allTags {
-          id
-          name
+        {
+          allTags {
+            id
+            name
+          }
         }
-      }
       `,
     });
     allTags = response.allTags;
@@ -55,16 +55,16 @@ describe('Simple CRUD works', () => {
   it('paginate tags', async () => {
     const { paginateTags } = await server.makeSuccessRequest({
       query: `
-      {
-        paginateTags {
-          docs {
-            id
-            name
+        {
+          paginateTags {
+            docs {
+              id
+              name
+            }
+            totalDocs
+            page
           }
-          totalDocs
-          page
         }
-      }
       `,
     });
     expect(paginateTags).toEqual({
@@ -81,12 +81,12 @@ describe('Simple CRUD works', () => {
   it('Get one tag', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-      query GetTag($id: ID!) {
-        tag(id: $id) {
-          id
-          name
+        query GetTag($id: ID!) {
+          tag(id: $id) {
+            id
+            name
+          }
         }
-      }
       `,
       variables: {
         id: allTags[0].id,
@@ -98,12 +98,12 @@ describe('Simple CRUD works', () => {
   it('Update one tag', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-      mutation UpdateTag($input: UpdateTagInput!) {
-        updateTag(input: $input) {
-          id
-          name
+        mutation UpdateTag($input: UpdateTagInput!) {
+          updateTag(input: $input) {
+            id
+            name
+          }
         }
-      }
       `,
       variables: {
         input: {
@@ -118,12 +118,12 @@ describe('Simple CRUD works', () => {
   it('Update not found tag', async () => {
     await server.makeFailRequest({
       query: `
-      mutation UpdateTag($input: UpdateTagInput!) {
-        updateTag(input: $input) {
-          id
-          name
+        mutation UpdateTag($input: UpdateTagInput!) {
+          updateTag(input: $input) {
+            id
+            name
+          }
         }
-      }
       `,
       variables: {
         input: {
@@ -138,11 +138,11 @@ describe('Simple CRUD works', () => {
   it('Remove one tag and ensure it is gone', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-      mutation RemoveTag($id: ID!) {
-        removeTag(id: $id) {
-          success
+        mutation RemoveTag($id: ID!) {
+          removeTag(id: $id) {
+            success
+          }
         }
-      }
       `,
       variables: {
         id: allTags[0].id,
@@ -169,11 +169,11 @@ describe('Simple CRUD works', () => {
   it('Remove not found tag', async () => {
     await server.makeFailRequest({
       query: `
-      mutation RemoveTag($id: ID!) {
-        removeTag(id: $id) {
-          success
+        mutation RemoveTag($id: ID!) {
+          removeTag(id: $id) {
+            success
+          }
         }
-      }
       `,
       variables: {
         id: '000000000000000000000000',

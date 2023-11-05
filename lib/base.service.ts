@@ -73,8 +73,9 @@ export class BaseService<T = any, Context = any> {
     return appendIdAndTransform(this.definition, result) as any;
   }
 
-  public async getAll(): Promise<T> {
-    const items = await this.model.find({});
+  public async getAll(filter: Partial<any>, sort: Partial<any>): Promise<T> {
+    const mongoFilter = MongoHelper.toQuery(filter);
+    const items = await this.model.find(mongoFilter).sort(sort);
     return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
   }
 
