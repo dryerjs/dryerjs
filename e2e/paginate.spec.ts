@@ -451,7 +451,7 @@ describe('Paginate works', () => {
   it('Get all with filter and sort', async () => {
     const { allCustomers } = await server.makeSuccessRequest({
       query: `
-        query GetAllCustomers($filter: CustomerFilter, $sort: CustomerSort) {
+        query FindAllCustomers($filter: CustomerFilter, $sort: CustomerSort) {
           allCustomers(filter: $filter, sort: $sort) {
             email
           }

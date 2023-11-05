@@ -13,7 +13,7 @@ describe('inspect', () => {
     expect(inspect(AllowedEssentials).isApiAllowed('create')).toBe(true);
     expect(inspect(AllowedEssentials).isApiAllowed('bulkCreate')).toBe(false);
 
-    @Definition({ allowedApis: ['create', 'getAll'] })
+    @Definition({ allowedApis: ['create', 'findAll'] })
     class AllowedSpecific {}
     expect(inspect(AllowedSpecific).isApiAllowed('create')).toBe(true);
     expect(inspect(AllowedSpecific).isApiAllowed('bulkCreate')).toBe(false);

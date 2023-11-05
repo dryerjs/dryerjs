@@ -16,11 +16,11 @@ export interface Hook<Context = any, T = any> {
   beforeUpdate?(input: { ctx: Context; input: Partial<T>; beforeUpdated: T }): Promise<void>;
   afterUpdate?(input: { ctx: Context; input: Partial<T>; updated: T; beforeUpdated: T }): Promise<void>;
 
-  beforeGetOne?(input: { ctx: Context; filter: FilterQuery<T> }): Promise<void>;
-  afterGetOne?(input: { ctx: Context; result: T }): Promise<void>;
+  beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T> }): Promise<void>;
+  afterFindOne?(input: { ctx: Context; result: T }): Promise<void>;
 
-  beforeGetAll?(input: { ctx: Context; result: T }): Promise<void>;
-  afterGetAll?(input: { ctx: Context; result: T }): Promise<void>;
+  beforeFindAll?(input: { ctx: Context; result: T }): Promise<void>;
+  afterFindAll?(input: { ctx: Context; result: T }): Promise<void>;
 
   beforeRemove?(input: { ctx: Context; beforeRemoved: T }): Promise<void>;
   afterRemove?(input: { ctx: Context; removed: T }): Promise<void>;

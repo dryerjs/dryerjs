@@ -73,7 +73,7 @@ export abstract class BaseService<T = any, Context = any> {
   }
 
   public async update(ctx: Context, input: Partial<T> & { id: string }): Promise<T> {
-    const beforeUpdated = await this.getOne(ctx, { _id: input.id });
+    const beforeUpdated = await this.findOne(ctx, { _id: input.id });
     for (const hook of this.getHooks('beforeUpdate')) {
       await hook.beforeUpdate!({ ctx, input, beforeUpdated });
     }
@@ -85,28 +85,28 @@ export abstract class BaseService<T = any, Context = any> {
     return appendIdAndTransform(this.definition, await this.model.findById(updated._id)) as any;
   }
 
-  public async getOne(ctx: Context, filter: FilterQuery<any>): Promise<T> {
-    for (const hook of this.getHooks('beforeGetOne')) {
-      await hook.beforeGetOne!({ ctx, filter });
+  public async findOne(ctx: Context, filter: FilterQuery<any>): Promise<T> {
+    for (const hook of this.getHooks('beforeFindOne')) {
+      await hook.beforeFindOne!({ ctx, filter });
     }
     const result = await this.model.findOne(filter);
     if (util.isNil(result)) {
       throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
     }
-    for (const hook of this.getHooks('afterGetOne')) {
-      await hook.afterGetOne!({ ctx, result });
+    for (const hook of this.getHooks('afterFindOne')) {
+      await hook.afterFindOne!({ ctx, result });
     }
     return result;
   }
 
-  public async getAll(filter: Partial<any>, sort: Partial<any>): Promise<T> {
+  public async findAll(filter: Partial<any>, sort: Partial<any>): Promise<T> {
     const mongoFilter = MongoHelper.toQuery(filter);
     const items = await this.model.find(mongoFilter).sort(sort);
     return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
   }
 
   public async remove(ctx: Context, id: Partial<string>): Promise<SuccessResponse> {
-    const beforeRemoved = await this.getOne(ctx, { _id: id });
+    const beforeRemoved = await this.findOne(ctx, { _id: id });
     for (const hook of this.getHooks('beforeRemove')) {
       await hook.beforeRemove!({ ctx, beforeRemoved });
     }

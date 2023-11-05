@@ -45,7 +45,7 @@ class InspectedDefinition {
     for (const allowedApi of normalizedAllowedApis) {
       if (allowedApi === '*') return true;
       if (allowedApi === 'essentials') {
-        return ['create', 'update', 'getOne', 'remove', 'paginate'].includes(api);
+        return ['create', 'update', 'findOne', 'remove', 'paginate'].includes(api);
       }
       if (allowedApi === api) return true;
     }

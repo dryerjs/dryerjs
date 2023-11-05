@@ -187,16 +187,16 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
-    async getOne(
+    async findOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      const result = await this.baseService.getOne(ctx, { _id: id });
+      const result = await this.baseService.findOne(ctx, { _id: id });
       return appendIdAndTransform(definition, result) as any;
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
-    async getAll(
+    async findAll(
       @IfArg(
         Args('filter', { type: () => FilterType(definition), nullable: true }),
         util.isNotNil(FilterType(definition)),
@@ -208,7 +208,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       )
       sort: object,
     ): Promise<T[]> {
-      return await this.baseService.getAll(util.defaultTo(filter, {}), util.defaultTo(sort, {}));
+      return await this.baseService.findAll(util.defaultTo(filter, {}), util.defaultTo(sort, {}));
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
