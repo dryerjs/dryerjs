@@ -16,7 +16,6 @@ import {
   HasMany,
   ExcludeOnDatabase,
   HasOne,
-  allOperators,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 import { Variant } from './variant';
@@ -30,8 +29,6 @@ export class Tag {
   @Thunk(Field(() => graphql.GraphQLString))
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
-  @Filterable(() => graphql.GraphQLString, { operators: allOperators })
-  @Sortable()
   name: string;
 }
 
@@ -42,8 +39,6 @@ export class Image {
 
   @Prop()
   @Property(() => graphql.GraphQLString)
-  @Filterable(() => graphql.GraphQLString, { operators: allOperators })
-  @Sortable()
   name: string;
 
   @Prop({
