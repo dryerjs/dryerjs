@@ -10,6 +10,9 @@ import { Prop, SchemaFactory } from '@nestjs/mongoose';
 class Brand {
   @Property(() => graphql.GraphQLString)
   name: string;
+
+  @Property(() => graphql.GraphQLString)
+  creator: string;
 }
 
 @Definition({ allowedApis: '*' })
@@ -46,6 +49,7 @@ describe('Object embedded feature works', () => {
           name: 'Macbook',
           brand: {
             name: 'Apple',
+            creator: 'John Doe',
           },
         },
         {
@@ -62,6 +66,7 @@ describe('Object embedded feature works', () => {
                         name
                         brand {
                             name
+                            creator
                         }
                     }
                 }
@@ -78,6 +83,7 @@ describe('Object embedded feature works', () => {
                     name
                     brand {
                         name
+                        creator
                     }
                 }
             }
@@ -94,6 +100,7 @@ describe('Object embedded feature works', () => {
           name: 'Macbook',
           brand: {
             name: 'Apple',
+            creator: 'John Doe',
           },
         },
         {
@@ -112,19 +119,21 @@ describe('Object embedded feature works', () => {
                   updateComputer(input: $input) {
                       brand {
                         name
+                        creator
                       }
                   }
               }
           `,
         variables: {
           input: {
-            brand: { name: 'updated brand' },
+            brand: { name: 'updated brand', creator: 'updated creator' },
             id: computer.id,
           },
         },
       });
       expect(firstUpdateResponse.updateComputer.brand).toEqual({
         name: 'updated brand',
+        creator: 'updated creator',
       });
     });
 
@@ -136,6 +145,7 @@ describe('Object embedded feature works', () => {
                   updateComputer(input: $input) {
                       brand {
                           name
+                          creator
                       }
                   }
               }
