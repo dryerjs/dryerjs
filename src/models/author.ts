@@ -12,9 +12,6 @@ import {
   OutputType,
   CreateInputType,
   UpdateInputType,
-  Filterable,
-  Sortable,
-  allOperators,
 } from '../../lib';
 
 @Definition()
@@ -25,8 +22,6 @@ export class Book {
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   @Thunk(Field(() => graphql.GraphQLString))
-  @Filterable(() => graphql.GraphQLString, { operators: allOperators })
-  @Sortable()
   name: string;
 }
 
@@ -36,8 +31,6 @@ export class Author {
   id: string;
 
   @Property(() => graphql.GraphQLString)
-  @Filterable(() => graphql.GraphQLString, { operators: allOperators })
-  @Sortable()
   name: string;
 
   @Prop({ type: [SchemaFactory.createForClass(Book)] })
