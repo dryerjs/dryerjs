@@ -38,3 +38,5 @@ export interface Hook<T = any, Context = any> {
     page?: number;
   }): Promise<void>;
 }
+
+export class AllDefinitions {}
