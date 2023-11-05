@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Provider } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel, getModelToken } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
@@ -12,11 +12,15 @@ import { SuccessResponse } from './types';
 import { MongoHelper } from './mongo-helper';
 import { PaginatedOutputType } from './type-functions';
 import * as util from './util';
+import { Hook } from './hook';
+import { MetaKey, Metadata } from './metadata';
 
-export class BaseService<T = any, Context = any> {
+export abstract class BaseService<T = any, Context = any> {
   protected model: PaginateModel<any>;
   protected moduleRef: ModuleRef;
   protected definition: Definition;
+
+  protected abstract getHooks(method: keyof Hook): Hook[];
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
     const created = await this.model.create(input);
@@ -68,8 +72,15 @@ export class BaseService<T = any, Context = any> {
   }
 
   public async getOne(ctx: Context, id: Partial<string>): Promise<T> {
+    for (const hook of this.getHooks('beforeGetOne')) {
+      const hookInstance = this.moduleRef.get(hook as any, { strict: false });
+      if (hookInstance.afterGetOne) await hookInstance.befo(ctx, id);
+    }
     const result = await this.model.findById(id);
     if (util.isNil(result)) throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${id}`);
+    for (const hook of this.getHooks('afterGetOne')) {
+      hook.afterGetOne!(ctx, result);
+    }
     return appendIdAndTransform(this.definition, result) as any;
   }
 
@@ -94,7 +105,7 @@ export class BaseService<T = any, Context = any> {
     limit: number,
   ): Promise<T> {
     const mongoFilter = MongoHelper.toQuery(filter);
-    const response = await this.model.paginate(mongoFilter, { page, limit, sort: sort });
+    const response = await this.model.paginate(mongoFilter, { page, limit, sort });
     return plainToInstance(PaginatedOutputType(this.definition), {
       ...response,
       docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),
@@ -102,7 +113,7 @@ export class BaseService<T = any, Context = any> {
   }
 }
 
-export function createBaseService(definition: Definition): typeof BaseService {
+export function createBaseService(definition: Definition, hooks: Provider[]): typeof BaseService {
   @Injectable()
   class GeneratedBaseService extends BaseService<any, any> {
     constructor(
@@ -112,7 +123,22 @@ export function createBaseService(definition: Definition): typeof BaseService {
       super();
       this.definition = definition;
     }
+
+    private getHooksUncached(method: keyof Hook): Hook[] {
+      return hooks
+        .filter((hook) => {
+          if (Metadata.for(hook).get(MetaKey.Hook)() !== definition) return false;
+          const hookInstance = this.moduleRef.get(hook as any, { strict: false });
+          return util.isFunction(hookInstance[method]);
+        })
+        .map((hook) => this.moduleRef.get(hook as any, { strict: false }) as Hook);
+    }
+
+    protected getHooks(method: keyof Hook): Hook[] {
+      return util.memoize(this.getHooksUncached.bind(this))(method);
+    }
   }
+
   return GeneratedBaseService as any;
 }
 
