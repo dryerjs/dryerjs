@@ -244,9 +244,8 @@ describe('Embedded works', () => {
   });
 
   it('test max length validation for novel name', async () => {
-    await expect(
-      server.makeSuccessRequest({
-        query: `
+    const response = await server.makeFailRequest({
+      query: `
         mutation CreateNovelist($input: CreateNovelistInput!) {
           createNovelist(input: $input) {
             id
@@ -258,14 +257,14 @@ describe('Embedded works', () => {
           }
         }
       `,
-        variables: {
-          input: {
-            name: 'Awesome novelist 5',
-            novels: [{ name: 'a'.repeat(101) }],
-          },
+      variables: {
+        input: {
+          name: 'Awesome novelist 5',
+          novels: [{ name: 'a'.repeat(101) }],
         },
-      }),
-    ).rejects.toThrow('name must be shorter than or equal to 100 characters');
+      },
+    });
+    expect(response[0].extensions.originalError.message[0]).toContain('name must be shorter');
   });
 
   afterAll(async () => {

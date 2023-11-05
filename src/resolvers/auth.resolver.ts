@@ -6,6 +6,7 @@ import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { ValidationPipe } from '@nestjs/common';
 import { OutputType, CreateInputType } from '../../lib';
 import { User } from '../models';
+import { Ctx } from '../ctx';
 
 @Resolver()
 export class AuthResolver {
@@ -31,11 +32,14 @@ export class AuthResolver {
   }
 
   @Query(() => OutputType(User))
-  async whoAmI(@Args('userId', { type: () => graphql.GraphQLString }) userId: string) {
-    const user = await this.User.findById(userId);
+  async whoAmI(@Ctx() context: { userId: string }) {
+    const user = await this.User.findById(context.userId);
     if (!user) {
       throw new graphql.GraphQLError('User not found');
     }
-    return plainToInstance(OutputType(User), user.toObject());
+    return plainToInstance(OutputType(User), {
+      ...user.toObject(),
+      id: user._id.toHexString(),
+    });
   }
 }

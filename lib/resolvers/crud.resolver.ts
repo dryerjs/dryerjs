@@ -25,6 +25,7 @@ import { Definition } from '../definition';
 import { ArrayValidationPipe, appendIdAndTransform } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
+import { MongoHelper } from '../mongo-helper';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -187,15 +188,17 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
-    async getOne(
+    async findOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      return await this.baseService.getOne(ctx, id);
+      const result = await this.baseService.findOne(ctx, { _id: id });
+      return appendIdAndTransform(definition, result) as any;
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
-    async getAll(
+    async findAll(
+      @contextDecorator() ctx: any,
       @IfArg(
         Args('filter', { type: () => FilterType(definition), nullable: true }),
         util.isNotNil(FilterType(definition)),
@@ -207,7 +210,11 @@ export function createResolver(definition: Definition, contextDecorator: Context
       )
       sort: object,
     ): Promise<T[]> {
-      return await this.baseService.getAll(util.defaultTo(filter, {}), util.defaultTo(sort, {}));
+      return await this.baseService.findAll(
+        ctx,
+        MongoHelper.toQuery(util.defaultTo(filter, {})),
+        util.defaultTo(sort, {}),
+      );
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
@@ -235,7 +242,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
     ) {
       return await this.baseService.paginate(
         ctx,
-        util.defaultTo(filter, {}),
+        MongoHelper.toQuery(util.defaultTo(filter, {})),
         util.defaultTo(sort, {}),
         page,
         limit,

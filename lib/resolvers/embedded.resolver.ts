@@ -99,7 +99,7 @@ export function createResolverForEmbedded(
         name: `${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
       }),
     )
-    async getOne(
+    async findOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
@@ -118,7 +118,7 @@ export function createResolverForEmbedded(
         name: `${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
-    async getAll(
+    async findAll(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => graphql.GraphQLID,
       })

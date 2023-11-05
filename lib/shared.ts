@@ -6,9 +6,9 @@ export type ApiType =
   | 'paginate'
   | 'create'
   | 'update'
-  | 'getOne'
+  | 'findOne'
   | 'remove'
-  | 'getAll'
+  | 'findAll'
   | 'bulkCreate'
   | 'bulkUpdate'
   | 'bulkRemove';

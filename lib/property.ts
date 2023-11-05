@@ -71,7 +71,7 @@ export function Thunk(
 export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
-    allowApis: Array<'getAll' | 'getOne' | 'create' | 'update' | 'remove'>;
+    allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
   };
 };
 
@@ -83,7 +83,7 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
         typeFunction,
         options: util.defaultTo(options, {
-          allowApis: ['getAll', 'getOne', 'create', 'update', 'remove'],
+          allowApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
         }),
       });
   };
