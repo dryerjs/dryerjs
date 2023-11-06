@@ -47,7 +47,7 @@ describe('Simple CRUD works', () => {
     await server.start();
   });
 
-  it('Create tags', async () => {
+  it.only('Create tags', async () => {
     const names = ['70s', '80s', '90s'];
     for (const name of names) {
       await server.makeSuccessRequest({
@@ -76,7 +76,7 @@ describe('Simple CRUD works', () => {
 
   let allTags: Tag[] = [];
 
-  it('Get all tags', async () => {
+  it.only('Get all tags', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         {

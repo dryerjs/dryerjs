@@ -101,6 +101,8 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterFindOne')) {
       await hook.afterFindOne!({ ctx, result, filter });
     }
+
+    result['__Definition'] = Definition;
     return result;
   }
 

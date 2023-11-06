@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Provider, ValidationPipe } from '@nestjs/common';
+import { Provider, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
@@ -26,6 +26,7 @@ import { ArrayValidationPipe, appendIdAndTransform } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
+import { TransformInterceptor } from '../transform.interceptor';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -189,12 +190,12 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
+    @UseInterceptors(TransformInterceptor)
     async findOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      const result = await this.baseService.findOne(ctx, { _id: id });
-      return appendIdAndTransform(definition, result) as any;
+      return await this.baseService.findOne(ctx, { _id: id });
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))

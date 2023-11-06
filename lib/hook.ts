@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { MetaKey, Metadata } from './metadata';
+import { Transform, TransformFnParams, TransformOptions } from 'class-transformer';
 
 export function Hook(typeFunc: () => any) {
   return (target: any) => {
@@ -40,3 +41,13 @@ export interface Hook<T = any, Context = any> {
 }
 
 export class AllDefinitions {}
+
+export function TransformOutputWithContext(
+  transformFn: (params: TransformFnParams & { ctx: any }) => any,
+  options?: TransformOptions,
+) {
+  return Transform((input) => transformFn({ ...input, ctx: input.obj['_ctx'] }), options);
+}
+
+// apply contexts downhill
+// transform class to do to other things
