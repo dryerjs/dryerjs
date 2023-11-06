@@ -21,6 +21,15 @@ import { MaxLength } from 'class-validator';
 import { Variant } from './variant';
 
 @Definition({ allowedApis: '*' })
+export class Color {
+  @Property(() => graphql.GraphQLID)
+  id: string;
+
+  @Thunk(Field(() => graphql.GraphQLString))
+  name: string;
+}
+
+@Definition({ allowedApis: '*' })
 export class Tag {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -30,6 +39,24 @@ export class Tag {
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   name: string;
+
+  @ReferencesMany(() => Color, { from: 'categoryIds' })
+  @Thunk(Field(() => [OutputType(Color)]), { scopes: 'output' })
+  @Thunk(Field(() => [CreateInputType(Color)], { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
+  colors: Color[];
+
+  @Prop({ type: [ObjectId], default: [] })
+  @Thunk(Field(() => [graphql.GraphQLString], { nullable: true }), { scopes: 'input' })
+  @Thunk(Field(() => [graphql.GraphQLString]), { scopes: 'output' })
+  @Thunk(Type(() => String))
+  @Thunk(
+    Transform(({ value: tagIds }) => {
+      return tagIds.map((tagId: string) => new Types.ObjectId(tagId));
+    }),
+    { scopes: 'input' },
+  )
+  colorIds: string[];
 }
 
 @Definition({ allowedApis: '*' })
@@ -74,6 +101,7 @@ export class Product {
   @ReferencesMany(() => Tag, { from: 'tagIds' })
   @Thunk(Field(() => [OutputType(Tag)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
   tags: Tag[];
 
   @HasMany(() => Variant, { from: 'productId' })
