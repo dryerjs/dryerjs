@@ -66,7 +66,8 @@ export function createResolver(definition: Definition, contextDecorator: Context
       input: any,
       @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.create(ctx, input);
+      const result = await this.baseService.create(ctx, input);
+      return appendIdAndTransform(definition, result);
     }
 
     @IfApiAllowed(
