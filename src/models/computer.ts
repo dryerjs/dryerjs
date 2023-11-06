@@ -6,12 +6,22 @@ import { Definition } from '../../lib/definition';
 import { Prop, SchemaFactory } from '@nestjs/mongoose';
 
 @Definition()
+class Creator {
+  @Property(() => graphql.GraphQLString)
+  name: string;
+}
+
+@Definition()
 class Brand {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Property(() => graphql.GraphQLString)
-  creator: string;
+  @Prop({ type: SchemaFactory.createForClass(Creator) })
+  @Thunk(Field(() => OutputType(Creator), { nullable: true }), { scopes: 'output' })
+  @Thunk(Field(() => CreateInputType(Creator), { nullable: true }), { scopes: 'create' })
+  @Thunk(Field(() => UpdateInputType(Creator), { nullable: true }), { scopes: 'update' })
+  @Embedded(() => Creator)
+  creator: Creator;
 }
 
 @Definition({ allowedApis: '*' })
