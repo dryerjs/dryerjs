@@ -40,7 +40,7 @@ export class Tag {
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   name: string;
 
-  @ReferencesMany(() => Color, { from: 'categoryIds' })
+  @ReferencesMany(() => Color, { from: 'colorIds' })
   @Thunk(Field(() => [OutputType(Color)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Color)], { nullable: true }), { scopes: 'create' })
   @ExcludeOnDatabase()
