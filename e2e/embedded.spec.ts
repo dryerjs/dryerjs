@@ -24,6 +24,10 @@ describe('Embedded works', () => {
             books {
               id
               name
+              reviews { 
+                id
+                name
+              }
             }
           }
         }
@@ -31,7 +35,10 @@ describe('Embedded works', () => {
       variables: {
         input: {
           name: 'Awesome author',
-          books: [{ name: 'Awesome book 1' }, { name: 'Awesome book 2' }],
+          books: [
+            { name: 'Awesome book 1', reviews: [{ name: 'worth reading' }] },
+            { name: 'Awesome book 2' },
+          ],
         },
       },
     });
@@ -39,8 +46,12 @@ describe('Embedded works', () => {
       id: expect.any(String),
       name: 'Awesome author',
       books: [
-        { id: expect.any(String), name: 'Awesome book 1' },
-        { id: expect.any(String), name: 'Awesome book 2' },
+        {
+          id: expect.any(String),
+          name: 'Awesome book 1',
+          reviews: [{ id: expect.any(String), name: 'worth reading' }],
+        },
+        { id: expect.any(String), name: 'Awesome book 2', reviews: [] },
       ],
     });
 
@@ -54,6 +65,10 @@ describe('Embedded works', () => {
           authorBook(authorId: $authorId, id: $bookId) {
             id
             name
+            reviews {
+              id
+              name 
+            }
           }
         }
       `,
@@ -66,6 +81,12 @@ describe('Embedded works', () => {
     expect(authorBook).toEqual({
       id: author.books[0].id,
       name: 'Awesome book 1',
+      reviews: [
+        {
+          id: expect.any(String),
+          name: 'worth reading',
+        },
+      ],
     });
   });
 
@@ -76,6 +97,10 @@ describe('Embedded works', () => {
           authorBooks(authorId: $authorId) {
             id
             name
+            reviews {
+              id
+              name
+            }
           }
         }
       `,
@@ -85,8 +110,12 @@ describe('Embedded works', () => {
     });
 
     expect(authorBooks).toEqual([
-      { id: expect.any(String), name: 'Awesome book 1' },
-      { id: expect.any(String), name: 'Awesome book 2' },
+      {
+        id: expect.any(String),
+        name: 'Awesome book 1',
+        reviews: [{ id: expect.any(String), name: 'worth reading' }],
+      },
+      { id: expect.any(String), name: 'Awesome book 2', reviews: [] },
     ]);
   });
 
@@ -97,6 +126,10 @@ describe('Embedded works', () => {
           createAuthorBooks(inputs: $inputs, authorId: $authorId) {
             id
             name
+            reviews {
+              id
+              name 
+            }
           }
         }
       `,
@@ -104,6 +137,11 @@ describe('Embedded works', () => {
         inputs: [
           {
             name: 'Awesome book 3',
+            reviews: [
+              {
+                name: 'Book 3 - 1st review',
+              },
+            ],
           },
         ],
         authorId: author.id,
@@ -114,6 +152,12 @@ describe('Embedded works', () => {
       {
         id: expect.any(String),
         name: 'Awesome book 3',
+        reviews: [
+          {
+            id: expect.any(String),
+            name: 'Book 3 - 1st review',
+          },
+        ],
       },
     ]);
 
@@ -126,6 +170,10 @@ describe('Embedded works', () => {
             books {
               id
               name
+              reviews {
+                id
+                name
+              }
             }
           }
         }
@@ -137,7 +185,11 @@ describe('Embedded works', () => {
 
     expect(updatedAuthor.books).toEqual([
       ...author.books,
-      { id: expect.any(String), name: 'Awesome book 3' },
+      {
+        id: expect.any(String),
+        name: 'Awesome book 3',
+        reviews: [{ id: expect.any(String), name: 'Book 3 - 1st review' }],
+      },
     ]);
   });
 
@@ -150,6 +202,9 @@ describe('Embedded works', () => {
             name
             books {
               id
+              reviews {
+                id 
+              }
             }
           }
         }
@@ -169,7 +224,11 @@ describe('Embedded works', () => {
 
   it('Update books within author', async () => {
     const books = author.books.map((book: any) => {
-      return { ...book, name: `${book.name}-edit` };
+      return {
+        ...book,
+        name: `${book.name}-edit`,
+        reviews: book.reviews.map((review) => ({ ...review, name: `${review.name}-edit` })),
+      };
     });
     const { updateAuthorBooks } = await server.makeSuccessRequest({
       query: `
@@ -177,6 +236,10 @@ describe('Embedded works', () => {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
+            reviews {
+              id
+              name
+            }
           }
         }
       `,
@@ -190,11 +253,19 @@ describe('Embedded works', () => {
 
   it('Update books have whitespace name within author', async () => {
     const books = author.books.map((book: any) => {
-      return { ...book, name: `  ${book.name}  ` };
+      return {
+        ...book,
+        name: `  ${book.name}  `,
+        reviews: book.reviews.map((review) => ({ ...review, name: `  ${review.name}   ` })),
+      };
     });
 
     const trimmedBooks = books.map((book: any) => {
-      return { ...book, name: book.name.trim() };
+      return {
+        ...book,
+        name: book.name.trim(),
+        reviews: book.reviews.map((review) => ({ ...review, name: review.name.trim() })),
+      };
     });
 
     const { updateAuthorBooks } = await server.makeSuccessRequest({
@@ -203,6 +274,10 @@ describe('Embedded works', () => {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
+            reviews {
+              id
+              name 
+            }
           }
         }
       `,
@@ -283,6 +358,10 @@ describe('Embedded works', () => {
           createAuthorBooks(inputs: $inputs, authorId: $authorId) {
             id
             name
+            reviews {
+              id
+              name
+            }
           }
         }
       `,
@@ -290,6 +369,11 @@ describe('Embedded works', () => {
         inputs: [
           {
             name: 'one more book',
+            reviews: [
+              {
+                name: 'good looking book',
+              },
+            ],
           },
         ],
         authorId: author.id,
@@ -300,6 +384,12 @@ describe('Embedded works', () => {
       {
         id: expect.any(String),
         name: 'one more book',
+        reviews: [
+          {
+            id: expect.any(String),
+            name: 'good looking book',
+          },
+        ],
       },
     ]);
 
