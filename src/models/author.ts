@@ -15,6 +15,17 @@ import {
 } from '../../lib';
 
 @Definition()
+export class Review {
+  @Property(() => graphql.GraphQLID)
+  id: string;
+
+  @Thunk(MaxLength(100), { scopes: 'input' })
+  @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
+  @Thunk(Field(() => graphql.GraphQLString))
+  name: string;
+}
+
+@Definition()
 export class Book {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -23,6 +34,17 @@ export class Book {
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   @Thunk(Field(() => graphql.GraphQLString))
   name: string;
+
+  @Prop({ type: [SchemaFactory.createForClass(Review)] })
+  @Thunk(Field(() => [OutputType(Review)]), { scopes: 'output' })
+  @Thunk(Field(() => [CreateInputType(Review)], { nullable: true }), { scopes: 'create' })
+  @Thunk(Field(() => [UpdateInputType(Review)], { nullable: true }), { scopes: 'update' })
+  @Thunk(Type(() => CreateInputType(Review)), { scopes: 'create' })
+  @Thunk(Type(() => UpdateInputType(Review)), { scopes: 'update' })
+  @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
+  @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
+  @Embedded(() => Review, { allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
+  reviews: Review[];
 }
 
 @Definition({ allowedApis: '*' })
