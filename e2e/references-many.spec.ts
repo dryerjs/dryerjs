@@ -15,8 +15,8 @@ describe('References many works', () => {
 
   beforeAll(async () => {
     const colorNames = ['red', 'blue', 'orange'];
-    for (const name of colorNames) {
-      const { createColor } = await server.makeSuccessRequest({
+    for(const name of colorNames) {
+      const {createColor} = await server.makeSuccessRequest({
         query: `
           mutation CreateColor($input: CreateColorInput!) {
             createColor(input: $input) {
@@ -24,15 +24,14 @@ describe('References many works', () => {
               name
             }
           }
-        `,
-        variables: {
+        `,variables: {
           input: {
-            name,
-          },
-        },
-      });
+            name
+          }
+        }
+      })
 
-      preExistingColors.push(createColor);
+      preExistingColors.push(createColor)
     }
 
     const tagNames = ['70s', '80s'];
@@ -85,25 +84,20 @@ describe('References many works', () => {
         input: {
           name: 'Awesome product',
           tagIds: preExistingTags.map((tag) => tag.id),
-          tags: [
-            {
-              name: '100s',
-              colorIds: preExistingColors.map((color) => color.id),
-              colors: [{ name: 'black' }, { name: 'yellow' }],
-            },
-          ],
+          tags: [{ 
+            name: '100s',
+            colorIds: preExistingColors.map((color) => color.id),
+            colors: [{ name: 'black'}, {name: 'yellow'}]
+          }],
         },
       },
     });
-
-    console.log(response.createProduct);
-    console.log(response.createProduct.tags[2].colors);
 
     expect(response.createProduct).toEqual({
       id: expect.any(String),
       name: 'Awesome product',
       tagIds: expect.arrayContaining(preExistingTags.map((tag) => tag.id)),
-      tags: [
+      tags:   [
         ...preExistingTags,
         {
           id: expect.any(String),
@@ -113,13 +107,12 @@ describe('References many works', () => {
             ...preExistingColors,
             {
               id: expect.any(String),
-              name: 'black',
-            },
+              name:'black'
+            }, 
             {
               id: expect.any(String),
-              name: 'yellow',
-            },
-          ],
+              name:'yellow'
+            }]
         },
       ],
     });
