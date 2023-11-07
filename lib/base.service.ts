@@ -76,7 +76,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('beforeUpdate')) {
       await hook.beforeUpdate!({ ctx, input, beforeUpdated });
     }
-    const updated = await this.model.findOneAndUpdate({ _id: input.id }, input);
+    const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, { new: true });
     for (const hook of this.getHooks('afterUpdate')) {
       await hook.afterUpdate!({ ctx, input, updated, beforeUpdated });
     }
