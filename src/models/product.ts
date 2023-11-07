@@ -52,9 +52,10 @@ export class Tag {
   @Thunk(
     Transform(({ value: tagIds }) => {
       return tagIds.map((tagId: string) => new Types.ObjectId(tagId));
-    }), {
-      scopes:'input'
-    }
+    }),
+    {
+      scopes: 'input',
+    },
   )
   @ExcludeOnDatabase()
   colorIds: string[];
