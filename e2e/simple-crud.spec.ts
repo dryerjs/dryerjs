@@ -155,6 +155,19 @@ describe('Simple CRUD works', () => {
         },
       },
     });
+    type PartialTag = Partial<Tag>;
+    const input: PartialTag = { id: allTags[0].id, name: '60s' };
+    expect(beforeUpdate).toBeCalledWith({
+      ctx: 'fakeContext',
+      input: input,
+      beforeUpdated: { __v: 0, _id: allTags[0].id, name: allTags[0].name },
+    });
+    expect(afterUpdate).toBeCalledWith({
+      ctx: 'fakeContext',
+      input: { id: allTags[0], name: '60s' },
+      updated: expect.any(Object),
+      beforeUpdated: expect.any(Object),
+    });
     expect(response.updateTag.name).toEqual('60s');
   });
 
@@ -192,6 +205,14 @@ describe('Simple CRUD works', () => {
       },
     });
     expect(response.removeTag.success).toEqual(true);
+    expect(beforeRemove).toBeCalledWith({
+      ctx: 'fakeContext',
+      beforeRemoved: { __v: 0, _id: allTags[0].id, name: allTags[0].name },
+    });
+    expect(afterRemove).toBeCalledWith({
+      ctx: 'fakeContext',
+      removed: expect.any(Object),
+    });
 
     // Try to fetch the removed tag by its ID
     await server.makeFailRequest({
