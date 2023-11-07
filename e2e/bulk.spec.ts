@@ -1,8 +1,8 @@
 import { TestServer } from './test-server';
-import { Tag } from '../src/models/product';
+import { Color, Tag } from '../src/models/product';
 
 const server = TestServer.init({
-  definitions: [Tag],
+  definitions: [Tag, Color],
 });
 
 describe('bulk apis work', () => {
