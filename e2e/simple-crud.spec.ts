@@ -1,5 +1,5 @@
 import { TestServer } from './test-server';
-import { Tag } from '../src/models/product';
+import { Tag, Color } from '../src/models/product';
 import { AllDefinitions, Hook } from '../lib/hook';
 import { createParamDecorator } from '@nestjs/common';
 
@@ -37,7 +37,7 @@ class FakeHook {}
 class GeneralHook {}
 
 const server = TestServer.init({
-  definitions: [Tag],
+  definitions: [Tag, Color],
   hooks: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
 });
