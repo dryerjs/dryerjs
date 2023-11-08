@@ -19,7 +19,9 @@ describe('Object embedded feature works', () => {
           name: 'Macbook',
           brand: {
             name: 'Apple',
-            creator: 'John Doe',
+            creator: {
+              name: 'John Doe',
+            },
           },
         },
         {
@@ -36,7 +38,9 @@ describe('Object embedded feature works', () => {
                         name
                         brand {
                             name
-                            creator
+                            creator {
+                              name
+                            }
                         }
                     }
                 }
@@ -53,7 +57,9 @@ describe('Object embedded feature works', () => {
                     name
                     brand {
                         name
-                        creator
+                        creator {
+                          name
+                        }
                     }
                 }
             }
@@ -63,14 +69,16 @@ describe('Object embedded feature works', () => {
       allComputers = allComputersResponse.allComputers;
     });
 
-    it('should show computers with brand', async () => {
+    it('should show computers with brand and creator', async () => {
       expect(allComputers.map((computer) => ({ ...computer, id: undefined }))).toEqual([
         {
           id: undefined,
           name: 'Macbook',
           brand: {
             name: 'Apple',
-            creator: 'John Doe',
+            creator: {
+              name: 'John Doe',
+            },
           },
         },
         {
@@ -89,25 +97,27 @@ describe('Object embedded feature works', () => {
                   updateComputer(input: $input) {
                       brand {
                         name
-                        creator
+                        creator {
+                          name
+                        }
                       }
                   }
               }
           `,
         variables: {
           input: {
-            brand: { name: 'updated brand', creator: 'updated creator' },
+            brand: { name: 'updated brand', creator: { name: 'updated creator' } },
             id: computer.id,
           },
         },
       });
       expect(firstUpdateResponse.updateComputer.brand).toEqual({
         name: 'updated brand',
-        creator: 'updated creator',
+        creator: { name: 'updated creator' },
       });
     });
 
-    it('should be able to remove embedded values by setting it to null', async () => {
+    it('should be able to remove brand embedded values by setting it to null', async () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
@@ -115,7 +125,9 @@ describe('Object embedded feature works', () => {
                   updateComputer(input: $input) {
                       brand {
                           name
-                          creator
+                          creator { 
+                            name 
+                          }
                       }
                   }
               }
@@ -125,6 +137,35 @@ describe('Object embedded feature works', () => {
         },
       });
       expect(firstUpdateResponse.updateComputer.brand).toEqual(null);
+    });
+
+    it('should be able to remove creator embedded values by setting it to null', async () => {
+      const computer = allComputers[0];
+      const firstUpdateResponse = await dryer.makeSuccessRequest({
+        query: `
+              mutation UpdateComputer($input: UpdateComputerInput!) {
+                  updateComputer(input: $input) {
+                      brand {
+                          name
+                          creator { 
+                            name 
+                          }
+                      }
+                  }
+              }
+          `,
+        variables: {
+          input: {
+            brand: {
+              name: 'Dell',
+              creator: null,
+            },
+            id: computer.id,
+          },
+        },
+      });
+      expect(firstUpdateResponse.updateComputer.brand.name).toEqual('Dell');
+      expect(firstUpdateResponse.updateComputer.brand.creator).toEqual(null);
     });
   });
 

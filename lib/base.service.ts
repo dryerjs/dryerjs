@@ -1,7 +1,7 @@
 import * as graphql from 'graphql';
 import { Inject, Injectable, Provider } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { InjectModel, getModelToken } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
 
@@ -32,8 +32,10 @@ export abstract class BaseService<T = any, Context = any> {
       const relationDefinition = relation.typeFunction();
       const newIds: string[] = [];
       for (const subObject of input[property.name]) {
-        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-        const createdRelation = await relationModel.create(subObject);
+        const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
+          strict: false,
+        }) as BaseService;
+        const createdRelation = await baseServiceForRelation.create(ctx, subObject);
         newIds.push(createdRelation._id);
       }
       await this.model.findByIdAndUpdate(created._id, {
@@ -44,8 +46,10 @@ export abstract class BaseService<T = any, Context = any> {
       if (!input[property.name]) continue;
       const relation = property.getHasOne();
       const relationDefinition = relation.typeFunction();
-      const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-      await relationModel.create({
+      const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
+        strict: false,
+      }) as BaseService;
+      await baseServiceForRelation.create(ctx, {
         ...input[property.name],
         [relation.options.to]: created._id,
       });
@@ -56,8 +60,10 @@ export abstract class BaseService<T = any, Context = any> {
       const relation = property.getHasMany();
       const relationDefinition = relation.typeFunction();
       for (const subObject of input[property.name]) {
-        const relationModel = this.moduleRef.get(getModelToken(relationDefinition.name), { strict: false });
-        await relationModel.create({
+        const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
+          strict: false,
+        }) as BaseService;
+        await baseServiceForRelation.create(ctx, {
           ...subObject,
           [relation.options.from]: created._id,
         });
@@ -68,7 +74,7 @@ export abstract class BaseService<T = any, Context = any> {
       await hook.afterCreate!({ ctx, input, created: result });
     }
 
-    return appendIdAndTransform(this.definition, result) as any;
+    return result as any;
   }
 
   public async update(ctx: Context, input: Partial<T> & { id: string }): Promise<T> {
