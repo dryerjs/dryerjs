@@ -9,7 +9,18 @@ import { AuthResolver } from './resolvers';
 import { Product, Tag, User, Author, UserHook, Image, Customer, Variant, Computer, Color } from './models';
 import { Ctx } from './ctx';
 
-const definitions: Definition[] = [Product, Tag, User, Author, Image, Variant, Customer, Computer, Color];
+const definitions: Definition[] = [
+  Product,
+  Tag,
+  User,
+  Author,
+  Image,
+  Variant,
+  Customer,
+  Computer,
+  Color,
+  Comment,
+];
 
 @Module({
   imports: [
