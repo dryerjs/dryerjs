@@ -69,7 +69,7 @@ describe('Simple CRUD works', () => {
       expect(afterCreate).toBeCalledWith({
         ctx: 'fakeContext',
         input: { name },
-        created: expect.any(Object),
+        created: expect.objectContaining({ name }),
       });
     }
   });
@@ -88,6 +88,21 @@ describe('Simple CRUD works', () => {
       `,
     });
     allTags = response.allTags;
+    expect(beforeFindMany).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      sort: {},
+    });
+    expect(afterFindMany).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      sort: {},
+      items: [
+        expect.objectContaining({ name: '70s' }),
+        expect.objectContaining({ name: '80s' }),
+        expect.objectContaining({ name: '90s' }),
+      ],
+    });
     expect(allTags).toEqual([
       { id: expect.any(String), name: '70s' },
       { id: expect.any(String), name: '80s' },
@@ -122,6 +137,7 @@ describe('Simple CRUD works', () => {
   });
 
   it('Get one tag', async () => {
+    const id = allTags[0].id;
     const response = await server.makeSuccessRequest({
       query: `
         query GetTag($id: ID!) {
@@ -132,13 +148,23 @@ describe('Simple CRUD works', () => {
         }
       `,
       variables: {
-        id: allTags[0].id,
+        id,
       },
+    });
+    expect(beforeFindOne).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: expect.objectContaining({ _id: id }),
+    });
+    expect(afterFindOne).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: expect.objectContaining({ _id: id }),
+      result: expect.objectContaining({ name: '70s' }),
     });
     expect(response.tag.name).toEqual(allTags[0].name);
   });
 
   it('Update one tag', async () => {
+    const input: PartialTag = { id: allTags[0].id, name: '60s' };
     const response = await server.makeSuccessRequest({
       query: `
         mutation UpdateTag($input: UpdateTagInput!) {
@@ -148,14 +174,22 @@ describe('Simple CRUD works', () => {
           }
         }
       `,
-      variables: {
-        input: {
-          id: allTags[0].id,
-          name: '60s',
-        },
-      },
+      variables: { input },
     });
     expect(response.updateTag.name).toEqual('60s');
+
+    type PartialTag = Partial<Tag>;
+    expect(beforeUpdate).toBeCalledWith({
+      ctx: 'fakeContext',
+      input: input,
+      beforeUpdated: expect.objectContaining({ name: '70s' }),
+    });
+    expect(afterUpdate).toBeCalledWith({
+      ctx: 'fakeContext',
+      input,
+      updated: expect.objectContaining({ name: '60s' }),
+      beforeUpdated: expect.objectContaining({ name: '70s' }),
+    });
   });
 
   it('Update not found tag', async () => {
@@ -192,6 +226,14 @@ describe('Simple CRUD works', () => {
       },
     });
     expect(response.removeTag.success).toEqual(true);
+    expect(beforeRemove).toBeCalledWith({
+      ctx: 'fakeContext',
+      beforeRemoved: expect.objectContaining({ name: '60s' }),
+    });
+    expect(afterRemove).toBeCalledWith({
+      ctx: 'fakeContext',
+      removed: expect.objectContaining({ name: '60s' }),
+    });
 
     // Try to fetch the removed tag by its ID
     await server.makeFailRequest({
