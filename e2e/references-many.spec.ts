@@ -1,8 +1,8 @@
 import { TestServer } from './test-server';
-import { Color, Image, Product, Tag, Variant } from '../src/models';
+import { Color, Image, Product, Tag, Variant, Comment } from '../src/models';
 
 const server = TestServer.init({
-  definitions: [Product, Tag, Variant, Image, Color],
+  definitions: [Product, Tag, Variant, Image, Color, Comment],
 });
 
 describe('References many works', () => {
