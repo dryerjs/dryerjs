@@ -88,6 +88,21 @@ describe('Simple CRUD works', () => {
       `,
     });
     allTags = response.allTags;
+    expect(beforeFindMany).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      sort: {},
+    });
+    expect(afterFindMany).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      sort: {},
+      items: [
+        expect.objectContaining({ name: '70s' }),
+        expect.objectContaining({ name: '80s' }),
+        expect.objectContaining({ name: '90s' }),
+      ],
+    });
     expect(allTags).toEqual([
       { id: expect.any(String), name: '70s' },
       { id: expect.any(String), name: '80s' },
@@ -122,6 +137,7 @@ describe('Simple CRUD works', () => {
   });
 
   it('Get one tag', async () => {
+    const id = allTags[0].id;
     const response = await server.makeSuccessRequest({
       query: `
         query GetTag($id: ID!) {
@@ -132,8 +148,17 @@ describe('Simple CRUD works', () => {
         }
       `,
       variables: {
-        id: allTags[0].id,
+        id,
       },
+    });
+    expect(beforeFindOne).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: expect.objectContaining({ _id: id }),
+    });
+    expect(afterFindOne).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: expect.objectContaining({ _id: id }),
+      result: expect.objectContaining({ name: '70s' }),
     });
     expect(response.tag.name).toEqual(allTags[0].name);
   });
