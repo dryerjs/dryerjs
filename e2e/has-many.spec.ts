@@ -1,8 +1,8 @@
 import { TestServer } from './test-server';
-import { Color, Image, Product, Tag, Variant } from '../src/models';
+import { Color, Image, Product, Tag, Variant, Comment } from '../src/models';
 
 const server = TestServer.init({
-  definitions: [Product, Tag, Variant, Image, Color],
+  definitions: [Product, Tag, Variant, Image, Color, Comment],
 });
 
 describe('Has many works', () => {
@@ -10,7 +10,7 @@ describe('Has many works', () => {
     await server.start();
   });
 
-  it('Create product with image', async () => {
+  it('Create product without image', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
         mutation CreateProduct($input: CreateProductInput!) {
@@ -19,7 +19,11 @@ describe('Has many works', () => {
             name
             variants {
               id
-              name
+              name 
+              comments {
+                id
+                content
+              }
             }
           }
         }
@@ -30,6 +34,7 @@ describe('Has many works', () => {
           variants: [
             {
               name: 'Awesome variant',
+              comments: [{ content: 'A' }, { content: 'B' }],
             },
             {
               name: 'Awesome variant 2',
@@ -44,10 +49,21 @@ describe('Has many works', () => {
       {
         id: expect.any(String),
         name: 'Awesome variant',
+        comments: [
+          {
+            id: expect.any(String),
+            content: 'A',
+          },
+          {
+            id: expect.any(String),
+            content: 'B',
+          },
+        ],
       },
       {
         id: expect.any(String),
         name: 'Awesome variant 2',
+        comments: [],
       },
     ]);
   });
