@@ -22,7 +22,7 @@ import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { ArrayValidationPipe, appendIdAndTransform } from './shared';
+import { ArrayValidationPipe } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
@@ -66,8 +66,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       input: any,
       @contextDecorator() ctx: any,
     ) {
-      const result = await this.baseService.create(ctx, input);
-      return appendIdAndTransform(definition, result);
+      return await this.baseService.create(ctx, input);
     }
 
     @IfApiAllowed(
@@ -103,7 +102,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(
@@ -139,7 +138,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(
@@ -169,7 +168,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
@@ -193,8 +192,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      const result = await this.baseService.findOne(ctx, { _id: id });
-      return appendIdAndTransform(definition, result) as any;
+      return await this.baseService.findOne(ctx, { _id: id });
     }
 
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))

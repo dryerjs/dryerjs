@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 
-import { appendIdAndTransform } from './shared';
 import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
@@ -30,8 +29,7 @@ export function createResolverForReferencesMany(
     async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T[]> {
       ctx;
       const dataloader = await this.moduleRef.resolve(`${definition.name}ReferencesManyLoader`);
-      const items = await dataloader.load(parent[relation.options.from]);
-      return items.map((item) => appendIdAndTransform(relationDefinition, item)) as any;
+      return await dataloader.load(parent[relation.options.from]);
     }
   }
 

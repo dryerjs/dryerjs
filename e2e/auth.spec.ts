@@ -19,13 +19,13 @@ describe('Auth Resolver works', () => {
   it('signUp works', async () => {
     const signUpResponse = await server.makeSuccessRequest({
       query: `
-      mutation SignUp($input: CreateUserInput!) {
-        signUp(input: $input) {
-          email
-          name
-          id
+        mutation SignUp($input: CreateUserInput!) {
+          signUp(input: $input) {
+            email
+            name
+            id
+          }
         }
-      }
       `,
       variables: {
         input: {
@@ -68,12 +68,12 @@ describe('Auth Resolver works', () => {
   it('invalid email throw error', async () => {
     await server.makeFailRequest({
       query: `
-      mutation SignUp($input: CreateUserInput!) {
-        signUp(input: $input) {
-          email
-          name
+        mutation SignUp($input: CreateUserInput!) {
+          signUp(input: $input) {
+            email
+            name
+          }
         }
-      }
       `,
       variables: {
         input: {

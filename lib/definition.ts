@@ -31,6 +31,6 @@ export function Definition(options: DefinitionOptions = { allowedApis: 'essentia
     PaginatedOutputType(target);
     FilterType(target);
     SortType(target);
-    Schema()(target as any);
+    Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })(target as any);
   };
 }

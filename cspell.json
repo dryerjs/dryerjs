@@ -8,12 +8,15 @@
     "srcset",
     "Typer",
     "QLID",
+    "QLJSON",
+    "metatype",
     "automerge",
     "precommit",
     "lcov",
     "paramtypes",
-    "returntype"
+    "returntype",
+    "virtuals",
+    "Macbook"
   ],
-  "ignorePaths": ["node_modules", "dist", "coverage"],
-  "words": ["Aissue", "metatype", "Macbook", "QLJSON"]
+  "ignorePaths": ["node_modules", "dist", "coverage"]
 }

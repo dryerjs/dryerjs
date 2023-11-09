@@ -1,7 +1,6 @@
 import * as graphql from 'graphql';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { plainToInstance } from 'class-transformer';
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { ValidationPipe } from '@nestjs/common';
 import { OutputType, CreateInputType } from '../../lib';
@@ -24,11 +23,7 @@ export class AuthResolver {
     )
     input: Omit<User, 'id'>,
   ) {
-    const user = await this.User.create(input);
-    return plainToInstance(OutputType(User), {
-      ...user.toObject(),
-      id: user._id.toHexString(),
-    });
+    return await this.User.create(input);
   }
 
   @Query(() => OutputType(User))
@@ -37,9 +32,6 @@ export class AuthResolver {
     if (!user) {
       throw new graphql.GraphQLError('User not found');
     }
-    return plainToInstance(OutputType(User), {
-      ...user.toObject(),
-      id: user._id.toHexString(),
-    });
+    return user;
   }
 }

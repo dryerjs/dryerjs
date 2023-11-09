@@ -6,8 +6,6 @@ export const isNil = (value: any): value is null | undefined => value === null |
 
 export const isNotNil = (value: any) => !isNil(value);
 
-export const isObject = (value: any): value is object => typeof value === 'object';
-
 export const isArray = (value: any) => Array.isArray(value);
 
 export const isNotNullObject = (value: any): value is object => typeof value === 'object' && value !== null;

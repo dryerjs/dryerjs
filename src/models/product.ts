@@ -40,11 +40,6 @@ export class Tag {
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   name: string;
 
-  @ReferencesMany(() => Color, { from: 'colorIds' })
-  @Thunk(Field(() => [OutputType(Color)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Color)], { nullable: true }), { scopes: 'create' })
-  colors: Color[];
-
   @Prop({ type: [ObjectId], default: [] })
   @Thunk(Field(() => [graphql.GraphQLString], { nullable: true }), { scopes: 'input' })
   @Thunk(Field(() => [graphql.GraphQLString]), { scopes: 'output' })
@@ -53,12 +48,16 @@ export class Tag {
     Transform(({ value: tagIds }) => {
       return tagIds.map((tagId: string) => new Types.ObjectId(tagId));
     }),
-    {
-      scopes: 'input',
-    },
+    { scopes: 'input' },
   )
   @ExcludeOnDatabase()
   colorIds: string[];
+
+  @ReferencesMany(() => Color, { from: 'colorIds' })
+  @Thunk(Field(() => [OutputType(Color)]), { scopes: 'output' })
+  @Thunk(Field(() => [CreateInputType(Color)], { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
+  colors: Color[];
 }
 
 @Definition({ allowedApis: '*' })
@@ -70,9 +69,7 @@ export class Image {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Prop({
-    type: ObjectId,
-  })
+  @Prop({ type: ObjectId })
   @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
   productId: string;
 }
@@ -104,6 +101,7 @@ export class Product {
   @ReferencesMany(() => Tag, { from: 'tagIds' })
   @Thunk(Field(() => [OutputType(Tag)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
+  @ExcludeOnDatabase()
   tags: Tag[];
 
   @HasMany(() => Variant, { from: 'productId' })

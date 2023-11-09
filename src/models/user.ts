@@ -1,7 +1,7 @@
 import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
 import { IsEmail, MinLength } from 'class-validator';
-import { Property, Definition, Thunk, ExcludeOnDatabase, Filterable, Hook } from '../../lib';
+import { Property, Definition, Thunk, ExcludeOnDatabase, Filterable } from '../../lib';
 import { Field } from '@nestjs/graphql';
 
 @Definition({ allowedApis: '*' })
@@ -23,15 +23,4 @@ export class User {
   @Thunk(Field(), { scopes: ['create'] })
   @Thunk(MinLength(5), { scopes: ['create'] })
   password: string;
-}
-
-@Hook(() => User)
-export class UserHook<T, Context> {
-  public beforeFindOne(ctx: Context, id: string) {
-    console.log('beforeFindOne', ctx, id);
-  }
-
-  public afterFindOne(ctx: Context, value: T) {
-    console.log('afterFindOne', ctx, value);
-  }
 }

@@ -56,6 +56,9 @@ export class DryerModule {
       input.definitions.map((definition) => {
         const schema = SchemaFactory.createForClass(definition);
         schema.plugin(mongoosePaginateV2);
+        schema.virtual('id').get(function () {
+          return (this['_id'] as any).toHexString();
+        });
         return {
           name: definition.name,
           schema,

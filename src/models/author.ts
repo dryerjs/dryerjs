@@ -25,6 +25,11 @@ export class Review {
   name: string;
 }
 
+const reviewSchema = SchemaFactory.createForClass(Review);
+reviewSchema.virtual('id').get(function () {
+  return (this['_id'] as any).toHexString();
+});
+
 @Definition()
 export class Book {
   @Property(() => graphql.GraphQLID)
@@ -35,7 +40,7 @@ export class Book {
   @Thunk(Field(() => graphql.GraphQLString))
   name: string;
 
-  @Prop({ type: [SchemaFactory.createForClass(Review)] })
+  @Prop({ type: [reviewSchema] })
   @Thunk(Field(() => [OutputType(Review)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Review)], { nullable: true }), { scopes: 'create' })
   @Thunk(Field(() => [UpdateInputType(Review)], { nullable: true }), { scopes: 'update' })
@@ -47,6 +52,11 @@ export class Book {
   reviews: Review[];
 }
 
+const bookSchema = SchemaFactory.createForClass(Book);
+bookSchema.virtual('id').get(function () {
+  return (this['_id'] as any).toHexString();
+});
+
 @Definition({ allowedApis: '*' })
 export class Author {
   @Property(() => graphql.GraphQLID)
@@ -55,7 +65,7 @@ export class Author {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Prop({ type: [SchemaFactory.createForClass(Book)] })
+  @Prop({ type: [bookSchema] })
   @Thunk(Field(() => [OutputType(Book)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Book)], { nullable: true }), { scopes: 'create' })
   @Thunk(Field(() => [UpdateInputType(Book)], { nullable: true }), { scopes: 'update' })

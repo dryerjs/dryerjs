@@ -10,7 +10,7 @@ function getType(definition: Definition): any {
   @ObjectType(`Paginated${util.plural(definition.name)}`)
   class Placeholder {
     @Field(() => [OutputType(definition)])
-    @Type(() => OutputType(definition))
+    @Type(/* istanbul ignore next */ () => OutputType(definition))
     docs: any[];
 
     @Field(() => graphql.GraphQLInt)
