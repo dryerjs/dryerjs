@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, Type } from 'class-transformer';
 import { MaxLength, ValidateNested } from 'class-validator';
 import { Field } from '@nestjs/graphql';
@@ -15,7 +15,6 @@ import {
 } from '../../lib';
 
 @Definition()
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Review {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -26,8 +25,12 @@ export class Review {
   name: string;
 }
 
+const reviewSchema = SchemaFactory.createForClass(Review);
+reviewSchema.virtual('id').get(function () {
+  return (this['_id'] as any).toHexString();
+});
+
 @Definition()
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Book {
   @Property(() => graphql.GraphQLID)
   id: string;
@@ -37,7 +40,7 @@ export class Book {
   @Thunk(Field(() => graphql.GraphQLString))
   name: string;
 
-  @Prop({ type: [SchemaFactory.createForClass(Review)] })
+  @Prop({ type: [reviewSchema] })
   @Thunk(Field(() => [OutputType(Review)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Review)], { nullable: true }), { scopes: 'create' })
   @Thunk(Field(() => [UpdateInputType(Review)], { nullable: true }), { scopes: 'update' })

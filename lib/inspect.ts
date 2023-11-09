@@ -1,5 +1,5 @@
 import * as util from './util';
-import { EmbeddedConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
+import { HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType } from './shared';
 import { Definition } from './definition';
@@ -66,17 +66,6 @@ export class HydratedProperty {
 
   public get<T = any>(key: MetaKey) {
     return Metadata.for(this.definition).with(this.name).get<T>(key);
-  }
-
-  public getEmbeddedDefinition() {
-    const config = this.get<EmbeddedConfig>(MetaKey.EmbeddedType);
-
-    /* istanbul ignore if */
-    if (util.isNil(config)) {
-      throw new Error(`Property ${this.name} is not an embedded property`);
-    }
-
-    return config.typeFunction();
   }
 
   public getReferencesMany() {
