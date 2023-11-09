@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Provider, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
@@ -22,11 +22,10 @@ import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { ArrayValidationPipe, appendIdAndTransform } from './shared';
+import { ArrayValidationPipe } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
-import { TransformInterceptor } from '../transform.interceptor';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -67,8 +66,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       input: any,
       @contextDecorator() ctx: any,
     ) {
-      const result = await this.baseService.create(ctx, input);
-      return appendIdAndTransform(definition, result);
+      return await this.baseService.create(ctx, input);
     }
 
     @IfApiAllowed(
@@ -104,7 +102,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(
@@ -140,7 +138,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkCreateOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(
@@ -170,7 +168,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           });
         }
       }
-      return response.map((item) => appendIdAndTransform(BulkRemoveOutputType(definition), item)) as any;
+      return response;
     }
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
@@ -190,7 +188,6 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
-    @UseInterceptors(TransformInterceptor)
     async findOne(
       @Args('id', { type: () => graphql.GraphQLID }) id: string,
       @contextDecorator() ctx: any,

@@ -28,6 +28,7 @@ export function createReferencesManyLoader(definition: Definition, field: string
       dataKeys.map((key: any[]) => flattenKeys.push(...key));
 
       const field = relation.options.to || '_id';
+      console.log(relationDefinition.name, { [field]: { $in: flattenKeys } });
       const results = await this.model.find({ [field]: { $in: flattenKeys } });
 
       const itemMap: any[] = [];

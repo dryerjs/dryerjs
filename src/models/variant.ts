@@ -21,9 +21,7 @@ export class Comment {
   @Thunk(Field(() => graphql.GraphQLString))
   content: string;
 
-  @Prop({
-    type: ObjectId,
-  })
+  @Prop({ type: ObjectId })
   @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
   variantId: string;
 }
@@ -37,9 +35,7 @@ export class Variant {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Prop({
-    type: ObjectId,
-  })
+  @Prop({ type: ObjectId })
   @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
   productId: string;
 

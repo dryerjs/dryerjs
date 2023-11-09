@@ -3,13 +3,9 @@ import { Inject, Injectable, Provider } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel } from 'mongoose';
-import { plainToInstance } from 'class-transformer';
-
 import { Definition } from './definition';
 import { inspect } from './inspect';
-import { appendIdAndTransform } from './resolvers/shared';
 import { SuccessResponse } from './types';
-import { PaginatedOutputType } from './type-functions';
 import * as util from './util';
 import { AllDefinitions, Hook } from './hook';
 import { MetaKey, Metadata } from './metadata';
@@ -73,7 +69,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterCreate')) {
       await hook.afterCreate!({ ctx, input, created: result });
     }
-
+    console.log(result);
     return result as any;
   }
 
@@ -86,8 +82,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterUpdate')) {
       await hook.afterUpdate!({ ctx, input, updated, beforeUpdated });
     }
-
-    return appendIdAndTransform(this.definition, await this.model.findById(updated!._id)) as any;
+    return updated!;
   }
 
   public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
@@ -101,12 +96,10 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterFindOne')) {
       await hook.afterFindOne!({ ctx, result, filter });
     }
-
-    result['__Definition'] = Definition;
     return result;
   }
 
-  public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T> {
+  public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
     for (const hook of this.getHooks('beforeFindMany')) {
       await hook.beforeFindMany!({ ctx, filter, sort });
     }
@@ -114,7 +107,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterFindMany')) {
       await hook.afterFindMany!({ ctx, filter, sort, items });
     }
-    return items.map((item) => appendIdAndTransform(this.definition, item)) as any;
+    return items;
   }
 
   public async remove(ctx: Context, id: Partial<string>): Promise<SuccessResponse> {
@@ -129,13 +122,7 @@ export abstract class BaseService<T = any, Context = any> {
     return { success: true };
   }
 
-  public async paginate(
-    ctx: Context,
-    filter: FilterQuery<T>,
-    sort: object,
-    page: number,
-    limit: number,
-  ): Promise<T> {
+  public async paginate(ctx: Context, filter: FilterQuery<T>, sort: object, page: number, limit: number) {
     for (const hook of this.getHooks('beforeFindMany')) {
       await hook.beforeFindMany!({ ctx, filter, sort, page, limit });
     }
@@ -143,10 +130,8 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterFindMany')) {
       await hook.afterFindMany!({ ctx, filter, sort, items: response.docs, page, limit });
     }
-    return plainToInstance(PaginatedOutputType(this.definition), {
-      ...response,
-      docs: response.docs.map((doc) => appendIdAndTransform(this.definition, doc)),
-    });
+
+    return response;
   }
 }
 

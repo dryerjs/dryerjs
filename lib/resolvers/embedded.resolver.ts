@@ -9,7 +9,7 @@ import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
-import { ArrayValidationPipe, appendIdAndTransform } from './shared';
+import { ArrayValidationPipe } from './shared';
 import { EmbeddedConfig } from '../property';
 import { ContextDecorator } from '../context';
 
@@ -60,9 +60,7 @@ export function createResolverForEmbedded(
       parent[field].push(...inputs);
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return updatedParent[field]
-        .filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1)
-        .map((item: any) => appendIdAndTransform(embeddedDefinition, item));
+      return updatedParent[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
     }
 
     @IfApiAllowed(
@@ -109,8 +107,7 @@ export function createResolverForEmbedded(
     ): Promise<T> {
       ctx;
       const parent = await this.model.findById(parentId).select(field);
-      const result = parent[field].find((item: any) => item._id.toString() === id);
-      return appendIdAndTransform(embeddedDefinition, result) as any;
+      return parent[field].find((item: any) => item._id.toString() === id);
     }
 
     @IfApiAllowed(
@@ -127,7 +124,7 @@ export function createResolverForEmbedded(
     ): Promise<T[]> {
       ctx;
       const parent = await this.model.findById(parentId).select(field);
-      return parent[field].map((item: any) => appendIdAndTransform(embeddedDefinition, item)) as any;
+      return parent[field];
     }
 
     @IfApiAllowed(
@@ -164,9 +161,9 @@ export function createResolverForEmbedded(
       parent[field] = inputs;
       await parent.save();
       const updatedParent = await this.model.findById(parentId).select(field);
-      return updatedParent[field]
-        .filter((item: any) => inputs.some((input) => input.id === item.id.toString()))
-        .map((item: any) => appendIdAndTransform(embeddedDefinition, item));
+      return updatedParent[field].filter((item: any) =>
+        inputs.some((input) => input.id === item.id.toString()),
+      );
     }
   }
 
