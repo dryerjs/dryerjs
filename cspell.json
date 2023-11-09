@@ -12,7 +12,8 @@
     "precommit",
     "lcov",
     "paramtypes",
-    "returntype"
+    "returntype",
+    "virtuals"
   ],
   "ignorePaths": ["node_modules", "dist", "coverage"],
   "words": ["Aissue", "metatype", "Macbook", "QLJSON"]
