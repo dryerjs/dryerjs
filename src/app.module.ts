@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
-import { Product, Tag, User, Author, UserHook, Image, Customer, Variant, Computer, Color } from './models';
+import { Product, Tag, User, Author, Image, Customer, Variant, Computer, Color, Comment } from './models';
 import { Ctx } from './ctx';
 
 const definitions: Definition[] = [
@@ -36,7 +36,6 @@ const definitions: Definition[] = [
     DryerModule.register({
       definitions,
       contextDecorator: Ctx,
-      hooks: [UserHook],
     }),
   ],
   providers: [AuthResolver],

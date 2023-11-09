@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import * as DataLoader from 'dataloader';
 import { Definition } from '../definition';
 import { MetaKey, Metadata } from '../metadata';
+import { ReferencesManyConfig } from '../property';
 
 export type HasManyDataKey = any[];
 
 export function createReferencesManyLoader(definition: Definition, field: string): any {
-  const relation = Metadata.for(definition).with(field).get(MetaKey.ReferencesManyType);
+  const relation = Metadata.for(definition).with(field).get<ReferencesManyConfig>(MetaKey.ReferencesManyType);
   const relationDefinition = relation.typeFunction();
 
   @Injectable()
@@ -25,18 +26,16 @@ export function createReferencesManyLoader(definition: Definition, field: string
 
     public async getReferences(dataKeys: HasManyDataKey[]) {
       const flattenKeys: any[] = [];
-      dataKeys.map((key: any[]) => flattenKeys.push(...key));
+      dataKeys.forEach((key: any[]) => flattenKeys.push(...key));
 
       const field = relation.options.to || '_id';
-      console.log(relationDefinition.name, { [field]: { $in: flattenKeys } });
       const results = await this.model.find({ [field]: { $in: flattenKeys } });
-
       const itemMap: any[] = [];
 
       dataKeys.map((dataKey) => {
         const items: any[] = [];
         dataKey.map((key) => {
-          const item = results.find((res) => res[field].toString() === key);
+          const item = results.find((res) => res[field].toString() === key.toString());
           if (item) items.push(item);
         });
         itemMap.push(items);

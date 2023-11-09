@@ -69,7 +69,6 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('afterCreate')) {
       await hook.afterCreate!({ ctx, input, created: result });
     }
-    console.log(result);
     return result as any;
   }
 

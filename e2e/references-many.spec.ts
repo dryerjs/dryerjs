@@ -61,7 +61,7 @@ describe('References many works', () => {
     }
   });
 
-  it.only('Create product with tags and colors', async () => {
+  it('Create product with tags and colors', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateProduct($input: CreateProductInput!) {
@@ -106,12 +106,20 @@ describe('References many works', () => {
           id: expect.any(String),
           name: '100s',
           colorIds: expect.arrayContaining(preExistingColors.map((color) => color.id)),
-          colors: [],
+          colors: [
+            ...preExistingColors,
+            {
+              id: expect.any(String),
+              name: 'black',
+            },
+            {
+              id: expect.any(String),
+              name: 'yellow',
+            },
+          ],
         },
       ],
     });
-
-    console.log(response.createProduct.tags);
   });
 
   it('Create product without tags', async () => {
