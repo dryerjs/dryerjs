@@ -1,7 +1,10 @@
 import { Field } from '@nestjs/graphql';
-import { Prop } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
+import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
+import { ValidateIf, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export function Property(...input: Parameters<typeof Field>): PropertyDecorator & MethodDecorator {
   // TODO: Add validation for input
@@ -78,6 +81,44 @@ export type EmbeddedConfig = {
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
+    const schema = SchemaFactory.createForClass(typeFunction());
+    schema.virtual('id').get(function () {
+      return (this['_id'] as any).toHexString();
+    });
+
+    const isArray = Reflect.getMetadata(MetaKey.DesignType, target, propertyKey) === Array;
+    Prop({ type: isArray ? [schema] : schema })(target, propertyKey);
+    Thunk(
+      Field(() => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())), { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())), {
+        nullable: true,
+      }),
+      { scopes: 'create' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())), {
+        nullable: true,
+      }),
+      { scopes: 'update' },
+    )(target, propertyKey);
+    if (isArray) {
+      Thunk(ValidateNested({ each: true }), { scopes: 'input' })(target, propertyKey);
+    } else {
+      Thunk(ValidateNested(), { scopes: 'input' })(target, propertyKey);
+      Thunk(ValidateIf((_, value) => value !== null))(target, propertyKey);
+    }
+    Thunk(
+      Type(() => UpdateInputType(typeFunction())),
+      { scopes: 'update' },
+    )(target, propertyKey);
+    Thunk(
+      Type(() => CreateInputType(typeFunction())),
+      { scopes: 'create' },
+    )(target, propertyKey);
+
     Metadata.for(target)
       .with(propertyKey)
       .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
@@ -106,6 +147,14 @@ export function ReferencesMany(
     Metadata.for(target)
       .with(propertyKey)
       .set<ReferencesManyConfig>(MetaKey.ReferencesManyType, { typeFunction, options });
+    Thunk(
+      Field(() => [OutputType(typeFunction())]),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 
@@ -119,6 +168,14 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
+    Thunk(
+      Field(() => OutputType(typeFunction()), { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => CreateInputType(typeFunction()), { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 
@@ -132,6 +189,14 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
+    Thunk(
+      Field(() => [OutputType(typeFunction())], { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 

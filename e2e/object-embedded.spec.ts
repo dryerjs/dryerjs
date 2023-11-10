@@ -70,9 +70,9 @@ describe('Object embedded feature works', () => {
     });
 
     it('should show computers with brand and creator', async () => {
-      expect(allComputers.map((computer) => ({ ...computer, id: undefined }))).toEqual([
+      expect(allComputers).toEqual([
         {
-          id: undefined,
+          id: expect.any(String),
           name: 'Macbook',
           brand: {
             name: 'Apple',
@@ -82,7 +82,7 @@ describe('Object embedded feature works', () => {
           },
         },
         {
-          id: undefined,
+          id: expect.any(String),
           name: 'Dell XPS',
           brand: null,
         },
