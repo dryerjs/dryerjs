@@ -147,6 +147,14 @@ export function ReferencesMany(
     Metadata.for(target)
       .with(propertyKey)
       .set<ReferencesManyConfig>(MetaKey.ReferencesManyType, { typeFunction, options });
+    Thunk(
+      Field(() => [OutputType(typeFunction())]),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 
@@ -160,6 +168,14 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
+    Thunk(
+      Field(() => OutputType(typeFunction()), { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => CreateInputType(typeFunction()), { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 
@@ -173,6 +189,14 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
+    Thunk(
+      Field(() => [OutputType(typeFunction())], { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+    Thunk(
+      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
   };
 }
 

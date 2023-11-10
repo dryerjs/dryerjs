@@ -9,8 +9,6 @@ import {
   ReferencesMany,
   ObjectId,
   Thunk,
-  OutputType,
-  CreateInputType,
   Filterable,
   Sortable,
   HasMany,
@@ -54,9 +52,6 @@ export class Tag {
   colorIds: string[];
 
   @ReferencesMany(() => Color, { from: 'colorIds' })
-  @Thunk(Field(() => [OutputType(Color)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Color)], { nullable: true }), { scopes: 'create' })
-  @ExcludeOnDatabase()
   colors: Color[];
 }
 
@@ -99,20 +94,11 @@ export class Product {
   tagIds: string[];
 
   @ReferencesMany(() => Tag, { from: 'tagIds' })
-  @Thunk(Field(() => [OutputType(Tag)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Tag)], { nullable: true }), { scopes: 'create' })
-  @ExcludeOnDatabase()
   tags: Tag[];
 
   @HasMany(() => Variant, { to: 'productId' })
-  @Thunk(Field(() => [OutputType(Variant)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Variant)], { nullable: true }), { scopes: 'create' })
-  @ExcludeOnDatabase()
   variants: Variant[];
 
   @HasOne(() => Image, { to: 'productId' })
-  @Thunk(Field(() => OutputType(Image), { nullable: true }), { scopes: 'output' })
-  @Thunk(Field(() => CreateInputType(Image), { nullable: true }), { scopes: 'create' })
-  @ExcludeOnDatabase()
   image: Image;
 }
