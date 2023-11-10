@@ -328,7 +328,7 @@ describe('Embedded works', () => {
         inputs: author.books,
       },
     });
-    expect(response[0].message).toEqual(`No author found with ID ${NOT_FOUND_ID}`);
+    expect(response[0].message).toEqual(`No Author found with ID: ${NOT_FOUND_ID}`);
   });
 
   it('Update books within author: return error if book not found', async () => {
@@ -456,7 +456,7 @@ describe('Embedded works', () => {
         bookIds: ['5e6b4b5b1c9d440000d2c7f3'],
       },
     });
-    expect(response[0].message).toEqual('No author found with ID 5e6b4b5b1c9d440000d2c7f3');
+    expect(response[0].message).toEqual('No Author found with ID: 5e6b4b5b1c9d440000d2c7f3');
   });
 
   it("Remove author's books: return error if no IDs provided", async () => {
