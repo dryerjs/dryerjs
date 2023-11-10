@@ -61,7 +61,7 @@ export abstract class BaseService<T = any, Context = any> {
         }) as BaseService;
         await baseServiceForRelation.create(ctx, {
           ...subObject,
-          [relation.options.from]: created._id,
+          [relation.options.to]: created._id,
         });
       }
     }
