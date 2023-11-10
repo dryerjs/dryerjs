@@ -1,7 +1,5 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 
 import * as util from '../util';
@@ -12,6 +10,7 @@ import { Definition } from '../definition';
 import { ArrayValidationPipe } from './shared';
 import { EmbeddedConfig } from '../property';
 import { ContextDecorator } from '../context';
+import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForEmbedded(
   definition: Definition,
@@ -34,7 +33,7 @@ export function createResolverForEmbedded(
   const embeddedDefinition = typeFunction();
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
-    constructor(@InjectModel(definition.name) public model: Model<any>) {}
+    constructor(@InjectBaseService(definition) public baseService: BaseService) {}
 
     @IfApiAllowed(
       Mutation(() => [OutputType(embeddedDefinition)], {
@@ -54,13 +53,11 @@ export function createResolverForEmbedded(
       parentId: string,
       @contextDecorator() ctx: any,
     ) {
-      ctx;
-      const parent = await this.model.findById(parentId).select(field);
+      const parent = await this.baseService.findOne(ctx, { _id: parentId });
       const beforeIds = parent[field].map((item: any) => item._id.toString());
       parent[field].push(...inputs);
-      await parent.save();
-      const updatedParent = await this.model.findById(parentId).select(field);
-      return updatedParent[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
+      const updated = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
+      return updated[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
     }
 
     @IfApiAllowed(
@@ -77,18 +74,12 @@ export function createResolverForEmbedded(
       ids: string[],
       @contextDecorator() ctx: any,
     ) {
-      ctx;
-      const parent = await this.model.findById(parentId);
-      if (!parent) {
-        throw new graphql.GraphQLError(`No ${util.toCamelCase(definition.name)} found with ID ${parentId}`);
-      }
-
+      const parent = await this.baseService.findOne(ctx, { _id: parentId });
       if (ids.length === 0) {
         throw new graphql.GraphQLError(`No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`);
       }
-
       parent[field] = parent[field].filter((item: any) => !ids.includes(item._id.toString()));
-      await parent.save();
+      await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return { success: true };
     }
 
@@ -105,8 +96,7 @@ export function createResolverForEmbedded(
       parentId: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      ctx;
-      const parent = await this.model.findById(parentId).select(field);
+      const parent = await this.baseService.findOne(ctx, { _id: parentId });
       return parent[field].find((item: any) => item._id.toString() === id);
     }
 
@@ -122,8 +112,7 @@ export function createResolverForEmbedded(
       parentId: string,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
-      ctx;
-      const parent = await this.model.findById(parentId).select(field);
+      const parent = await this.baseService.findOne(ctx, { _id: parentId });
       return parent[field];
     }
 
@@ -145,12 +134,7 @@ export function createResolverForEmbedded(
       parentId: string,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
-      ctx;
-      const parent = await this.model.findById(parentId);
-      if (util.isNil(parent)) {
-        throw new graphql.GraphQLError(`No ${util.toCamelCase(definition.name)} found with ID ${parentId}`);
-      }
-
+      const parent = await this.baseService.findOne(ctx, { _id: parentId });
       for (const subDocumentInput of inputs) {
         if (!parent[field].find((item: any) => item._id.toString() === subDocumentInput.id.toString())) {
           throw new graphql.GraphQLError(
@@ -159,8 +143,7 @@ export function createResolverForEmbedded(
         }
       }
       parent[field] = inputs;
-      await parent.save();
-      const updatedParent = await this.model.findById(parentId).select(field);
+      const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return updatedParent[field].filter((item: any) =>
         inputs.some((input) => input.id === item.id.toString()),
       );

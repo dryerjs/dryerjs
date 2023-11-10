@@ -104,7 +104,7 @@ export class Product {
   @ExcludeOnDatabase()
   tags: Tag[];
 
-  @HasMany(() => Variant, { from: 'productId' })
+  @HasMany(() => Variant, { to: 'productId' })
   @Thunk(Field(() => [OutputType(Variant)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Variant)], { nullable: true }), { scopes: 'create' })
   @ExcludeOnDatabase()

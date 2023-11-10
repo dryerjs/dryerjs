@@ -39,7 +39,7 @@ export class Variant {
   @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
   productId: string;
 
-  @HasMany(() => Comment, { from: 'variantId' })
+  @HasMany(() => Comment, { to: 'variantId' })
   @Thunk(Field(() => [OutputType(Comment)]), { scopes: 'output' })
   @Thunk(Field(() => [CreateInputType(Comment)], { nullable: true }), { scopes: 'create' })
   @ExcludeOnDatabase()

@@ -125,7 +125,7 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
 export type HasManyConfig = {
   typeFunction: () => any;
   options: {
-    from: string;
+    to: string;
   };
 };
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {

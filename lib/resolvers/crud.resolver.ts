@@ -1,9 +1,6 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { PaginateModel } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { Provider, ValidationPipe } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
 import {
@@ -47,11 +44,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
 
   @Resolver()
   class GeneratedResolver<T> {
-    constructor(
-      @InjectModel(definition.name) public model: PaginateModel<any>,
-      @InjectBaseService(definition) public baseService: BaseService,
-      public moduleRef: ModuleRef,
-    ) {}
+    constructor(@InjectBaseService(definition) public baseService: BaseService) {}
 
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `create${definition.name}` }))
     async create(
