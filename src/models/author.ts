@@ -1,18 +1,9 @@
 import * as graphql from 'graphql';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Transform, Type } from 'class-transformer';
-import { MaxLength, ValidateNested } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { MaxLength } from 'class-validator';
 import { Field } from '@nestjs/graphql';
 
-import {
-  Property,
-  Definition,
-  Embedded,
-  Thunk,
-  OutputType,
-  CreateInputType,
-  UpdateInputType,
-} from '../../lib';
+import { Property, Definition, Embedded, Thunk } from '../../lib';
 
 @Definition()
 export class Review {
@@ -25,11 +16,6 @@ export class Review {
   name: string;
 }
 
-const reviewSchema = SchemaFactory.createForClass(Review);
-reviewSchema.virtual('id').get(function () {
-  return (this['_id'] as any).toHexString();
-});
-
 @Definition()
 export class Book {
   @Property(() => graphql.GraphQLID)
@@ -40,22 +26,9 @@ export class Book {
   @Thunk(Field(() => graphql.GraphQLString))
   name: string;
 
-  @Prop({ type: [reviewSchema] })
-  @Thunk(Field(() => [OutputType(Review)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Review)], { nullable: true }), { scopes: 'create' })
-  @Thunk(Field(() => [UpdateInputType(Review)], { nullable: true }), { scopes: 'update' })
-  @Thunk(Type(() => CreateInputType(Review)), { scopes: 'create' })
-  @Thunk(Type(() => UpdateInputType(Review)), { scopes: 'update' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
   @Embedded(() => Review, { allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
   reviews: Review[];
 }
-
-const bookSchema = SchemaFactory.createForClass(Book);
-bookSchema.virtual('id').get(function () {
-  return (this['_id'] as any).toHexString();
-});
 
 @Definition({ allowedApis: '*' })
 export class Author {
@@ -65,14 +38,6 @@ export class Author {
   @Property(() => graphql.GraphQLString)
   name: string;
 
-  @Prop({ type: [bookSchema] })
-  @Thunk(Field(() => [OutputType(Book)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Book)], { nullable: true }), { scopes: 'create' })
-  @Thunk(Field(() => [UpdateInputType(Book)], { nullable: true }), { scopes: 'update' })
-  @Thunk(Type(() => CreateInputType(Book)), { scopes: 'create' })
-  @Thunk(Type(() => UpdateInputType(Book)), { scopes: 'update' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
   @Embedded(() => Book, { allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
   books: Book[];
 }
