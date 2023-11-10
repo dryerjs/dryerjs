@@ -1,7 +1,5 @@
 import * as DataLoader from 'dataloader';
 import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { Provider } from '@nestjs/common';
 
 import { MetaKey, Metadata } from '../metadata';
@@ -9,7 +7,8 @@ import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../property';
 import { ContextDecorator } from '../context';
-import { ObjectId } from '../shared';
+import { StringLikeId } from '../shared';
+import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForHasOne(
   definition: Definition,
@@ -21,15 +20,14 @@ export function createResolverForHasOne(
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForHasOne<T> {
-    constructor(@InjectModel(relationDefinition.name) public model: Model<any>) {}
+    constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     @ResolveField()
     async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T> {
-      ctx;
-      const loader = new DataLoader<ObjectId, any>(async (keys) => {
+      const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
-        const items = await this.model.find({ [field]: { $in: keys } });
-        return keys.map((id: ObjectId) => {
+        const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        return keys.map((id: StringLikeId) => {
           return items.find((item) => item[field].toString() === id.toString());
         });
       });
