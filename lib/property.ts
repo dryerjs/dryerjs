@@ -28,7 +28,7 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
         ...util.defaultTo(input.create, {}),
       };
       if (createOptions.type) {
-        Thunk(Field(input.type, createOptions), { scopes: 'create' })(target, propertyKey);
+        Thunk(Field(createOptions.type, createOptions), { scopes: 'create' })(target, propertyKey);
       } else {
         Thunk(Field(createOptions), { scopes: 'create' })(target, propertyKey);
       }
