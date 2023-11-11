@@ -1,3 +1,16 @@
+# [0.10.0](https://github.com/dryerjs/dryerjs/compare/v0.9.0...v0.10.0) (2023-11-11)
+
+
+### Features
+
+* apply sortable and filter into getAll ([#158](https://github.com/dryerjs/dryerjs/issues/158)) ([9fb6e3a](https://github.com/dryerjs/dryerjs/commit/9fb6e3a03c7c563a339452242815c3c19b658bc5))
+* context decorator with hooks ([#168](https://github.com/dryerjs/dryerjs/issues/168)) ([01f6631](https://github.com/dryerjs/dryerjs/commit/01f6631232a922c4bd84c112abe8710135df23bd))
+* enhance embedded decorator ([#185](https://github.com/dryerjs/dryerjs/issues/185)) ([f81e217](https://github.com/dryerjs/dryerjs/commit/f81e217a2d9b11723c97ce059ffda0c36c7ae4ef))
+* general hook ([#171](https://github.com/dryerjs/dryerjs/issues/171)) ([1d53906](https://github.com/dryerjs/dryerjs/commit/1d539065aab6e916854665909fe0b04e2540a942))
+* graphql object id ([#190](https://github.com/dryerjs/dryerjs/issues/190)) ([dc7a59f](https://github.com/dryerjs/dryerjs/commit/dc7a59f06d347971e215a271e898d485ef58ab7b))
+* make relations recursive ([#175](https://github.com/dryerjs/dryerjs/issues/175)) ([ea1a11f](https://github.com/dryerjs/dryerjs/commit/ea1a11f8f145110a585f49c5503c71c9f0f1c559))
+* use base service for relation resolvers ([#187](https://github.com/dryerjs/dryerjs/issues/187)) ([37c2f08](https://github.com/dryerjs/dryerjs/commit/37c2f086c7f9b8b5f2acd2cb42d4a40aa18e9a77))
+
 # [0.9.0](https://github.com/dryerjs/dryerjs/compare/v0.8.0...v0.9.0) (2023-11-04)
 
 
