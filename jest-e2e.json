@@ -21,7 +21,8 @@
     "<rootDir>/lib/**/*.ts"
   ],
   "coveragePathIgnorePatterns": [
-    ".spec.ts"
+    ".spec.ts",
+    "object-id.ts"
   ],
   "coverageDirectory": "./coverage/e2e",
   "coverageReporters": [

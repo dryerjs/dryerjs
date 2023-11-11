@@ -1,6 +1,5 @@
 import * as graphql from 'graphql';
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Transform } from 'class-transformer';
 
 import * as util from '../util';
 import { Definition } from '../definition';
@@ -12,7 +11,6 @@ function getType(definition: Definition): any {
   class Placeholder {
     // output as json.  search for scalar json
     @Field(() => GraphQLObjectId)
-    @Transform(({ obj, key }) => obj[key])
     id: ObjectId;
 
     @Field(() => OutputType(definition), { nullable: true })

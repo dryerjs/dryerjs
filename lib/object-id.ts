@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 import * as Mongoose from 'mongoose';
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
