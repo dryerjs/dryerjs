@@ -5,22 +5,21 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
-// import { AuthResolver } from './resolvers';
-// import { Product, Tag, User, Author, Image, Customer, Variant, Computer, Color, Comment } from './models';
+import { AuthResolver } from './resolvers';
+import { Product, Tag, User, Author, Image, Customer, Variant, Computer, Color, Comment } from './models';
 import { Ctx } from './ctx';
-import { User } from './models/user';
+
 const definitions: Definition[] = [
+  Product,
+  Tag,
   User,
-  // Product,
-  // Tag,
-  // User,
-  // Author,
-  // Image,
-  // Variant,
-  // Customer,
-  // Computer,
-  // Color,
-  // Comment,
+  Author,
+  Image,
+  Variant,
+  Customer,
+  Computer,
+  Color,
+  Comment,
 ];
 
 @Module({
@@ -39,6 +38,6 @@ const definitions: Definition[] = [
       contextDecorator: Ctx,
     }),
   ],
-  // providers: [AuthResolver],
+  providers: [AuthResolver],
 })
 export class AppModule {}
