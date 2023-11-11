@@ -17,11 +17,11 @@ export enum MetaKey {
   HasManyType = 'HasManyType',
   BelongToType = 'BelongToType',
   Thunk = 'Thunk',
-  UseProperty = 'UseProperty',
   Definition = 'Definition',
   Hook = 'Hook',
   Filterable = 'Filterable',
   Sortable = 'Sortable',
+  Property = 'Property',
 }
 
 export class Metadata {

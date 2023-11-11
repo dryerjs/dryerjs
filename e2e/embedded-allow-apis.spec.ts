@@ -1,50 +1,29 @@
 import { TestServer } from './test-server';
 
-import * as graphql from 'graphql';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Transform, Type } from 'class-transformer';
-import { MaxLength, ValidateNested } from 'class-validator';
-import { Field } from '@nestjs/graphql';
+import { Transform } from 'class-transformer';
+import { MaxLength } from 'class-validator';
 
-import {
-  Property,
-  Definition,
-  Embedded,
-  Thunk,
-  OutputType,
-  CreateInputType,
-  UpdateInputType,
-  ObjectId,
-  GraphQLObjectId,
-} from '../lib';
+import { Definition, Embedded, Thunk, ObjectId, Property, Id } from '../lib';
 
 @Definition()
 export class Novel {
-  @Property(() => GraphQLObjectId)
+  @Id()
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
-  @Thunk(Field(() => graphql.GraphQLString))
+  @Property()
   name: string;
 }
 
 @Definition({ allowedApis: '*' })
 export class Novelist {
-  @Property(() => GraphQLObjectId)
+  @Id()
   id: ObjectId;
 
-  @Property(() => graphql.GraphQLString)
+  @Property()
   name: string;
 
-  @Prop({ type: [SchemaFactory.createForClass(Novel)] })
-  @Thunk(Field(() => [OutputType(Novel)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Novel)], { nullable: true }), { scopes: 'create' })
-  @Thunk(Field(() => [UpdateInputType(Novel)], { nullable: true }), { scopes: 'update' })
-  @Thunk(Type(() => CreateInputType(Novel)), { scopes: 'create' })
-  @Thunk(Type(() => UpdateInputType(Novel)), { scopes: 'update' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'create' })
-  @Thunk(ValidateNested({ each: true }), { scopes: 'update' })
   @Embedded(() => Novel, { allowApis: ['create'] })
   novels: Novel[];
 }
