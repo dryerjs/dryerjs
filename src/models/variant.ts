@@ -3,6 +3,7 @@ import {
   CreateInputType,
   Definition,
   ExcludeOnDatabase,
+  GraphQLObjectId,
   HasMany,
   ObjectId,
   OutputType,
@@ -14,30 +15,30 @@ import { Field } from '@nestjs/graphql';
 
 @Definition({ allowedApis: '*' })
 export class Comment {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Prop()
   @Thunk(Field(() => graphql.GraphQLString))
   content: string;
 
   @Prop({ type: ObjectId })
-  @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
-  variantId: string;
+  @Thunk(Field(() => GraphQLObjectId), { scopes: 'output' })
+  variantId: ObjectId;
 }
 
 @Definition({ allowedApis: '*' })
 export class Variant {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Prop()
   @Property(() => graphql.GraphQLString)
   name: string;
 
   @Prop({ type: ObjectId })
-  @Thunk(Field(() => graphql.GraphQLID), { scopes: 'output' })
-  productId: string;
+  @Thunk(Field(() => GraphQLObjectId), { scopes: 'output' })
+  productId: ObjectId;
 
   @HasMany(() => Comment, { to: 'variantId' })
   @Thunk(Field(() => [OutputType(Comment)]), { scopes: 'output' })

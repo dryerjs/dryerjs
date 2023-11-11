@@ -61,7 +61,7 @@ describe('Embedded works', () => {
   it('Get one book within author', async () => {
     const { authorBook } = await server.makeSuccessRequest({
       query: `
-        query AuthorBook($authorId: ID!, $bookId: ID!) {
+        query AuthorBook($authorId: ObjectId!, $bookId: ObjectId!) {
           authorBook(authorId: $authorId, id: $bookId) {
             id
             name
@@ -93,7 +93,7 @@ describe('Embedded works', () => {
   it('Get all books within author', async () => {
     const { authorBooks } = await server.makeSuccessRequest({
       query: `
-        query AuthorBooks($authorId: ID!) {
+        query AuthorBooks($authorId: ObjectId!) {
           authorBooks(authorId: $authorId) {
             id
             name
@@ -122,7 +122,7 @@ describe('Embedded works', () => {
   it('Create book within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ID!) {
+        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ObjectId!) {
           createAuthorBooks(inputs: $inputs, authorId: $authorId) {
             id
             name
@@ -163,7 +163,7 @@ describe('Embedded works', () => {
 
     const { author: updatedAuthor } = await server.makeSuccessRequest({
       query: `
-        query GetAuthor($id: ID!) {
+        query GetAuthor($id: ObjectId!) {
           author(id: $id) {
             id
             name
@@ -232,7 +232,7 @@ describe('Embedded works', () => {
     });
     const { updateAuthorBooks } = await server.makeSuccessRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -270,7 +270,7 @@ describe('Embedded works', () => {
 
     const { updateAuthorBooks } = await server.makeSuccessRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -296,7 +296,7 @@ describe('Embedded works', () => {
     });
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -316,7 +316,7 @@ describe('Embedded works', () => {
   it('Update books within author: return error if parent not found', async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -332,11 +332,11 @@ describe('Embedded works', () => {
   });
 
   it('Update books within author: return error if book not found', async () => {
-    const books = [...author.books];
-    books[0].id = NOT_FOUND_ID;
+    const books = author.books.map((book) => ({ ...book }));
+    books[0].id = NOT_FOUND_ID as any;
     const response = await server.makeFailRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -345,7 +345,7 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        inputs: books,
+        inputs: [{ ...books[0], id: NOT_FOUND_ID }],
       },
     });
     expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
@@ -354,7 +354,7 @@ describe('Embedded works', () => {
   it('create and update author books should only return relevant items', async () => {
     const { createAuthorBooks } = await server.makeSuccessRequest({
       query: `
-        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ID!) {
+        mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ObjectId!) {
           createAuthorBooks(inputs: $inputs, authorId: $authorId) {
             id
             name
@@ -395,7 +395,7 @@ describe('Embedded works', () => {
 
     const { updateAuthorBooks } = await server.makeSuccessRequest({
       query: `
-        mutation updateAuthorBooks($authorId: ID!, $inputs: [UpdateBookInput!]!) {
+        mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
             id
             name
@@ -428,7 +428,7 @@ describe('Embedded works', () => {
 
     const response = await server.makeSuccessRequest({
       query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+        mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
             success
           }
@@ -445,7 +445,7 @@ describe('Embedded works', () => {
   it("Remove author's books: return error if parent not found", async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+        mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
             success
           }
@@ -462,7 +462,7 @@ describe('Embedded works', () => {
   it("Remove author's books: return error if no IDs provided", async () => {
     const response = await server.makeFailRequest({
       query: `
-        mutation RemoveAuthorBooks($authorId: ID!, $bookIds: [ID!]!) {
+        mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
             success
           }

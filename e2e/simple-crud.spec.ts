@@ -2,6 +2,7 @@ import { TestServer } from './test-server';
 import { Tag, Color } from '../src/models/product';
 import { AllDefinitions, Hook } from '../lib/hook';
 import { createParamDecorator } from '@nestjs/common';
+import { ObjectId } from '../lib/object-id';
 
 type Context = any;
 
@@ -140,7 +141,7 @@ describe('Simple CRUD works', () => {
     const id = allTags[0].id;
     const response = await server.makeSuccessRequest({
       query: `
-        query GetTag($id: ID!) {
+        query GetTag($id: ObjectId!) {
           tag(id: $id) {
             id
             name
@@ -153,11 +154,11 @@ describe('Simple CRUD works', () => {
     });
     expect(beforeFindOne).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: expect.objectContaining({ _id: id }),
+      filter: expect.objectContaining({ _id: new ObjectId(id) }),
     });
     expect(afterFindOne).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: expect.objectContaining({ _id: id }),
+      filter: expect.objectContaining({ _id: new ObjectId(id) }),
       result: expect.objectContaining({ name: '70s' }),
     });
     expect(response.tag.name).toEqual(allTags[0].name);
@@ -181,12 +182,12 @@ describe('Simple CRUD works', () => {
     type PartialTag = Partial<Tag>;
     expect(beforeUpdate).toBeCalledWith({
       ctx: 'fakeContext',
-      input: input,
+      input: { id: new ObjectId(allTags[0].id), name: '60s' },
       beforeUpdated: expect.objectContaining({ name: '70s' }),
     });
     expect(afterUpdate).toBeCalledWith({
       ctx: 'fakeContext',
-      input,
+      input: { id: new ObjectId(allTags[0].id), name: '60s' },
       updated: expect.objectContaining({ name: '60s' }),
       beforeUpdated: expect.objectContaining({ name: '70s' }),
     });
@@ -215,7 +216,7 @@ describe('Simple CRUD works', () => {
   it('Remove one tag and ensure it is gone', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation RemoveTag($id: ID!) {
+        mutation RemoveTag($id: ObjectId!) {
           removeTag(id: $id) {
             success
           }
@@ -238,7 +239,7 @@ describe('Simple CRUD works', () => {
     // Try to fetch the removed tag by its ID
     await server.makeFailRequest({
       query: `
-      query GetTag($id: ID!) {
+      query GetTag($id: ObjectId!) {
         tag(id: $id) {
           name
         }
@@ -254,7 +255,7 @@ describe('Simple CRUD works', () => {
   it('Remove not found tag', async () => {
     await server.makeFailRequest({
       query: `
-        mutation RemoveTag($id: ID!) {
+        mutation RemoveTag($id: ObjectId!) {
           removeTag(id: $id) {
             success
           }

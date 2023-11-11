@@ -1,14 +1,13 @@
 import * as graphql from 'graphql';
 import { Prop } from '@nestjs/mongoose';
 import { IsEmail, MinLength } from 'class-validator';
-import { Property, Definition, Thunk, ExcludeOnDatabase, Filterable } from '../../lib';
+import { Property, Definition, Thunk, Filterable, GraphQLObjectId, ObjectId } from '../../lib';
 import { Field } from '@nestjs/graphql';
 
 @Definition({ allowedApis: '*' })
 export class User {
-  @Thunk(Field(() => graphql.GraphQLID), { scopes: ['output', 'update'] })
-  @ExcludeOnDatabase()
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Property()
   name: string;
