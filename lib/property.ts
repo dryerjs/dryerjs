@@ -4,7 +4,8 @@ import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+import { GraphQLObjectId } from './shared';
 
 type OverrideOptions = Partial<FieldOptions> & { type?: ReturnTypeFunc };
 
@@ -61,6 +62,13 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
     if (input.db !== Skip) {
       Prop(input.db)(target, propertyKey);
     }
+  };
+}
+
+export function Id() {
+  return (target: object, propertyKey: string | symbol) => {
+    Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
+    Thunk(Transform(({ obj, key }) => obj[key]))(target, propertyKey);
   };
 }
 

@@ -1,12 +1,11 @@
 import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 
-import { Definition, Embedded, Thunk, ObjectId, GraphQLObjectId, Property, Skip } from '../../lib';
+import { Definition, Embedded, Thunk, ObjectId, Property, Id } from '../../lib';
 
 @Definition()
 export class Review {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
@@ -17,8 +16,7 @@ export class Review {
 
 @Definition()
 export class Book {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
@@ -32,8 +30,7 @@ export class Book {
 
 @Definition({ allowedApis: '*' })
 export class Author {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()
