@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/dryerjs/dryerjs/compare/v0.10.0...v0.11.0) (2023-11-11)
+
+
+### Features
+
+* better way to declare fields ([#191](https://github.com/dryerjs/dryerjs/issues/191)) ([ce7459e](https://github.com/dryerjs/dryerjs/commit/ce7459e6b72f8e980f0f8135d079fdbcdf0fc0fe))
+
 # [0.10.0](https://github.com/dryerjs/dryerjs/compare/v0.9.0...v0.10.0) (2023-11-11)
 
 
