@@ -31,6 +31,8 @@ class TagHook implements Hook<Tag, Context> {
   afterRemove = afterRemove;
 }
 
+const onSchema = jest.fn();
+
 @Hook(() => 'fake')
 class FakeHook {}
 
@@ -41,12 +43,15 @@ const server = TestServer.init({
   definitions: [Tag, Color],
   hooks: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
+  onSchema,
 });
 
 describe('Simple CRUD works', () => {
   beforeAll(async () => {
     await server.start();
   });
+
+  it('onSchema is called', () => expect(onSchema).toBeCalled());
 
   it('Create tags', async () => {
     const names = ['70s', '80s', '90s'];
