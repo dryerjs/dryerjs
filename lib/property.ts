@@ -1,6 +1,6 @@
 import { Field, FieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
 import { Prop, PropOptions, SchemaFactory } from '@nestjs/mongoose';
-import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
+import { CreateInputType, CreateInputTypeWithin, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
 import { Schema } from 'mongoose';
 import { Type } from 'class-transformer';
@@ -213,7 +213,9 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
       { scopes: 'output' },
     )(target, propertyKey);
     Thunk(
-      Field(() => CreateInputType(typeFunction()), { nullable: true }),
+      Field(() => CreateInputTypeWithin(typeFunction(), target.constructor, options.to), {
+        nullable: true,
+      }),
       { scopes: 'create' },
     )(target, propertyKey);
   };
@@ -233,7 +235,9 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
       { scopes: 'output' },
     )(target, propertyKey);
     Thunk(
-      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      Field(() => [CreateInputTypeWithin(typeFunction(), target.constructor, options.to)], {
+        nullable: true,
+      }),
       { scopes: 'create' },
     )(target, propertyKey);
   };

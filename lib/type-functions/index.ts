@@ -1,6 +1,7 @@
 export * from './output-type';
 export * from './create-input-type';
 export * from './update-input-type';
+export * from './create-input-type-within';
 
 export * from './bulk-create-output-type';
 export * from './bulk-update-output-type';
