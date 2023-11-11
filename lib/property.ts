@@ -1,37 +1,66 @@
-import { Field } from '@nestjs/graphql';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Field, FieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
+import { Prop, PropOptions, SchemaFactory } from '@nestjs/mongoose';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
-export function Property(...input: Parameters<typeof Field>): PropertyDecorator & MethodDecorator {
-  // TODO: Add validation for input
-  const [returnTypeFunction, options] = input;
+type OverrideOptions = Partial<FieldOptions> & { type?: ReturnTypeFunc };
+
+export const Skip = Symbol('Skip');
+
+type DryerPropertyInput = FieldOptions & {
+  type?: ReturnTypeFunc;
+  create?: OverrideOptions | typeof Skip;
+  update?: OverrideOptions | typeof Skip;
+  output?: OverrideOptions | typeof Skip;
+  db?: PropOptions | typeof Skip;
+};
+
+export function Property(input: DryerPropertyInput = {}): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
-    const property = Metadata.for(target).with(propertyKey);
-    if (util.isArray(property.get(MetaKey.Thunk))) {
-      throw new Error(`Property ${propertyKey.toString()} already has a @Thunk decorator`);
+    const baseOptions = util.omit(input, ['create', 'update', 'output', 'db']);
+    if (input.create !== Skip) {
+      const createOptions = {
+        ...baseOptions,
+        ...util.defaultTo(input.create, {}),
+      };
+      if (createOptions.type) {
+        Thunk(Field(input.type, createOptions), { scopes: 'create' })(target, propertyKey);
+      } else {
+        Thunk(Field(createOptions), { scopes: 'create' })(target, propertyKey);
+      }
     }
-    const isId = propertyKey === 'id';
-    if (isId) {
-      Thunk(Field(returnTypeFunction, { ...options, nullable: false }), { scopes: ['update', 'output'] })(
-        target,
-        propertyKey,
-      );
-      Thunk(
-        Transform(({ obj, key }) => obj[key]),
-        { scopes: ['update', 'output'] },
-      )(target, propertyKey);
-    } else {
-      Thunk(Field(returnTypeFunction, { ...options, nullable: true }), { scopes: 'update' })(
-        target,
-        propertyKey,
-      );
-      Thunk(Field(returnTypeFunction, options), { scopes: ['output', 'create'] })(target, propertyKey);
+
+    if (input.update !== Skip) {
+      const updateOptions = {
+        ...baseOptions,
+        nullable: true,
+        ...util.defaultTo(input.update, {}),
+      };
+      if (updateOptions.type) {
+        Thunk(Field(updateOptions.type, updateOptions), { scopes: 'update' })(target, propertyKey);
+      } else {
+        Thunk(Field(updateOptions), { scopes: 'update' })(target, propertyKey);
+      }
     }
-    property.set(MetaKey.UseProperty, true);
+
+    if (input.output !== Skip) {
+      const outputOptions = {
+        ...baseOptions,
+        ...util.defaultTo(input.output, {}),
+      };
+      if (outputOptions.type) {
+        Thunk(Field(outputOptions.type, outputOptions), { scopes: 'output' })(target, propertyKey);
+      } else {
+        Thunk(Field(outputOptions), { scopes: 'output' })(target, propertyKey);
+      }
+    }
+
+    if (input.db !== Skip) {
+      Prop(input.db)(target, propertyKey);
+    }
   };
 }
 
@@ -67,9 +96,6 @@ export function Thunk(
       throw new Error(`Property ${propertyKey.toString()} already has a @Property decorator`);
     }
     const prevThunks = property.get(MetaKey.Thunk);
-    if (propertyKey !== 'id' && !property.get(MetaKey.ExcludeOnDatabase) && util.isNil(prevThunks)) {
-      Prop()(target, propertyKey);
-    }
     const newThunks = util.defaultTo(prevThunks, []).concat({ fn, options });
     property.set(MetaKey.Thunk, newThunks);
   };

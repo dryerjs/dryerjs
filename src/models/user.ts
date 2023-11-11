@@ -1,25 +1,23 @@
 import * as graphql from 'graphql';
-import { Prop } from '@nestjs/mongoose';
 import { IsEmail, MinLength } from 'class-validator';
-import { Property, Definition, Thunk, Filterable, GraphQLObjectId, ObjectId } from '../../lib';
-import { Field } from '@nestjs/graphql';
+import { Definition, Thunk, Filterable, GraphQLObjectId, ObjectId, Property, Skip } from '../../lib';
+import { Transform } from 'class-transformer';
 
 @Definition({ allowedApis: '*' })
 export class User {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
   @Property()
   name: string;
 
-  @Prop({ unique: true })
-  @Thunk(Field(), { scopes: ['create', 'output'] })
-  @Thunk(Field(() => graphql.GraphQLString, { nullable: true }), { scopes: 'update' })
   @Thunk(IsEmail(), { scopes: ['input'] })
   @Filterable(() => graphql.GraphQLString, { operators: ['eq', 'in'] })
+  @Property({ db: { unique: true } })
   email: string;
 
-  @Thunk(Field(), { scopes: ['create'] })
   @Thunk(MinLength(5), { scopes: ['create'] })
+  @Property({ output: Skip, update: Skip })
   password: string;
 }

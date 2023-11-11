@@ -5,33 +5,32 @@ import {
   Filterable,
   allOperators,
   Sortable,
-  Property,
   GraphQLObjectId,
   ObjectId,
+  Property,
+  Skip,
 } from '../../lib';
-import { Prop } from '@nestjs/mongoose';
 import { IsEmail } from 'class-validator';
-import { Field } from '@nestjs/graphql';
+import { Transform } from 'class-transformer';
 
 @Definition({ allowedApis: '*' })
 export class Customer {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Thunk(Field(() => graphql.GraphQLString), { scopes: ['create', 'update', 'output'] })
   @Filterable(() => graphql.GraphQLString, { operators: allOperators })
   @Sortable()
+  @Property()
   name: string;
 
-  @Prop({ unique: true })
-  @Thunk(Field(), { scopes: ['create', 'output'] })
-  @Thunk(Field(() => graphql.GraphQLString, { nullable: true }), { scopes: 'update' })
   @Thunk(IsEmail, { scopes: ['input'] })
   @Filterable(() => graphql.GraphQLString, { operators: allOperators })
   @Sortable()
+  @Property({ nullable: true, db: { unique: true } })
   email: string;
 
-  @Thunk(Field(() => graphql.GraphQLInt, { nullable: true }), { scopes: ['create', 'output', 'update'] })
   @Filterable(() => graphql.GraphQLInt, { operators: allOperators })
+  @Property({ nullable: true })
   numberOfOrders: number;
 }

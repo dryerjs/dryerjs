@@ -1,17 +1,16 @@
 import * as graphql from 'graphql';
-import { Embedded, Property } from '../../lib/property';
-import { Definition } from '../../lib/definition';
-import { GraphQLObjectId, ObjectId } from '../../lib/shared';
+import { Embedded, Property, Skip, Thunk, Definition, GraphQLObjectId, ObjectId } from '../../lib';
+import { Transform } from 'class-transformer';
 
 @Definition()
 class Creator {
-  @Property(() => graphql.GraphQLString)
+  @Property()
   name: string;
 }
 
 @Definition()
 class Brand {
-  @Property(() => graphql.GraphQLString)
+  @Property()
   name: string;
 
   @Embedded(() => Creator)
@@ -20,10 +19,11 @@ class Brand {
 
 @Definition({ allowedApis: '*' })
 export class Computer {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Property(() => graphql.GraphQLString)
+  @Property({ type: () => graphql.GraphQLString })
   name: string;
 
   @Embedded(() => Brand)

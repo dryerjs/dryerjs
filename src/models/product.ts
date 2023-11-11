@@ -1,9 +1,6 @@
 import * as graphql from 'graphql';
-import { Prop } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
-import { Field } from '@nestjs/graphql';
 import {
-  Property,
   Definition,
   ReferencesMany,
   ObjectId,
@@ -11,37 +8,41 @@ import {
   Filterable,
   Sortable,
   HasMany,
-  ExcludeOnDatabase,
   HasOne,
   GraphQLObjectId,
+  Property,
+  Skip,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 import { Variant } from './variant';
 
 @Definition({ allowedApis: '*' })
 export class Color {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Thunk(Field(() => graphql.GraphQLString))
+  @Property()
   name: string;
 }
 
 @Definition({ allowedApis: '*' })
 export class Tag {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Prop({ unique: true })
-  @Thunk(Field(() => graphql.GraphQLString))
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
+  @Property({ db: { unique: true } })
   name: string;
 
-  @Prop({ type: [ObjectId], default: [] })
-  @Thunk(Field(() => [GraphQLObjectId], { nullable: true }), { scopes: 'input' })
-  @Thunk(Field(() => [GraphQLObjectId]), { scopes: 'output' })
-  @ExcludeOnDatabase()
+  @Property({
+    type: () => [GraphQLObjectId],
+    nullable: true,
+    output: { nullable: false },
+    db: { type: [ObjectId], default: [] },
+  })
   @Thunk(Transform(({ obj, key }) => obj[key]))
   colorIds: ObjectId[];
 
@@ -51,33 +52,30 @@ export class Tag {
 
 @Definition({ allowedApis: '*' })
 export class Image {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Prop()
-  @Property(() => graphql.GraphQLString)
+  @Property()
   name: string;
 
-  @Prop({ type: ObjectId })
-  @Thunk(Field(() => GraphQLObjectId), { scopes: 'output' })
+  @Property({ type: () => [GraphQLObjectId], create: Skip, update: Skip })
   @Thunk(Transform(({ obj, key }) => obj[key]))
   productId: ObjectId;
 }
 
 @Definition({ allowedApis: '*' })
 export class Product {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Property(() => graphql.GraphQLString)
+  @Property({ type: () => graphql.GraphQLString })
   @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
   @Sortable()
-  @Prop()
   name: string;
 
-  @Prop({ type: [ObjectId], default: [] })
-  @Thunk(Field(() => [GraphQLObjectId], { nullable: true }), { scopes: 'input' })
-  @Thunk(Field(() => [GraphQLObjectId]), { scopes: 'output' })
+  @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
   @Thunk(Transform(({ obj, key }) => obj[key]))
   tagIds: ObjectId[];
 

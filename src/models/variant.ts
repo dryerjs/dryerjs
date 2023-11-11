@@ -1,48 +1,33 @@
-import { Prop } from '@nestjs/mongoose';
-import {
-  CreateInputType,
-  Definition,
-  ExcludeOnDatabase,
-  GraphQLObjectId,
-  HasMany,
-  ObjectId,
-  OutputType,
-  Property,
-  Thunk,
-} from '../../lib';
-import * as graphql from 'graphql';
-import { Field } from '@nestjs/graphql';
+import { Definition, GraphQLObjectId, HasMany, ObjectId, Property, Skip, Thunk } from '../../lib';
+import { Transform } from 'class-transformer';
 
 @Definition({ allowedApis: '*' })
 export class Comment {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Prop()
-  @Thunk(Field(() => graphql.GraphQLString))
+  @Property()
   content: string;
 
-  @Prop({ type: ObjectId })
-  @Thunk(Field(() => GraphQLObjectId), { scopes: 'output' })
+  @Property({ type: () => [GraphQLObjectId], create: Skip, update: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   variantId: ObjectId;
 }
 
 @Definition({ allowedApis: '*' })
 export class Variant {
-  @Property(() => GraphQLObjectId)
+  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   id: ObjectId;
 
-  @Prop()
-  @Property(() => graphql.GraphQLString)
+  @Property()
   name: string;
 
-  @Prop({ type: ObjectId })
-  @Thunk(Field(() => GraphQLObjectId), { scopes: 'output' })
+  @Property({ type: () => [GraphQLObjectId], create: Skip, update: Skip })
+  @Thunk(Transform(({ obj, key }) => obj[key]))
   productId: ObjectId;
 
   @HasMany(() => Comment, { to: 'variantId' })
-  @Thunk(Field(() => [OutputType(Comment)]), { scopes: 'output' })
-  @Thunk(Field(() => [CreateInputType(Comment)], { nullable: true }), { scopes: 'create' })
-  @ExcludeOnDatabase()
   comments: Comment[];
 }
