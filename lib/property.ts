@@ -100,9 +100,6 @@ export function Thunk(
 ): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
     const property = Metadata.for(target).with(propertyKey);
-    if (property.get(MetaKey.UseProperty)) {
-      throw new Error(`Property ${propertyKey.toString()} already has a @Property decorator`);
-    }
     const prevThunks = property.get(MetaKey.Thunk);
     const newThunks = util.defaultTo(prevThunks, []).concat({ fn, options });
     property.set(MetaKey.Thunk, newThunks);

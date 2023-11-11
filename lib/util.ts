@@ -17,6 +17,7 @@ export const isUndefined = (value: any): value is undefined => typeof value === 
 export const isTruthy = (value: any) => !!value;
 
 export const omit = (object: any, omitKeys: string[]) => {
+  /* istanbul ignore if */
   if (!isNotNullObject(object) || Array.isArray(object)) {
     throw new Error('omit() expects an object as the first argument');
   }
