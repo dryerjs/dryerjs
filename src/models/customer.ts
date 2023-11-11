@@ -1,22 +1,10 @@
 import * as graphql from 'graphql';
-import {
-  Definition,
-  Thunk,
-  Filterable,
-  allOperators,
-  Sortable,
-  GraphQLObjectId,
-  ObjectId,
-  Property,
-  Skip,
-} from '../../lib';
+import { Definition, Thunk, Filterable, allOperators, Sortable, ObjectId, Property, Id } from '../../lib';
 import { IsEmail } from 'class-validator';
-import { Transform } from 'class-transformer';
 
 @Definition({ allowedApis: '*' })
 export class Customer {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Filterable(() => graphql.GraphQLString, { operators: allOperators })

@@ -1,12 +1,10 @@
 import * as graphql from 'graphql';
 import { IsEmail, MinLength } from 'class-validator';
-import { Definition, Thunk, Filterable, GraphQLObjectId, ObjectId, Property, Skip } from '../../lib';
-import { Transform } from 'class-transformer';
+import { Definition, Thunk, Filterable, ObjectId, Property, Skip, Id } from '../../lib';
 
 @Definition({ allowedApis: '*' })
 export class User {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()

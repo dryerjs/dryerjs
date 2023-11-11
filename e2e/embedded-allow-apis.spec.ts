@@ -3,12 +3,11 @@ import { TestServer } from './test-server';
 import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 
-import { Definition, Embedded, Thunk, ObjectId, GraphQLObjectId, Property, Skip } from '../lib';
+import { Definition, Embedded, Thunk, ObjectId, Property, Id } from '../lib';
 
 @Definition()
 export class Novel {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
@@ -19,8 +18,7 @@ export class Novel {
 
 @Definition({ allowedApis: '*' })
 export class Novelist {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()

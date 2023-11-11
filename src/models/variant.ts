@@ -1,10 +1,9 @@
-import { Definition, GraphQLObjectId, HasMany, ObjectId, Property, Skip, Thunk } from '../../lib';
+import { Definition, GraphQLObjectId, HasMany, Id, ObjectId, Property, Skip, Thunk } from '../../lib';
 import { Transform } from 'class-transformer';
 
 @Definition({ allowedApis: '*' })
 export class Comment {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()
@@ -17,8 +16,7 @@ export class Comment {
 
 @Definition({ allowedApis: '*' })
 export class Variant {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()

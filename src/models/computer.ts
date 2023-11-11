@@ -1,6 +1,5 @@
 import * as graphql from 'graphql';
-import { Embedded, Property, Skip, Thunk, Definition, GraphQLObjectId, ObjectId } from '../../lib';
-import { Transform } from 'class-transformer';
+import { Embedded, Property, Definition, ObjectId, Id } from '../../lib';
 
 @Definition()
 class Creator {
@@ -19,8 +18,7 @@ class Brand {
 
 @Definition({ allowedApis: '*' })
 export class Computer {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property({ type: () => graphql.GraphQLString })

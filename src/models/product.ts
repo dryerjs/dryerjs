@@ -12,14 +12,14 @@ import {
   GraphQLObjectId,
   Property,
   Skip,
+  Id,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 import { Variant } from './variant';
 
 @Definition({ allowedApis: '*' })
 export class Color {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()
@@ -28,8 +28,7 @@ export class Color {
 
 @Definition({ allowedApis: '*' })
 export class Tag {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
@@ -52,8 +51,7 @@ export class Tag {
 
 @Definition({ allowedApis: '*' })
 export class Image {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property()
@@ -66,8 +64,7 @@ export class Image {
 
 @Definition({ allowedApis: '*' })
 export class Product {
-  @Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
+  @Id()
   id: ObjectId;
 
   @Property({ type: () => graphql.GraphQLString })
