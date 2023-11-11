@@ -345,7 +345,7 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        inputs: [{ ...books[0], id: NOT_FOUND_ID }],
+        inputs: books,
       },
     });
     expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
