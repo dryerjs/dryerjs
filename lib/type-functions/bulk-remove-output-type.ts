@@ -4,13 +4,14 @@ import { ObjectType, Field } from '@nestjs/graphql';
 import * as util from '../util';
 import { Definition } from '../definition';
 import { OutputType } from './output-type';
+import { GraphQLObjectId, ObjectId } from '../shared';
 
 function getType(definition: Definition): any {
   @ObjectType(`BulkRemove${util.plural(definition.name)}Result`)
   class Placeholder {
     // output as json.  search for scalar json
-    @Field(() => graphql.GraphQLID)
-    id: object;
+    @Field(() => GraphQLObjectId)
+    id: ObjectId;
 
     @Field(() => OutputType(definition), { nullable: true })
     result: boolean;

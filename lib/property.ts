@@ -4,7 +4,7 @@ import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export function Property(...input: Parameters<typeof Field>): PropertyDecorator & MethodDecorator {
   // TODO: Add validation for input
@@ -20,6 +20,10 @@ export function Property(...input: Parameters<typeof Field>): PropertyDecorator 
         target,
         propertyKey,
       );
+      Thunk(
+        Transform(({ obj, key }) => obj[key]),
+        { scopes: ['update', 'output'] },
+      )(target, propertyKey);
     } else {
       Thunk(Field(returnTypeFunction, { ...options, nullable: true }), { scopes: 'update' })(
         target,
@@ -153,6 +157,10 @@ export function ReferencesMany(
     )(target, propertyKey);
     Thunk(
       Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+      { scopes: 'create' },
+    )(target, propertyKey);
+    Thunk(
+      Type(() => CreateInputType(typeFunction())),
       { scopes: 'create' },
     )(target, propertyKey);
   };

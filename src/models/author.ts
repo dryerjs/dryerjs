@@ -3,12 +3,12 @@ import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { Field } from '@nestjs/graphql';
 
-import { Property, Definition, Embedded, Thunk } from '../../lib';
+import { Property, Definition, Embedded, Thunk, ObjectId, GraphQLObjectId } from '../../lib';
 
 @Definition()
 export class Review {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
@@ -18,8 +18,8 @@ export class Review {
 
 @Definition()
 export class Book {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
@@ -32,8 +32,8 @@ export class Book {
 
 @Definition({ allowedApis: '*' })
 export class Author {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Property(() => graphql.GraphQLString)
   name: string;

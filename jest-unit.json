@@ -14,7 +14,8 @@
         "<rootDir>/dist/",
         "<rootDir>/coverage/",
         "<rootDir>/example/",
-        ".spec.ts"
+        ".spec.ts",
+        "object-id.ts"
     ],
     "testRegex": ".*.spec.ts$",
     "transform": {

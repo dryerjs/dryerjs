@@ -11,6 +11,7 @@ import { ArrayValidationPipe } from './shared';
 import { EmbeddedConfig } from '../property';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
+import { GraphQLObjectId, ObjectId } from '../shared';
 
 export function createResolverForEmbedded(
   definition: Definition,
@@ -48,9 +49,9 @@ export function createResolverForEmbedded(
       )
       inputs: any[],
       @Args(`${util.toCamelCase(definition.name)}Id`, {
-        type: () => graphql.GraphQLID,
+        type: () => GraphQLObjectId,
       })
-      parentId: string,
+      parentId: ObjectId,
       @contextDecorator() ctx: any,
     ) {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
@@ -67,10 +68,10 @@ export function createResolverForEmbedded(
     )
     async remove(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
-        type: () => graphql.GraphQLID,
+        type: () => GraphQLObjectId,
       })
-      parentId: string,
-      @Args('ids', { type: () => [graphql.GraphQLID] })
+      parentId: ObjectId,
+      @Args('ids', { type: () => [GraphQLObjectId] })
       ids: string[],
       @contextDecorator() ctx: any,
     ) {
@@ -89,15 +90,15 @@ export function createResolverForEmbedded(
       }),
     )
     async findOne(
-      @Args('id', { type: () => graphql.GraphQLID }) id: string,
+      @Args('id', { type: () => GraphQLObjectId }) id: ObjectId,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
-        type: () => graphql.GraphQLID,
+        type: () => GraphQLObjectId,
       })
       parentId: string,
       @contextDecorator() ctx: any,
     ): Promise<T> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
-      return parent[field].find((item: any) => item._id.toString() === id);
+      return parent[field].find((item: any) => item._id.toString() === id.toString());
     }
 
     @IfApiAllowed(
@@ -107,7 +108,7 @@ export function createResolverForEmbedded(
     )
     async findAll(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
-        type: () => graphql.GraphQLID,
+        type: () => GraphQLObjectId,
       })
       parentId: string,
       @contextDecorator() ctx: any,
@@ -129,9 +130,9 @@ export function createResolverForEmbedded(
       )
       inputs: any[],
       @Args(`${util.toCamelCase(definition.name)}Id`, {
-        type: () => graphql.GraphQLID,
+        type: () => GraphQLObjectId,
       })
-      parentId: string,
+      parentId: ObjectId,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
@@ -145,7 +146,7 @@ export function createResolverForEmbedded(
       parent[field] = inputs;
       const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return updatedParent[field].filter((item: any) =>
-        inputs.some((input) => input.id === item.id.toString()),
+        inputs.some((input) => input.id.toString() === item.id.toString()),
       );
     }
   }

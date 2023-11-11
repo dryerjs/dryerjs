@@ -285,7 +285,7 @@ describe('bulk apis work', () => {
   it('Bulk delete tags', async () => {
     const { bulkRemoveTags } = await server.makeSuccessRequest({
       query: `
-        mutation BulkRemoveTag($ids: [ID!]!){
+        mutation BulkRemoveTag($ids: [ObjectId!]!){
           bulkRemoveTags(ids: $ids){
             id
             success

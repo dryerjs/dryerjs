@@ -6,12 +6,22 @@ import { Transform, Type } from 'class-transformer';
 import { MaxLength, ValidateNested } from 'class-validator';
 import { Field } from '@nestjs/graphql';
 
-import { Property, Definition, Embedded, Thunk, OutputType, CreateInputType, UpdateInputType } from '../lib';
+import {
+  Property,
+  Definition,
+  Embedded,
+  Thunk,
+  OutputType,
+  CreateInputType,
+  UpdateInputType,
+  ObjectId,
+  GraphQLObjectId,
+} from '../lib';
 
 @Definition()
 export class Novel {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
@@ -21,8 +31,8 @@ export class Novel {
 
 @Definition({ allowedApis: '*' })
 export class Novelist {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Property(() => graphql.GraphQLString)
   name: string;
@@ -123,7 +133,7 @@ describe('Embedded works', () => {
   it('Create novel within novelist', async () => {
     const response = await server.makeSuccessRequest({
       query: `
-        mutation CreateNovelistNovels($inputs: [CreateNovelInput!]!, $novelistId: ID!) {
+        mutation CreateNovelistNovels($inputs: [CreateNovelInput!]!, $novelistId: ObjectId!) {
           createNovelistNovels(inputs: $inputs, novelistId: $novelistId) {
             id
             name

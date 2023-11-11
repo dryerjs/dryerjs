@@ -1,6 +1,7 @@
 import * as graphql from 'graphql';
 import { Embedded, Property } from '../../lib/property';
 import { Definition } from '../../lib/definition';
+import { GraphQLObjectId, ObjectId } from '../../lib/shared';
 
 @Definition()
 class Creator {
@@ -19,8 +20,8 @@ class Brand {
 
 @Definition({ allowedApis: '*' })
 export class Computer {
-  @Property(() => graphql.GraphQLID)
-  id: string;
+  @Property(() => GraphQLObjectId)
+  id: ObjectId;
 
   @Property(() => graphql.GraphQLString)
   name: string;

@@ -1,7 +1,5 @@
-import { Schema } from 'mongoose';
-
-export type ObjectId = Schema.Types.ObjectId;
-export const ObjectId = Schema.Types.ObjectId;
+export * from './object-id';
+import { ObjectId } from './object-id';
 
 export type StringLikeId = ObjectId | string | number;
 

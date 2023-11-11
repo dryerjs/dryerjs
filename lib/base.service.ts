@@ -9,6 +9,7 @@ import { SuccessResponse } from './types';
 import * as util from './util';
 import { AllDefinitions, Hook } from './hook';
 import { MetaKey, Metadata } from './metadata';
+import { ObjectId } from './shared';
 
 export abstract class BaseService<T = any, Context = any> {
   protected model: PaginateModel<T>;
@@ -72,7 +73,7 @@ export abstract class BaseService<T = any, Context = any> {
     return result as any;
   }
 
-  public async update(ctx: Context, input: Partial<T> & { id: string }): Promise<T> {
+  public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
     const beforeUpdated = await this.findOne(ctx, { _id: input.id });
     for (const hook of this.getHooks('beforeUpdate')) {
       await hook.beforeUpdate!({ ctx, input, beforeUpdated });
@@ -109,7 +110,7 @@ export abstract class BaseService<T = any, Context = any> {
     return items;
   }
 
-  public async remove(ctx: Context, id: Partial<string>): Promise<SuccessResponse> {
+  public async remove(ctx: Context, id: ObjectId): Promise<SuccessResponse> {
     const beforeRemoved = await this.findOne(ctx, { _id: id });
     for (const hook of this.getHooks('beforeRemove')) {
       await hook.beforeRemove!({ ctx, beforeRemoved });
