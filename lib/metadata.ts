@@ -21,6 +21,7 @@ export enum MetaKey {
   Hook = 'Hook',
   Filterable = 'Filterable',
   Sortable = 'Sortable',
+  Property = 'Property',
 }
 
 export class Metadata {

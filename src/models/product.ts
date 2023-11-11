@@ -42,7 +42,6 @@ export class Tag {
     output: { nullable: false },
     db: { type: [ObjectId], default: [] },
   })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
   colorIds: ObjectId[];
 
   @ReferencesMany(() => Color, { from: 'colorIds' })
@@ -58,7 +57,6 @@ export class Image {
   name: string;
 
   @Property({ type: () => [GraphQLObjectId], create: Skip, update: Skip })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
   productId: ObjectId;
 }
 
@@ -73,7 +71,6 @@ export class Product {
   name: string;
 
   @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
-  @Thunk(Transform(({ obj, key }) => obj[key]))
   tagIds: ObjectId[];
 
   @ReferencesMany(() => Tag, { from: 'tagIds' })

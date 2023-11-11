@@ -1,11 +1,12 @@
 import { Field, FieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
 import { Prop, PropOptions, SchemaFactory } from '@nestjs/mongoose';
-import * as util from './util';
-import { MetaKey, Metadata } from './metadata';
 import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
+
 import { GraphQLObjectId } from './shared';
+import * as util from './util';
+import { MetaKey, Metadata } from './metadata';
 
 type OverrideOptions = Partial<FieldOptions> & { type?: ReturnTypeFunc };
 
@@ -21,6 +22,7 @@ type DryerPropertyInput = FieldOptions & {
 
 export function Property(input: DryerPropertyInput = {}): PropertyDecorator & MethodDecorator {
   return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target).with(propertyKey).set(MetaKey.Property, input);
     const baseOptions = util.omit(input, ['create', 'update', 'output', 'db']);
     if (input.create !== Skip) {
       const createOptions = {
@@ -68,7 +70,6 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
 export function Id() {
   return (target: object, propertyKey: string | symbol) => {
     Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
-    Thunk(Transform(({ obj, key }) => obj[key]))(target, propertyKey);
   };
 }
 
