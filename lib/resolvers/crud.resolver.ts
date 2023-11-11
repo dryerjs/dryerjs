@@ -185,6 +185,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
+      console.log({ id });
       return await this.baseService.findOne(ctx, { _id: id });
     }
 

@@ -13,6 +13,8 @@ import {
   Property,
   Skip,
   Id,
+  Ref,
+  BelongsTo,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 
@@ -54,6 +56,9 @@ export class Image {
 
   @Property()
   name: string;
+
+  @BelongsTo(() => Product, { from: 'productId' })
+  product: Ref<Product>;
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   productId: ObjectId;
@@ -104,6 +109,9 @@ export class Variant {
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   productId: ObjectId;
+
+  @BelongsTo(() => Product, { from: 'productId' })
+  product: Ref<Product>;
 
   @HasMany(() => Comment, { to: 'variantId' })
   comments: Comment[];
