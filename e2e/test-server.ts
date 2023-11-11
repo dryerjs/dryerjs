@@ -4,7 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ContextDecorator, Definition, DryerModule } from 'dryerjs';
+import { DryerModule, DryerModuleOptions } from 'dryerjs';
 import { GraphQLError } from 'graphql';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
@@ -38,22 +38,15 @@ class TestAppModule {
           playground: false,
         }),
         MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-test'),
-        DryerModule.register({
-          definitions: config.definitions,
-          contextDecorator: config.contextDecorator,
-          hooks: config.hooks,
-        }),
+        DryerModule.register(util.omit(config, ['providers']) as any),
       ],
       providers: config.providers || [],
     };
   }
 }
 
-export type TestServerConfig = {
-  definitions: Definition[];
+export type TestServerConfig = DryerModuleOptions & {
   providers?: Provider[];
-  contextDecorator?: ContextDecorator;
-  hooks?: Provider[];
 };
 
 export class TestServer {

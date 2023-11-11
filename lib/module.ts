@@ -1,5 +1,6 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
 
 import * as util from './util';
 import { ContextDecorator, defaultContextDecorator } from './context';
@@ -11,15 +12,18 @@ import { createResolverForHasMany } from './resolvers/has-many.resolver';
 import { createResolverForHasOne } from './resolvers/has-one.resolver';
 import { createBaseService, getBaseServiceToken } from './base.service';
 
+export type DryerModuleOptions = {
+  definitions: Definition[];
+  contextDecorator?: ContextDecorator;
+  hooks?: Provider[];
+  onSchema?: (schema: Schema, definition: Definition) => void;
+};
+
 @Module({})
 export class DryerModule {
   public static MongooseModuleForFeatureModule: DynamicModule;
 
-  public static register(input: {
-    definitions: Definition[];
-    contextDecorator?: ContextDecorator;
-    hooks?: Provider[];
-  }): DynamicModule {
+  public static register(input: DryerModuleOptions): DynamicModule {
     const contextDecorator = util.defaultTo(input.contextDecorator, defaultContextDecorator);
     const providers: Provider[] = [];
     input.definitions.forEach((definition) => providers.push(createResolver(definition, contextDecorator)));
@@ -46,6 +50,7 @@ export class DryerModule {
         schema.virtual('id').get(function () {
           return (this['_id'] as any).toHexString();
         });
+        input.onSchema?.(schema, definition);
         return {
           name: definition.name,
           schema,

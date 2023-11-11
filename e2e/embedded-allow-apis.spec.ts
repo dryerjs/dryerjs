@@ -16,6 +16,8 @@ export class Novel {
   name: string;
 }
 
+const onSubSchema = jest.fn();
+
 @Definition({ allowedApis: '*' })
 export class Novelist {
   @Id()
@@ -24,7 +26,7 @@ export class Novelist {
   @Property()
   name: string;
 
-  @Embedded(() => Novel, { allowApis: ['create'] })
+  @Embedded(() => Novel, { allowApis: ['create'], onSubSchema })
   novels: Novel[];
 }
 
@@ -38,6 +40,8 @@ describe('Embedded works', () => {
   });
 
   let novelist: Novelist;
+
+  it('onSubSchema is called', () => expect(onSubSchema).toBeCalled());
 
   it('Create novelist with novels', async () => {
     const response = await server.makeSuccessRequest({

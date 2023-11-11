@@ -2,6 +2,7 @@ import { Field, FieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
 import { Prop, PropOptions, SchemaFactory } from '@nestjs/mongoose';
 import { CreateInputType, OutputType, UpdateInputType } from './type-functions';
 import { ValidateIf, ValidateNested } from 'class-validator';
+import { Schema } from 'mongoose';
 import { Type } from 'class-transformer';
 
 import { GraphQLObjectId } from './shared';
@@ -111,19 +112,21 @@ export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
     allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
+    onSubSchema?: (subSchema: Schema) => void;
   };
 };
 
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     ExcludeOnDatabase()(target, propertyKey);
-    const schema = SchemaFactory.createForClass(typeFunction());
-    schema.virtual('id').get(function () {
+    const subSchema = SchemaFactory.createForClass(typeFunction());
+    subSchema.virtual('id').get(function () {
       return (this['_id'] as any).toHexString();
     });
+    options?.onSubSchema?.(subSchema);
 
     const isArray = Reflect.getMetadata(MetaKey.DesignType, target, propertyKey) === Array;
-    Prop({ type: isArray ? [schema] : schema })(target, propertyKey);
+    Prop({ type: isArray ? [subSchema] : subSchema })(target, propertyKey);
     Thunk(
       Field(() => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())), { nullable: true }),
       { scopes: 'output' },
