@@ -35,7 +35,7 @@ To get started with DryerJS, follow these steps:
 2. Install dependencies:
 
    ```bash
-   npm install @nestjs/graphql @nestjs/apollo @apollo/server class-transformer class-validator @nestjs/mongoose dataloader
+   npm install @nestjs/graphql @nestjs/apollo class-transformer class-validator @nestjs/mongoose dataloader
    ```
 
 3. Install DryerJS as a dependency in your project
@@ -47,7 +47,7 @@ To get started with DryerJS, follow these steps:
 4. Declare your first model on `src/user.ts`:
 
    ```typescript
-   import { Definition, Property, Id } from 'dryerjs';
+   import { Definition, Property, Id, Skip } from 'dryerjs';
 
    @Definition()
    export class User {
@@ -57,7 +57,7 @@ To get started with DryerJS, follow these steps:
      @Property()
      email: string;
 
-     @Property()
+     @Property({ update: Skip, output: Skip })
      password: string;
 
      @Property()
