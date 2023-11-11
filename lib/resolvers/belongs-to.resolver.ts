@@ -25,13 +25,12 @@ export function createResolverForBelongsTo(
     @ResolveField()
     async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T> {
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
-        const field = relation.options.from;
         const items = await this.baseService.findAll(ctx, { _id: { $in: keys } }, {});
         return keys.map((id: StringLikeId) => {
-          return items.find((item) => item[field].toString() === id.toString());
+          return items.find((item) => item._id.toString() === id.toString());
         });
       });
-      return await loader.load(parent[field]);
+      return await loader.load(parent[relation.options.from]);
     }
   }
 

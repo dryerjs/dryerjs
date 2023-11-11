@@ -97,6 +97,9 @@ export class Comment {
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   variantId: ObjectId;
+
+  @BelongsTo(() => Variant, { from: 'productId' })
+  variant: Ref<Variant>;
 }
 
 @Definition({ allowedApis: '*' })
