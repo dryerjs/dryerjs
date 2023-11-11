@@ -3,7 +3,7 @@ import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
 import { Provider } from '@nestjs/common';
 
 import { MetaKey, Metadata } from '../metadata';
-import { OutputType } from '../type-functions';
+import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../property';
 import { ContextDecorator } from '../context';
@@ -17,6 +17,8 @@ export function createResolverForHasOne(
 ): Provider {
   const relation = Metadata.for(definition).with(field).get<HasOneConfig>(MetaKey.HasOneType);
   const relationDefinition = relation.typeFunction();
+  // have to init the type here if not server will not start, there might be a better place to put this
+  CreateInputTypeWithin(relationDefinition, definition, relation.options.to);
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForHasOne<T> {

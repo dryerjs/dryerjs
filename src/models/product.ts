@@ -15,7 +15,6 @@ import {
   Id,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
-import { Variant } from './variant';
 
 @Definition({ allowedApis: '*' })
 export class Color {
@@ -56,7 +55,7 @@ export class Image {
   @Property()
   name: string;
 
-  @Property({ type: () => [GraphQLObjectId], create: Skip, update: Skip })
+  @Property({ type: () => GraphQLObjectId, update: Skip })
   productId: ObjectId;
 }
 
@@ -81,4 +80,31 @@ export class Product {
 
   @HasOne(() => Image, { to: 'productId' })
   image: Image;
+}
+
+@Definition({ allowedApis: '*' })
+export class Comment {
+  @Id()
+  id: ObjectId;
+
+  @Property()
+  content: string;
+
+  @Property({ type: () => GraphQLObjectId, update: Skip })
+  variantId: ObjectId;
+}
+
+@Definition({ allowedApis: '*' })
+export class Variant {
+  @Id()
+  id: ObjectId;
+
+  @Property()
+  name: string;
+
+  @Property({ type: () => GraphQLObjectId, update: Skip })
+  productId: ObjectId;
+
+  @HasMany(() => Comment, { to: 'variantId' })
+  comments: Comment[];
 }
