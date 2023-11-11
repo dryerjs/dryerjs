@@ -20,6 +20,14 @@ describe('Has one works', () => {
             image {
               id
               name
+              product {
+                id
+                name
+                image {
+                  id
+                  name
+                }
+              }
             }
           }
         }
@@ -35,6 +43,7 @@ describe('Has one works', () => {
     });
 
     expect(createProduct.image.name).toEqual('logo.png');
+    expect(createProduct.image.product.image.name).toEqual('logo.png');
   });
 
   afterAll(async () => {

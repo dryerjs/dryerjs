@@ -243,6 +243,27 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
   };
 }
 
+export type BelongsToConfig = {
+  typeFunction: () => any;
+  options: {
+    from: string;
+  };
+};
+export function BelongsTo(
+  typeFunction: BelongsToConfig['typeFunction'],
+  options: BelongsToConfig['options'],
+) {
+  return (target: object, propertyKey: string | symbol) => {
+    Metadata.for(target)
+      .with(propertyKey)
+      .set<BelongsToConfig>(MetaKey.BelongsToType, { typeFunction, options });
+    Thunk(
+      Field(() => OutputType(typeFunction()), { nullable: true }),
+      { scopes: 'output' },
+    )(target, propertyKey);
+  };
+}
+
 export type FilterOperator =
   | 'eq'
   | 'in'

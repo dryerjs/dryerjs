@@ -3,7 +3,9 @@ import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
 import { GraphQLError } from 'graphql/error';
 
-export type ObjectId = Mongoose.Types.ObjectId;
+type Ref<T> = T;
+export type ObjectId = Ref<Mongoose.Types.ObjectId>;
+export type ObjectIdLike = Ref<Mongoose.Types.ObjectId>;
 export const ObjectId = Mongoose.Types.ObjectId;
 
 function isValidMongoDBObjectID(id: string): boolean {
