@@ -14,7 +14,7 @@ import {
   SortType,
   UpdateInputType,
 } from '../type-functions';
-import { ApiType, GraphQLObjectId, ObjectId } from '../shared';
+import { ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
 import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
@@ -182,7 +182,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
 
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
     async findOne(
-      @Args('id', { type: () => GraphQLObjectId }) id: ObjectId,
+      @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
       return await this.baseService.findOne(ctx, { _id: id });
@@ -210,7 +210,10 @@ export function createResolver(definition: Definition, contextDecorator: Context
     }
 
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
-    async remove(@Args('id', { type: () => GraphQLObjectId }) id: ObjectId, @contextDecorator() ctx: any) {
+    async remove(
+      @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
+      @contextDecorator() ctx: any,
+    ) {
       return await this.baseService.remove(ctx, id);
     }
 
