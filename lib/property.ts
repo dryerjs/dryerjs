@@ -118,7 +118,6 @@ export type EmbeddedConfig = {
 
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
-    ExcludeOnDatabase()(target, propertyKey);
     const subSchema = SchemaFactory.createForClass(typeFunction());
     subSchema.virtual('id').get(function () {
       return (this['_id'] as any).toHexString();
@@ -182,7 +181,6 @@ export function ReferencesMany(
   options: ReferencesManyConfig['options'],
 ) {
   return (target: object, propertyKey: string | symbol) => {
-    ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target)
       .with(propertyKey)
       .set<ReferencesManyConfig>(MetaKey.ReferencesManyType, { typeFunction, options });
@@ -209,7 +207,6 @@ export type HasOneConfig = {
 };
 export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
-    ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
     Thunk(
       Field(() => OutputType(typeFunction()), { nullable: true }),
@@ -230,7 +227,6 @@ export type HasManyConfig = {
 };
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
-    ExcludeOnDatabase()(target, propertyKey);
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
     Thunk(
       Field(() => [OutputType(typeFunction())], { nullable: true }),
@@ -240,12 +236,6 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
       Field(() => [CreateInputType(typeFunction())], { nullable: true }),
       { scopes: 'create' },
     )(target, propertyKey);
-  };
-}
-
-export function ExcludeOnDatabase() {
-  return (target: object, propertyKey: string | symbol) => {
-    Metadata.for(target).with(propertyKey).set(MetaKey.ExcludeOnDatabase, true);
   };
 }
 
