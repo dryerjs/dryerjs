@@ -103,6 +103,7 @@ export class Variant {
   name: string;
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
+  @Filterable(() => GraphQLObjectId, { operators: ['eq', 'in'] })
   productId: ObjectId;
 
   @HasMany(() => Comment, { to: 'variantId' })
