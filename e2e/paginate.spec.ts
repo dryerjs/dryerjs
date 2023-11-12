@@ -1,13 +1,41 @@
-import { Customer } from '../src/models';
+import { Customer, Product, Tag, Variant, Image, Color, Comment } from '../src/models';
 import { TestServer } from './test-server';
 
 const server = TestServer.init({
-  definitions: [Customer],
+  definitions: [Customer, Product, Tag, Variant, Image, Color, Comment],
 });
 
 describe('Paginate works', () => {
+  const preExsitingProducts: Product[] = [];
   beforeAll(async () => {
     await server.start();
+
+    const products = [
+      { name: 'A', variants: [{ name: 'a' }, { name: 'a1' }, { name: 'a2' }] },
+      { name: 'B', variants: [{ name: 'b' }] },
+      { name: 'C', variants: [{ name: 'c' }] },
+      { name: 'D', variants: [{ name: 'd' }] },
+    ];
+
+    for (const product of products) {
+      const { createProduct } = await server.makeSuccessRequest({
+        query: `
+          mutation CreateProduct($input: CreateProductInput!) {
+            createProduct(input: $input) {
+              id
+              name
+              variants {
+                id
+                name 
+                productId
+              }
+            }
+          }
+        `,
+        variables: { input: product },
+      });
+      preExsitingProducts.push(createProduct);
+    }
 
     const customers = [
       { name: 'John', email: 'john@example.com', numberOfOrders: 10 },
@@ -474,6 +502,50 @@ describe('Paginate works', () => {
       { email: 'jane@example.com' },
       { email: 'john@example.com' },
     ]);
+  });
+
+  it('eq filter with objectId', async () => {
+    const { paginateVariants } = await server.makeSuccessRequest({
+      query: `
+      query PaginateVariants($filter: VariantFilter) {
+        paginateVariants(filter: $filter) {
+          docs {
+            productId
+            name
+            id
+          }
+          totalDocs
+        }
+      }
+      `,
+      variables: { filter: { productId: { eq: preExsitingProducts[0].id } } },
+    });
+
+    const expectedVariants = preExsitingProducts[0].variants;
+    expect(paginateVariants.docs).toEqual([...expectedVariants]);
+    expect(paginateVariants.totalDocs).toEqual(3);
+  });
+
+  it('in filter with objectId', async () => {
+    const { paginateVariants } = await server.makeSuccessRequest({
+      query: `
+      query PaginateVariants($filter: VariantFilter) {
+        paginateVariants(filter: $filter) {
+          docs {
+            productId
+            name
+            id
+          }
+          totalDocs
+        }
+      }
+      `,
+      variables: { filter: { productId: { in: [preExsitingProducts[0].id, preExsitingProducts[1].id] } } },
+    });
+
+    const expectedVariants = [...preExsitingProducts[0].variants, ...preExsitingProducts[1].variants];
+    expect(paginateVariants.docs).toEqual(expectedVariants);
+    expect(paginateVariants.totalDocs).toEqual(4);
   });
 
   afterAll(async () => {
