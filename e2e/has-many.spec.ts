@@ -24,6 +24,9 @@ describe('Has many works', () => {
                 id
                 content
               }
+              product {
+                name
+              }
             }
           }
         }
@@ -59,11 +62,13 @@ describe('Has many works', () => {
             content: 'B',
           },
         ],
+        product: { name: 'Awesome product' },
       },
       {
         id: expect.any(String),
         name: 'Awesome variant 2',
         comments: [],
+        product: { name: 'Awesome product' },
       },
     ]);
   });
