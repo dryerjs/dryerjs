@@ -191,19 +191,12 @@ export function ReferencesMany(
         Field(() => [CreateInputType(typeFunction())], { nullable: true }),
         { scopes: 'create' },
       )(target, propertyKey);
-    }
 
-    if (options.noPopulation !== true) {
       Thunk(
-        Field(() => [OutputType(typeFunction())]),
-        { scopes: 'output' },
+        Type(() => CreateInputType(typeFunction())),
+        { scopes: 'create' },
       )(target, propertyKey);
     }
-
-    Thunk(
-      Type(() => CreateInputType(typeFunction())),
-      { scopes: 'create' },
-    )(target, propertyKey);
   };
 }
 
@@ -241,7 +234,8 @@ export type HasManyConfig = {
   options: {
     to: string;
     allowCreateWithin?: boolean;
-    noPopulation?: boolean;
+    allowPaginate?: boolean;
+    allowFindAll?: boolean;
   };
 };
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
@@ -253,13 +247,6 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
           nullable: true,
         }),
         { scopes: 'create' },
-      )(target, propertyKey);
-    }
-
-    if (options.noPopulation !== true) {
-      Thunk(
-        Field(() => [OutputType(typeFunction())], { nullable: true }),
-        { scopes: 'output' },
       )(target, propertyKey);
     }
   };
@@ -280,13 +267,6 @@ export function BelongsTo(
     Metadata.for(target)
       .with(propertyKey)
       .set<BelongsToConfig>(MetaKey.BelongsToType, { typeFunction, options });
-
-    if (options.noPopulation !== true) {
-      Thunk(
-        Field(() => OutputType(typeFunction()), { nullable: true }),
-        { scopes: 'output' },
-      )(target, propertyKey);
-    }
   };
 }
 

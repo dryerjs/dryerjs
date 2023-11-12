@@ -21,6 +21,16 @@ export function createResolverForHasOne(
   CreateInputTypeWithin(relationDefinition, definition, relation.options.to);
   const loaderKey = Symbol(`loader_${definition.name}_${field}`);
 
+  function IfApiAllowed(decorator: MethodDecorator) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      /* istanbul ignore if */
+      if (relation.options.noPopulation === true) {
+        return descriptor;
+      }
+      decorator(target, propertyKey, descriptor);
+    };
+  }
+
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForHasOne<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
@@ -38,8 +48,8 @@ export function createResolverForHasOne(
       return rawCtx.req[loaderKey];
     }
 
-    @ResolveField()
-    async [field](
+    @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field }))
+    async findOne(
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
