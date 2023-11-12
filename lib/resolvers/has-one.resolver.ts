@@ -23,6 +23,7 @@ export function createResolverForHasOne(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      /* istanbul ignore if */
       if (relation.options.noPopulation === true) {
         return descriptor;
       }

@@ -1,8 +1,8 @@
 import { TestServer } from './test-server';
-import { Color, Image, Product, Tag, Variant, Comment } from '../src/models';
+import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
 
 const server = TestServer.init({
-  definitions: [Product, Tag, Variant, Image, Color, Comment],
+  definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
 });
 
 describe('Has many works', () => {
@@ -28,6 +28,11 @@ describe('Has many works', () => {
                 name
               }
             }
+            paginateVariants {
+              docs {
+                name
+              }
+            }
           }
         }
       `,
@@ -47,6 +52,7 @@ describe('Has many works', () => {
       },
     });
 
+    expect(createProduct.paginateVariants.docs).toHaveLength(2);
     expect(createProduct.variants).toHaveLength(2);
     expect(createProduct.variants).toEqual([
       {

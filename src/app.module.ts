@@ -6,10 +6,23 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Definition, DryerModule } from '../lib';
 import { AuthResolver } from './resolvers';
-import { Product, Tag, User, Author, Image, Customer, Variant, Computer, Color, Comment } from './models';
+import {
+  Product,
+  Tag,
+  User,
+  Author,
+  Image,
+  Customer,
+  Variant,
+  Computer,
+  Color,
+  Comment,
+  Store,
+} from './models';
 import { Ctx } from './ctx';
 
 const definitions: Definition[] = [
+  Store,
   Product,
   Tag,
   User,

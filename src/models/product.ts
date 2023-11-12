@@ -80,12 +80,36 @@ export class Comment {
 }
 
 @Definition({ allowedApis: '*' })
+export class Store {
+  @Id()
+  id: ObjectId;
+
+  @Property()
+  name: string;
+
+  @HasMany(() => Product, {
+    to: 'storeId',
+    allowCreateWithin: false,
+    allowFindAll: false,
+    allowPaginate: false,
+  })
+  products: Product[];
+
+  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: false, noPopulation: true })
+  tags: Tag[];
+
+  @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
+  tagIds: ObjectId[];
+}
+
+@Definition({ allowedApis: '*' })
 export class Variant {
   @Id()
   id: ObjectId;
 
   @Property()
   @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
+  @Sortable()
   name: string;
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
@@ -124,4 +148,10 @@ export class Product {
 
   @HasOne(() => Image, { to: 'productId', allowCreateWithin: true })
   image: Image;
+
+  @BelongsTo(() => Store, { from: 'storeId', noPopulation: true })
+  store: Ref<Store>;
+
+  @Property({ type: () => GraphQLObjectId, update: Skip, nullable: true })
+  storeId: ObjectId;
 }
