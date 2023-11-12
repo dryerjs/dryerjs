@@ -65,29 +65,6 @@ export class Image {
 }
 
 @Definition({ allowedApis: '*' })
-export class Product {
-  @Id()
-  id: ObjectId;
-
-  @Property({ type: () => graphql.GraphQLString })
-  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
-  @Sortable()
-  name: string;
-
-  @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
-  tagIds: ObjectId[];
-
-  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: true })
-  tags: Tag[];
-
-  @HasMany(() => Variant, { to: 'productId', allowCreateWithin: true })
-  variants: Variant[];
-
-  @HasOne(() => Image, { to: 'productId', allowCreateWithin: true })
-  image: Image;
-}
-
-@Definition({ allowedApis: '*' })
 export class Comment {
   @Id()
   id: ObjectId;
@@ -108,6 +85,7 @@ export class Variant {
   id: ObjectId;
 
   @Property()
+  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
   name: string;
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
@@ -116,6 +94,34 @@ export class Variant {
   @BelongsTo(() => Product, { from: 'productId' })
   product: Ref<Product>;
 
-  @HasMany(() => Comment, { to: 'variantId', allowCreateWithin: true })
+  @HasMany(() => Comment, { to: 'variantId', allowCreateWithin: true, allowFindAll: false })
   comments: Comment[];
+}
+
+@Definition({ allowedApis: '*' })
+export class Product {
+  @Id()
+  id: ObjectId;
+
+  @Property({ type: () => graphql.GraphQLString })
+  @Filterable(() => graphql.GraphQLString, { operators: ['eq'] })
+  @Sortable()
+  name: string;
+
+  @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
+  tagIds: ObjectId[];
+
+  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: true })
+  tags: Tag[];
+
+  @HasMany(() => Variant, {
+    to: 'productId',
+    allowCreateWithin: true,
+    allowFindAll: true,
+    allowPaginate: true,
+  })
+  variants: Variant[];
+
+  @HasOne(() => Image, { to: 'productId', allowCreateWithin: true })
+  image: Image;
 }

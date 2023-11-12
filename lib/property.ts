@@ -241,7 +241,8 @@ export type HasManyConfig = {
   options: {
     to: string;
     allowCreateWithin?: boolean;
-    noPopulation?: boolean;
+    allowPaginate?: boolean;
+    allowFindAll?: boolean;
   };
 };
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
@@ -253,13 +254,6 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
           nullable: true,
         }),
         { scopes: 'create' },
-      )(target, propertyKey);
-    }
-
-    if (options.noPopulation !== true) {
-      Thunk(
-        Field(() => [OutputType(typeFunction())], { nullable: true }),
-        { scopes: 'output' },
       )(target, propertyKey);
     }
   };
