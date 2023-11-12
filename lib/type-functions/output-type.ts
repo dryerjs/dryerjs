@@ -1,8 +1,7 @@
-import { Definition } from '../definition';
 import * as util from '../util';
-import { getBaseType } from './base';
+import { BaseClassType, getBaseType } from './base';
 
-export function getType(definition: Definition) {
+export function getType<T extends object>(definition: BaseClassType<T>): BaseClassType<T> {
   return getBaseType({
     definition,
     name: definition.name,

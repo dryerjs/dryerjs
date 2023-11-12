@@ -7,6 +7,15 @@ import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { ObjectId } from '../shared';
 
+type Constructor<T extends object, Arguments extends unknown[] = any[]> = new (...arguments_: Arguments) => T;
+
+export type BaseClassType<T extends object = object, Arguments extends unknown[] = any[]> = Constructor<
+  T,
+  Arguments
+> & {
+  prototype: T;
+};
+
 export function getBaseType(input: {
   definition: Definition;
   name: string;
