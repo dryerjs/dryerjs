@@ -14,7 +14,7 @@ export enum MetaKey {
   ReferencesManyType = 'ReferencesManyType',
   HasOneType = 'HasOneType',
   HasManyType = 'HasManyType',
-  BelongToType = 'BelongToType',
+  BelongsToType = 'BelongsToType',
   Thunk = 'Thunk',
   Definition = 'Definition',
   Hook = 'Hook',

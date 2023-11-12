@@ -27,6 +27,10 @@ class InspectedDefinition {
     return this.getProperties(MetaKey.ReferencesManyType);
   }
 
+  public get belongsToProperties(): HydratedProperty[] {
+    return this.getProperties(MetaKey.BelongsToType);
+  }
+
   public get hasOneProperties(): HydratedProperty[] {
     return this.getProperties(MetaKey.HasOneType);
   }

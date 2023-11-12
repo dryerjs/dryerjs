@@ -3,35 +3,32 @@ import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
 import { Provider } from '@nestjs/common';
 
 import { MetaKey, Metadata } from '../metadata';
-import { CreateInputTypeWithin, OutputType } from '../type-functions';
+import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
-import { HasOneConfig } from '../property';
+import { BelongsToConfig } from '../property';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
-export function createResolverForHasOne(
+export function createResolverForBelongsTo(
   definition: Definition,
   field: string,
   contextDecorator: ContextDecorator,
 ): Provider {
-  const relation = Metadata.for(definition).with(field).get<HasOneConfig>(MetaKey.HasOneType);
+  const relation = Metadata.for(definition).with(field).get<BelongsToConfig>(MetaKey.BelongsToType);
   const relationDefinition = relation.typeFunction();
-  // have to init the type here if not server will not start, there might be a better place to put this
-  CreateInputTypeWithin(relationDefinition, definition, relation.options.to);
   const loaderKey = Symbol(`loader_${definition.name}_${field}`);
 
   @Resolver(() => OutputType(definition))
-  class GeneratedResolverForHasOne<T> {
+  class GeneratedResolverForBelongsTo<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     private getLoader(ctx: any, rawCtx: any) {
       if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
-        const field = relation.options.to;
-        const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        const items = await this.baseService.findAll(ctx, { _id: { $in: keys } }, {});
         return keys.map((id: StringLikeId) => {
-          return items.find((item) => item[field].toString() === id.toString());
+          return items.find((item) => item._id.toString() === id.toString());
         });
       });
       rawCtx.req[loaderKey] = loader;
@@ -44,9 +41,9 @@ export function createResolverForHasOne(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T> {
-      return await this.getLoader(ctx, rawCtx).load(parent._id);
+      return await this.getLoader(ctx, rawCtx).load(parent[relation.options.from]);
     }
   }
 
-  return GeneratedResolverForHasOne;
+  return GeneratedResolverForBelongsTo;
 }

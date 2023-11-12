@@ -11,7 +11,7 @@ import { ArrayValidationPipe } from './shared';
 import { EmbeddedConfig } from '../property';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
-import { GraphQLObjectId, ObjectId } from '../shared';
+import { GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
 
 export function createResolverForEmbedded(
   definition: Definition,
@@ -90,11 +90,11 @@ export function createResolverForEmbedded(
       }),
     )
     async findOne(
-      @Args('id', { type: () => GraphQLObjectId }) id: ObjectId,
+      @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
       })
-      parentId: string,
+      parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });

@@ -13,6 +13,8 @@ import {
   Property,
   Skip,
   Id,
+  Ref,
+  BelongsTo,
 } from '../../lib';
 import { MaxLength } from 'class-validator';
 
@@ -43,7 +45,7 @@ export class Tag {
   })
   colorIds: ObjectId[];
 
-  @ReferencesMany(() => Color, { from: 'colorIds' })
+  @ReferencesMany(() => Color, { from: 'colorIds', allowCreateWithin: true })
   colors: Color[];
 }
 
@@ -54,6 +56,9 @@ export class Image {
 
   @Property()
   name: string;
+
+  @BelongsTo(() => Product, { from: 'productId' })
+  product: Ref<Product>;
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   productId: ObjectId;
@@ -72,13 +77,13 @@ export class Product {
   @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
   tagIds: ObjectId[];
 
-  @ReferencesMany(() => Tag, { from: 'tagIds' })
+  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: true })
   tags: Tag[];
 
-  @HasMany(() => Variant, { to: 'productId' })
+  @HasMany(() => Variant, { to: 'productId', allowCreateWithin: true })
   variants: Variant[];
 
-  @HasOne(() => Image, { to: 'productId' })
+  @HasOne(() => Image, { to: 'productId', allowCreateWithin: true })
   image: Image;
 }
 
@@ -92,6 +97,9 @@ export class Comment {
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   variantId: ObjectId;
+
+  @BelongsTo(() => Variant, { from: 'productId' })
+  variant: Ref<Variant>;
 }
 
 @Definition({ allowedApis: '*' })
@@ -106,6 +114,9 @@ export class Variant {
   @Filterable(() => GraphQLObjectId, { operators: ['eq', 'in'] })
   productId: ObjectId;
 
-  @HasMany(() => Comment, { to: 'variantId' })
+  @BelongsTo(() => Product, { from: 'productId' })
+  product: Ref<Product>;
+
+  @HasMany(() => Comment, { to: 'variantId', allowCreateWithin: true })
   comments: Comment[];
 }

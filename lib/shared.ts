@@ -15,3 +15,5 @@ export type ApiType =
   | 'bulkRemove';
 
 export type AllowedApiType = '*' | 'essentials' | ApiType;
+
+export type Ref<T> = T;
