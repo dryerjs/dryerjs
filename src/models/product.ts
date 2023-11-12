@@ -94,7 +94,7 @@ export class Variant {
   @BelongsTo(() => Product, { from: 'productId' })
   product: Ref<Product>;
 
-  @HasMany(() => Comment, { to: 'variantId', allowCreateWithin: true, allowFindAll: false })
+  @HasMany(() => Comment, { to: 'variantId', allowCreateWithin: true, allowFindAll: true })
   comments: Comment[];
 }
 
@@ -111,7 +111,7 @@ export class Product {
   @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
   tagIds: ObjectId[];
 
-  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: true })
+  @ReferencesMany(() => Tag, { from: 'tagIds', allowCreateWithin: true, noPopulation: false })
   tags: Tag[];
 
   @HasMany(() => Variant, {

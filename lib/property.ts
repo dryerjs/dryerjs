@@ -191,19 +191,12 @@ export function ReferencesMany(
         Field(() => [CreateInputType(typeFunction())], { nullable: true }),
         { scopes: 'create' },
       )(target, propertyKey);
-    }
 
-    if (options.noPopulation !== true) {
       Thunk(
-        Field(() => [OutputType(typeFunction())]),
-        { scopes: 'output' },
+        Type(() => CreateInputType(typeFunction())),
+        { scopes: 'create' },
       )(target, propertyKey);
     }
-
-    Thunk(
-      Type(() => CreateInputType(typeFunction())),
-      { scopes: 'create' },
-    )(target, propertyKey);
   };
 }
 
@@ -274,13 +267,6 @@ export function BelongsTo(
     Metadata.for(target)
       .with(propertyKey)
       .set<BelongsToConfig>(MetaKey.BelongsToType, { typeFunction, options });
-
-    if (options.noPopulation !== true) {
-      Thunk(
-        Field(() => OutputType(typeFunction()), { nullable: true }),
-        { scopes: 'output' },
-      )(target, propertyKey);
-    }
   };
 }
 

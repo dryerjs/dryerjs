@@ -19,6 +19,15 @@ export function createResolverForReferencesMany(
   const relationDefinition = relation.typeFunction();
   const loaderKey = Symbol(`loader_${definition.name}_${field}`);
 
+  function IfApiAllowed(decorator: MethodDecorator) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (relation.options.noPopulation === true) {
+        return descriptor;
+      }
+      decorator(target, propertyKey, descriptor);
+    };
+  }
+
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForReferencesMany<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
@@ -36,8 +45,8 @@ export function createResolverForReferencesMany(
       return rawCtx.req[loaderKey];
     }
 
-    @ResolveField()
-    async [field](
+    @IfApiAllowed(ResolveField(() => [OutputType(relationDefinition)], { name: field }))
+    async reference(
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,

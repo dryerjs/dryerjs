@@ -19,6 +19,15 @@ export function createResolverForBelongsTo(
   const relationDefinition = relation.typeFunction();
   const loaderKey = Symbol(`loader_${definition.name}_${field}`);
 
+  function IfApiAllowed(decorator: MethodDecorator) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+      if (relation.options.noPopulation === true) {
+        return descriptor;
+      }
+      decorator(target, propertyKey, descriptor);
+    };
+  }
+
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForBelongsTo<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
@@ -35,8 +44,8 @@ export function createResolverForBelongsTo(
       return rawCtx.req[loaderKey];
     }
 
-    @ResolveField()
-    async [field](
+    @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field }))
+    async findOne(
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
