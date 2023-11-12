@@ -257,6 +257,7 @@ export type BelongsToConfig = {
   options: {
     from: string;
     noPopulation?: boolean;
+    strict?: boolean;
   };
 };
 export function BelongsTo(

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { MetaKey, Metadata } from './metadata';
+import { Definition } from './definition';
 
 export function Hook(typeFunc: () => any) {
   return (target: any) => {
@@ -10,17 +11,33 @@ export function Hook(typeFunc: () => any) {
 }
 
 export interface Hook<T = any, Context = any> {
-  beforeCreate(input: { ctx: Context; input: Partial<T> }): Promise<void>;
-  afterCreate?(input: { ctx: Context; input: Partial<T>; created: T }): Promise<void>;
+  beforeCreate(input: { ctx: Context; input: Partial<T>; definition: Definition }): Promise<void>;
+  afterCreate?(input: { ctx: Context; input: Partial<T>; created: T; definition: Definition }): Promise<void>;
 
-  beforeUpdate?(input: { ctx: Context; input: Partial<T>; beforeUpdated: T }): Promise<void>;
-  afterUpdate?(input: { ctx: Context; input: Partial<T>; updated: T; beforeUpdated: T }): Promise<void>;
+  beforeUpdate?(input: {
+    ctx: Context;
+    input: Partial<T>;
+    beforeUpdated: T;
+    definition: Definition;
+  }): Promise<void>;
+  afterUpdate?(input: {
+    ctx: Context;
+    input: Partial<T>;
+    updated: T;
+    beforeUpdated: T;
+    definition: Definition;
+  }): Promise<void>;
 
-  beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T> }): Promise<void>;
-  afterFindOne?(input: { ctx: Context; filter: FilterQuery<T>; result: T }): Promise<void>;
+  beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
+  afterFindOne?(input: {
+    ctx: Context;
+    filter: FilterQuery<T>;
+    result: T;
+    definition: Definition;
+  }): Promise<void>;
 
-  beforeRemove?(input: { ctx: Context; beforeRemoved: T }): Promise<void>;
-  afterRemove?(input: { ctx: Context; removed: T }): Promise<void>;
+  beforeRemove?(input: { ctx: Context; beforeRemoved: T; definition: Definition }): Promise<void>;
+  afterRemove?(input: { ctx: Context; removed: T; definition: Definition }): Promise<void>;
 
   beforeFindMany?(input: {
     ctx: Context;
@@ -28,6 +45,7 @@ export interface Hook<T = any, Context = any> {
     sort: object;
     limit?: number;
     page?: number;
+    definition: Definition;
   }): Promise<void>;
   afterFindMany?(input: {
     ctx: Context;
@@ -36,6 +54,7 @@ export interface Hook<T = any, Context = any> {
     items: T[];
     limit?: number;
     page?: number;
+    definition: Definition;
   }): Promise<void>;
 }
 

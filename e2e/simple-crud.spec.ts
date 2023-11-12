@@ -71,11 +71,12 @@ describe('Simple CRUD works', () => {
           },
         },
       });
-      expect(beforeCreate).toBeCalledWith({ ctx: 'fakeContext', input: { name } });
+      expect(beforeCreate).toBeCalledWith({ ctx: 'fakeContext', input: { name }, definition: Tag });
       expect(afterCreate).toBeCalledWith({
         ctx: 'fakeContext',
         input: { name },
         created: expect.objectContaining({ name }),
+        definition: Tag,
       });
     }
   });
@@ -98,6 +99,7 @@ describe('Simple CRUD works', () => {
       ctx: 'fakeContext',
       filter: {},
       sort: {},
+      definition: Tag,
     });
     expect(afterFindMany).toBeCalledWith({
       ctx: 'fakeContext',
@@ -108,6 +110,7 @@ describe('Simple CRUD works', () => {
         expect.objectContaining({ name: '80s' }),
         expect.objectContaining({ name: '90s' }),
       ],
+      definition: Tag,
     });
     expect(allTags).toEqual([
       { id: expect.any(String), name: '70s' },
@@ -160,11 +163,13 @@ describe('Simple CRUD works', () => {
     expect(beforeFindOne).toBeCalledWith({
       ctx: 'fakeContext',
       filter: expect.objectContaining({ _id: new ObjectId(id) }),
+      definition: Tag,
     });
     expect(afterFindOne).toBeCalledWith({
       ctx: 'fakeContext',
       filter: expect.objectContaining({ _id: new ObjectId(id) }),
       result: expect.objectContaining({ name: '70s' }),
+      definition: Tag,
     });
     expect(response.tag.name).toEqual(allTags[0].name);
   });
@@ -189,12 +194,14 @@ describe('Simple CRUD works', () => {
       ctx: 'fakeContext',
       input: { id: new ObjectId(allTags[0].id), name: '60s' },
       beforeUpdated: expect.objectContaining({ name: '70s' }),
+      definition: Tag,
     });
     expect(afterUpdate).toBeCalledWith({
       ctx: 'fakeContext',
       input: { id: new ObjectId(allTags[0].id), name: '60s' },
       updated: expect.objectContaining({ name: '60s' }),
       beforeUpdated: expect.objectContaining({ name: '70s' }),
+      definition: Tag,
     });
   });
 
@@ -235,10 +242,12 @@ describe('Simple CRUD works', () => {
     expect(beforeRemove).toBeCalledWith({
       ctx: 'fakeContext',
       beforeRemoved: expect.objectContaining({ name: '60s' }),
+      definition: Tag,
     });
     expect(afterRemove).toBeCalledWith({
       ctx: 'fakeContext',
       removed: expect.objectContaining({ name: '60s' }),
+      definition: Tag,
     });
 
     // Try to fetch the removed tag by its ID

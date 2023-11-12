@@ -17,6 +17,7 @@ import {
 import { inspect } from './inspect';
 import { Definition } from './definition';
 import { createBaseService, getBaseServiceToken } from './base.service';
+import { DefaultHook } from './default.hook';
 
 export type DryerModuleOptions = {
   definitions: Definition[];
@@ -68,7 +69,7 @@ export class DryerModule {
     );
 
     const mongooseModuleExports = mongooseForFeatureModule.exports as any;
-    const hooks = util.defaultTo(input.hooks, []);
+    const hooks = [DefaultHook as Provider].concat(util.defaultTo(input.hooks, []));
     const baseServicesProviders = input.definitions.map((definition) => ({
       provide: getBaseServiceToken(definition),
       useClass: createBaseService(definition, hooks),
