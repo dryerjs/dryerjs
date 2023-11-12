@@ -22,9 +22,9 @@ export type Definition = any;
 export function Definition(options: DefinitionOptions = { allowedApis: 'essentials' }): ClassDecorator {
   return (target: object) => {
     Metadata.for(target).set(MetaKey.Definition, options);
-    CreateInputType(target);
-    UpdateInputType(target);
-    OutputType(target);
+    CreateInputType(target as any);
+    UpdateInputType(target as any);
+    OutputType(target as any);
     BulkCreateOutputType(target);
     BulkUpdateOutputType(target);
     BulkRemoveOutputType(target);
