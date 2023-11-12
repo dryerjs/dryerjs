@@ -1,5 +1,15 @@
 import * as graphql from 'graphql';
-import { Definition, Thunk, Filterable, allOperators, Sortable, ObjectId, Property, Id } from '../../lib';
+import {
+  Definition,
+  Thunk,
+  Filterable,
+  allOperators,
+  Sortable,
+  ObjectId,
+  Property,
+  Id,
+  GraphQLObjectId,
+} from '../../lib';
 import { IsEmail } from 'class-validator';
 
 @Definition({ allowedApis: '*' })
@@ -20,5 +30,9 @@ export class Customer {
 
   @Filterable(() => graphql.GraphQLInt, { operators: allOperators })
   @Property({ nullable: true })
-  numberOfOrders: number;
+  numberOfOrders?: number;
+
+  @Filterable(() => GraphQLObjectId, { operators: allOperators })
+  @Property({ type: () => GraphQLObjectId, nullable: true })
+  countryId: ObjectId;
 }

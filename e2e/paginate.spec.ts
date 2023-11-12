@@ -1,45 +1,17 @@
-import { Customer, Product, Tag, Variant, Image, Color, Comment } from '../src/models';
+import { Customer } from '../src/models';
 import { TestServer } from './test-server';
 
 const server = TestServer.init({
-  definitions: [Customer, Product, Tag, Variant, Image, Color, Comment],
+  definitions: [Customer],
 });
 
 describe('Paginate works', () => {
-  const preExistingProducts: Product[] = [];
   beforeAll(async () => {
     await server.start();
 
-    const products = [
-      { name: 'A', variants: [{ name: 'a' }, { name: 'a1' }, { name: 'a2' }] },
-      { name: 'B', variants: [{ name: 'b' }] },
-      { name: 'C', variants: [{ name: 'c' }] },
-      { name: 'D', variants: [{ name: 'd' }] },
-    ];
-
-    for (const product of products) {
-      const { createProduct } = await server.makeSuccessRequest({
-        query: `
-          mutation CreateProduct($input: CreateProductInput!) {
-            createProduct(input: $input) {
-              id
-              name
-              variants {
-                id
-                name 
-                productId
-              }
-            }
-          }
-        `,
-        variables: { input: product },
-      });
-      preExistingProducts.push(createProduct);
-    }
-
     const customers = [
-      { name: 'John', email: 'john@example.com', numberOfOrders: 10 },
-      { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15 },
+      { name: 'John', email: 'john@example.com', numberOfOrders: 10, countryId: '000000000000000000000001' },
+      { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15, countryId: '000000000000000000000002' },
       { name: 'Jack', email: 'jack@example.com', numberOfOrders: 20 },
       { name: 'Jill', email: 'jill@example.com', numberOfOrders: null },
       { name: 'Joe', email: 'joe@example.com', numberOfOrders: null },
@@ -504,48 +476,31 @@ describe('Paginate works', () => {
     ]);
   });
 
-  it('eq filter with objectId', async () => {
-    const { paginateVariants } = await server.makeSuccessRequest({
-      query: `
-      query PaginateVariants($filter: VariantFilter) {
-        paginateVariants(filter: $filter) {
-          docs {
-            productId
-            name
-            id
-          }
-          totalDocs
-        }
-      }
-      `,
-      variables: { filter: { productId: { eq: preExistingProducts[0].id } } },
+  it('eq with ObjectId', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { countryId: { eq: '000000000000000000000001' } } },
     });
 
-    const expectedVariants = preExistingProducts[0].variants;
-    expect(paginateVariants.docs).toEqual([...expectedVariants]);
-    expect(paginateVariants.totalDocs).toEqual(3);
+    expect(paginateCustomers).toEqual({
+      docs: [{ email: 'john@example.com', numberOfOrders: 10 }],
+      totalDocs: 1,
+    });
   });
 
-  it('in filter with objectId', async () => {
-    const { paginateVariants } = await server.makeSuccessRequest({
-      query: `
-      query PaginateVariants($filter: VariantFilter) {
-        paginateVariants(filter: $filter) {
-          docs {
-            productId
-            name
-            id
-          }
-          totalDocs
-        }
-      }
-      `,
-      variables: { filter: { productId: { in: [preExistingProducts[0].id, preExistingProducts[1].id] } } },
+  it('in with ObjectId', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { countryId: { in: ['000000000000000000000001', '000000000000000000000002'] } } },
     });
 
-    const expectedVariants = [...preExistingProducts[0].variants, ...preExistingProducts[1].variants];
-    expect(paginateVariants.docs).toEqual(expectedVariants);
-    expect(paginateVariants.totalDocs).toEqual(4);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'john@example.com', numberOfOrders: 10 },
+        { email: 'jane@example.com', numberOfOrders: 15 },
+      ],
+      totalDocs: 2,
+    });
   });
 
   afterAll(async () => {
