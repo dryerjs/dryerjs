@@ -6,7 +6,7 @@ const server = TestServer.init({
 });
 
 describe('Paginate works', () => {
-  const preExsitingProducts: Product[] = [];
+  const preExistingProducts: Product[] = [];
   beforeAll(async () => {
     await server.start();
 
@@ -34,7 +34,7 @@ describe('Paginate works', () => {
         `,
         variables: { input: product },
       });
-      preExsitingProducts.push(createProduct);
+      preExistingProducts.push(createProduct);
     }
 
     const customers = [
@@ -518,10 +518,10 @@ describe('Paginate works', () => {
         }
       }
       `,
-      variables: { filter: { productId: { eq: preExsitingProducts[0].id } } },
+      variables: { filter: { productId: { eq: preExistingProducts[0].id } } },
     });
 
-    const expectedVariants = preExsitingProducts[0].variants;
+    const expectedVariants = preExistingProducts[0].variants;
     expect(paginateVariants.docs).toEqual([...expectedVariants]);
     expect(paginateVariants.totalDocs).toEqual(3);
   });
@@ -540,10 +540,10 @@ describe('Paginate works', () => {
         }
       }
       `,
-      variables: { filter: { productId: { in: [preExsitingProducts[0].id, preExsitingProducts[1].id] } } },
+      variables: { filter: { productId: { in: [preExistingProducts[0].id, preExistingProducts[1].id] } } },
     });
 
-    const expectedVariants = [...preExsitingProducts[0].variants, ...preExsitingProducts[1].variants];
+    const expectedVariants = [...preExistingProducts[0].variants, ...preExistingProducts[1].variants];
     expect(paginateVariants.docs).toEqual(expectedVariants);
     expect(paginateVariants.totalDocs).toEqual(4);
   });
