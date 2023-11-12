@@ -20,7 +20,7 @@ export abstract class BaseService<T = any, Context = any> {
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
     for (const hook of this.getHooks('beforeCreate')) {
-      await hook.beforeCreate!({ ctx, input });
+      await hook.beforeCreate!({ ctx, input, definition: this.definition });
     }
     const created = await this.model.create(input);
     for (const property of inspect(this.definition).referencesManyProperties) {
@@ -68,7 +68,7 @@ export abstract class BaseService<T = any, Context = any> {
     }
     const result = await this.model.findById(created._id);
     for (const hook of this.getHooks('afterCreate')) {
-      await hook.afterCreate!({ ctx, input, created: result });
+      await hook.afterCreate!({ ctx, input, created: result, definition: this.definition });
     }
     return result as any;
   }
@@ -76,36 +76,36 @@ export abstract class BaseService<T = any, Context = any> {
   public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
     const beforeUpdated = await this.findOne(ctx, { _id: input.id });
     for (const hook of this.getHooks('beforeUpdate')) {
-      await hook.beforeUpdate!({ ctx, input, beforeUpdated });
+      await hook.beforeUpdate!({ ctx, input, beforeUpdated, definition: this.definition });
     }
     const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, { new: true });
     for (const hook of this.getHooks('afterUpdate')) {
-      await hook.afterUpdate!({ ctx, input, updated, beforeUpdated });
+      await hook.afterUpdate!({ ctx, input, updated, beforeUpdated, definition: this.definition });
     }
     return updated!;
   }
 
   public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
     for (const hook of this.getHooks('beforeFindOne')) {
-      await hook.beforeFindOne!({ ctx, filter });
+      await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
     }
     const result = await this.model.findOne(filter);
     if (util.isNil(result)) {
       throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
     }
     for (const hook of this.getHooks('afterFindOne')) {
-      await hook.afterFindOne!({ ctx, result, filter });
+      await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
     }
     return result;
   }
 
   public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
     for (const hook of this.getHooks('beforeFindMany')) {
-      await hook.beforeFindMany!({ ctx, filter, sort });
+      await hook.beforeFindMany!({ ctx, filter, sort, definition: this.definition });
     }
     const items = await this.model.find(filter).sort(sort as any);
     for (const hook of this.getHooks('afterFindMany')) {
-      await hook.afterFindMany!({ ctx, filter, sort, items });
+      await hook.afterFindMany!({ ctx, filter, sort, items, definition: this.definition });
     }
     return items;
   }
@@ -113,22 +113,30 @@ export abstract class BaseService<T = any, Context = any> {
   public async remove(ctx: Context, id: ObjectId): Promise<SuccessResponse> {
     const beforeRemoved = await this.findOne(ctx, { _id: id });
     for (const hook of this.getHooks('beforeRemove')) {
-      await hook.beforeRemove!({ ctx, beforeRemoved });
+      await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition });
     }
     const removed = await this.model.findByIdAndRemove(id);
     for (const hook of this.getHooks('afterRemove')) {
-      await hook.afterRemove!({ ctx, removed });
+      await hook.afterRemove!({ ctx, removed, definition: this.definition });
     }
     return { success: true };
   }
 
   public async paginate(ctx: Context, filter: FilterQuery<T>, sort: object, page: number, limit: number) {
     for (const hook of this.getHooks('beforeFindMany')) {
-      await hook.beforeFindMany!({ ctx, filter, sort, page, limit });
+      await hook.beforeFindMany!({ ctx, filter, sort, page, limit, definition: this.definition });
     }
     const response = await this.model.paginate(filter, { page, limit, sort });
     for (const hook of this.getHooks('afterFindMany')) {
-      await hook.afterFindMany!({ ctx, filter, sort, items: response.docs, page, limit });
+      await hook.afterFindMany!({
+        ctx,
+        filter,
+        sort,
+        items: response.docs,
+        page,
+        limit,
+        definition: this.definition,
+      });
     }
 
     return response;

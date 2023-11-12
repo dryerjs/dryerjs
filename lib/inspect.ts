@@ -1,5 +1,5 @@
 import * as util from './util';
-import { HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
+import { BelongsToConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType } from './shared';
 import { Definition } from './definition';
@@ -84,24 +84,35 @@ export class HydratedProperty {
   }
 
   public getHasOne() {
-    const hasOne = this.get<HasOneConfig>(MetaKey.HasOneType);
+    const result = this.get<HasOneConfig>(MetaKey.HasOneType);
 
     /* istanbul ignore if */
-    if (util.isNil(hasOne)) {
+    if (util.isNil(result)) {
       throw new Error(`Property ${this.name} is not an has one property`);
     }
 
-    return hasOne;
+    return result;
+  }
+
+  public getBelongsTo() {
+    const result = this.get<BelongsToConfig>(MetaKey.BelongsToType);
+
+    /* istanbul ignore if */
+    if (util.isNil(result)) {
+      throw new Error(`Property ${this.name} is not an has one property`);
+    }
+
+    return result;
   }
 
   public getHasMany() {
-    const hasMany = this.get<HasManyConfig>(MetaKey.HasManyType);
+    const result = this.get<HasManyConfig>(MetaKey.HasManyType);
 
     /* istanbul ignore if */
-    if (util.isNil(hasMany)) {
+    if (util.isNil(result)) {
       throw new Error(`Property ${this.name} is not an has many property`);
     }
 
-    return hasMany;
+    return result;
   }
 }
