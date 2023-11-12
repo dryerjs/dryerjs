@@ -6,7 +6,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../property';
-import { ContextDecorator } from '../context';
+import { ContextDecorator, defaultContextDecorator } from '../context';
 import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
@@ -19,13 +19,14 @@ export function createResolverForHasOne(
   const relationDefinition = relation.typeFunction();
   // have to init the type here if not server will not start, there might be a better place to put this
   CreateInputTypeWithin(relationDefinition, definition, relation.options.to);
+  const loaderKey = Symbol(`loader_${definition.name}_${field}`);
 
   @Resolver(() => OutputType(definition))
   class GeneratedResolverForHasOne<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
-    @ResolveField()
-    async [field](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T> {
+    private getLoader(ctx: any, rawCtx: any) {
+      if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
         const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
@@ -33,7 +34,17 @@ export function createResolverForHasOne(
           return items.find((item) => item[field].toString() === id.toString());
         });
       });
-      return await loader.load(parent._id);
+      rawCtx.req[loaderKey] = loader;
+      return rawCtx.req[loaderKey];
+    }
+
+    @ResolveField()
+    async [field](
+      @Parent() parent: any,
+      @contextDecorator() ctx: any,
+      @defaultContextDecorator() rawCtx: any,
+    ): Promise<T> {
+      return await this.getLoader(ctx, rawCtx).load(parent._id);
     }
   }
 
