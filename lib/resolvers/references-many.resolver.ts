@@ -27,8 +27,7 @@ export function createResolverForReferencesMany(
       if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId[], any>(async (keys) => {
         const flattenKeys: StringLikeId[] = keys.flat();
-        const field = relation.options.to || '_id';
-        const items = await this.baseService.findAll(ctx, { [field]: { $in: flattenKeys } }, {});
+        const items = await this.baseService.findAll(ctx, { _id: { $in: flattenKeys } }, {});
         return keys.map((ids: StringLikeId[]) => {
           return items.filter((item) => ids.some((id) => id.toString() === item._id.toString()));
         });

@@ -172,7 +172,8 @@ export type ReferencesManyConfig = {
   typeFunction: () => any;
   options: {
     from: string;
-    to?: string;
+    allowCreateWithin?: boolean;
+    noPopulation?: boolean;
   };
 };
 
@@ -184,14 +185,21 @@ export function ReferencesMany(
     Metadata.for(target)
       .with(propertyKey)
       .set<ReferencesManyConfig>(MetaKey.ReferencesManyType, { typeFunction, options });
-    Thunk(
-      Field(() => [OutputType(typeFunction())]),
-      { scopes: 'output' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => [CreateInputType(typeFunction())], { nullable: true }),
-      { scopes: 'create' },
-    )(target, propertyKey);
+
+    if (options.allowCreateWithin) {
+      Thunk(
+        Field(() => [CreateInputType(typeFunction())], { nullable: true }),
+        { scopes: 'create' },
+      )(target, propertyKey);
+    }
+
+    if (options.noPopulation !== true) {
+      Thunk(
+        Field(() => [OutputType(typeFunction())]),
+        { scopes: 'output' },
+      )(target, propertyKey);
+    }
+
     Thunk(
       Type(() => CreateInputType(typeFunction())),
       { scopes: 'create' },
@@ -203,21 +211,28 @@ export type HasOneConfig = {
   typeFunction: () => any;
   options: {
     to: string;
+    allowCreateWithin?: boolean;
+    noPopulation?: boolean;
   };
 };
 export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
-    Thunk(
-      Field(() => OutputType(typeFunction()), { nullable: true }),
-      { scopes: 'output' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => CreateInputTypeWithin(typeFunction(), target.constructor, options.to), {
-        nullable: true,
-      }),
-      { scopes: 'create' },
-    )(target, propertyKey);
+    if (options.allowCreateWithin) {
+      Thunk(
+        Field(() => CreateInputTypeWithin(typeFunction(), target.constructor, options.to), {
+          nullable: true,
+        }),
+        { scopes: 'create' },
+      )(target, propertyKey);
+    }
+
+    if (options.noPopulation !== true) {
+      Thunk(
+        Field(() => OutputType(typeFunction()), { nullable: true }),
+        { scopes: 'output' },
+      )(target, propertyKey);
+    }
   };
 }
 
@@ -225,21 +240,28 @@ export type HasManyConfig = {
   typeFunction: () => any;
   options: {
     to: string;
+    allowCreateWithin?: boolean;
+    noPopulation?: boolean;
   };
 };
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
-    Thunk(
-      Field(() => [OutputType(typeFunction())], { nullable: true }),
-      { scopes: 'output' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => [CreateInputTypeWithin(typeFunction(), target.constructor, options.to)], {
-        nullable: true,
-      }),
-      { scopes: 'create' },
-    )(target, propertyKey);
+    if (options.allowCreateWithin) {
+      Thunk(
+        Field(() => [CreateInputTypeWithin(typeFunction(), target.constructor, options.to)], {
+          nullable: true,
+        }),
+        { scopes: 'create' },
+      )(target, propertyKey);
+    }
+
+    if (options.noPopulation !== true) {
+      Thunk(
+        Field(() => [OutputType(typeFunction())], { nullable: true }),
+        { scopes: 'output' },
+      )(target, propertyKey);
+    }
   };
 }
 
@@ -247,6 +269,7 @@ export type BelongsToConfig = {
   typeFunction: () => any;
   options: {
     from: string;
+    noPopulation?: boolean;
   };
 };
 export function BelongsTo(
@@ -257,10 +280,13 @@ export function BelongsTo(
     Metadata.for(target)
       .with(propertyKey)
       .set<BelongsToConfig>(MetaKey.BelongsToType, { typeFunction, options });
-    Thunk(
-      Field(() => OutputType(typeFunction()), { nullable: true }),
-      { scopes: 'output' },
-    )(target, propertyKey);
+
+    if (options.noPopulation !== true) {
+      Thunk(
+        Field(() => OutputType(typeFunction()), { nullable: true }),
+        { scopes: 'output' },
+      )(target, propertyKey);
+    }
   };
 }
 
