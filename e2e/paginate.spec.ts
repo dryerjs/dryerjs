@@ -10,8 +10,8 @@ describe('Paginate works', () => {
     await server.start();
 
     const customers = [
-      { name: 'John', email: 'john@example.com', numberOfOrders: 10 },
-      { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15 },
+      { name: 'John', email: 'john@example.com', numberOfOrders: 10, countryId: '000000000000000000000001' },
+      { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15, countryId: '000000000000000000000002' },
       { name: 'Jack', email: 'jack@example.com', numberOfOrders: 20 },
       { name: 'Jill', email: 'jill@example.com', numberOfOrders: null },
       { name: 'Joe', email: 'joe@example.com', numberOfOrders: null },
@@ -474,6 +474,33 @@ describe('Paginate works', () => {
       { email: 'jane@example.com' },
       { email: 'john@example.com' },
     ]);
+  });
+
+  it('eq with ObjectId', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { countryId: { eq: '000000000000000000000001' } } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [{ email: 'john@example.com', numberOfOrders: 10 }],
+      totalDocs: 1,
+    });
+  });
+
+  it('in with ObjectId', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { countryId: { in: ['000000000000000000000001', '000000000000000000000002'] } } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'john@example.com', numberOfOrders: 10 },
+        { email: 'jane@example.com', numberOfOrders: 15 },
+      ],
+      totalDocs: 2,
+    });
   });
 
   afterAll(async () => {
