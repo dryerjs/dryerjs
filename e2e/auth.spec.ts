@@ -65,6 +65,35 @@ describe('Auth Resolver works', () => {
     });
   });
 
+  it('resolverDecorators works', async () => {
+    const allUsersQuery = `
+      query {
+        allUsers {
+          id
+        }
+      }
+    `;
+    await server.makeSuccessRequest({
+      query: allUsersQuery,
+      headers: {
+        'fake-role': 'admin',
+      },
+    });
+    await server.makeFailRequest({
+      query: allUsersQuery,
+      headers: {
+        'fake-role': 'user',
+      },
+      errorMessageMustContains: 'Forbidden',
+    });
+    await server.makeSuccessRequest({
+      query: `query { user(id: "${user.id}") { email } }`,
+      headers: {
+        'fake-role': 'user',
+      },
+    });
+  });
+
   it('invalid email throw error', async () => {
     await server.makeFailRequest({
       query: `

@@ -29,6 +29,10 @@ describe('util', () => {
     expect(util.defaultTo(NaN, 100)).toEqual(100);
   });
 
+  it('defaultToChain', () => {
+    expect(util.defaultToChain(NaN, null, undefined, 100)).toEqual(100);
+  });
+
   it('isTruthy', () => {
     expect(util.isTruthy(1)).toBe(true);
     expect(util.isTruthy(0)).toBe(false);

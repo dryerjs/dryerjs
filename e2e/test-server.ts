@@ -105,16 +105,20 @@ export class TestServer {
   public async makeFailRequest(input: {
     query: string;
     variables?: object;
+    headers?: Record<string, string>;
     errorMessageMustContains?: string;
   }) {
+    const requestObject = request(this.app.getHttpServer()).post('/graphql');
+
+    for (const key in util.defaultTo(input.headers, {})) {
+      requestObject.set(key, input.headers![key] as string);
+    }
     const {
       body: { errors },
-    } = await request(this.app.getHttpServer())
-      .post('/graphql')
-      .send({
-        ...input,
-        errorMessageMustContains: undefined,
-      });
+    } = await requestObject.send({
+      ...input,
+      errorMessageMustContains: undefined,
+    });
     expect(errors).toBeTruthy();
 
     if (util.isString(input.errorMessageMustContains)) {

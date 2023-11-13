@@ -38,6 +38,15 @@ export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T =>
   return shouldUseDefaultValue ? defaultValue : (value as T);
 };
 
+export const defaultToChain = <T>(...args: Array<T | null | undefined>) => {
+  for (const arg of args) {
+    const shouldCheckNextArg = isNil(arg) || (typeof arg === 'number' && isNaN(arg));
+    const shouldReturnThisArg = !shouldCheckNextArg;
+    if (shouldReturnThisArg) return arg;
+  }
+  return args[args.length - 1];
+};
+
 export const deepOmit = (object: any, omitKeys: string[]) => {
   if (typeof object !== 'object' || object === null) {
     return object;

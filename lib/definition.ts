@@ -13,8 +13,23 @@ import {
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
 
-type DefinitionOptions = {
+export type DefinitionOptions = {
   allowedApis: AllowedApiType | AllowedApiType[];
+  resolverDecorators?: {
+    default?: MethodDecorator | MethodDecorator[];
+    write?: MethodDecorator | MethodDecorator[];
+    read?: MethodDecorator | MethodDecorator[];
+    findOne?: MethodDecorator | MethodDecorator[];
+    list?: MethodDecorator | MethodDecorator[];
+    findAll?: MethodDecorator | MethodDecorator[];
+    paginate?: MethodDecorator | MethodDecorator[];
+    remove?: MethodDecorator | MethodDecorator[];
+    update?: MethodDecorator | MethodDecorator[];
+    create?: MethodDecorator | MethodDecorator[];
+    bulkCreate?: MethodDecorator | MethodDecorator[];
+    bulkUpdate?: MethodDecorator | MethodDecorator[];
+    bulkRemove?: MethodDecorator | MethodDecorator[];
+  };
 };
 
 export type Definition = any;
