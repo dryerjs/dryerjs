@@ -18,11 +18,12 @@ import { ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
 import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
-import { Definition } from '../definition';
+import { Definition, DefinitionOptions } from '../definition';
 import { ArrayValidationPipe } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
+import { MetaKey, Metadata } from '../metadata';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -42,10 +43,35 @@ export function createResolver(definition: Definition, contextDecorator: Context
     };
   }
 
+  const Noop: MethodDecorator = function (
+    _target: any,
+    _propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) {
+    return descriptor;
+  };
+
+  const applyDecorators = (decorators: MethodDecorator | MethodDecorator[] | undefined | null) => {
+    return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+      const normalizedDecorators = (
+        util.isArray(decorators) ? decorators : [util.defaultTo(decorators, Noop)]
+      ) as MethodDecorator[];
+      for (const normalizedDecorator of normalizedDecorators) {
+        normalizedDecorator(target, propertyKey, descriptor);
+      }
+      return descriptor;
+    };
+  };
+  const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
+  const resolverDecorators = util.defaultTo(definitionOptions.resolverDecorators, {});
+
   @Resolver()
   class GeneratedResolver<T> {
     constructor(@InjectBaseService(definition) public baseService: BaseService) {}
 
+    @applyDecorators(
+      util.defaultToChain(resolverDecorators.create, resolverDecorators.write, resolverDecorators.default),
+    )
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `create${definition.name}` }))
     async create(
       @Args(
@@ -62,6 +88,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.create(ctx, input);
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        resolverDecorators.bulkCreate,
+        resolverDecorators.create,
+        resolverDecorators.write,
+        resolverDecorators.default,
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => [BulkCreateOutputType(definition)], {
         name: `bulkCreate${util.plural(definition.name)}`,
@@ -98,6 +132,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return response;
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        resolverDecorators.bulkUpdate,
+        resolverDecorators.update,
+        resolverDecorators.write,
+        resolverDecorators.default,
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => [BulkUpdateOutputType(definition)], {
         name: `bulkUpdate${util.plural(definition.name)}`,
@@ -134,6 +176,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return response;
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        resolverDecorators.bulkRemove,
+        resolverDecorators.remove,
+        resolverDecorators.write,
+        resolverDecorators.default,
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => [BulkRemoveOutputType(definition)], {
         name: `bulkRemove${util.plural(definition.name)}`,
@@ -164,6 +214,9 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return response;
     }
 
+    @applyDecorators(
+      util.defaultToChain(resolverDecorators.update, resolverDecorators.write, resolverDecorators.default),
+    )
     @IfApiAllowed(Mutation(() => OutputType(definition), { name: `update${definition.name}` }))
     async update(
       @Args(
@@ -180,6 +233,9 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.update(ctx, input);
     }
 
+    @applyDecorators(
+      util.defaultToChain(resolverDecorators.findOne, resolverDecorators.read, resolverDecorators.default),
+    )
     @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
     async findOne(
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
@@ -188,6 +244,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.findOne(ctx, { _id: id });
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        resolverDecorators.findAll,
+        resolverDecorators.list,
+        resolverDecorators.read,
+        resolverDecorators.default,
+      ),
+    )
     @IfApiAllowed(Query(() => [OutputType(definition)], { name: `all${util.plural(definition.name)}` }))
     async findAll(
       @contextDecorator() ctx: any,
@@ -209,6 +273,9 @@ export function createResolver(definition: Definition, contextDecorator: Context
       );
     }
 
+    @applyDecorators(
+      util.defaultToChain(resolverDecorators.remove, resolverDecorators.write, resolverDecorators.default),
+    )
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
     async remove(
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
@@ -217,6 +284,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.remove(ctx, id);
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        resolverDecorators.paginate,
+        resolverDecorators.list,
+        resolverDecorators.read,
+        resolverDecorators.default,
+      ),
+    )
     @IfApiAllowed(
       Query(() => PaginatedOutputType(definition), { name: `paginate${util.plural(definition.name)}` }),
     )

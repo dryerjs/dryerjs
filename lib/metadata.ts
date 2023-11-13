@@ -66,7 +66,7 @@ export class Metadata {
       set(key: MetaKey, value: MetaValue) {
         Metadata.setMetaValue(target, key, DEFINITION, value);
       },
-      get(key: MetaKey) {
+      get<T = any>(key: MetaKey): T {
         return Metadata.getMetaValue(target, key, DEFINITION);
       },
       with(property: string | symbol) {
