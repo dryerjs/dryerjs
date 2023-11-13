@@ -86,6 +86,10 @@ describe('Auth Resolver works', () => {
       },
       errorMessageMustContains: 'Forbidden',
     });
+    await server.makeFailRequest({
+      query: allUsersQuery,
+      errorMessageMustContains: 'Forbidden',
+    });
     await server.makeSuccessRequest({
       query: `query { user(id: "${user.id}") { email } }`,
       headers: {
