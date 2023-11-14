@@ -5,6 +5,8 @@ const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
 });
 
+const preExistingStores: Store[] = [];
+
 describe('Has many works', () => {
   beforeAll(async () => {
     await server.start();
@@ -77,6 +79,93 @@ describe('Has many works', () => {
         product: { name: 'Awesome product' },
       },
     ]);
+  });
+
+  it('Cannot create product from store', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+            name
+            products {
+              name
+              id
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+          products: [{ name: 'Awesome product' }],
+        },
+      },
+    });
+
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
+  });
+
+  it('Cannot get all products in store', async () => {
+    const { createStore } = await server.makeSuccessRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+        },
+      },
+    });
+    preExistingStores.push(createStore);
+
+    const response = await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            id
+            name
+            products {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        storeId: preExistingStores.map((store) => store.id),
+      },
+    });
+
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
+  });
+
+  it('Cannot paginate product in store', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            id
+            name
+            paginateProducts {
+              page
+              totalDocs
+              totalPages
+            }
+          }
+        }
+      `,
+      variables: {
+        storeId: preExistingStores.map((store) => store.id),
+      },
+    });
+
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   afterAll(async () => {

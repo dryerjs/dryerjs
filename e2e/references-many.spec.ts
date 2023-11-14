@@ -13,6 +13,7 @@ describe('References many works', () => {
   let product: Product;
   const preExistingTags: Tag[] = [];
   const preExistingColors: Color[] = [];
+  const preExistingStores: Store[] = [];
 
   beforeAll(async () => {
     const colorNames = ['red', 'blue', 'orange'];
@@ -198,6 +199,70 @@ describe('References many works', () => {
         id: preExistingTags[0].id,
       },
     });
+  });
+
+  it('Cannot create tag from store', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            tags {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+          tags: [
+            { name: 'Awesome tag' },
+          ]
+        },
+      },
+    });
+
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
+  });
+
+  it('Cannot get all tags from store', async () => {
+    const { createStore } = await server.makeSuccessRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+        },
+      },
+    });
+    preExistingStores.push(createStore)
+
+    const response = await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            tags {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          storeId: preExistingStores.map((store) => store.id),
+        },
+      },
+    });
+
+    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   afterAll(async () => {
