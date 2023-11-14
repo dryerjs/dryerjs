@@ -5,8 +5,6 @@ const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
 });
 
-const preExistingStores: Store[] = [];
-
 describe('Has many works', () => {
   beforeAll(async () => {
     await server.start();
@@ -82,16 +80,12 @@ describe('Has many works', () => {
   });
 
   it('Cannot create product from store', async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation CreateStore($input: CreateStoreInput!) {
           createStore(input: $input) {
             id
             name
-            products {
-              name
-              id
-            }
           }
         }
       `,
@@ -101,30 +95,12 @@ describe('Has many works', () => {
           products: [{ name: 'Awesome product' }],
         },
       },
+      errorMessageMustContains: 'Field "products" is not defined',
     });
-
-    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   it('Cannot get all products in store', async () => {
-    const { createStore } = await server.makeSuccessRequest({
-      query: `
-        mutation CreateStore($input: CreateStoreInput!) {
-          createStore(input: $input) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        input: {
-          name: 'Awesome store',
-        },
-      },
-    });
-    preExistingStores.push(createStore);
-
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         query Query($storeId: ObjectId!) {
           store(id: $storeId) {
@@ -138,15 +114,14 @@ describe('Has many works', () => {
         }
       `,
       variables: {
-        storeId: preExistingStores.map((store) => store.id),
+        storeId: '000000000000000000000000',
       },
+      errorMessageMustContains: 'Cannot query field "products" on type "Store".',
     });
-
-    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   it('Cannot paginate product in store', async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         query Query($storeId: ObjectId!) {
           store(id: $storeId) {
@@ -161,11 +136,10 @@ describe('Has many works', () => {
         }
       `,
       variables: {
-        storeId: preExistingStores.map((store) => store.id),
+        storeId: '000000000000000000000000',
       },
+      errorMessageMustContains: 'Cannot query field "paginateProducts" on type "Store".',
     });
-
-    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   afterAll(async () => {

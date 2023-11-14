@@ -13,7 +13,6 @@ describe('References many works', () => {
   let product: Product;
   const preExistingTags: Tag[] = [];
   const preExistingColors: Color[] = [];
-  const preExistingStores: Store[] = [];
 
   beforeAll(async () => {
     const colorNames = ['red', 'blue', 'orange'];
@@ -202,14 +201,11 @@ describe('References many works', () => {
   });
 
   it('Cannot create tag from store', async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation CreateStore($input: CreateStoreInput!) {
           createStore(input: $input) {
-            tags {
-              id
-              name
-            }
+            id
           }
         }
       `,
@@ -219,30 +215,12 @@ describe('References many works', () => {
           tags: [{ name: 'Awesome tag' }],
         },
       },
+      errorMessageMustContains: 'Field "tags" is not defined',
     });
-
-    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   it('Cannot get all tags from store', async () => {
-    const { createStore } = await server.makeSuccessRequest({
-      query: `
-        mutation CreateStore($input: CreateStoreInput!) {
-          createStore(input: $input) {
-            id
-            name
-          }
-        }
-      `,
-      variables: {
-        input: {
-          name: 'Awesome store',
-        },
-      },
-    });
-    preExistingStores.push(createStore);
-
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         query Query($storeId: ObjectId!) {
           store(id: $storeId) {
@@ -255,12 +233,11 @@ describe('References many works', () => {
       `,
       variables: {
         input: {
-          storeId: preExistingStores.map((store) => store.id),
+          storeId: '000000000000000000000000',
         },
       },
+      errorMessageMustContains: 'Cannot query field "tags" on type "Store".',
     });
-
-    expect(response[0].extensions.code).toEqual('GRAPHQL_VALIDATION_FAILED');
   });
 
   afterAll(async () => {
