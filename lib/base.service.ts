@@ -16,7 +16,7 @@ export abstract class BaseService<T = any, Context = any> {
   protected moduleRef: ModuleRef;
   protected definition: Definition;
 
-  protected abstract getHooks(method: keyof Hook): Hook[];
+  protected abstract getHooks: (method: keyof Hook) => Hook[];
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
     for (const hook of this.getHooks('beforeCreate')) {
@@ -146,12 +146,15 @@ export abstract class BaseService<T = any, Context = any> {
 export function createBaseService(definition: Definition, hooks: Provider[]): typeof BaseService {
   @Injectable()
   class GeneratedBaseService extends BaseService<any, any> {
+    protected getHooks: (method: keyof Hook) => Hook[];
+
     constructor(
       @InjectModel(definition.name) public model: PaginateModel<any>,
       public moduleRef: ModuleRef,
     ) {
       super();
       this.definition = definition;
+      this.getHooks = util.memoize(this.getHooksUncached.bind(this));
     }
 
     private getHooksUncached(method: keyof Hook): Hook[] {
@@ -163,10 +166,6 @@ export function createBaseService(definition: Definition, hooks: Provider[]): ty
           return util.isFunction(hookInstance[method]);
         })
         .map((hook) => this.moduleRef.get(hook as any, { strict: false }) as Hook);
-    }
-
-    protected getHooks(method: keyof Hook): Hook[] {
-      return util.memoize(this.getHooksUncached.bind(this))(method);
     }
   }
 
