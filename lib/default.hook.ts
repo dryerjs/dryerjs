@@ -12,10 +12,14 @@ import { PaginateModel } from 'mongoose';
 
 @Hook(() => AllDefinitions)
 export class DefaultHook implements Hook<any, any> {
+  private getCachedReferencingProperties: (definition: Definition) => HydratedProperty[];
+
   constructor(
     @Inject(DryerModuleOptionsSymbol) private moduleOptions: DryerModuleOptions,
     private readonly moduleRef: ModuleRef,
-  ) {}
+  ) {
+    this.getCachedReferencingProperties = util.memoize(this.getUncachedReferencingProperties.bind(this));
+  }
 
   public async beforeCreate({
     ctx,
@@ -47,15 +51,11 @@ export class DefaultHook implements Hook<any, any> {
     return result;
   }
 
-  private getReferencingProperties(definition: Definition) {
-    return util.memoize(this.getUncachedReferencingProperties.bind(this))(definition);
-  }
-
   public async beforeRemove({
     beforeRemoved,
     definition,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
-    const referencingProperties = this.getReferencingProperties(definition);
+    const referencingProperties = this.getCachedReferencingProperties(definition);
     for (const referencingProperty of referencingProperties) {
       const referencingModel = this.moduleRef.get(getModelToken(referencingProperty.definition.name), {
         strict: false,
