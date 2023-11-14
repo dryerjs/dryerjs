@@ -33,6 +33,8 @@ export const omit = (object: any, omitKeys: string[]) => {
 
 export const isString = (value: any): value is string => typeof value === 'string';
 
+export const isNotEmptyString = (value: any): value is string => isString(value) && value.length > 0;
+
 export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
   const shouldUseDefaultValue = isNil(value) || (typeof value === 'number' && isNaN(value));
   return shouldUseDefaultValue ? defaultValue : (value as T);

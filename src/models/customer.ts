@@ -9,10 +9,15 @@ import {
   Property,
   Id,
   GraphQLObjectId,
+  Index,
 } from '../../lib';
 import { IsEmail } from 'class-validator';
 
-@Definition({ allowedApis: '*' })
+@Index({ name: 'text' })
+@Definition({
+  allowedApis: '*',
+  enableTextSearch: true,
+})
 export class Customer {
   @Id()
   id: ObjectId;

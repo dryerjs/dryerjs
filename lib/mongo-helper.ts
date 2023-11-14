@@ -61,8 +61,7 @@ export class MongoHelper {
 
   public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
     const normalizedSort = util.defaultTo(sort, {});
-    const isSearchQuery = util.isString(graphqlFilter?.search) && graphqlFilter.search.length > 0;
-    if (isSearchQuery) {
+    if (util.isNotEmptyString(graphqlFilter?.search)) {
       return { searchScore: { $meta: 'textScore' }, ...normalizedSort };
     }
 
