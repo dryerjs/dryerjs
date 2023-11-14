@@ -11,7 +11,7 @@ export function Hook(typeFunc: () => any) {
 }
 
 export interface Hook<T = any, Context = any> {
-  beforeCreate(input: { ctx: Context; input: Partial<T>; definition: Definition }): Promise<void>;
+  beforeCreate?(input: { ctx: Context; input: Partial<T>; definition: Definition }): Promise<void>;
   afterCreate?(input: { ctx: Context; input: Partial<T>; created: T; definition: Definition }): Promise<void>;
 
   beforeUpdate?(input: {
