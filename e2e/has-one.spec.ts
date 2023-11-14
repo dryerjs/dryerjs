@@ -10,6 +10,8 @@ describe('Has one works', () => {
     await server.start();
   });
 
+  let productId;
+
   it('Create product with image', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
@@ -41,9 +43,30 @@ describe('Has one works', () => {
         },
       },
     });
-
+    productId = createProduct.id;
     expect(createProduct.image.name).toEqual('logo.png');
     expect(createProduct.image.product.image.name).toEqual('logo.png');
+  });
+
+  it('Delete product has image', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+      mutation RemoveProduct($removeProductId: ObjectId!) {
+        removeProduct(id: $removeProductId) {
+          success
+        }
+      }
+      `,
+      variables: {
+        removeProductId: productId,
+      },
+    });
+    const errorMessage = response[0].message;
+    const extensionsCode = response[0].extensions.code;
+    expect(errorMessage).toEqual(
+      `Unable to delete Product with the Id ${productId} as it still maintains a relationship with an associated image`,
+    );
+    expect(extensionsCode).toEqual('INTERNAL_SERVER_ERROR');
   });
 
   afterAll(async () => {
