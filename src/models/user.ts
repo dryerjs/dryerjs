@@ -8,6 +8,7 @@ import { AdminGuard, UserGuard } from './fake-guards';
 @Index({ email: 'text', name: 'text' }, { name: 'searchable_user_index' })
 @Definition({
   allowedApis: '*',
+  enableTextSearch: true,
   resolverDecorators: {
     default: [UseGuards(UserGuard)],
     list: [UseGuards(AdminGuard)],

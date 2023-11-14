@@ -15,6 +15,7 @@ import { AllowedApiType } from './shared';
 
 export type DefinitionOptions = {
   allowedApis: AllowedApiType | AllowedApiType[];
+  enableTextSearch?: boolean;
   resolverDecorators?: {
     default?: MethodDecorator | MethodDecorator[];
     write?: MethodDecorator | MethodDecorator[];

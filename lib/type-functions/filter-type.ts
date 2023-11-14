@@ -2,9 +2,9 @@ import * as graphql from 'graphql';
 import { InputType, Field } from '@nestjs/graphql';
 
 import * as util from '../util';
-import { MetaKey } from '../metadata';
+import { MetaKey, Metadata } from '../metadata';
 import { HydratedProperty, inspect } from '../inspect';
-import { Definition } from '../definition';
+import { Definition, DefinitionOptions } from '../definition';
 
 function getFilterForOneField(definition: Definition, property: HydratedProperty) {
   @InputType(`${definition.name}${util.toPascalCase(property.name)}Filter`)
@@ -39,6 +39,13 @@ function getType(definition: Definition) {
     const OneField = getFilterForOneField(definition, filterableProperty);
     Field(() => OneField, { nullable: true })(FilterPlaceholder.prototype, filterableProperty.name);
   }
+
+  if (Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition).enableTextSearch) {
+    const searchFieldName = 'search';
+    Reflect.defineMetadata('design:type', String, FilterPlaceholder.prototype, searchFieldName);
+    Field(() => graphql.GraphQLString, { nullable: true })(FilterPlaceholder.prototype, searchFieldName);
+  }
+
   return FilterPlaceholder as any;
 }
 
