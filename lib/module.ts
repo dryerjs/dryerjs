@@ -18,6 +18,7 @@ import { inspect } from './inspect';
 import { Definition } from './definition';
 import { createBaseService, getBaseServiceToken } from './base.service';
 import { DefaultHook } from './default.hook';
+import { MetaKey, Metadata } from './metadata';
 
 export type DryerModuleOptions = {
   definitions: Definition[];
@@ -60,6 +61,8 @@ export class DryerModule {
         schema.virtual('id').get(function () {
           return (this['_id'] as any).toHexString();
         });
+        const indexes = Metadata.for(definition).get(MetaKey.Index);
+        for (const { fields, options } of util.defaultTo(indexes, [])) schema.index(fields, options);
         input.onSchema?.(schema, definition);
         return {
           name: definition.name,
