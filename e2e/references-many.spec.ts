@@ -10,6 +10,7 @@ describe('References many works', () => {
     await server.start();
   });
 
+  let product: Product;
   const preExistingTags: Tag[] = [];
   const preExistingColors: Color[] = [];
 
@@ -120,6 +121,7 @@ describe('References many works', () => {
         },
       ],
     });
+    product = response.createProduct;
   });
 
   it('Create product without tags', async () => {
@@ -149,6 +151,52 @@ describe('References many works', () => {
       name: 'Awesome product 2',
       tagIds: [],
       tags: [],
+    });
+  });
+
+  it('Cannot remove tag if it is linked to a product', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation RemoveTag($id: ObjectId!) {
+          removeTag(id: $id) {
+            success
+          }
+        }
+      `,
+      variables: {
+        id: preExistingTags[0].id,
+      },
+      errorMessageMustContains: 'is still in used on Product',
+    });
+  });
+
+  it('Cannot remove tag if no product links to it', async () => {
+    server.makeSuccessRequest({
+      query: `
+        mutation UpdateProduct($input: UpdateProductInput!) {
+          updateProduct(input: $input) {
+            tagIds
+          }
+        }
+      `,
+      variables: {
+        input: {
+          id: product.id,
+          tagIds: [],
+        },
+      },
+    });
+    await server.makeSuccessRequest({
+      query: `
+        mutation RemoveTag($id: ObjectId!) {
+          removeTag(id: $id) {
+            success
+          }
+        }
+      `,
+      variables: {
+        id: preExistingTags[0].id,
+      },
     });
   });
 

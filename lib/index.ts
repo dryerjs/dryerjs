@@ -6,3 +6,4 @@ export * from './module';
 export * from './context';
 export * from './hook';
 export * from './mongoose-index-decorator';
+export * from './module-options';

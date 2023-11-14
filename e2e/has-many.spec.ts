@@ -1,6 +1,5 @@
 import { TestServer } from './test-server';
 import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
-import { ObjectId } from '../lib/object-id';
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
@@ -120,7 +119,7 @@ describe('Has many works', () => {
       variables: {
         input: {
           id: variantId,
-          productId:'000000000000000000000001',
+          productId: '000000000000000000000001',
         },
       },
     });

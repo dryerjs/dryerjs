@@ -1,9 +1,8 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { MongooseModule, SchemaFactory } from '@nestjs/mongoose';
-import { Schema } from 'mongoose';
 
 import * as util from './util';
-import { ContextDecorator, defaultContextDecorator } from './context';
+import { defaultContextDecorator } from './context';
 import * as mongoosePaginateV2 from './js/mongoose-paginate-v2';
 
 import {
@@ -15,17 +14,10 @@ import {
   createResolverForHasOne,
 } from './resolvers';
 import { inspect } from './inspect';
-import { Definition } from './definition';
 import { createBaseService, getBaseServiceToken } from './base.service';
 import { DefaultHook } from './default.hook';
 import { MetaKey, Metadata } from './metadata';
-
-export type DryerModuleOptions = {
-  definitions: Definition[];
-  contextDecorator?: ContextDecorator;
-  hooks?: Provider[];
-  onSchema?: (schema: Schema, definition: Definition) => void;
-};
+import { DryerModuleOptions, DryerModuleOptionsSymbol } from './module-options';
 
 @Module({})
 export class DryerModule {
@@ -79,7 +71,13 @@ export class DryerModule {
     }));
     return {
       module: DryerModule,
-      providers: [...providers, ...mongooseModuleExports, ...baseServicesProviders, ...hooks],
+      providers: [
+        ...providers,
+        ...mongooseModuleExports,
+        ...baseServicesProviders,
+        ...hooks,
+        { useValue: input, provide: DryerModuleOptionsSymbol },
+      ],
       exports: [...mongooseModuleExports, ...baseServicesProviders],
     };
   }
