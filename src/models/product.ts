@@ -112,7 +112,7 @@ export class Variant {
   @Sortable()
   name: string;
 
-  @Property({ type: () => GraphQLObjectId, update: Skip })
+  @Property({ type: () => GraphQLObjectId })
   productId: ObjectId;
 
   @BelongsTo(() => Product, { from: 'productId' })
