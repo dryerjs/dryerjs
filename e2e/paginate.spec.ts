@@ -11,7 +11,12 @@ describe('Paginate works', () => {
 
     const customers = [
       { name: 'John', email: 'john@example.com', numberOfOrders: 10, countryId: '000000000000000000000001' },
-      { name: 'Jane', email: 'jane@example.com', numberOfOrders: 15, countryId: '000000000000000000000002' },
+      {
+        name: 'Jane Joe',
+        email: 'jane@example.com',
+        numberOfOrders: 15,
+        countryId: '000000000000000000000002',
+      },
       { name: 'Jack', email: 'jack@example.com', numberOfOrders: 20 },
       { name: 'Jill', email: 'jill@example.com', numberOfOrders: null },
       { name: 'Joe', email: 'joe@example.com', numberOfOrders: null },
@@ -251,13 +256,13 @@ describe('Paginate works', () => {
   it('in', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
-      variables: { filter: { name: { in: ['John', 'Jane'] } } },
+      variables: { filter: { name: { in: ['John', 'Jack'] } } },
     });
 
     expect(paginateCustomers).toEqual({
       docs: [
         { email: 'john@example.com', numberOfOrders: 10 },
-        { email: 'jane@example.com', numberOfOrders: 15 },
+        { email: 'jack@example.com', numberOfOrders: 20 },
       ],
       totalDocs: 2,
     });
@@ -266,12 +271,12 @@ describe('Paginate works', () => {
   it('notIn', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
-      variables: { filter: { name: { notIn: ['John', 'Jane'] } } },
+      variables: { filter: { name: { notIn: ['John', 'Jack'] } } },
     });
 
     expect(paginateCustomers).toEqual({
       docs: [
-        { email: 'jack@example.com', numberOfOrders: 20 },
+        { email: 'jane@example.com', numberOfOrders: 15 },
         { email: 'jill@example.com', numberOfOrders: null },
         { email: 'joe@example.com', numberOfOrders: null },
       ],
@@ -500,6 +505,33 @@ describe('Paginate works', () => {
         { email: 'jane@example.com', numberOfOrders: 15 },
       ],
       totalDocs: 2,
+    });
+  });
+
+  it('text search works', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { search: 'Jane Joe' } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'joe@example.com', numberOfOrders: null },
+      ],
+      totalDocs: 2,
+    });
+  });
+
+  it('text search works with other filters', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { search: 'Jane John', numberOfOrders: { gt: 11 } } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [{ email: 'jane@example.com', numberOfOrders: expect.any(Number) }],
+      totalDocs: 1,
     });
   });
 

@@ -39,6 +39,7 @@ export class MongoHelper {
     const result: any = {};
 
     for (const [fieldName, field] of Object.entries(graphqlFilter)) {
+      if (fieldName === 'search') continue;
       for (const [operator, value] of Object.entries(field)) {
         const config = filterConfigs.find((c) => c.from === operator);
         if (util.isNil(config)) {
@@ -51,6 +52,19 @@ export class MongoHelper {
       }
     }
 
+    if (util.isString(graphqlFilter.search) && graphqlFilter.search.length > 0) {
+      result.$text = { $search: graphqlFilter.search };
+    }
+
     return result;
   };
+
+  public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
+    const normalizedSort = util.defaultTo(sort, {});
+    if (util.isNotEmptyString(graphqlFilter?.search)) {
+      return { searchScore: { $meta: 'textScore' }, ...normalizedSort };
+    }
+
+    return normalizedSort;
+  }
 }

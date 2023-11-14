@@ -250,7 +250,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.findAll(
         ctx,
         MongoHelper.toQuery(util.defaultTo(filter, {})),
-        util.defaultTo(sort, {}),
+        MongoHelper.getSortObject(filter as any, sort),
       );
     }
 
@@ -294,7 +294,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       return await this.baseService.paginate(
         ctx,
         MongoHelper.toQuery(util.defaultTo(filter, {})),
-        util.defaultTo(sort, {}),
+        MongoHelper.getSortObject(filter as any, sort),
         page,
         limit,
       );
