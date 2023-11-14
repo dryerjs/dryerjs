@@ -79,6 +79,69 @@ describe('Has many works', () => {
     ]);
   });
 
+  it('Cannot create product from store', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+          products: [{ name: 'Awesome product' }],
+        },
+      },
+      errorMessageMustContains: 'Field "products" is not defined',
+    });
+  });
+
+  it('Cannot get all products in store', async () => {
+    await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            id
+            name
+            products {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        storeId: '000000000000000000000000',
+      },
+      errorMessageMustContains: 'Cannot query field "products" on type "Store".',
+    });
+  });
+
+  it('Cannot paginate product in store', async () => {
+    await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            id
+            name
+            paginateProducts {
+              page
+              totalDocs
+              totalPages
+            }
+          }
+        }
+      `,
+      variables: {
+        storeId: '000000000000000000000000',
+      },
+      errorMessageMustContains: 'Cannot query field "paginateProducts" on type "Store".',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });

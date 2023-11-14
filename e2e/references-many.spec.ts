@@ -200,6 +200,46 @@ describe('References many works', () => {
     });
   });
 
+  it('Cannot create tag from store', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+          tags: [{ name: 'Awesome tag' }],
+        },
+      },
+      errorMessageMustContains: 'Field "tags" is not defined',
+    });
+  });
+
+  it('Cannot get all tags from store', async () => {
+    await server.makeFailRequest({
+      query: `
+        query Query($storeId: ObjectId!) {
+          store(id: $storeId) {
+            tags {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          storeId: '000000000000000000000000',
+        },
+      },
+      errorMessageMustContains: 'Cannot query field "tags" on type "Store".',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });
