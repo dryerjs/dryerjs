@@ -216,9 +216,7 @@ describe('References many works', () => {
       variables: {
         input: {
           name: 'Awesome store',
-          tags: [
-            { name: 'Awesome tag' },
-          ]
+          tags: [{ name: 'Awesome tag' }],
         },
       },
     });
@@ -242,7 +240,7 @@ describe('References many works', () => {
         },
       },
     });
-    preExistingStores.push(createStore)
+    preExistingStores.push(createStore);
 
     const response = await server.makeFailRequest({
       query: `
