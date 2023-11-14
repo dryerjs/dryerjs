@@ -1,3 +1,4 @@
+import * as graphql from 'graphql';
 import { ModuleRef } from '@nestjs/core';
 import { AllDefinitions, Hook } from './hook';
 import { HydratedProperty, inspect } from './inspect';
@@ -6,6 +7,8 @@ import { DryerModuleOptions, DryerModuleOptionsSymbol } from './module-options';
 import { Inject } from '@nestjs/common';
 import { Definition } from './definition';
 import * as util from './util';
+import { getModelToken } from '@nestjs/mongoose';
+import { PaginateModel } from 'mongoose';
 
 @Hook(() => AllDefinitions)
 export class DefaultHook implements Hook<any, any> {
@@ -49,16 +52,22 @@ export class DefaultHook implements Hook<any, any> {
   }
 
   public async beforeRemove({
-    ctx,
     beforeRemoved,
     definition,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
     const referencingProperties = this.getReferencingProperties(definition);
     for (const referencingProperty of referencingProperties) {
-      const referencingBaseService = this.moduleRef.get(getBaseServiceToken(referencingProperty.definition), {
+      const referencingModel = this.moduleRef.get(getModelToken(referencingProperty.definition.name), {
         strict: false,
-      }) as BaseService;
-      // TODO: more on here
+      }) as PaginateModel<any>;
+      const fieldName = referencingProperty.getReferencesMany().options.from;
+      const referencingObject = await referencingModel.findOne({
+        [fieldName]: beforeRemoved._id,
+      });
+      if (util.isNotNullObject(referencingObject)) {
+        const message = `${definition.name} ${beforeRemoved._id} is still in used on ${referencingProperty.definition.name} ${referencingObject['_id']}`;
+        throw new graphql.GraphQLError(message);
+      }
     }
   }
 }

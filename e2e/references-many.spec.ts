@@ -152,6 +152,22 @@ describe('References many works', () => {
     });
   });
 
+  it('Cannot remove tag if it is linked to a product', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation RemoveTag($id: ObjectId!) {
+          removeTag(id: $id) {
+            success
+          }
+        }
+      `,
+      variables: {
+        id: preExistingTags[0].id,
+      },
+      errorMessageMustContains: 'is still in used on Product',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });
