@@ -7,7 +7,7 @@ import { SuccessResponse } from '../types';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
-import { ArrayValidationPipe } from './shared';
+import { ArrayValidationPipe, applyDecorators } from './shared';
 import { EmbeddedConfig } from '../property';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
@@ -32,10 +32,16 @@ export function createResolverForEmbedded(
   }
 
   const embeddedDefinition = typeFunction();
+  const resolverDecorators = util.defaultTo(options.resolverDecorators, {});
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectBaseService(definition) public baseService: BaseService) {}
 
+    @applyDecorators(
+      util.defaultToChain(
+        util.defaultToChain(resolverDecorators.create, resolverDecorators.write, resolverDecorators.default),
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => [OutputType(embeddedDefinition)], {
         name: `create${util.toPascalCase(definition.name)}${util.toPascalCase(util.plural(field))}`,
@@ -61,6 +67,11 @@ export function createResolverForEmbedded(
       return updated[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        util.defaultToChain(resolverDecorators.remove, resolverDecorators.write, resolverDecorators.default),
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => SuccessResponse, {
         name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
@@ -84,6 +95,11 @@ export function createResolverForEmbedded(
       return { success: true };
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        util.defaultToChain(resolverDecorators.findOne, resolverDecorators.read, resolverDecorators.default),
+      ),
+    )
     @IfApiAllowed(
       Query(() => OutputType(embeddedDefinition), {
         name: `${util.toCamelCase(definition.name)}${util.toPascalCase(util.singular(field))}`,
@@ -101,6 +117,11 @@ export function createResolverForEmbedded(
       return parent[field].find((item: any) => item._id.toString() === id.toString());
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        util.defaultToChain(resolverDecorators.findAll, resolverDecorators.read, resolverDecorators.default),
+      ),
+    )
     @IfApiAllowed(
       Query(() => [OutputType(embeddedDefinition)], {
         name: `${util.toCamelCase(definition.name)}${util.toPascalCase(field)}`,
@@ -117,6 +138,11 @@ export function createResolverForEmbedded(
       return parent[field];
     }
 
+    @applyDecorators(
+      util.defaultToChain(
+        util.defaultToChain(resolverDecorators.update, resolverDecorators.write, resolverDecorators.default),
+      ),
+    )
     @IfApiAllowed(
       Mutation(() => [OutputType(embeddedDefinition)], {
         name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,

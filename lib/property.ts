@@ -113,6 +113,16 @@ export type EmbeddedConfig = {
   options: {
     allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     onSubSchema?: (subSchema: Schema) => void;
+    resolverDecorators?: {
+      default?: MethodDecorator | MethodDecorator[];
+      write?: MethodDecorator | MethodDecorator[];
+      read?: MethodDecorator | MethodDecorator[];
+      findOne?: MethodDecorator | MethodDecorator[];
+      findAll?: MethodDecorator | MethodDecorator[];
+      remove?: MethodDecorator | MethodDecorator[];
+      update?: MethodDecorator | MethodDecorator[];
+      create?: MethodDecorator | MethodDecorator[];
+    };
   };
 };
 

@@ -438,6 +438,7 @@ describe('Embedded works', () => {
         authorId: author.id,
         bookIds: [author.books[0].id],
       },
+      headers: { 'fake-role': 'user' },
     });
     expect(response.removeAuthorBooks).toEqual({ success: true });
   });
@@ -455,6 +456,7 @@ describe('Embedded works', () => {
         authorId: '5e6b4b5b1c9d440000d2c7f3',
         bookIds: ['5e6b4b5b1c9d440000d2c7f3'],
       },
+      headers: { 'fake-role': 'user' },
     });
     expect(response[0].message).toEqual('No Author found with ID: 5e6b4b5b1c9d440000d2c7f3');
   });
@@ -472,8 +474,26 @@ describe('Embedded works', () => {
         authorId: author.id,
         bookIds: [],
       },
+      headers: { 'fake-role': 'user' },
     });
     expect(response[0].message).toEqual('No book IDs provided');
+  });
+
+  it('Remove without permission', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
+          removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
+            success
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        bookIds: [],
+      },
+      errorMessageMustContains: 'Forbidden',
+    });
   });
 
   it('test trim transform for book name', async () => {
