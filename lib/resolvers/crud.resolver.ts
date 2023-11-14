@@ -19,7 +19,7 @@ import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { inspect } from '../inspect';
 import { Definition, DefinitionOptions } from '../definition';
-import { ArrayValidationPipe } from './shared';
+import { ArrayValidationPipe, applyDecorators } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
@@ -43,25 +43,6 @@ export function createResolver(definition: Definition, contextDecorator: Context
     };
   }
 
-  const Noop: MethodDecorator = function (
-    _target: any,
-    _propertyKey: string | symbol,
-    descriptor: PropertyDescriptor,
-  ) {
-    return descriptor;
-  };
-
-  const applyDecorators = (decorators: MethodDecorator | MethodDecorator[] | undefined | null) => {
-    return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-      const normalizedDecorators = (
-        util.isArray(decorators) ? decorators : [util.defaultTo(decorators, Noop)]
-      ) as MethodDecorator[];
-      for (const normalizedDecorator of normalizedDecorators) {
-        normalizedDecorator(target, propertyKey, descriptor);
-      }
-      return descriptor;
-    };
-  };
   const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
   const resolverDecorators = util.defaultTo(definitionOptions.resolverDecorators, {});
 
