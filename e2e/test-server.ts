@@ -37,7 +37,7 @@ class TestAppModule {
           sortSchema: true,
           playground: false,
         }),
-        MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-test'),
+        MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-e2e'),
         DryerModule.register(util.omit(config, ['providers']) as any),
       ],
       providers: config.providers || [],

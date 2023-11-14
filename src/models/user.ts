@@ -1,9 +1,11 @@
 import * as graphql from 'graphql';
 import { UseGuards } from '@nestjs/common';
 import { IsEmail, MinLength } from 'class-validator';
-import { Definition, Thunk, Filterable, ObjectId, Property, Skip, Id } from '../../lib';
+import { Definition, Thunk, Filterable, ObjectId, Property, Skip, Id, Index } from '../../lib';
 import { AdminGuard, UserGuard } from './fake-guards';
 
+@Index({ email: 1 }, { unique: true, name: 'unique_email' })
+@Index({ email: 'text', name: 'text' }, { name: 'searchable_user_index' })
 @Definition({
   allowedApis: '*',
   resolverDecorators: {
@@ -22,7 +24,7 @@ export class User {
 
   @Thunk(IsEmail(), { scopes: ['input'] })
   @Filterable(() => graphql.GraphQLString, { operators: ['eq', 'in'] })
-  @Property({ db: { unique: true } })
+  @Property()
   email: string;
 
   @Thunk(MinLength(5), { scopes: ['create'] })
