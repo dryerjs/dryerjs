@@ -26,6 +26,12 @@ export class DefaultHook implements Hook<any, any> {
     input,
     definition,
   }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
+    for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
+      const { options, typeFunction } = referencingManyProperty.getReferencesMany();
+      if (!input[options.from]) continue;
+      await this.mustExist(typeFunction(), input[options.from]);
+    }
+
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
       if (!input[options.from]) continue;
@@ -60,8 +66,16 @@ export class DefaultHook implements Hook<any, any> {
 
   public async beforeUpdate({
     input,
+    beforeUpdated,
     definition,
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
+    for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
+      const { options } = referencingManyProperty.getReferencesMany();
+      if (!input[options.from]) continue;
+      if (input[options.from] !== beforeUpdated[options.from]) {
+      }
+    }
+
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
       if (!input[options.from]) continue;

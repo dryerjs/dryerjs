@@ -240,6 +240,27 @@ describe('References many works', () => {
     });
   });
 
+  it('Cannot create product with non exist tagIds', async () => {
+    await server.makeFailRequest({
+      query: `
+            mutation CreateProduct($input: CreateProductInput!) {
+              createProduct(input: $input) {
+                tagIds
+                name
+                id
+              }
+            }
+      `,
+      variables: {
+        input: {
+          name: 'product A',
+          tagIds: ['000000000000000000000001'],
+        },
+      },
+      errorMessageMustContains: 'No Tag found with ID: 000000000000000000000001',
+    });
+  });
+
   afterAll(async () => {
     await server.stop();
   });
