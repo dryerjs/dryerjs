@@ -282,7 +282,7 @@ describe('bulk apis work', () => {
     expect(errorMessage).toEqual('name must be shorter than or equal to 100 characters');
   });
 
-  it('Bulk delete tags', async () => {
+  it('Bulk remove tags', async () => {
     const { bulkRemoveTags } = await server.makeSuccessRequest({
       query: `
         mutation BulkRemoveTag($ids: [ObjectId!]!){

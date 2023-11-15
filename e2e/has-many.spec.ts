@@ -10,8 +10,7 @@ describe('Has many works', () => {
     await server.start();
   });
 
-  let productId;
-  let variantId;
+  let product;
 
   it('Create product without image', async () => {
     const { createProduct } = await server.makeSuccessRequest({
@@ -55,8 +54,7 @@ describe('Has many works', () => {
       },
     });
 
-    productId = createProduct.id;
-    variantId = createProduct.variants[0].id;
+    product = createProduct;
     expect(createProduct.paginateVariants.docs).toHaveLength(2);
     expect(createProduct.variants).toHaveLength(2);
     expect(createProduct.variants).toEqual([
@@ -84,8 +82,8 @@ describe('Has many works', () => {
     ]);
   });
 
-  it('Delete product hasMany Variants', async () => {
-    const response = await server.makeFailRequest({
+  it('Remove product hasMany Variants', async () => {
+    await server.makeFailRequest({
       query: `
         mutation RemoveProduct($removeProductId: ObjectId!) {
           removeProduct(id: $removeProductId) {
@@ -94,15 +92,10 @@ describe('Has many works', () => {
         }
         `,
       variables: {
-        removeProductId: productId,
+        removeProductId: product.id,
       },
+      errorMessageMustContains: 'has link(s) to Variant',
     });
-    const errorMessage = response[0].message;
-    const extensionsCode = response[0].extensions.code;
-    expect(errorMessage).toEqual(
-      `Unable to delete Product with the Id ${productId} as it still maintains a relations with associated variants`,
-    );
-    expect(extensionsCode).toEqual('INTERNAL_SERVER_ERROR');
   });
 
   it('Cannot create product from store', async () => {
@@ -137,7 +130,7 @@ describe('Has many works', () => {
         `,
       variables: {
         input: {
-          id: variantId,
+          id: product.variants[0].id,
           productId: '000000000000000000000001',
         },
       },
