@@ -166,7 +166,7 @@ describe('References many works', () => {
       variables: {
         id: preExistingTags[0].id,
       },
-      errorMessageMustContains: 'is still in used on Product',
+      errorMessageMustContains: 'has link(s) to Product',
     });
   });
 

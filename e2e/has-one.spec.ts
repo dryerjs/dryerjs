@@ -10,6 +10,8 @@ describe('Has one works', () => {
     await server.start();
   });
 
+  let productId;
+
   it('Create product with image', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
@@ -41,9 +43,25 @@ describe('Has one works', () => {
         },
       },
     });
-
+    productId = createProduct.id;
     expect(createProduct.image.name).toEqual('logo.png');
     expect(createProduct.image.product.image.name).toEqual('logo.png');
+  });
+
+  it('Remove product has image', async () => {
+    await server.makeFailRequest({
+      query: `
+      mutation RemoveProduct($removeProductId: ObjectId!) {
+        removeProduct(id: $removeProductId) {
+          success
+        }
+      }
+      `,
+      variables: {
+        removeProductId: productId,
+      },
+      errorMessageMustContains: 'has link(s) to Image',
+    });
   });
 
   afterAll(async () => {

@@ -10,6 +10,8 @@ describe('Has many works', () => {
     await server.start();
   });
 
+  let product;
+
   it('Create product without image', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
@@ -52,6 +54,7 @@ describe('Has many works', () => {
       },
     });
 
+    product = createProduct;
     expect(createProduct.paginateVariants.docs).toHaveLength(2);
     expect(createProduct.variants).toHaveLength(2);
     expect(createProduct.variants).toEqual([
@@ -79,6 +82,22 @@ describe('Has many works', () => {
     ]);
   });
 
+  it('Remove product hasMany Variants', async () => {
+    await server.makeFailRequest({
+      query: `
+        mutation RemoveProduct($removeProductId: ObjectId!) {
+          removeProduct(id: $removeProductId) {
+            success
+          }
+        }
+        `,
+      variables: {
+        removeProductId: product.id,
+      },
+      errorMessageMustContains: 'has link(s) to Variant',
+    });
+  });
+
   it('Cannot create product from store', async () => {
     await server.makeFailRequest({
       query: `
@@ -97,6 +116,29 @@ describe('Has many works', () => {
       },
       errorMessageMustContains: 'Field "products" is not defined',
     });
+  });
+
+  it('Update variant with productId of non exist Product', async () => {
+    const response = await server.makeFailRequest({
+      query: `
+        mutation Mutation($input: UpdateVariantInput!) {
+          updateVariant(input: $input) {
+            id
+            productId
+          }
+        }
+        `,
+      variables: {
+        input: {
+          id: product.variants[0].id,
+          productId: '000000000000000000000001',
+        },
+      },
+    });
+    const errorMessage = response[0].message;
+    const extensionsCode = response[0].extensions.code;
+    expect(errorMessage).toEqual(`No Product found with ID: 000000000000000000000001`);
+    expect(extensionsCode).toEqual('INTERNAL_SERVER_ERROR');
   });
 
   it('Cannot get all products in store', async () => {
