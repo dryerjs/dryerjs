@@ -5,7 +5,7 @@ import { Provider } from '@nestjs/common';
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
-import { HasOneConfig } from '../property';
+import { HasOneConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';

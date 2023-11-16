@@ -12,7 +12,7 @@ import * as util from './util';
 import { ObjectId } from './object-id';
 import { RemoveMode, RemoveOptions } from './remove-options';
 import { BaseService, getBaseServiceToken } from './base.service';
-import { HasManyConfig, HasOneConfig } from './property';
+import { HasManyConfig, HasOneConfig } from './relations';
 import { MetaKey, Metadata } from './metadata';
 import { StringLikeId } from './shared';
 
@@ -40,7 +40,9 @@ export class DefaultHook implements Hook<any, any> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
       if (util.isNil(input[options.from])) continue;
-      await this.mustExist(typeFunction(), input[options.from]);
+      for (const newId of input[options.from]) {
+        await this.mustExist(typeFunction(), newId);
+      }
     }
 
     for (const property of inspect(definition).belongsToProperties) {

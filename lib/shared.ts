@@ -17,3 +17,36 @@ export type ApiType =
 export type AllowedApiType = '*' | 'essentials' | ApiType;
 
 export type Ref<T> = T;
+
+export type FilterOperator =
+  | 'eq'
+  | 'in'
+  | 'notEq'
+  | 'notIn'
+  | 'contains'
+  | 'notContains'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'regex'
+  | 'notRegex'
+  | 'all'
+  | 'exists';
+
+export const allOperators: FilterOperator[] = [
+  'eq',
+  'in',
+  'notEq',
+  'notIn',
+  'contains',
+  'notContains',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+  'regex',
+  'notRegex',
+  'all',
+  'exists',
+];

@@ -1,5 +1,7 @@
 export * from './shared';
+export * from './thunk';
 export * from './property';
+export * from './relations';
 export * from './type-functions';
 export * from './definition';
 export * from './module';

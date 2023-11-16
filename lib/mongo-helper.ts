@@ -1,4 +1,4 @@
-import { FilterOperator } from './property';
+import { FilterOperator } from './shared';
 import * as util from './util';
 
 const contains = (value: string) => ({ $regex: value, $options: 'i' });
