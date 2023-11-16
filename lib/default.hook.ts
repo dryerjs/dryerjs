@@ -14,6 +14,7 @@ import { RemoveMode, RemoveOptions } from './remove-options';
 import { BaseService, getBaseServiceToken } from './base.service';
 import { HasManyConfig, HasOneConfig } from './property';
 import { MetaKey, Metadata } from './metadata';
+import { StringLikeId } from './shared';
 
 export const FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER = Symbol('FailCleanUpAfterRemoveHandler');
 export interface FailCleanUpAfterRemoveHandler {
@@ -82,9 +83,13 @@ export class DefaultHook implements Hook<any, any> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
       if (util.isNil(input[options.from])) continue;
-      const previousReferencedIds = beforeUpdated[options.from].map((id) => id.toString()).join(',');
-      const newReferencedIds = input[options.from].map((id) => id.toString()).join(',');
-      if (previousReferencedIds !== newReferencedIds) {
+      const toString = (ids: StringLikeId[]) => ids.map((id) => id.toString()).join(',');
+      if (toString(beforeUpdated[options.from]) !== toString(input[options.from])) {
+        const oldStringIds = beforeUpdated[options.from].map((id: StringLikeId) => id.toString()) as string[];
+        for (const newId of input[options.from]) {
+          if (oldStringIds.includes(newId.toString())) continue;
+          await this.mustExist(referencingManyProperty.getReferencesMany().typeFunction(), newId);
+        }
       }
     }
 

@@ -1,5 +1,7 @@
 import { TestServer } from './test-server';
 import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
+import { DefaultHook } from '../lib/default.hook';
+import { ObjectId } from '../lib/object-id';
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
@@ -124,6 +126,8 @@ describe('References many works', () => {
     product = response.createProduct;
   });
 
+  let productWithoutTags: Product;
+
   it('Create product without tags', async () => {
     const response = await server.makeSuccessRequest({
       query: `
@@ -152,6 +156,39 @@ describe('References many works', () => {
       tagIds: [],
       tags: [],
     });
+
+    productWithoutTags = response.createProduct;
+  });
+
+  it('Add tags to product', async () => {
+    const defaultHook = server.app.get(DefaultHook, { strict: false });
+    const spy = jest.spyOn(defaultHook, 'mustExist' as any);
+    const setTags = async (tagIds: any[]) => {
+      const query = `
+      mutation UpdateProduct($input: UpdateProductInput!) {
+        updateProduct(input: $input) {
+          id
+        }
+      }
+    `;
+      await server.makeSuccessRequest({
+        query,
+        variables: {
+          input: {
+            id: productWithoutTags.id,
+            tagIds,
+          },
+        },
+      });
+    };
+    await setTags([preExistingTags[0].id]);
+    expect(spy).toHaveBeenCalledWith(Tag, new ObjectId(preExistingTags[0].id));
+    spy.mockReset();
+    await setTags([preExistingTags[0].id, preExistingTags[1].id]);
+    expect(spy).toHaveBeenCalledWith(Tag, new ObjectId(preExistingTags[1].id));
+    // reset the test
+    spy.mockRestore();
+    await setTags([]);
   });
 
   it('Cannot remove tag if it is linked to a product', async () => {
