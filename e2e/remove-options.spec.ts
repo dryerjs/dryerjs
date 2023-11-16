@@ -55,6 +55,9 @@ describe('Remove options work', () => {
                 id
               }
             }
+            tags {
+              id
+            }
           }
         }
       `,
@@ -70,6 +73,7 @@ describe('Remove options work', () => {
               name: 'Awesome variant 2',
             },
           ],
+          tags: [{ name: 'Tag_A' }, { name: 'Tag_B' }],
         },
       },
     });
@@ -139,7 +143,7 @@ describe('Remove options work', () => {
         removeProductId: product.id,
       },
     });
-    await promisify(setTimeout)(500);
+    await promisify(setTimeout)(100);
 
     const response = await server.makeSuccessRequest({
       query: `
@@ -201,6 +205,32 @@ describe('Remove options work', () => {
     await promisify(setTimeout)(100);
     expect(handleItem).toBeCalledTimes(2);
     expect(handleAll).toBeCalledTimes(1);
+  });
+
+  it.only('Remove tag must remove tag from product with CleanUpRelationsAfterRemoved mode', async () => {
+    await server.makeSuccessRequest({
+      query: `
+        mutation RemoveTag($removeTagId: ObjectId!) {
+          removeTag(id: $removeTagId, options: { mode: CleanUpRelationsAfterRemoved }) {
+            success
+          }
+        }
+      `,
+      variables: {
+        removeTagId: product.tags[0].id,
+      },
+    });
+    await promisify(setTimeout)(100);
+    const response = await server.makeSuccessRequest({
+      query: `
+          {
+            product(id: "${product.id}") {
+              tagIds
+            }
+          }
+        `,
+    });
+    expect(response.product).toEqual({ tagIds: [product.tags[1].id] });
   });
 
   afterAll(async () => {

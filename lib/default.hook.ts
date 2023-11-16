@@ -218,6 +218,33 @@ export class DefaultHook implements Hook<any, any> {
   private async cleanUpRelationsAfterRemoved(input: Parameters<Required<Hook>['afterRemove']>[0]) {
     const failHandler = this.getFailHandler();
     try {
+      const referencingProperties = this.getCachedReferencingProperties(input.definition);
+      for (const referencingProperty of referencingProperties) {
+        const { options } = referencingProperty.getReferencesMany();
+        const items = await this.moduleRef
+          .get(getModelToken(referencingProperty.definition.name), {
+            strict: false,
+          })
+          .find({ [options.from]: input.removed._id }, { _id: 1, [options.from]: 1 });
+
+        const baseService = this.moduleRef.get(getBaseServiceToken(referencingProperty.definition), {
+          strict: false,
+        }) as BaseService<any>;
+
+        for (const item of items) {
+          try {
+            await baseService.update(input.ctx, {
+              id: item._id,
+              [options.from]: item[options.from].filter(
+                (id: StringLikeId) => id.toString() !== input.removed._id.toString(),
+              ),
+            });
+          } catch (error: any) {
+            await failHandler.handleItem(input, error);
+          }
+        }
+      }
+
       const configs: Array<HasManyConfig | HasOneConfig> = [];
       for (const hasManyProperty of inspect(input.definition).hasManyProperties) {
         configs.push(hasManyProperty.getHasMany());

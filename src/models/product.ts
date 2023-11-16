@@ -27,7 +27,12 @@ export class Color {
   name: string;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition({
+  allowedApis: '*',
+  removalConfig: {
+    allowCleanUpRelationsAfterRemoved: true,
+  },
+})
 export class Tag {
   @Id()
   id: ObjectId;
