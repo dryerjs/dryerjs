@@ -1,3 +1,31 @@
+# [0.12.0](https://github.com/dryerjs/dryerjs/compare/v0.11.0...v0.12.0) (2023-11-16)
+
+
+### Bug Fixes
+
+* revisit util.memoize inside classes ([#221](https://github.com/dryerjs/dryerjs/issues/221)) ([ed12c2c](https://github.com/dryerjs/dryerjs/commit/ed12c2c12fc9f9be4eb750f53b350e3996c225f4))
+
+
+### Features
+
+* Add allowCreateWithin and noPopulation ([#205](https://github.com/dryerjs/dryerjs/issues/205)) ([3ca04c6](https://github.com/dryerjs/dryerjs/commit/3ca04c6a71da257f162cb5d6eaba6ecbb04934a8))
+* Add bulk error handler ([#232](https://github.com/dryerjs/dryerjs/issues/232)) ([97972d4](https://github.com/dryerjs/dryerjs/commit/97972d41e2c498b2cd792264e3c6b0c0009b2361))
+* add Index decorator ([#217](https://github.com/dryerjs/dryerjs/issues/217)) ([b0afd92](https://github.com/dryerjs/dryerjs/commit/b0afd92275d27e36de5e4428ba78341d008bf444))
+* auth for embedded ([#215](https://github.com/dryerjs/dryerjs/issues/215)) ([83bfe19](https://github.com/dryerjs/dryerjs/commit/83bfe19b79fe7b74eb87844dff3ed1b06131b30b))
+* auth for resolvers ([#213](https://github.com/dryerjs/dryerjs/issues/213)) ([6bab705](https://github.com/dryerjs/dryerjs/commit/6bab70505f10c4cdb53f893d64b6d65f59e63dcf))
+* belongs to ([#197](https://github.com/dryerjs/dryerjs/issues/197)) ([65ac6bd](https://github.com/dryerjs/dryerjs/commit/65ac6bd7a18c53c32a831878eae2c7bdab51064c))
+* default hooks for relations ([#222](https://github.com/dryerjs/dryerjs/issues/222)) ([a5d4f45](https://github.com/dryerjs/dryerjs/commit/a5d4f4594a5f81c6ea8b836ce68487c621016b3c))
+* get related references many ([#219](https://github.com/dryerjs/dryerjs/issues/219)) ([52a35c4](https://github.com/dryerjs/dryerjs/commit/52a35c43d0b0a9f279a1685b2cc95899f4dd2d65))
+* increase loader performance ([#199](https://github.com/dryerjs/dryerjs/issues/199)) ([910e196](https://github.com/dryerjs/dryerjs/commit/910e196fc0989ba9a0992bb1645ffe67743dd0cb))
+* init default hook ([#210](https://github.com/dryerjs/dryerjs/issues/210)) ([4a6fbc2](https://github.com/dryerjs/dryerjs/commit/4a6fbc2a6f1699d4c1827f9ad12fb6c1d4b8837c))
+* mongoose schema customizable ([#193](https://github.com/dryerjs/dryerjs/issues/193)) ([2dc1100](https://github.com/dryerjs/dryerjs/commit/2dc1100c16d4515e1b053e65d851111707b60018))
+* paginated on has many ([#209](https://github.com/dryerjs/dryerjs/issues/209)) ([9f1d752](https://github.com/dryerjs/dryerjs/commit/9f1d75243e411291a998238c04692d32efeb8a05))
+* remove options ([#227](https://github.com/dryerjs/dryerjs/issues/227)) ([85276ab](https://github.com/dryerjs/dryerjs/commit/85276ab7a3367561ce8b1fb3637a9e5bb9e81d88))
+* separated create type for relations ([#196](https://github.com/dryerjs/dryerjs/issues/196)) ([ecb63b0](https://github.com/dryerjs/dryerjs/commit/ecb63b06b29b290dc32ed5dedb060c2c9eb232c8))
+* skip default hooks for relations ([#229](https://github.com/dryerjs/dryerjs/issues/229)) ([2d397e5](https://github.com/dryerjs/dryerjs/commit/2d397e58a6880997e6e424e678f0b0ba0435718d))
+* Stronger type for some base types ([#207](https://github.com/dryerjs/dryerjs/issues/207)) ([c8b9354](https://github.com/dryerjs/dryerjs/commit/c8b9354450855751946c8cbdc36929a921482c82))
+* support mongo text search ([#218](https://github.com/dryerjs/dryerjs/issues/218)) ([ca0f90b](https://github.com/dryerjs/dryerjs/commit/ca0f90b2f9f9e7694ad88e0550510c226227aab8))
+
 # [0.11.0](https://github.com/dryerjs/dryerjs/compare/v0.10.0...v0.11.0) (2023-11-11)
 
 
