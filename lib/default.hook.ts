@@ -38,13 +38,13 @@ export class DefaultHook implements Hook<any, any> {
   }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
-      if (!input[options.from]) continue;
+      if (util.isNil(input[options.from])) continue;
       await this.mustExist(typeFunction(), input[options.from]);
     }
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
-      if (!input[options.from]) continue;
+      if (util.isNil(input[options.from])) continue;
       await this.mustExist(typeFunction(), input[options.from]);
     }
   }
@@ -78,11 +78,10 @@ export class DefaultHook implements Hook<any, any> {
     input,
     beforeUpdated,
     definition,
-    beforeUpdated,
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
-      if (!input[options.from]) continue;
+      if (util.isNil(input[options.from])) continue;
       const previousReferencedIds = beforeUpdated[options.from].map((id) => id.toString()).join(',');
       const newReferencedIds = input[options.from].map((id) => id.toString()).join(',');
       if (previousReferencedIds !== newReferencedIds) {
@@ -91,7 +90,7 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
-      if (!input[options.from]) continue;
+      if (util.isNil(input[options.from])) continue;
       if (input[options.from]?.toString() === beforeUpdated[options.from]?.toString()) continue;
       await this.mustExist(typeFunction(), input[options.from]);
     }

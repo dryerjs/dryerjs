@@ -163,7 +163,10 @@ export function createResolverForEmbedded(
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
       for (const subDocumentInput of inputs) {
-        if (!parent[field].find((item: any) => item._id.toString() === subDocumentInput.id.toString())) {
+        const exists = parent[field].some(
+          (item: any) => item._id.toString() === subDocumentInput.id.toString(),
+        );
+        if (!exists) {
           throw new graphql.GraphQLError(
             `No ${util.toCamelCase(embeddedDefinition.name)} found with ID ${subDocumentInput.id.toString()}`,
           );

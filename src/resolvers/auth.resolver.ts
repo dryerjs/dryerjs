@@ -29,7 +29,7 @@ export class AuthResolver {
   @Query(() => OutputType(User))
   async whoAmI(@Ctx() context: { userId: string }) {
     const user = await this.User.findById(context.userId);
-    if (!user) {
+    if (user === null) {
       throw new graphql.GraphQLError('User not found');
     }
     return user;
