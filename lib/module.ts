@@ -17,7 +17,7 @@ import { inspect } from './inspect';
 import { createBaseService, getBaseServiceToken } from './base.service';
 import { DefaultHook } from './default.hook';
 import { MetaKey, Metadata } from './metadata';
-import { DryerModuleOptions, DryerModuleOptionsSymbol } from './module-options';
+import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
 
 @Module({})
 export class DryerModule {
@@ -76,7 +76,7 @@ export class DryerModule {
         ...mongooseModuleExports,
         ...baseServicesProviders,
         ...hooks,
-        { useValue: input, provide: DryerModuleOptionsSymbol },
+        { useValue: input, provide: DRYER_MODULE_OPTIONS },
       ],
       exports: [...mongooseModuleExports, ...baseServicesProviders],
     };

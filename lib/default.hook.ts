@@ -6,17 +6,23 @@ import { Inject } from '@nestjs/common';
 
 import { AllDefinitions, Hook } from './hook';
 import { HydratedProperty, inspect } from './inspect';
-import { DryerModuleOptions, DryerModuleOptionsSymbol } from './module-options';
-import { Definition } from './definition';
+import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
+import { Definition, DefinitionOptions } from './definition';
 import * as util from './util';
 import { ObjectId } from './object-id';
+import { RemoveMode, RemoveOptions } from './remove-options';
+import { BaseService, getBaseServiceToken } from './base.service';
+import { HasManyConfig, HasOneConfig } from './property';
+import { MetaKey, Metadata } from './metadata';
+
+export const FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER = Symbol('FailCleanUpAfterRemoveHandler');
 
 @Hook(() => AllDefinitions)
 export class DefaultHook implements Hook<any, any> {
   private getCachedReferencingProperties: (definition: Definition) => HydratedProperty[];
 
   constructor(
-    @Inject(DryerModuleOptionsSymbol) private moduleOptions: DryerModuleOptions,
+    @Inject(DRYER_MODULE_OPTIONS) private moduleOptions: DryerModuleOptions,
     private readonly moduleRef: ModuleRef,
   ) {
     this.getCachedReferencingProperties = util.memoize(this.getUncachedReferencingProperties.bind(this));
@@ -61,18 +67,43 @@ export class DefaultHook implements Hook<any, any> {
   public async beforeUpdate({
     input,
     definition,
+    beforeUpdated,
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
       if (!input[options.from]) continue;
+      if (input[options.from]?.toString() === beforeUpdated[options.from]?.toString()) continue;
       await this.mustExist(typeFunction(), input[options.from]);
     }
+  }
+
+  private ensureRemoveModeValid(definition: Definition, options: RemoveOptions) {
+    if (!options.isOriginalRequest) return;
+    const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
+    if (options.mode === RemoveMode.RequiredCleanRelations) return;
+    if (
+      options.mode === RemoveMode.IgnoreRelations &&
+      definitionOptions.removalConfig?.allowIgnoreRelationCheck === true
+    ) {
+      return;
+    }
+    if (
+      options.mode === RemoveMode.CleanUpRelationsAfterRemoved &&
+      definitionOptions.removalConfig?.allowCleanUpRelationsAfterRemoved === true
+    ) {
+      return;
+    }
+    const message = `Remove mode ${options.mode} is not allowed for ${definition.name}`;
+    throw new graphql.GraphQLError(message);
   }
 
   public async beforeRemove({
     beforeRemoved,
     definition,
+    options,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
+    this.ensureRemoveModeValid(definition, options);
+    if (options.mode !== RemoveMode.RequiredCleanRelations) return;
     const referencingProperties = this.getCachedReferencingProperties(definition);
     for (const referencingProperty of referencingProperties) {
       await this.mustNotExist({
@@ -101,6 +132,62 @@ export class DefaultHook implements Hook<any, any> {
         fromObject: beforeRemoved,
         fieldName: options.to,
       });
+    }
+  }
+
+  public async afterRemove(input: Parameters<Required<Hook>['afterRemove']>[0]): Promise<void> {
+    if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
+    this.cleanUpRelationsAfterRemoved(input);
+  }
+
+  private getFailHandler() {
+    try {
+      return this.moduleRef.get(FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER, { strict: false });
+    } catch (error) {
+      return {
+        handleItem(_input: Parameters<Required<Hook>['afterRemove']>[0], error: Error) {
+          throw error;
+        },
+        handleAll(_input: Parameters<Required<Hook>['afterRemove']>[0], error: Error) {
+          throw error;
+        },
+      };
+    }
+  }
+
+  private async cleanUpRelationsAfterRemoved(input: Parameters<Required<Hook>['afterRemove']>[0]) {
+    const failHandler = this.getFailHandler();
+    try {
+      const configs: Array<HasManyConfig | HasOneConfig> = [];
+      for (const hasManyProperty of inspect(input.definition).hasManyProperties) {
+        configs.push(hasManyProperty.getHasMany());
+      }
+      for (const hasOneProperty of inspect(input.definition).hasOneProperties) {
+        configs.push(hasOneProperty.getHasOne());
+      }
+
+      for (const config of configs) {
+        const baseService = this.moduleRef.get(getBaseServiceToken(config.typeFunction()), {
+          strict: false,
+        }) as BaseService<any>;
+
+        const items = await this.moduleRef
+          .get(getModelToken(config.typeFunction()), { strict: false })
+          .find({ [config.options.to]: input.removed._id });
+
+        for (const item of items) {
+          try {
+            await baseService.remove(input.ctx, item._id, {
+              mode: RemoveMode.CleanUpRelationsAfterRemoved,
+              isOriginalRequest: false,
+            });
+          } catch (error: any) {
+            await failHandler.handle(input, error);
+          }
+        }
+      }
+    } catch (error) {
+      await failHandler.handleAll(input, error);
     }
   }
 

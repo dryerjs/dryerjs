@@ -15,6 +15,10 @@ import { AllowedApiType } from './shared';
 
 export type DefinitionOptions = {
   allowedApis: AllowedApiType | AllowedApiType[];
+  removalConfig?: {
+    allowIgnoreRelationCheck?: boolean;
+    allowCleanUpRelationsAfterRemoved?: boolean;
+  };
   enableTextSearch?: boolean;
   resolverDecorators?: {
     default?: MethodDecorator | MethodDecorator[];

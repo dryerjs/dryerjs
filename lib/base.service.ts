@@ -10,6 +10,7 @@ import * as util from './util';
 import { AllDefinitions, Hook } from './hook';
 import { MetaKey, Metadata } from './metadata';
 import { ObjectId } from './shared';
+import { RemoveMode, RemoveOptions } from './remove-options';
 
 export abstract class BaseService<T = any, Context = any> {
   protected model: PaginateModel<T>;
@@ -110,14 +111,18 @@ export abstract class BaseService<T = any, Context = any> {
     return items;
   }
 
-  public async remove(ctx: Context, id: ObjectId): Promise<SuccessResponse> {
+  public async remove(
+    ctx: Context,
+    id: ObjectId,
+    options: RemoveOptions = { mode: RemoveMode.RequiredCleanRelations, isOriginalRequest: true },
+  ): Promise<SuccessResponse> {
     const beforeRemoved = await this.findOne(ctx, { _id: id });
     for (const hook of this.getHooks('beforeRemove')) {
-      await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition });
+      await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition, options });
     }
     const removed = await this.model.findByIdAndRemove(id);
     for (const hook of this.getHooks('afterRemove')) {
-      await hook.afterRemove!({ ctx, removed, definition: this.definition });
+      await hook.afterRemove!({ ctx, removed, definition: this.definition, options });
     }
     return { success: true };
   }
