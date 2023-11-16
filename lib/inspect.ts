@@ -1,5 +1,5 @@
 import * as util from './util';
-import { BelongsToConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './property';
+import { BelongsToConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './relations';
 import { MetaKey, Metadata } from './metadata';
 import { ApiType } from './shared';
 import { Definition } from './definition';

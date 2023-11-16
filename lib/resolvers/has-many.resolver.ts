@@ -13,7 +13,7 @@ import {
   SortType,
 } from '../type-functions';
 import { Definition } from '../definition';
-import { HasManyConfig } from '../property';
+import { HasManyConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { StringLikeId } from '../shared';

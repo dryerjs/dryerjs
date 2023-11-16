@@ -5,7 +5,7 @@ import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
 import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
-import { ReferencesManyConfig } from '../property';
+import { ReferencesManyConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';

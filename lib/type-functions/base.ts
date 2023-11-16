@@ -1,11 +1,12 @@
 import { ObjectType, InputType } from '@nestjs/graphql';
 import { Transform } from 'class-transformer';
 
-import { hasScope } from '../property';
+import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
 import { ObjectId } from '../shared';
+import { ThunkOptions, ThunkScope } from '../thunk';
 
 type Constructor<T extends object, Arguments extends unknown[] = any[]> = new (...arguments_: Arguments) => T;
 
@@ -14,6 +15,22 @@ export type BaseClassType<T extends object = object, Arguments extends unknown[]
   Arguments
 > & {
   prototype: T;
+};
+
+export const hasScope = (option: ThunkOptions, checkScope: ThunkScope) => {
+  const mapping = {
+    all: ['create', 'update', 'output'],
+    input: ['create', 'update'],
+  };
+
+  const normalizedScopes = util.isArray(option.scopes) ? option.scopes : [option.scopes];
+
+  for (const scope of normalizedScopes) {
+    if (mapping[scope as string]?.includes(checkScope)) return true;
+    if (scope === checkScope) return true;
+  }
+
+  return false;
 };
 
 export function getBaseType(input: {

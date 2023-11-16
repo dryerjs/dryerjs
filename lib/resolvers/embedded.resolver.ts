@@ -8,7 +8,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { Definition } from '../definition';
 import { ArrayValidationPipe, applyDecorators } from './shared';
-import { EmbeddedConfig } from '../property';
+import { EmbeddedConfig } from '../relations';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
