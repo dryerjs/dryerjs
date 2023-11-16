@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { MetaKey, Metadata } from './metadata';
 import { Definition } from './definition';
+import { RemoveOptions } from './remove-options';
 
 export function Hook(typeFunc: () => any) {
   return (target: any) => {
@@ -36,8 +37,18 @@ export interface Hook<T = any, Context = any> {
     definition: Definition;
   }): Promise<void>;
 
-  beforeRemove?(input: { ctx: Context; beforeRemoved: T; definition: Definition }): Promise<void>;
-  afterRemove?(input: { ctx: Context; removed: T; definition: Definition }): Promise<void>;
+  beforeRemove?(input: {
+    ctx: Context;
+    beforeRemoved: T;
+    definition: Definition;
+    options: RemoveOptions;
+  }): Promise<void>;
+  afterRemove?(input: {
+    ctx: Context;
+    removed: T;
+    definition: Definition;
+    options: RemoveOptions;
+  }): Promise<void>;
 
   beforeFindMany?(input: {
     ctx: Context;

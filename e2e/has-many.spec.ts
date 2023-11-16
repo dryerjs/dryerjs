@@ -1,5 +1,6 @@
 import { TestServer } from './test-server';
 import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
+import { DefaultHook } from '../lib/default.hook';
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
@@ -10,9 +11,9 @@ describe('Has many works', () => {
     await server.start();
   });
 
-  let product;
+  let product: Product;
 
-  it('Create product without image', async () => {
+  it('Create product', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
         mutation CreateProduct($input: CreateProductInput!) {
@@ -82,20 +83,27 @@ describe('Has many works', () => {
     ]);
   });
 
-  it('Remove product hasMany Variants', async () => {
-    await server.makeFailRequest({
+  it('Cannot update variant productId to the same productId should not trigger existence check', async () => {
+    const defaultHook = server.app.get(DefaultHook, { strict: false });
+    const spy = jest.spyOn(defaultHook, 'mustExist' as any);
+    await server.makeSuccessRequest({
       query: `
-        mutation RemoveProduct($removeProductId: ObjectId!) {
-          removeProduct(id: $removeProductId) {
-            success
+        mutation Mutation($input: UpdateVariantInput!) {
+          updateVariant(input: $input) {
+            id
+            productId
           }
         }
         `,
       variables: {
-        removeProductId: product.id,
+        input: {
+          id: product.variants[0].id,
+          productId: product.id,
+        },
       },
-      errorMessageMustContains: 'has link(s) to Variant',
     });
+    expect(spy).toHaveBeenCalledTimes(0);
+    spy.mockRestore();
   });
 
   it('Cannot create product from store', async () => {
@@ -118,8 +126,8 @@ describe('Has many works', () => {
     });
   });
 
-  it('Update variant with productId of non exist Product', async () => {
-    const response = await server.makeFailRequest({
+  it('Cannot update variant productId to a not exist ID', async () => {
+    await server.makeFailRequest({
       query: `
         mutation Mutation($input: UpdateVariantInput!) {
           updateVariant(input: $input) {
@@ -131,14 +139,11 @@ describe('Has many works', () => {
       variables: {
         input: {
           id: product.variants[0].id,
-          productId: '000000000000000000000001',
+          productId: '000000000000000000000000',
         },
       },
+      errorMessageMustContains: `No Product found with ID: 000000000000000000000000`,
     });
-    const errorMessage = response[0].message;
-    const extensionsCode = response[0].extensions.code;
-    expect(errorMessage).toEqual(`No Product found with ID: 000000000000000000000001`);
-    expect(extensionsCode).toEqual('INTERNAL_SERVER_ERROR');
   });
 
   it('Cannot get all products in store', async () => {
