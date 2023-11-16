@@ -240,6 +240,7 @@ export class DefaultHook implements Hook<any, any> {
               ),
             });
           } catch (error: any) {
+            /* istanbul ignore next */
             await failHandler.handleItem(input, error);
           }
         }

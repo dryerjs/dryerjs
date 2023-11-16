@@ -207,7 +207,7 @@ describe('Remove options work', () => {
     expect(handleAll).toBeCalledTimes(1);
   });
 
-  it.only('Remove tag must remove tag from product with CleanUpRelationsAfterRemoved mode', async () => {
+  it('Remove tag must remove tag from product with CleanUpRelationsAfterRemoved mode', async () => {
     await server.makeSuccessRequest({
       query: `
         mutation RemoveTag($removeTagId: ObjectId!) {
