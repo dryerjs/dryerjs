@@ -1,6 +1,7 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Provider, ValidationPipe } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 
 import * as util from '../util';
 import {
@@ -25,6 +26,7 @@ import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
 import { RemoveOptions } from '../remove-options';
+import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -49,7 +51,16 @@ export function createResolver(definition: Definition, contextDecorator: Context
 
   @Resolver()
   class GeneratedResolver<T> {
-    constructor(@InjectBaseService(definition) public baseService: BaseService) {}
+    private bulkErrorHandler: BulkErrorHandler<any> | null = null;
+
+    constructor(
+      @InjectBaseService(definition) public baseService: BaseService,
+      public readonly moduleRef: ModuleRef,
+    ) {
+      try {
+        this.bulkErrorHandler = this.moduleRef.get(BULK_ERROR_HANDLER, { strict: false });
+      } catch (error) {}
+    }
 
     @applyDecorators(
       util.defaultToChain(resolverDecorators.create, resolverDecorators.write, resolverDecorators.default),
@@ -98,12 +109,12 @@ export function createResolver(definition: Definition, contextDecorator: Context
           const result = await this.create(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
+          await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
           response.push({
             input,
             success: false,
             result: null,
             errorMessage: (() => {
-              // TODO: handle server errors
               /* istanbul ignore if */
               if (error instanceof graphql.GraphQLError) return error.message;
               return 'INTERNAL_SERVER_ERROR';
@@ -142,13 +153,13 @@ export function createResolver(definition: Definition, contextDecorator: Context
           const result = await this.update(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
+          await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
           response.push({
             input,
             success: false,
             result: null,
             errorMessage: (() => {
               if (error instanceof graphql.GraphQLError) return error.message;
-              // TODO: handle server errors
               /* istanbul ignore next */
               return 'INTERNAL_SERVER_ERROR';
             })(),
@@ -182,6 +193,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           await this.baseService.remove(ctx, id, options);
           response.push({ id, success: true });
         } catch (error: any) {
+          await this.bulkErrorHandler?.handleRemoveError?.({ id, options, ctx, definition }, error);
           response.push({
             id,
             success: false,

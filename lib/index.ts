@@ -3,6 +3,7 @@ export * from './thunk';
 export * from './property';
 export * from './relations';
 export * from './type-functions';
+export * from './bulk-error-handler';
 export * from './definition';
 export * from './module';
 export * from './context';
