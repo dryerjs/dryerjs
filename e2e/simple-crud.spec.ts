@@ -3,6 +3,7 @@ import { Tag, Color } from '../src/models/product';
 import { AllDefinitions, Hook } from '../lib/hook';
 import { createParamDecorator } from '@nestjs/common';
 import { ObjectId } from '../lib/object-id';
+import { RemoveMode } from '../lib/remove-options';
 
 type Context = any;
 
@@ -243,10 +244,12 @@ describe('Simple CRUD works', () => {
       ctx: 'fakeContext',
       beforeRemoved: expect.objectContaining({ name: '60s' }),
       definition: Tag,
+      options: { mode: RemoveMode.RequiredCleanRelations },
     });
     expect(afterRemove).toBeCalledWith({
       ctx: 'fakeContext',
       removed: expect.objectContaining({ name: '60s' }),
+      options: { mode: RemoveMode.RequiredCleanRelations },
       definition: Tag,
     });
 

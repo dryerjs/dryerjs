@@ -24,6 +24,7 @@ import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
+import { RemoveOptions } from '../remove-options';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -171,14 +172,14 @@ export function createResolver(definition: Definition, contextDecorator: Context
       }),
     )
     async bulkRemove(
-      @Args('ids', { type: () => [GraphQLObjectId!]! })
-      ids: ObjectId[],
+      @Args('ids', { type: () => [GraphQLObjectId!]! }) ids: ObjectId[],
+      @Args('options', { nullable: true, defaultValue: undefined }) options: RemoveOptions,
       @contextDecorator() ctx: any,
     ) {
       const response: any[] = [];
       for (const id of ids) {
         try {
-          await this.baseService.remove(ctx, id);
+          await this.baseService.remove(ctx, id, options);
           response.push({ id, success: true });
         } catch (error: any) {
           response.push({
@@ -260,9 +261,10 @@ export function createResolver(definition: Definition, contextDecorator: Context
     @IfApiAllowed(Mutation(() => SuccessResponse, { name: `remove${definition.name}` }))
     async remove(
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
+      @Args('options', { nullable: true, defaultValue: undefined }) options: RemoveOptions,
       @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.remove(ctx, id);
+      return await this.baseService.remove(ctx, id, options);
     }
 
     @applyDecorators(

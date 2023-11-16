@@ -10,4 +10,4 @@ export type DryerModuleOptions = {
   onSchema?: (schema: Schema, definition: Definition) => void;
 };
 
-export const DryerModuleOptionsSymbol = Symbol('DryerModuleOptionsSymbol');
+export const DRYER_MODULE_OPTIONS = Symbol('DryerModuleOptions');

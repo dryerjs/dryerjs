@@ -122,7 +122,13 @@ export class Variant {
   comments: Comment[];
 }
 
-@Definition({ allowedApis: '*' })
+@Definition({
+  allowedApis: '*',
+  removalConfig: {
+    allowIgnoreRelationCheck: true,
+    allowCleanUpRelationsAfterRemoved: true,
+  },
+})
 export class Product {
   @Id()
   id: ObjectId;
