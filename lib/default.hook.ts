@@ -72,7 +72,9 @@ export class DefaultHook implements Hook<any, any> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
       if (!input[options.from]) continue;
-      if (input[options.from] !== beforeUpdated[options.from]) {
+      const previousReferencedIds = beforeUpdated[options.from].map((id) => id.toString()).join(',');
+      const newReferencedIds = input[options.from].map((id) => id.toString()).join(',');
+      if (previousReferencedIds !== newReferencedIds) {
       }
     }
 
