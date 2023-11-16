@@ -1,5 +1,6 @@
 import { TestServer } from './test-server';
 import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
+import { DefaultHook } from '../lib/default.hook';
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
@@ -12,7 +13,7 @@ describe('Has many works', () => {
 
   let product: Product;
 
-  it('Create product without image', async () => {
+  it('Create product', async () => {
     const { createProduct } = await server.makeSuccessRequest({
       query: `
         mutation CreateProduct($input: CreateProductInput!) {
@@ -80,6 +81,29 @@ describe('Has many works', () => {
         product: { name: 'Awesome product' },
       },
     ]);
+  });
+
+  it('Cannot update variant productId to the same productId should not trigger existence check', async () => {
+    const defaultHook = server.app.get(DefaultHook, { strict: false });
+    const spy = jest.spyOn(defaultHook, 'mustExist' as any);
+    await server.makeSuccessRequest({
+      query: `
+        mutation Mutation($input: UpdateVariantInput!) {
+          updateVariant(input: $input) {
+            id
+            productId
+          }
+        }
+        `,
+      variables: {
+        input: {
+          id: product.variants[0].id,
+          productId: product.id,
+        },
+      },
+    });
+    expect(spy).toHaveBeenCalledTimes(0);
+    spy.mockRestore();
   });
 
   it('Cannot create product from store', async () => {
