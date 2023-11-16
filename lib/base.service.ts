@@ -25,7 +25,7 @@ export abstract class BaseService<T = any, Context = any> {
     }
     const created = await this.model.create(input);
     for (const property of inspect(this.definition).referencesManyProperties) {
-      if (!input[property.name] || input[property.name].length === 0) continue;
+      if (util.isNil(input[property.name]) || input[property.name].length === 0) continue;
       const relation = property.getReferencesMany();
       const relationDefinition = relation.typeFunction();
       const newIds: string[] = [];
@@ -41,7 +41,7 @@ export abstract class BaseService<T = any, Context = any> {
       });
     }
     for (const property of inspect(this.definition).hasOneProperties) {
-      if (!input[property.name]) continue;
+      if (util.isNil(input[property.name])) continue;
       const relation = property.getHasOne();
       const relationDefinition = relation.typeFunction();
       const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
@@ -54,7 +54,7 @@ export abstract class BaseService<T = any, Context = any> {
     }
 
     for (const property of inspect(this.definition).hasManyProperties) {
-      if (!input[property.name] || input[property.name].length === 0) continue;
+      if (util.isNil(input[property.name]) || input[property.name].length === 0) continue;
       const relation = property.getHasMany();
       const relationDefinition = relation.typeFunction();
       for (const subObject of input[property.name]) {
