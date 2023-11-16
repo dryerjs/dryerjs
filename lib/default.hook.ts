@@ -39,6 +39,8 @@ export class DefaultHook implements Hook<any, any> {
   }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
+      /* istanbul ignore if */
+      if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       for (const newId of input[options.from]) {
         await this.mustExist(typeFunction(), newId);
@@ -47,6 +49,8 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
+      /* istanbul ignore if */
+      if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       await this.mustExist(typeFunction(), input[options.from]);
     }
@@ -84,6 +88,8 @@ export class DefaultHook implements Hook<any, any> {
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
+      /* istanbul ignore if */
+      if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       const toString = (ids: StringLikeId[]) => ids.map((id) => id.toString()).join(',');
       if (toString(beforeUpdated[options.from]) !== toString(input[options.from])) {
@@ -97,6 +103,8 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
+      /* istanbul ignore if */
+      if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       if (input[options.from]?.toString() === beforeUpdated[options.from]?.toString()) continue;
       await this.mustExist(typeFunction(), input[options.from]);
@@ -132,6 +140,8 @@ export class DefaultHook implements Hook<any, any> {
     if ([RemoveMode.IgnoreRelations, RemoveMode.CleanUpRelationsAfterRemoved].includes(options.mode)) return;
     const referencingProperties = this.getCachedReferencingProperties(definition);
     for (const referencingProperty of referencingProperties) {
+      /* istanbul ignore if */
+      if (referencingProperty.getReferencesMany().options.skipRelationCheckOnRemove) continue;
       await this.mustNotExist({
         fromDefinition: definition,
         toDefinition: referencingProperty.definition,
@@ -142,6 +152,8 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const hasManyProperty of inspect(definition).hasManyProperties) {
       const { options, typeFunction } = hasManyProperty.getHasMany();
+      /* istanbul ignore if */
+      if (options.skipRelationCheckOnRemove) continue;
       await this.mustNotExist({
         fromDefinition: definition,
         toDefinition: typeFunction(),
@@ -152,6 +164,8 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const hasOneProperty of inspect(definition).hasOneProperties) {
       const { options, typeFunction } = hasOneProperty.getHasOne();
+      /* istanbul ignore if */
+      if (options.skipRelationCheckOnRemove) continue;
       await this.mustNotExist({
         fromDefinition: definition,
         toDefinition: typeFunction(),
