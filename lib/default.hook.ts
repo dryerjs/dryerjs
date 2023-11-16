@@ -16,6 +16,10 @@ import { HasManyConfig, HasOneConfig } from './property';
 import { MetaKey, Metadata } from './metadata';
 
 export const FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER = Symbol('FailCleanUpAfterRemoveHandler');
+export interface FailCleanUpAfterRemoveHandler {
+  handleItem(input: Parameters<Required<Hook>['afterRemove']>[0], error: Error): Promise<void>;
+  handleAll(input: Parameters<Required<Hook>['afterRemove']>[0], error: Error): Promise<void>;
+}
 
 @Hook(() => AllDefinitions)
 export class DefaultHook implements Hook<any, any> {
@@ -78,7 +82,7 @@ export class DefaultHook implements Hook<any, any> {
   }
 
   private ensureRemoveModeValid(definition: Definition, options: RemoveOptions) {
-    if (!options.isOriginalRequest) return;
+    if (options.isIndirectCall) return;
     const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
     if (options.mode === RemoveMode.RequiredCleanRelations) return;
     if (
@@ -103,7 +107,7 @@ export class DefaultHook implements Hook<any, any> {
     options,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
     this.ensureRemoveModeValid(definition, options);
-    if (options.mode !== RemoveMode.RequiredCleanRelations) return;
+    if ([RemoveMode.IgnoreRelations, RemoveMode.CleanUpRelationsAfterRemoved].includes(options.mode)) return;
     const referencingProperties = this.getCachedReferencingProperties(definition);
     for (const referencingProperty of referencingProperties) {
       await this.mustNotExist({
@@ -144,7 +148,7 @@ export class DefaultHook implements Hook<any, any> {
     try {
       return this.moduleRef.get(FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER, { strict: false });
     } catch (error) {
-      return {
+      const defaultFailHandler: FailCleanUpAfterRemoveHandler = {
         handleItem(_input: Parameters<Required<Hook>['afterRemove']>[0], error: Error) {
           throw error;
         },
@@ -152,6 +156,7 @@ export class DefaultHook implements Hook<any, any> {
           throw error;
         },
       };
+      return defaultFailHandler;
     }
   }
 
@@ -172,17 +177,17 @@ export class DefaultHook implements Hook<any, any> {
         }) as BaseService<any>;
 
         const items = await this.moduleRef
-          .get(getModelToken(config.typeFunction()), { strict: false })
+          .get(getModelToken(config.typeFunction().name), { strict: false })
           .find({ [config.options.to]: input.removed._id });
 
         for (const item of items) {
           try {
             await baseService.remove(input.ctx, item._id, {
               mode: RemoveMode.CleanUpRelationsAfterRemoved,
-              isOriginalRequest: false,
+              isIndirectCall: true,
             });
           } catch (error: any) {
-            await failHandler.handle(input, error);
+            await failHandler.handleItem(input, error);
           }
         }
       }

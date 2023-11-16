@@ -13,5 +13,5 @@ export class RemoveOptions {
   @Field(() => RemoveMode, { defaultValue: RemoveMode.RequiredCleanRelations })
   mode: RemoveMode;
 
-  isOriginalRequest = true;
+  isIndirectCall?: boolean;
 }

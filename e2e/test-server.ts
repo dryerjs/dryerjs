@@ -68,7 +68,7 @@ export class TestServer {
     await this.cleanDatabase();
   }
 
-  private async cleanDatabase() {
+  public async cleanDatabase() {
     await Promise.all(
       this.config.definitions.map(async (definition) => {
         const model = this.app.get(getModelToken(definition.name), {

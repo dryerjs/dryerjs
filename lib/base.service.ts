@@ -114,7 +114,7 @@ export abstract class BaseService<T = any, Context = any> {
   public async remove(
     ctx: Context,
     id: ObjectId,
-    options: RemoveOptions = { mode: RemoveMode.RequiredCleanRelations, isOriginalRequest: true },
+    options: RemoveOptions = { mode: RemoveMode.RequiredCleanRelations },
   ): Promise<SuccessResponse> {
     const beforeRemoved = await this.findOne(ctx, { _id: id });
     for (const hook of this.getHooks('beforeRemove')) {
