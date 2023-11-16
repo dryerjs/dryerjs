@@ -10,6 +10,7 @@ export type HasOneConfig = {
     to: string;
     allowCreateWithin?: boolean;
     noPopulation?: boolean;
+    skipRelationCheckOnRemove?: boolean;
   };
 };
 export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {

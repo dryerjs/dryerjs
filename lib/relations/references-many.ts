@@ -11,6 +11,8 @@ export type ReferencesManyConfig = {
     from: string;
     allowCreateWithin?: boolean;
     noPopulation?: boolean;
+    skipRelationCheckOnRemove?: boolean;
+    skipExistenceCheck?: boolean;
   };
 };
 

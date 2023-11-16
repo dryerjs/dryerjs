@@ -13,6 +13,19 @@ import {
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
 
+export type HookMethod =
+  | 'all'
+  | 'beforeCreate'
+  | 'afterCreate'
+  | 'beforeUpdate'
+  | 'afterUpdate'
+  | 'beforeFindOne'
+  | 'afterFindOne'
+  | 'beforeRemove'
+  | 'afterRemove'
+  | 'beforeFindMany'
+  | 'afterFindMany';
+
 export type DefinitionOptions = {
   allowedApis: AllowedApiType | AllowedApiType[];
   removalConfig?: {
@@ -35,6 +48,7 @@ export type DefinitionOptions = {
     bulkUpdate?: MethodDecorator | MethodDecorator[];
     bulkRemove?: MethodDecorator | MethodDecorator[];
   };
+  skipDefaultHookMethods?: HookMethod[];
 };
 
 export type Definition = any;

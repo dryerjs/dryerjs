@@ -11,6 +11,7 @@ export type HasManyConfig = {
     allowCreateWithin?: boolean;
     allowPaginate?: boolean;
     allowFindAll?: boolean;
+    skipRelationCheckOnRemove?: boolean;
   };
 };
 
