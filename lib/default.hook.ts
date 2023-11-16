@@ -7,7 +7,7 @@ import { Inject } from '@nestjs/common';
 import { AllDefinitions, Hook } from './hook';
 import { HydratedProperty, inspect } from './inspect';
 import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
-import { Definition, DefinitionOptions } from './definition';
+import { Definition, DefinitionOptions, HookMethod } from './definition';
 import * as util from './util';
 import { ObjectId } from './object-id';
 import { RemoveMode, RemoveOptions } from './remove-options';
@@ -25,18 +25,31 @@ export interface FailCleanUpAfterRemoveHandler {
 @Hook(() => AllDefinitions)
 export class DefaultHook implements Hook<any, any> {
   private getCachedReferencingProperties: (definition: Definition) => HydratedProperty[];
+  private isHookMethodSkip: (definition: Definition, method: HookMethod) => boolean;
 
   constructor(
     @Inject(DRYER_MODULE_OPTIONS) private moduleOptions: DryerModuleOptions,
     private readonly moduleRef: ModuleRef,
   ) {
     this.getCachedReferencingProperties = util.memoize(this.getUncachedReferencingProperties.bind(this));
+    this.isHookMethodSkip = util.memoize(
+      this.uncachedIsHookMethodSkip.bind(this),
+      (definition, method) => `${definition.name}:${method}`,
+    );
+  }
+
+  private uncachedIsHookMethodSkip(definition: Definition, method: HookMethod) {
+    const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
+    const skippedMethods = util.defaultTo(definitionOptions.skipDefaultHookMethods, []);
+    return skippedMethods.includes(method) || skippedMethods.includes('all');
   }
 
   public async beforeCreate({
     input,
     definition,
   }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
+    /* istanbul ignore if */
+    if (this.isHookMethodSkip(definition, 'beforeCreate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
       /* istanbul ignore if */
@@ -86,6 +99,8 @@ export class DefaultHook implements Hook<any, any> {
     beforeUpdated,
     definition,
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
+    /* istanbul ignore if */
+    if (this.isHookMethodSkip(definition, 'beforeUpdate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
       /* istanbul ignore if */
@@ -136,6 +151,8 @@ export class DefaultHook implements Hook<any, any> {
     definition,
     options,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
+    /* istanbul ignore if */
+    if (this.isHookMethodSkip(definition, 'beforeRemove')) return;
     this.ensureRemoveModeValid(definition, options);
     if ([RemoveMode.IgnoreRelations, RemoveMode.CleanUpRelationsAfterRemoved].includes(options.mode)) return;
     const referencingProperties = this.getCachedReferencingProperties(definition);
@@ -176,6 +193,8 @@ export class DefaultHook implements Hook<any, any> {
   }
 
   public async afterRemove(input: Parameters<Required<Hook>['afterRemove']>[0]): Promise<void> {
+    /* istanbul ignore if */
+    if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
     this.cleanUpRelationsAfterRemoved(input);
   }
