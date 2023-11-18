@@ -153,7 +153,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           const result = await this.update(input, ctx);
           response.push({ input, result, success: true });
         } catch (error: any) {
-          await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
+          await this.bulkErrorHandler?.handleUpdateError?.({ input, ctx, definition }, error);
           response.push({
             input,
             success: false,
