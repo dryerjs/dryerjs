@@ -8,23 +8,26 @@ import * as util from '../util';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
+import { DryerPropertyInput, Skip } from '../property';
 
-export type EmbeddedConfig = {
-  typeFunction: () => any;
-  options: {
-    allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
-    onSubSchema?: (subSchema: Schema) => void;
-    resolverDecorators?: {
-      default?: MethodDecorator | MethodDecorator[];
-      write?: MethodDecorator | MethodDecorator[];
-      read?: MethodDecorator | MethodDecorator[];
-      findOne?: MethodDecorator | MethodDecorator[];
-      findAll?: MethodDecorator | MethodDecorator[];
-      remove?: MethodDecorator | MethodDecorator[];
-      update?: MethodDecorator | MethodDecorator[];
-      create?: MethodDecorator | MethodDecorator[];
-    };
+type EmbeddedOptions = Omit<DryerPropertyInput, 'type'> & {
+  allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
+  onSubSchema?: (subSchema: Schema) => void;
+  resolverDecorators?: {
+    default?: MethodDecorator | MethodDecorator[];
+    write?: MethodDecorator | MethodDecorator[];
+    read?: MethodDecorator | MethodDecorator[];
+    findOne?: MethodDecorator | MethodDecorator[];
+    findAll?: MethodDecorator | MethodDecorator[];
+    remove?: MethodDecorator | MethodDecorator[];
+    update?: MethodDecorator | MethodDecorator[];
+    create?: MethodDecorator | MethodDecorator[];
   };
+};
+
+export type EmbeddedConfig = DryerPropertyInput & {
+  typeFunction: () => any;
+  options: EmbeddedOptions;
 };
 
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
@@ -36,37 +39,46 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
     options?.onSubSchema?.(subSchema);
 
     const isArray = Reflect.getMetadata(MetaKey.DesignType, target, propertyKey) === Array;
-    Prop({ type: isArray ? [subSchema] : subSchema })(target, propertyKey);
+    if (options?.db !== Skip) {
+      Prop({ type: isArray ? [subSchema] : subSchema })(target, propertyKey);
+    }
     Thunk(
       Field(() => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())), { nullable: true }),
       { scopes: 'output' },
     )(target, propertyKey);
-    Thunk(
-      Field(() => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())), {
-        nullable: true,
-      }),
-      { scopes: 'create' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())), {
-        nullable: true,
-      }),
-      { scopes: 'update' },
-    )(target, propertyKey);
+    if (options?.create !== Skip) {
+      Thunk(
+        Field(() => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())), {
+          nullable: true,
+        }),
+        { scopes: 'create' },
+      )(target, propertyKey);
+      Thunk(
+        Type(() => CreateInputType(typeFunction())),
+        { scopes: 'create' },
+      )(target, propertyKey);
+    }
+    if (options?.update !== Skip) {
+      Thunk(
+        Field(() => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())), {
+          nullable: true,
+        }),
+        { scopes: 'update' },
+      )(target, propertyKey);
+      if (options?.create !== Skip) {
+        Thunk(
+          Type(() => UpdateInputType(typeFunction())),
+          { scopes: 'update' },
+        )(target, propertyKey);
+      }
+    }
+
     if (isArray) {
       Thunk(ValidateNested({ each: true }), { scopes: 'input' })(target, propertyKey);
     } else {
       Thunk(ValidateNested(), { scopes: 'input' })(target, propertyKey);
       Thunk(ValidateIf((_, value) => value !== null))(target, propertyKey);
     }
-    Thunk(
-      Type(() => UpdateInputType(typeFunction())),
-      { scopes: 'update' },
-    )(target, propertyKey);
-    Thunk(
-      Type(() => CreateInputType(typeFunction())),
-      { scopes: 'create' },
-    )(target, propertyKey);
 
     Metadata.for(target)
       .with(propertyKey)

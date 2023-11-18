@@ -10,7 +10,7 @@ type OverrideOptions = Partial<FieldOptions> & { type?: ReturnTypeFunc };
 
 export const Skip = Symbol('Skip');
 
-type DryerPropertyInput = FieldOptions & {
+export type DryerPropertyInput = FieldOptions & {
   type?: ReturnTypeFunc;
   create?: OverrideOptions | typeof Skip;
   update?: OverrideOptions | typeof Skip;
