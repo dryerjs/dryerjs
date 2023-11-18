@@ -48,11 +48,9 @@ export class DefaultHook implements Hook<any, any> {
     input,
     definition,
   }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
-    /* istanbul ignore if */
     if (this.isHookMethodSkip(definition, 'beforeCreate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
-      /* istanbul ignore if */
       if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       for (const newId of input[options.from]) {
@@ -62,7 +60,6 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
-      /* istanbul ignore if */
       if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       await this.mustExist(typeFunction(), input[options.from]);
@@ -99,11 +96,9 @@ export class DefaultHook implements Hook<any, any> {
     beforeUpdated,
     definition,
   }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
-    /* istanbul ignore if */
     if (this.isHookMethodSkip(definition, 'beforeUpdate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
-      /* istanbul ignore if */
       if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       const toString = (ids: StringLikeId[]) => ids.map((id) => id.toString()).join(',');
@@ -118,7 +113,6 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const property of inspect(definition).belongsToProperties) {
       const { options, typeFunction } = property.getBelongsTo();
-      /* istanbul ignore if */
       if (options.skipExistenceCheck) continue;
       if (util.isNil(input[options.from])) continue;
       if (input[options.from]?.toString() === beforeUpdated[options.from]?.toString()) continue;
@@ -151,7 +145,6 @@ export class DefaultHook implements Hook<any, any> {
     definition,
     options,
   }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
-    /* istanbul ignore if */
     if (this.isHookMethodSkip(definition, 'beforeRemove')) return;
     this.ensureRemoveModeValid(definition, options);
     if ([RemoveMode.IgnoreRelations, RemoveMode.CleanUpRelationsAfterRemoved].includes(options.mode)) return;
@@ -169,7 +162,6 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const hasManyProperty of inspect(definition).hasManyProperties) {
       const { options, typeFunction } = hasManyProperty.getHasMany();
-      /* istanbul ignore if */
       if (options.skipRelationCheckOnRemove) continue;
       await this.mustNotExist({
         fromDefinition: definition,
@@ -181,7 +173,6 @@ export class DefaultHook implements Hook<any, any> {
 
     for (const hasOneProperty of inspect(definition).hasOneProperties) {
       const { options, typeFunction } = hasOneProperty.getHasOne();
-      /* istanbul ignore if */
       if (options.skipRelationCheckOnRemove) continue;
       await this.mustNotExist({
         fromDefinition: definition,
@@ -193,7 +184,6 @@ export class DefaultHook implements Hook<any, any> {
   }
 
   public async afterRemove(input: Parameters<Required<Hook>['afterRemove']>[0]): Promise<void> {
-    /* istanbul ignore if */
     if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
     this.cleanUpRelationsAfterRemoved(input);
