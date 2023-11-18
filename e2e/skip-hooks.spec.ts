@@ -44,7 +44,7 @@ describe('skip default hooks for relations works', () => {
               name: 'Adobe',
             },
             {
-              name: 'Jetbrains',
+              name: 'JetBrains',
             },
           ],
         },
