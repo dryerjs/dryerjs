@@ -12,3 +12,6 @@ export * from './hook';
 export * from './default.hook';
 export * from './mongoose-index-decorator';
 export * from './module-options';
+export * from './base.service';
+export * from './metadata';
+export * from './inspect';
