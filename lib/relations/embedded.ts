@@ -12,7 +12,7 @@ import { Thunk } from '../thunk';
 export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
-    allowApis: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
+    allowApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     onSubSchema?: (subSchema: Schema) => void;
     resolverDecorators?: {
       default?: MethodDecorator | MethodDecorator[];

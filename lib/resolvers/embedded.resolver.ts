@@ -24,7 +24,14 @@ export function createResolverForEmbedded(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if (options.allowApis.includes(propertyKey as any)) {
+      const normalizedAllowApis = util.defaultTo(options.allowApis, [
+        'findAll',
+        'findOne',
+        'create',
+        'update',
+        'remove',
+      ]);
+      if (normalizedAllowApis.includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -77,6 +84,7 @@ export function createResolverForEmbedded(
         name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
+    // TODO: not working
     async remove(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
@@ -148,6 +156,7 @@ export function createResolverForEmbedded(
         name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
+    // TODO: not working
     async update(
       @Args(
         'inputs',
