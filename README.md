@@ -35,7 +35,13 @@ To get started with DryerJS, follow these steps:
    npm i dataloader
    ```
 
-2. Declare your first model on `src/user.ts`:
+2. Install DryerJS:
+
+   ```bash
+   npm i dryerjs
+   ```
+
+3. Declare your first model on `src/user.ts`:
 
    ```typescript
    import { Definition, Property, Id, Skip } from 'dryerjs';
@@ -56,7 +62,7 @@ To get started with DryerJS, follow these steps:
    }
    ```
 
-3. Import your model and DryerJSModule in AppModule with other modules inside app.module.ts:
+4. Import your model and DryerJSModule in AppModule with other modules inside app.module.ts:
 
    ```typescript
    import { Module } from '@nestjs/common';
@@ -81,13 +87,13 @@ To get started with DryerJS, follow these steps:
    export class AppModule {}
    ```
 
-6. Start server
+5. Start server
 
    ```bash
    npm run start:dev
    ```
 
-7. Open browser and go to [http://localhost:3000/graphql](http://localhost:3000/graphql) to see the GraphQL playground.
+6. Open browser and go to [http://localhost:3000/graphql](http://localhost:3000/graphql) to see the GraphQL playground.
 
 ## Contributing
 
