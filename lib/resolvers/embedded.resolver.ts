@@ -84,7 +84,6 @@ export function createResolverForEmbedded(
         name: `remove${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
-    // TODO: not working
     async remove(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
@@ -98,7 +97,8 @@ export function createResolverForEmbedded(
       if (ids.length === 0) {
         throw new graphql.GraphQLError(`No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`);
       }
-      parent[field] = parent[field].filter((item: any) => !ids.includes(item._id.toString()));
+      const stringifiedIds = ids.map((id) => id.toString());
+      parent[field] = parent[field].filter((item) => !stringifiedIds.includes(item._id.toString()));
       await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return { success: true };
     }
@@ -156,7 +156,6 @@ export function createResolverForEmbedded(
         name: `update${util.toPascalCase(definition.name)}${util.toPascalCase(field)}`,
       }),
     )
-    // TODO: not working
     async update(
       @Args(
         'inputs',
@@ -181,7 +180,11 @@ export function createResolverForEmbedded(
           );
         }
       }
-      parent[field] = inputs;
+      parent[field] = parent[field].map((item) => {
+        const input = inputs.find((input) => input.id.toString() === item._id.toString());
+        if (!input) return item;
+        return Object.assign(Object.assign({}, item), input);
+      });
       const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return updatedParent[field].filter((item: any) =>
         inputs.some((input) => input.id.toString() === item.id.toString()),
