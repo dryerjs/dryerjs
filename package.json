@@ -19,7 +19,8 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && npm run copy-types",
+    "copy-types": "cp lib/js/mongoose-paginate-v2/index.d.ts dist/js/mongoose-paginate-v2/index.d.ts",
     "format": "prettier \"src/**/*.ts\" \"e2e/**/*.ts\" \"src/**/*.ts\" -w",
     "format:ci": "prettier \"src/**/*.ts\" \"e2e/**/*.ts\" \"src/**/*.ts\" -l",
     "lint": "eslint \"{src,lib,e2e}/**/*.ts\" --fix",
