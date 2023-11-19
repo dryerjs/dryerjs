@@ -14,6 +14,10 @@ supports model relations, and is easily customizable, thus enhancing API develop
 [![Discord](https://img.shields.io/discord/1165841842873565264?logo=discord&color=success)](https://discord.gg/mBZN86W5Fa)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-ff3f59.svg?logo=paypal&color=success)](https://paypal.me/briandryerjs)
 
+## Documentation
+
+Checkout the documentation at [dryerjs.com](https://dryerjs.com) for more information.
+
 ## Getting Started
 
 To get started with DryerJS, follow these steps:
@@ -84,10 +88,6 @@ To get started with DryerJS, follow these steps:
    ```
 
 7. Open browser and go to [http://localhost:3000/graphql](http://localhost:3000/graphql) to see the GraphQL playground.
-
-## Documentation
-
-For more information, please refer to the [documentation](https://dryerjs.com).
 
 ## Contributing
 
