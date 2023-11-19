@@ -1,3 +1,4 @@
+import './js/mongoose-paginate-v2';
 export * from './shared';
 export * from './thunk';
 export * from './property';
