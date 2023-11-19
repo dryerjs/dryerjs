@@ -18,5 +18,5 @@
     "virtuals",
     "Macbook"
   ],
-  "ignorePaths": ["node_modules", "dist", "coverage"]
+  "ignorePaths": ["node_modules", "dist", "coverage", "CHANGELOG.md"]
 }
