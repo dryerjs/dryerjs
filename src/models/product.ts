@@ -24,6 +24,7 @@ export class Color {
   id: ObjectId;
 
   @Property()
+  @Thunk(Transform(({ value }) => value.toLowerCase()), { scopes: 'output' })
   name: string;
 }
 

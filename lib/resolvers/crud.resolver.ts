@@ -27,6 +27,7 @@ import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
+import { plainToInstance } from 'class-transformer';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
@@ -78,7 +79,8 @@ export function createResolver(definition: Definition, contextDecorator: Context
       input: any,
       @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.create(ctx, input);
+      const result = await this.baseService.create(ctx, input);
+      return plainToInstance(OutputType(definition), result.toObject());
     }
 
     @applyDecorators(
@@ -107,7 +109,11 @@ export function createResolver(definition: Definition, contextDecorator: Context
       for (const input of inputs) {
         try {
           const result = await this.create(input, ctx);
-          response.push({ input, result, success: true });
+          response.push({
+            input,
+            result: plainToInstance(OutputType(definition), result.toObject()),
+            success: true,
+          });
         } catch (error: any) {
           await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
           response.push({
@@ -151,7 +157,11 @@ export function createResolver(definition: Definition, contextDecorator: Context
       for (const input of inputs) {
         try {
           const result = await this.update(input, ctx);
-          response.push({ input, result, success: true });
+          response.push({
+            input,
+            result: plainToInstance(OutputType(definition), result.toObject()),
+            success: true,
+          });
         } catch (error: any) {
           await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
           response.push({
@@ -224,7 +234,8 @@ export function createResolver(definition: Definition, contextDecorator: Context
       input: any,
       @contextDecorator() ctx: any,
     ) {
-      return await this.baseService.update(ctx, input);
+      const result = await this.baseService.update(ctx, input);
+      return plainToInstance(OutputType(definition), result.toObject());
     }
 
     @applyDecorators(
@@ -235,7 +246,8 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      return await this.baseService.findOne(ctx, { _id: id });
+      const result = await this.baseService.findOne(ctx, { _id: id });
+      return plainToInstance(OutputType(definition), result.toObject());
     }
 
     @applyDecorators(
@@ -260,11 +272,12 @@ export function createResolver(definition: Definition, contextDecorator: Context
       )
       sort: object,
     ): Promise<T[]> {
-      return await this.baseService.findAll(
+      const items = await this.baseService.findAll(
         ctx,
         MongoHelper.toQuery(util.defaultTo(filter, {})),
         MongoHelper.getSortObject(filter as any, sort),
       );
+      return items.map((item) => plainToInstance(OutputType(definition), item.toObject()));
     }
 
     @applyDecorators(
@@ -305,13 +318,17 @@ export function createResolver(definition: Definition, contextDecorator: Context
       )
       sort: object,
     ) {
-      return await this.baseService.paginate(
+      const result = await this.baseService.paginate(
         ctx,
         MongoHelper.toQuery(util.defaultTo(filter, {})),
         MongoHelper.getSortObject(filter as any, sort),
         page,
         limit,
       );
+      return {
+        ...result,
+        docs: result.docs.map((item) => plainToInstance(OutputType(definition), item.toObject())),
+      };
     }
   }
 
