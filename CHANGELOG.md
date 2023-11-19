@@ -1,3 +1,10 @@
+## [0.13.2](https://github.com/dryerjs/dryerjs/compare/v0.13.1...v0.13.2) (2023-11-19)
+
+
+### Bug Fixes
+
+* adding export for base service ([#253](https://github.com/dryerjs/dryerjs/issues/253)) ([90d03a3](https://github.com/dryerjs/dryerjs/commit/90d03a3a8d1b212bee14d2e5f6f6dc272e7d2cbf))
+
 ## [0.13.1](https://github.com/dryerjs/dryerjs/compare/v0.13.0...v0.13.1) (2023-11-19)
 
 
