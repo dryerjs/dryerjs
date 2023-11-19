@@ -4,7 +4,8 @@
   <img alt="DryerJS Logo" src="https://dryerjs.github.io/logo-light.png" width="300px">
 </picture>
 
-DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a declarative way, seamlessly integrating with Apollo Server, Mongoose, and MongoDB. With DryerJS, you can streamline the development of your GraphQL APIs and focus on your application's logic instead of writing repetitive boilerplate code.
+DryerJS, built on NestJS with Mongoose, is a robust tool for creating CRUD GraphQL APIs. It allows for declarative model declaration,
+supports model relations, and is easily customizable, thus enhancing API development and minimizing repetitive coding.
 
 [![codecov](https://codecov.io/gh/dryerjs/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/dryerjs/dryerjs)
 [![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
@@ -13,38 +14,28 @@ DryerJS is a powerful library that allows you to generate CRUD GraphQL APIs in a
 [![Discord](https://img.shields.io/discord/1165841842873565264?logo=discord&color=success)](https://discord.gg/mBZN86W5Fa)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-ff3f59.svg?logo=paypal&color=success)](https://paypal.me/briandryerjs)
 
-## Features
+## Documentation
 
-- Declarative schema definition for GraphQL APIs.
-- Integration with Apollo Server for GraphQL endpoint setup.
-- Seamless interaction with MongoDB and Mongoose.
-- Fine-grained control over input/output data transformation.
-- Support for input validation and data manipulation.
-- Easily customizable to fit your specific needs.
+Checkout the documentation at [dryerjs.com](https://dryerjs.com) for more information.
 
 ## Getting Started
 
 To get started with DryerJS, follow these steps:
 
-1. Init NestJS project:
+1. Prepare:
 
    ```bash
-   npm i -g @nestjs/cli && nest new my-project
+   # install @nestjs/cli and create a new project
+   npm i -g @nestjs/cli && nest new my-project && cd my-project
+   # install standard dependencies
+   npm i @nestjs/graphql @nestjs/apollo class-transformer class-validator @nestjs/mongoose
+   # remove unrelated files
+   rm -rf src/app.controller.ts src/app.service.ts src/app.controller.spec.ts
+   # install dataloader
+   npm i dataloader
    ```
 
-2. Install dependencies:
-
-   ```bash
-   npm i @nestjs/graphql @nestjs/apollo class-transformer class-validator @nestjs/mongoose dataloader
-   ```
-
-3. Install DryerJS as a dependency in your project
-
-   ```bash
-   npm i dryerjs
-   ```
-
-4. Declare your first model on `src/user.ts`:
+2. Declare your first model on `src/user.ts`:
 
    ```typescript
    import { Definition, Property, Id, Skip } from 'dryerjs';
@@ -65,7 +56,7 @@ To get started with DryerJS, follow these steps:
    }
    ```
 
-5. Import your model and DryerJSModule in AppModule with other modules inside app.module.ts:
+3. Import your model and DryerJSModule in AppModule with other modules inside app.module.ts:
 
    ```typescript
    import { Module } from '@nestjs/common';
@@ -97,12 +88,6 @@ To get started with DryerJS, follow these steps:
    ```
 
 7. Open browser and go to [http://localhost:3000/graphql](http://localhost:3000/graphql) to see the GraphQL playground.
-
-8. Modify your model and see the changes in the GraphQL playground. Using Validate, Transform, Default, Enum, Embedded features to customize your model. Take a look at more complicated [example models](https://github.com/dryerjs/dryerjs/tree/master/src).
-
-## Documentation
-
-We are actively working on documentation. In the meantime, you can explore our [example project](https://github.com/dryerjs/dryerjs/tree/master/src) to see DryerJS in action.
 
 ## Contributing
 

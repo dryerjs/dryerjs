@@ -39,7 +39,7 @@ describe('Paginate works', () => {
   it('sort the data returned in ascending order', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query: `
-        query PaginateCustomers($page: Int!, $limit: Int!, $sort : CustomerSort) {
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort: CustomerSort) {
           paginateCustomers(page: $page, limit: $limit, sort: $sort) {
             docs {
               email
