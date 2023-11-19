@@ -90,6 +90,24 @@ describe('Embedded works', () => {
     });
   });
 
+  it('Get one book within author: return error if item not found', async () => {
+    await server.makeFailRequest({
+      query: `
+        query AuthorBook($authorId: ObjectId!, $bookId: ObjectId!) {
+          authorBook(authorId: $authorId, id: $bookId) {
+            id
+            name
+          }
+        }
+      `,
+      variables: {
+        authorId: author.id,
+        bookId: NOT_FOUND_ID,
+      },
+      errorMessageMustContains: '',
+    });
+  });
+
   it('Get all books within author', async () => {
     const { authorBooks } = await server.makeSuccessRequest({
       query: `
@@ -314,7 +332,7 @@ describe('Embedded works', () => {
   });
 
   it('Update books within author: return error if parent not found', async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
@@ -327,14 +345,14 @@ describe('Embedded works', () => {
         authorId: NOT_FOUND_ID,
         inputs: author.books,
       },
+      errorMessageMustContains: `No Author found with ID: ${NOT_FOUND_ID}`,
     });
-    expect(response[0].message).toEqual(`No Author found with ID: ${NOT_FOUND_ID}`);
   });
 
   it('Update books within author: return error if book not found', async () => {
     const books = author.books.map((book) => ({ ...book }));
     books[0].id = NOT_FOUND_ID as any;
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
@@ -347,8 +365,8 @@ describe('Embedded works', () => {
         authorId: author.id,
         inputs: books,
       },
+      errorMessageMustContains: `No Book found with ID ${NOT_FOUND_ID}`,
     });
-    expect(response[0].message).toEqual(`No book found with ID ${NOT_FOUND_ID}`);
   });
 
   it('create and update author books should only return relevant items', async () => {
@@ -444,7 +462,7 @@ describe('Embedded works', () => {
   });
 
   it("Remove author's books: return error if parent not found", async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
@@ -457,12 +475,12 @@ describe('Embedded works', () => {
         bookIds: ['5e6b4b5b1c9d440000d2c7f3'],
       },
       headers: { 'fake-role': 'user' },
+      errorMessageMustContains: 'No Author found with ID: 5e6b4b5b1c9d440000d2c7f3',
     });
-    expect(response[0].message).toEqual('No Author found with ID: 5e6b4b5b1c9d440000d2c7f3');
   });
 
   it("Remove author's books: return error if no IDs provided", async () => {
-    const response = await server.makeFailRequest({
+    await server.makeFailRequest({
       query: `
         mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
@@ -475,8 +493,8 @@ describe('Embedded works', () => {
         bookIds: [],
       },
       headers: { 'fake-role': 'user' },
+      errorMessageMustContains: 'No Book IDs provided',
     });
-    expect(response[0].message).toEqual('No book IDs provided');
   });
 
   it('Remove without permission', async () => {
