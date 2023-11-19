@@ -25,14 +25,7 @@ export function createResolverForEmbedded(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      const normalizedAllowApis = util.defaultTo(options.allowApis, [
-        'findAll',
-        'findOne',
-        'create',
-        'update',
-        'remove',
-      ]);
-      if (normalizedAllowApis.includes(propertyKey as any)) {
+      if (options.allowApis!.includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -126,7 +119,7 @@ export function createResolverForEmbedded(
     ): Promise<T> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
       const result = parent[field].find((item: any) => item._id.toString() === id.toString());
-      if (!result) {
+      if (util.isNil(result)) {
         throw new graphql.GraphQLError(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
       }
       return plainToInstance(OutputType(embeddedDefinition), result.toObject());
