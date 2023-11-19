@@ -18,6 +18,7 @@ import { ContextDecorator, defaultContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { ObjectId, StringLikeId } from '../shared';
 import { MongoHelper } from '../mongo-helper';
+import { plainToInstance } from 'class-transformer';
 
 export function createResolverForHasMany(
   definition: Definition,
@@ -59,8 +60,11 @@ export function createResolverForHasMany(
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
         const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        const transformedItems = items.map((item) =>
+          plainToInstance(OutputType(relationDefinition), item.toObject()),
+        );
         return keys.map((id) => {
-          return items.filter((item) => String(item[field]) === String(id));
+          return transformedItems.filter((item) => String(item[field]) === String(id));
         });
       });
       rawCtx.req[loaderKey] = loader;
@@ -98,7 +102,7 @@ export function createResolverForHasMany(
       )
       sort: object,
     ): Promise<any> {
-      return await this.baseService.paginate(
+      const result = await this.baseService.paginate(
         ctx,
         {
           ...MongoHelper.toQuery(util.defaultTo(filter, {})),
@@ -108,6 +112,10 @@ export function createResolverForHasMany(
         page,
         limit,
       );
+      return {
+        ...result,
+        docs: result.docs.map((item) => plainToInstance(OutputType(relationDefinition), item.toObject())),
+      };
     }
   }
 
