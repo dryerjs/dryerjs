@@ -16,7 +16,7 @@ import { Definition } from '../definition';
 import { HasManyConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
-import { StringLikeId } from '../shared';
+import { ObjectId, StringLikeId } from '../shared';
 import { MongoHelper } from '../mongo-helper';
 
 export function createResolverForHasMany(
@@ -73,7 +73,7 @@ export function createResolverForHasMany(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T[]> {
-      return await this.getLoader(ctx, rawCtx).load(parent._id);
+      return await this.getLoader(ctx, rawCtx).load(new ObjectId(parent.id));
     }
 
     @IfApiAllowed(
@@ -100,7 +100,10 @@ export function createResolverForHasMany(
     ): Promise<any> {
       return await this.baseService.paginate(
         ctx,
-        { ...MongoHelper.toQuery(util.defaultTo(filter, {})), [relation.options.to]: parent._id },
+        {
+          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          [relation.options.to]: new ObjectId(parent.id),
+        },
         util.defaultTo(sort, {}),
         page,
         limit,

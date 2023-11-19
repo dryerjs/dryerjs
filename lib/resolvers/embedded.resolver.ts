@@ -1,6 +1,7 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Provider } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import { SuccessResponse } from '../types';
@@ -71,7 +72,9 @@ export function createResolverForEmbedded(
       const beforeIds = parent[field].map((item: any) => item._id.toString());
       parent[field].push(...inputs);
       const updated = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
-      return updated[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
+      return updated[field]
+        .filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1)
+        .map((item: any) => plainToInstance(OutputType(embeddedDefinition), item.toObject()));
     }
 
     @applyDecorators(
@@ -95,7 +98,7 @@ export function createResolverForEmbedded(
     ) {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
       if (ids.length === 0) {
-        throw new graphql.GraphQLError(`No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`);
+        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} IDs provided`);
       }
       const stringifiedIds = ids.map((id) => id.toString());
       parent[field] = parent[field].filter((item) => !stringifiedIds.includes(item._id.toString()));
@@ -122,7 +125,11 @@ export function createResolverForEmbedded(
       @contextDecorator() ctx: any,
     ): Promise<T> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
-      return parent[field].find((item: any) => item._id.toString() === id.toString());
+      const result = parent[field].find((item: any) => item._id.toString() === id.toString());
+      if (!result) {
+        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
+      }
+      return plainToInstance(OutputType(embeddedDefinition), result.toObject());
     }
 
     @applyDecorators(
@@ -143,7 +150,9 @@ export function createResolverForEmbedded(
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
-      return parent[field];
+      return parent[field].map((item: any) =>
+        plainToInstance(OutputType(embeddedDefinition), item.toObject()),
+      );
     }
 
     @applyDecorators(
@@ -176,7 +185,7 @@ export function createResolverForEmbedded(
         );
         if (!exists) {
           throw new graphql.GraphQLError(
-            `No ${util.toCamelCase(embeddedDefinition.name)} found with ID ${subDocumentInput.id.toString()}`,
+            `No ${embeddedDefinition.name} found with ID ${subDocumentInput.id.toString()}`,
           );
         }
       }
@@ -186,9 +195,9 @@ export function createResolverForEmbedded(
         return Object.assign(Object.assign({}, item), input);
       });
       const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
-      return updatedParent[field].filter((item: any) =>
-        inputs.some((input) => input.id.toString() === item.id.toString()),
-      );
+      return updatedParent[field]
+        .filter((item: any) => inputs.some((input) => input.id.toString() === item.id.toString()))
+        .map((item: any) => plainToInstance(OutputType(embeddedDefinition), item.toObject()));
     }
   }
 

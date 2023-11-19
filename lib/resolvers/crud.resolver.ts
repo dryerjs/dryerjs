@@ -111,7 +111,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           const result = await this.create(input, ctx);
           response.push({
             input,
-            result: plainToInstance(OutputType(definition), result.toObject()),
+            result,
             success: true,
           });
         } catch (error: any) {
@@ -159,7 +159,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
           const result = await this.update(input, ctx);
           response.push({
             input,
-            result: plainToInstance(OutputType(definition), result.toObject()),
+            result,
             success: true,
           });
         } catch (error: any) {
