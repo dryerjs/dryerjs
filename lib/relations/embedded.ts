@@ -7,7 +7,7 @@ import * as util from '../util';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
-import { Property } from '../property';
+import { DryerPropertyInput, Property, Skip } from '../property';
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
@@ -24,6 +24,7 @@ export type EmbeddedConfig = {
       update?: MethodDecorator | MethodDecorator[];
       create?: MethodDecorator | MethodDecorator[];
     };
+    overridePropertyOptions?: Pick<DryerPropertyInput, 'create' | 'update' | 'output' | 'db'>;
   };
 };
 
@@ -58,22 +59,43 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       Type(() => CreateInputType(typeFunction())),
       { scopes: 'create' },
     )(target, propertyKey);
+
+    const mergeOption = (option: any, override: any) => {
+      if (override === Skip) return Skip;
+      return {
+        ...option,
+        ...util.defaultTo(override, {}),
+      };
+    };
+
     return Property({
-      create: {
-        type: () => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())),
-        nullable: true,
-      },
-      update: {
-        type: () => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())),
-        nullable: true,
-      },
-      output: {
-        type: () => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())),
-        nullable: true,
-      },
-      db: {
-        type: isArray ? [subSchema] : subSchema,
-      },
+      create: mergeOption(
+        {
+          type: () => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.create,
+      ),
+      update: mergeOption(
+        {
+          type: () => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.update,
+      ),
+      output: mergeOption(
+        {
+          type: () => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.output,
+      ),
+      db: mergeOption(
+        {
+          type: isArray ? [subSchema] : subSchema,
+        },
+        options?.overridePropertyOptions?.db,
+      ),
     })(target, propertyKey);
   };
 }
