@@ -1,3 +1,11 @@
+## [0.13.1](https://github.com/dryerjs/dryerjs/compare/v0.13.0...v0.13.1) (2023-11-19)
+
+
+### Bug Fixes
+
+* missing export for default hook ([#251](https://github.com/dryerjs/dryerjs/issues/251)) ([6fd934e](https://github.com/dryerjs/dryerjs/commit/6fd934ecee7c6403113a7f44c664bebd346f8c3b))
+* missing paginated model ([#252](https://github.com/dryerjs/dryerjs/issues/252)) ([5650c4d](https://github.com/dryerjs/dryerjs/commit/5650c4d9479a81ecfe20be6275994b3171cf3dd6))
+
 # [0.13.0](https://github.com/dryerjs/dryerjs/compare/v0.12.0...v0.13.0) (2023-11-19)
 
 
