@@ -2,6 +2,7 @@ import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import {
@@ -27,7 +28,6 @@ import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
-import { plainToInstance } from 'class-transformer';
 
 export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {

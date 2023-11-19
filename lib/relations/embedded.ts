@@ -1,6 +1,5 @@
-import { Field } from '@nestjs/graphql';
 import { Schema } from 'mongoose';
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import { ValidateNested, ValidateIf } from 'class-validator';
 
@@ -8,6 +7,7 @@ import * as util from '../util';
 import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
+import { DryerPropertyInput, Property, Skip } from '../property';
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
@@ -24,6 +24,7 @@ export type EmbeddedConfig = {
       update?: MethodDecorator | MethodDecorator[];
       create?: MethodDecorator | MethodDecorator[];
     };
+    overridePropertyOptions?: Pick<DryerPropertyInput, 'create' | 'update' | 'output' | 'db'>;
   };
 };
 
@@ -36,29 +37,20 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
     options?.onSubSchema?.(subSchema);
 
     const isArray = Reflect.getMetadata(MetaKey.DesignType, target, propertyKey) === Array;
-    Prop({ type: isArray ? [subSchema] : subSchema })(target, propertyKey);
-    Thunk(
-      Field(() => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())), { nullable: true }),
-      { scopes: 'output' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())), {
-        nullable: true,
-      }),
-      { scopes: 'create' },
-    )(target, propertyKey);
-    Thunk(
-      Field(() => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())), {
-        nullable: true,
-      }),
-      { scopes: 'update' },
-    )(target, propertyKey);
     if (isArray) {
       Thunk(ValidateNested({ each: true }), { scopes: 'input' })(target, propertyKey);
     } else {
       Thunk(ValidateNested(), { scopes: 'input' })(target, propertyKey);
       Thunk(ValidateIf((_, value) => value !== null))(target, propertyKey);
     }
+    Metadata.for(target)
+      .with(propertyKey)
+      .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
+        typeFunction,
+        options: util.defaultTo(options, {
+          allowApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
+        }),
+      });
     Thunk(
       Type(() => UpdateInputType(typeFunction())),
       { scopes: 'update' },
@@ -68,13 +60,42 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       { scopes: 'create' },
     )(target, propertyKey);
 
-    Metadata.for(target)
-      .with(propertyKey)
-      .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
-        typeFunction,
-        options: util.defaultTo(options, {
-          allowApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
-        }),
-      });
+    const mergeOption = (option: any, override: any) => {
+      if (override === Skip) return Skip;
+      return {
+        ...option,
+        ...util.defaultTo(override, {}),
+      };
+    };
+
+    return Property({
+      create: mergeOption(
+        {
+          type: () => (isArray ? [CreateInputType(typeFunction())] : CreateInputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.create,
+      ),
+      update: mergeOption(
+        {
+          type: () => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.update,
+      ),
+      output: mergeOption(
+        {
+          type: () => (isArray ? [OutputType(typeFunction())] : OutputType(typeFunction())),
+          nullable: true,
+        },
+        options?.overridePropertyOptions?.output,
+      ),
+      db: mergeOption(
+        {
+          type: isArray ? [subSchema] : subSchema,
+        },
+        options?.overridePropertyOptions?.db,
+      ),
+    })(target, propertyKey);
   };
 }

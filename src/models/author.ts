@@ -2,7 +2,7 @@ import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { UseGuards } from '@nestjs/common';
 
-import { Definition, Embedded, Thunk, ObjectId, Property, Id } from '../../lib';
+import { Definition, Embedded, Thunk, ObjectId, Property, Id, Skip } from '../../lib';
 import { UserGuard } from './fake-guards';
 
 @Definition()
@@ -30,6 +30,17 @@ export class Book {
   reviews: Review[];
 }
 
+@Definition()
+export class Log {
+  @Id()
+  id: ObjectId;
+
+  @Thunk(MaxLength(100), { scopes: 'input' })
+  @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
+  @Property()
+  name: string;
+}
+
 @Definition({ allowedApis: '*' })
 export class Author {
   @Id()
@@ -43,4 +54,10 @@ export class Author {
     resolverDecorators: { remove: UseGuards(UserGuard) },
   })
   books: Book[];
+
+  @Embedded(() => Log, {
+    allowApis: [],
+    overridePropertyOptions: { create: Skip, update: Skip },
+  })
+  logs: Log[];
 }
