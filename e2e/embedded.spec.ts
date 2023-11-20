@@ -96,7 +96,7 @@ describe('Embedded works', () => {
         query AuthorBook($authorId: ObjectId!, $bookId: ObjectId!) {
           authorBook(authorId: $authorId, id: $bookId) {
             id
-            name
+            title
           }
         }
       `,
@@ -104,7 +104,7 @@ describe('Embedded works', () => {
         authorId: author.id,
         bookId: NOT_FOUND_ID,
       },
-      errorMessageMustContains: '',
+      errorMessageMustContains: 'No Book found with ID 000000000000000000000000',
     });
   });
 
