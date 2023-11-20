@@ -1,3 +1,13 @@
+# [1.0.0](https://github.com/dryerjs/dryerjs/compare/v0.13.2...v1.0.0) (2023-11-20)
+
+
+* BREAKING CHANGE: force to 1.0.0 ([99e4947](https://github.com/dryerjs/dryerjs/commit/99e49479203ba3db93b7e325d4fb5c95c81c6054))
+
+
+### BREAKING CHANGES
+
+* force to 1.0.0
+
 ## [0.13.2](https://github.com/dryerjs/dryerjs/compare/v0.13.1...v0.13.2) (2023-11-19)
 
 
