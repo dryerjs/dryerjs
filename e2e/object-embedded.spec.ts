@@ -32,37 +32,37 @@ describe('Object embedded feature works', () => {
       for (const computerInput of computerInputs) {
         await dryer.makeSuccessRequest({
           query: `
-                mutation CreateComputer($input: CreateComputerInput!) {
-                    createComputer(input: $input) {
-                        id
-                        name
-                        brand {
-                            name
-                            creator {
-                              name
-                            }
-                        }
-                    }
+            mutation CreateComputer($input: CreateComputerInput!) {
+              createComputer(input: $input) {
+                id
+                name
+                brand {
+                  name
+                  creator {
+                    name
+                  }
                 }
-            `,
+              }
+            }
+          `,
           variables: { input: computerInput },
         });
       }
 
       const allComputersResponse = await dryer.makeSuccessRequest({
         query: `
-            query Computers {
-                allComputers {
-                    id
-                    name
-                    brand {
-                        name
-                        creator {
-                          name
-                        }
-                    }
+          query Computers {
+            allComputers {
+              id
+              name
+              brand {
+                name
+                creator {
+                  name
                 }
+              }
             }
+          }
         `,
       });
 
@@ -93,17 +93,17 @@ describe('Object embedded feature works', () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                        name
-                        creator {
-                          name
-                        }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator {
+                  name
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: {
             brand: { name: 'updated brand', creator: { name: 'updated creator' } },
@@ -145,17 +145,17 @@ describe('Object embedded feature works', () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                          name
-                          creator { 
-                            name 
-                          }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator { 
+                  name 
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: { brand: null, id: computer.id },
         },
@@ -189,17 +189,17 @@ describe('Object embedded feature works', () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                          name
-                          creator { 
-                            name 
-                          }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator { 
+                  name 
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: {
             brand: {
