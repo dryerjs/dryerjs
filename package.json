@@ -11,7 +11,9 @@
     "mongoose",
     "server"
   ],
-  "repository": "https://github.com/dryerjs/dryerjs.git",
+  "repository": {
+    "url": "https://github.com/dryerjs/dryerjs.git"
+  },
   "author": "Brian Nguyen",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
