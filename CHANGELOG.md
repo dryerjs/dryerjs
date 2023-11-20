@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/dryerjs/dryerjs/compare/v1.0.0...v1.0.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* repo field ([#254](https://github.com/dryerjs/dryerjs/issues/254)) ([403780c](https://github.com/dryerjs/dryerjs/commit/403780cfd239248dd173d9400581f34bd88e47d3))
+
 # [1.0.0](https://github.com/dryerjs/dryerjs/compare/v0.13.2...v1.0.0) (2023-11-20)
 
 

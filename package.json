@@ -1,6 +1,6 @@
 {
   "name": "dryerjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The fastest way to build a GraphQL API with NestJS and Mongoose",
   "license": "MIT",
   "type": "commonjs",
@@ -11,7 +11,9 @@
     "mongoose",
     "server"
   ],
-  "repository": "https://github.com/dryerjs/dryerjs.git",
+  "repository": {
+    "url": "https://github.com/dryerjs/dryerjs.git"
+  },
   "author": "Brian Nguyen",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
