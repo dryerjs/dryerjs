@@ -111,7 +111,31 @@ describe('Object embedded feature works', () => {
           },
         },
       });
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+          query Computer($computerId: ObjectId!) {
+            computer(id: $computerId) {
+              name
+              id
+              brand {
+                name
+                creator {
+                  name
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
       expect(firstUpdateResponse.updateComputer.brand).toEqual({
+        name: 'updated brand',
+        creator: { name: 'updated creator' },
+      });
+
+      expect(updatedComputer.computer.brand).toEqual({
         name: 'updated brand',
         creator: { name: 'updated creator' },
       });
@@ -136,7 +160,29 @@ describe('Object embedded feature works', () => {
           input: { brand: null, id: computer.id },
         },
       });
+
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+        query Computer($computerId: ObjectId!) {
+          computer(id: $computerId) {
+            name
+            id
+            brand {
+              name
+              creator {
+                name
+              }
+            }
+          }
+        }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
+
       expect(firstUpdateResponse.updateComputer.brand).toEqual(null);
+      expect(updatedComputer.computer.brand).toEqual(null);
     });
 
     it('should be able to remove creator embedded values by setting it to null', async () => {
@@ -164,8 +210,30 @@ describe('Object embedded feature works', () => {
           },
         },
       });
+
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+        query Computer($computerId: ObjectId!) {
+          computer(id: $computerId) {
+            name
+            id
+            brand {
+              name
+              creator {
+                name
+              }
+            }
+          }
+        }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
       expect(firstUpdateResponse.updateComputer.brand.name).toEqual('Dell');
       expect(firstUpdateResponse.updateComputer.brand.creator).toEqual(null);
+      expect(updatedComputer.computer.brand.name).toEqual('Dell');
+      expect(updatedComputer.computer.brand.creator).toEqual(null);
     });
   });
 
