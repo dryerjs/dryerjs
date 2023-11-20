@@ -13,7 +13,7 @@ export class Review {
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   @Property()
-  name: string;
+  content: string;
 }
 
 @Definition()
@@ -24,7 +24,7 @@ export class Book {
   @Thunk(MaxLength(100), { scopes: 'input' })
   @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
   @Property()
-  name: string;
+  title: string;
 
   @Embedded(() => Review, { allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
   reviews: Review[];
