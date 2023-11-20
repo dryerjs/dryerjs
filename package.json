@@ -4,7 +4,6 @@
   "description": "The fastest way to build a GraphQL API with NestJS and Mongoose",
   "license": "MIT",
   "type": "commonjs",
-  "author": "Brian Nguyen",
   "keywords": [
     "graphql",
     "nest",
@@ -13,6 +12,7 @@
     "server"
   ],
   "repository": "https://github.com/dryerjs/dryerjs.git",
+  "author": "Brian Nguyen",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
