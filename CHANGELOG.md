@@ -1,3 +1,11 @@
+## [1.0.2](https://github.com/dryerjs/dryerjs/compare/v1.0.1...v1.0.2) (2023-11-21)
+
+
+### Bug Fixes
+
+* schema customizable ([#258](https://github.com/dryerjs/dryerjs/issues/258)) ([56cb1d4](https://github.com/dryerjs/dryerjs/commit/56cb1d4665e4a367e7ec1a92fb9b38a13d8670cd))
+* typo on test cause drop on coverage ([#257](https://github.com/dryerjs/dryerjs/issues/257)) ([7c06c7d](https://github.com/dryerjs/dryerjs/commit/7c06c7d2f5909504b4e6b2012df689a4a4a6e41a))
+
 ## [1.0.1](https://github.com/dryerjs/dryerjs/compare/v1.0.0...v1.0.1) (2023-11-20)
 
 
