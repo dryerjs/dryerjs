@@ -4,8 +4,7 @@
   <img alt="DryerJS Logo" src="https://dryerjs.github.io/logo-light.png" width="300px">
 </picture>
 
-DryerJS, built on NestJS with Mongoose, is a robust tool for creating CRUD GraphQL APIs. It allows for declarative model declaration,
-supports model relations, and is easily customizable, thus enhancing API development and minimizing repetitive coding.
+DryerJS, leveraging the power of NestJS and Mongoose, automates the creation of CRUD GraphQL APIs from model declarations. It supports complex model relationships and offers extensive customization options, greatly reducing repetitive coding and enhancing development efficiency.
 
 [![codecov](https://codecov.io/gh/dryerjs/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/dryerjs/dryerjs)
 [![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
