@@ -1,10 +1,9 @@
 {
   "name": "dryerjs",
-  "version": "0.12.0",
+  "version": "1.0.2",
   "description": "The fastest way to build a GraphQL API with NestJS and Mongoose",
   "license": "MIT",
   "type": "commonjs",
-  "author": "Brian Nguyen",
   "keywords": [
     "graphql",
     "nest",
@@ -12,14 +11,18 @@
     "mongoose",
     "server"
   ],
-  "repository": "https://github.com/dryerjs/dryerjs.git",
+  "repository": {
+    "url": "https://github.com/dryerjs/dryerjs.git"
+  },
+  "author": "Brian Nguyen",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && npm run copy-types",
+    "copy-types": "cp lib/js/mongoose-paginate-v2/index.d.ts dist/js/mongoose-paginate-v2/index.d.ts",
     "format": "prettier \"src/**/*.ts\" \"e2e/**/*.ts\" \"src/**/*.ts\" -w",
     "format:ci": "prettier \"src/**/*.ts\" \"e2e/**/*.ts\" \"src/**/*.ts\" -l",
     "lint": "eslint \"{src,lib,e2e}/**/*.ts\" --fix",

@@ -16,8 +16,9 @@ import { Definition } from '../definition';
 import { HasManyConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
-import { StringLikeId } from '../shared';
+import { ObjectId, StringLikeId } from '../shared';
 import { MongoHelper } from '../mongo-helper';
+import { plainToInstance } from 'class-transformer';
 
 export function createResolverForHasMany(
   definition: Definition,
@@ -59,8 +60,11 @@ export function createResolverForHasMany(
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
         const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        const transformedItems = items.map((item) =>
+          plainToInstance(OutputType(relationDefinition), item.toObject()),
+        );
         return keys.map((id) => {
-          return items.filter((item) => String(item[field]) === String(id));
+          return transformedItems.filter((item) => String(item[field]) === String(id));
         });
       });
       rawCtx.req[loaderKey] = loader;
@@ -73,7 +77,7 @@ export function createResolverForHasMany(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T[]> {
-      return await this.getLoader(ctx, rawCtx).load(parent._id);
+      return await this.getLoader(ctx, rawCtx).load(new ObjectId(parent.id));
     }
 
     @IfApiAllowed(
@@ -98,13 +102,20 @@ export function createResolverForHasMany(
       )
       sort: object,
     ): Promise<any> {
-      return await this.baseService.paginate(
+      const result = await this.baseService.paginate(
         ctx,
-        { ...MongoHelper.toQuery(util.defaultTo(filter, {})), [relation.options.to]: parent._id },
+        {
+          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          [relation.options.to]: new ObjectId(parent.id),
+        },
         util.defaultTo(sort, {}),
         page,
         limit,
       );
+      return {
+        ...result,
+        docs: result.docs.map((item) => plainToInstance(OutputType(relationDefinition), item.toObject())),
+      };
     }
   }
 

@@ -1,3 +1,58 @@
+## [1.0.2](https://github.com/dryerjs/dryerjs/compare/v1.0.1...v1.0.2) (2023-11-21)
+
+
+### Bug Fixes
+
+* schema customizable ([#258](https://github.com/dryerjs/dryerjs/issues/258)) ([56cb1d4](https://github.com/dryerjs/dryerjs/commit/56cb1d4665e4a367e7ec1a92fb9b38a13d8670cd))
+* typo on test cause drop on coverage ([#257](https://github.com/dryerjs/dryerjs/issues/257)) ([7c06c7d](https://github.com/dryerjs/dryerjs/commit/7c06c7d2f5909504b4e6b2012df689a4a4a6e41a))
+
+## [1.0.1](https://github.com/dryerjs/dryerjs/compare/v1.0.0...v1.0.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* repo field ([#254](https://github.com/dryerjs/dryerjs/issues/254)) ([403780c](https://github.com/dryerjs/dryerjs/commit/403780cfd239248dd173d9400581f34bd88e47d3))
+
+# [1.0.0](https://github.com/dryerjs/dryerjs/compare/v0.13.2...v1.0.0) (2023-11-20)
+
+
+* BREAKING CHANGE: force to 1.0.0 ([99e4947](https://github.com/dryerjs/dryerjs/commit/99e49479203ba3db93b7e325d4fb5c95c81c6054))
+
+
+### BREAKING CHANGES
+
+* force to 1.0.0
+
+## [0.13.2](https://github.com/dryerjs/dryerjs/compare/v0.13.1...v0.13.2) (2023-11-19)
+
+
+### Bug Fixes
+
+* adding export for base service ([#253](https://github.com/dryerjs/dryerjs/issues/253)) ([90d03a3](https://github.com/dryerjs/dryerjs/commit/90d03a3a8d1b212bee14d2e5f6f6dc272e7d2cbf))
+
+## [0.13.1](https://github.com/dryerjs/dryerjs/compare/v0.13.0...v0.13.1) (2023-11-19)
+
+
+### Bug Fixes
+
+* missing export for default hook ([#251](https://github.com/dryerjs/dryerjs/issues/251)) ([6fd934e](https://github.com/dryerjs/dryerjs/commit/6fd934ecee7c6403113a7f44c664bebd346f8c3b))
+* missing paginated model ([#252](https://github.com/dryerjs/dryerjs/issues/252)) ([5650c4d](https://github.com/dryerjs/dryerjs/commit/5650c4d9479a81ecfe20be6275994b3171cf3dd6))
+
+# [0.13.0](https://github.com/dryerjs/dryerjs/compare/v0.12.0...v0.13.0) (2023-11-19)
+
+
+### Bug Fixes
+
+* cspell ignore ([#250](https://github.com/dryerjs/dryerjs/issues/250)) ([0683de0](https://github.com/dryerjs/dryerjs/commit/0683de0c27235196f6380a863308836b1405449c))
+* missing handler for ref many ([#233](https://github.com/dryerjs/dryerjs/issues/233)) ([09ce785](https://github.com/dryerjs/dryerjs/commit/09ce7855ed7dac9bdbf1b2c65351056ada3d89fd))
+* serveral small fixes ([#243](https://github.com/dryerjs/dryerjs/issues/243)) ([c2931ee](https://github.com/dryerjs/dryerjs/commit/c2931ee7561403d895a1f7a6174e0f72772127f5))
+
+
+### Features
+
+* override embedded ([#249](https://github.com/dryerjs/dryerjs/issues/249)) ([3abba5c](https://github.com/dryerjs/dryerjs/commit/3abba5c257c60aa3c07caadbea951628ca1ba171))
+* transform when response ([#246](https://github.com/dryerjs/dryerjs/issues/246)) ([3916f8f](https://github.com/dryerjs/dryerjs/commit/3916f8f82fc44d99b434afe664c72694114fc530))
+
 # [0.12.0](https://github.com/dryerjs/dryerjs/compare/v0.11.0...v0.12.0) (2023-11-16)
 
 

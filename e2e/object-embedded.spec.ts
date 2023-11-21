@@ -32,37 +32,37 @@ describe('Object embedded feature works', () => {
       for (const computerInput of computerInputs) {
         await dryer.makeSuccessRequest({
           query: `
-                mutation CreateComputer($input: CreateComputerInput!) {
-                    createComputer(input: $input) {
-                        id
-                        name
-                        brand {
-                            name
-                            creator {
-                              name
-                            }
-                        }
-                    }
+            mutation CreateComputer($input: CreateComputerInput!) {
+              createComputer(input: $input) {
+                id
+                name
+                brand {
+                  name
+                  creator {
+                    name
+                  }
                 }
-            `,
+              }
+            }
+          `,
           variables: { input: computerInput },
         });
       }
 
       const allComputersResponse = await dryer.makeSuccessRequest({
         query: `
-            query Computers {
-                allComputers {
-                    id
-                    name
-                    brand {
-                        name
-                        creator {
-                          name
-                        }
-                    }
+          query Computers {
+            allComputers {
+              id
+              name
+              brand {
+                name
+                creator {
+                  name
                 }
+              }
             }
+          }
         `,
       });
 
@@ -93,17 +93,17 @@ describe('Object embedded feature works', () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                        name
-                        creator {
-                          name
-                        }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator {
+                  name
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: {
             brand: { name: 'updated brand', creator: { name: 'updated creator' } },
@@ -111,7 +111,31 @@ describe('Object embedded feature works', () => {
           },
         },
       });
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+          query Computer($computerId: ObjectId!) {
+            computer(id: $computerId) {
+              name
+              id
+              brand {
+                name
+                creator {
+                  name
+                }
+              }
+            }
+          }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
       expect(firstUpdateResponse.updateComputer.brand).toEqual({
+        name: 'updated brand',
+        creator: { name: 'updated creator' },
+      });
+
+      expect(updatedComputer.computer.brand).toEqual({
         name: 'updated brand',
         creator: { name: 'updated creator' },
       });
@@ -121,39 +145,61 @@ describe('Object embedded feature works', () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                          name
-                          creator { 
-                            name 
-                          }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator { 
+                  name 
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: { brand: null, id: computer.id },
         },
       });
+
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+        query Computer($computerId: ObjectId!) {
+          computer(id: $computerId) {
+            name
+            id
+            brand {
+              name
+              creator {
+                name
+              }
+            }
+          }
+        }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
+
       expect(firstUpdateResponse.updateComputer.brand).toEqual(null);
+      expect(updatedComputer.computer.brand).toEqual(null);
     });
 
     it('should be able to remove creator embedded values by setting it to null', async () => {
       const computer = allComputers[0];
       const firstUpdateResponse = await dryer.makeSuccessRequest({
         query: `
-              mutation UpdateComputer($input: UpdateComputerInput!) {
-                  updateComputer(input: $input) {
-                      brand {
-                          name
-                          creator { 
-                            name 
-                          }
-                      }
-                  }
+          mutation UpdateComputer($input: UpdateComputerInput!) {
+            updateComputer(input: $input) {
+              brand {
+                name
+                creator { 
+                  name 
+                }
               }
-          `,
+            }
+          }
+        `,
         variables: {
           input: {
             brand: {
@@ -164,8 +210,30 @@ describe('Object embedded feature works', () => {
           },
         },
       });
+
+      const updatedComputer = await dryer.makeSuccessRequest({
+        query: `
+        query Computer($computerId: ObjectId!) {
+          computer(id: $computerId) {
+            name
+            id
+            brand {
+              name
+              creator {
+                name
+              }
+            }
+          }
+        }
+        `,
+        variables: {
+          computerId: computer.id,
+        },
+      });
       expect(firstUpdateResponse.updateComputer.brand.name).toEqual('Dell');
       expect(firstUpdateResponse.updateComputer.brand.creator).toEqual(null);
+      expect(updatedComputer.computer.brand.name).toEqual('Dell');
+      expect(updatedComputer.computer.brand.creator).toEqual(null);
     });
   });
 

@@ -1,6 +1,7 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { Provider } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
 import { SuccessResponse } from '../types';
@@ -24,7 +25,7 @@ export function createResolverForEmbedded(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if (options.allowApis.includes(propertyKey as any)) {
+      if (options.allowApis!.includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -64,7 +65,9 @@ export function createResolverForEmbedded(
       const beforeIds = parent[field].map((item: any) => item._id.toString());
       parent[field].push(...inputs);
       const updated = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
-      return updated[field].filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1);
+      return updated[field]
+        .filter((item: any) => beforeIds.indexOf(item._id.toString()) === -1)
+        .map((item: any) => plainToInstance(OutputType(embeddedDefinition), item.toObject()));
     }
 
     @applyDecorators(
@@ -88,9 +91,10 @@ export function createResolverForEmbedded(
     ) {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
       if (ids.length === 0) {
-        throw new graphql.GraphQLError(`No ${util.toCamelCase(embeddedDefinition.name)} IDs provided`);
+        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} IDs provided`);
       }
-      parent[field] = parent[field].filter((item: any) => !ids.includes(item._id.toString()));
+      const stringifiedIds = ids.map((id) => id.toString());
+      parent[field] = parent[field].filter((item) => !stringifiedIds.includes(item._id.toString()));
       await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
       return { success: true };
     }
@@ -114,7 +118,11 @@ export function createResolverForEmbedded(
       @contextDecorator() ctx: any,
     ): Promise<T> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
-      return parent[field].find((item: any) => item._id.toString() === id.toString());
+      const result = parent[field].find((item: any) => item._id.toString() === id.toString());
+      if (util.isNil(result)) {
+        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
+      }
+      return plainToInstance(OutputType(embeddedDefinition), result.toObject());
     }
 
     @applyDecorators(
@@ -135,7 +143,9 @@ export function createResolverForEmbedded(
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
-      return parent[field];
+      return parent[field].map((item: any) =>
+        plainToInstance(OutputType(embeddedDefinition), item.toObject()),
+      );
     }
 
     @applyDecorators(
@@ -168,15 +178,19 @@ export function createResolverForEmbedded(
         );
         if (!exists) {
           throw new graphql.GraphQLError(
-            `No ${util.toCamelCase(embeddedDefinition.name)} found with ID ${subDocumentInput.id.toString()}`,
+            `No ${embeddedDefinition.name} found with ID ${subDocumentInput.id.toString()}`,
           );
         }
       }
-      parent[field] = inputs;
+      parent[field] = parent[field].map((item) => {
+        const input = inputs.find((input) => input.id.toString() === item._id.toString());
+        if (!input) return item;
+        return Object.assign(Object.assign({}, item), input);
+      });
       const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
-      return updatedParent[field].filter((item: any) =>
-        inputs.some((input) => input.id.toString() === item.id.toString()),
-      );
+      return updatedParent[field]
+        .filter((item: any) => inputs.some((input) => input.id.toString() === item.id.toString()))
+        .map((item: any) => plainToInstance(OutputType(embeddedDefinition), item.toObject()));
     }
   }
 
