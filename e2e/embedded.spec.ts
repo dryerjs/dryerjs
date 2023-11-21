@@ -7,6 +7,14 @@ const server = TestServer.init({
 
 const NOT_FOUND_ID = '000000000000000000000000';
 
+function isConstainJsonArray(arrayA, arrayB) {
+  return arrayB.every((elementB) => {
+    return arrayA.some((elementA) => {
+      return JSON.stringify(elementA) === JSON.stringify(elementB);
+    });
+  });
+}
+
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
@@ -266,7 +274,27 @@ describe('Embedded works', () => {
         inputs: books,
       },
     });
+
+    const response = await server.makeSuccessRequest({
+      query: `
+      query AuthorBooks($authorId: ObjectId!) {
+        authorBooks(authorId: $authorId) {
+          id
+          title
+          reviews {
+            id
+            content
+          }
+        }
+      }
+      `,
+      variables: {
+        authorId: author.id,
+      },
+    });
     expect(updateAuthorBooks).toEqual(books);
+
+    expect(isConstainJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
   });
 
   it('Update books have whitespace name within author', async () => {
