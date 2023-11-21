@@ -4,7 +4,7 @@ import { PaginateModel } from 'mongoose';
 import * as graphql from 'graphql';
 import { Inject } from '@nestjs/common';
 
-import { AllDefinitions, Hook } from './hook';
+import { AfterRemoveHookInput, AllDefinitions, Hook } from './hook';
 import { HydratedProperty, inspect } from './inspect';
 import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
 import { Definition, DefinitionOptions, HookMethod } from './definition';
@@ -17,9 +17,9 @@ import { MetaKey, Metadata } from './metadata';
 import { StringLikeId } from './shared';
 
 export const FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER = Symbol('FailCleanUpAfterRemoveHandler');
-export interface FailCleanUpAfterRemoveHandler {
-  handleItem(input: Parameters<Required<Hook>['afterRemove']>[0], error: Error): Promise<void>;
-  handleAll(input: Parameters<Required<Hook>['afterRemove']>[0], error: Error): Promise<void>;
+export interface FailCleanUpAfterRemoveHandler<Context = any> {
+  handleItem(input: AfterRemoveHookInput<any, Context>, error: Error): Promise<void>;
+  handleAll(input: AfterRemoveHookInput<any, Context>, error: Error): Promise<void>;
 }
 
 @Hook(() => AllDefinitions)

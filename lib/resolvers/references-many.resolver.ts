@@ -1,6 +1,7 @@
 import * as DataLoader from 'dataloader';
 import { Provider } from '@nestjs/common';
 import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
+import { plainToInstance } from 'class-transformer';
 
 import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
@@ -37,8 +38,11 @@ export function createResolverForReferencesMany(
       const loader = new DataLoader<StringLikeId[], any>(async (keys) => {
         const flattenKeys: StringLikeId[] = keys.flat();
         const items = await this.baseService.findAll(ctx, { _id: { $in: flattenKeys } }, {});
+        const transformedItems = items.map((item) =>
+          plainToInstance(OutputType(relationDefinition), item.toObject()),
+        );
         return keys.map((ids: StringLikeId[]) => {
-          return items.filter((item) => ids.some((id) => id.toString() === item._id.toString()));
+          return transformedItems.filter((item) => ids.some((id) => id.toString() === item.id.toString()));
         });
       });
       rawCtx.req[loaderKey] = loader;

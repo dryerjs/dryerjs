@@ -9,6 +9,7 @@ import { BelongsToConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
+import { plainToInstance } from 'class-transformer';
 
 export function createResolverForBelongsTo(
   definition: Definition,
@@ -36,8 +37,11 @@ export function createResolverForBelongsTo(
       if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const items = await this.baseService.findAll(ctx, { _id: { $in: keys } }, {});
+        const transformedItems = items.map((item) =>
+          plainToInstance(OutputType(relationDefinition), item.toObject()),
+        );
         return keys.map((id: StringLikeId) => {
-          return items.find((item) => item._id.toString() === id.toString());
+          return transformedItems.find((item) => item.id.toString() === id.toString());
         });
       });
       rawCtx.req[loaderKey] = loader;

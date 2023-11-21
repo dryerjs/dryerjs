@@ -1,13 +1,81 @@
 import { TestServer } from './test-server';
 import { Color, Tag } from '../src/models/product';
+import { Injectable } from '@nestjs/common';
+import { BulkErrorHandler, BULK_ERROR_HANDLER } from '../lib/bulk-error-handler';
+import { Hook } from '../lib/hook';
+
+const NEVER_CREATE_ME = 'NEVER_CREATE_ME';
+const NEVER_UPDATE_ME = 'NEVER_UPDATE_ME';
+const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
+
+@Hook(() => Tag)
+class TagHook implements Hook<Tag, any> {
+  async beforeCreate({ input }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
+    if (input.name === NEVER_CREATE_ME) {
+      throw new Error('INTERNAL_SERVER_ERROR');
+    }
+  }
+
+  async beforeUpdate({ input }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
+    if (input.name === NEVER_UPDATE_ME) {
+      throw new Error('INTERNAL_SERVER_ERROR');
+    }
+  }
+  async beforeRemove({ beforeRemoved }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
+    if (beforeRemoved.name === NEVER_REMOVE_ME) {
+      throw new Error('INTERNAL_SERVER_ERROR');
+    }
+  }
+}
+
+const handleCreateError = jest.fn();
+const handleUpdateError = jest.fn();
+const handleRemoveError = jest.fn();
+
+@Injectable()
+class BulkErrorHandlerImpl<Context> implements BulkErrorHandler<Context> {
+  handleCreateError = handleCreateError;
+  handleUpdateError = handleUpdateError;
+  handleRemoveError = handleRemoveError;
+}
 
 const server = TestServer.init({
   definitions: [Tag, Color],
+  hooks: [TagHook],
+  providers: [
+    {
+      provide: BULK_ERROR_HANDLER,
+      useClass: BulkErrorHandlerImpl,
+    },
+  ],
 });
 
 describe('bulk apis work', () => {
   beforeAll(async () => {
     await server.start();
+  });
+
+  it('BulkErrorHandler works for beforeCreate', async () => {
+    await server.makeSuccessRequest({
+      query: `
+        mutation BulkCreateTag($inputs: [CreateTagInput!]!) {
+          bulkCreateTags(inputs: $inputs) {
+            input
+            success
+            errorMessage
+            result {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        inputs: [{ name: NEVER_CREATE_ME }],
+      },
+    });
+
+    expect(handleCreateError).toBeCalledTimes(1);
   });
 
   it('Bulk create tags', async () => {
@@ -133,6 +201,33 @@ describe('bulk apis work', () => {
       `,
     });
     allTags = response.allTags;
+  });
+
+  it('BulkErrorHandler works for beforeUpdate', async () => {
+    await server.makeSuccessRequest({
+      query: `
+        mutation bulkUpdateTags($inputs: [UpdateTagInput!]!){
+          bulkUpdateTags(inputs: $inputs){
+            input
+            success
+            errorMessage
+            result {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        inputs: [
+          {
+            id: allTags[0].id,
+            name: NEVER_UPDATE_ME,
+          },
+        ],
+      },
+    });
+    expect(handleUpdateError).toBeCalledTimes(1);
   });
 
   it('Bulk update tags', async () => {
@@ -280,6 +375,43 @@ describe('bulk apis work', () => {
 
     const errorMessage = response[0].extensions.originalError.message[0];
     expect(errorMessage).toEqual('name must be shorter than or equal to 100 characters');
+  });
+
+  it('BulkErrorHandler works for beforeRemove', async () => {
+    const { bulkCreateTags } = await server.makeSuccessRequest({
+      query: `
+        mutation BulkCreateTag($inputs: [CreateTagInput!]!) {
+          bulkCreateTags(inputs: $inputs) {
+            input
+            success
+            errorMessage
+            result {
+              id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        inputs: [{ name: NEVER_REMOVE_ME }],
+      },
+    });
+
+    await server.makeSuccessRequest({
+      query: `
+        mutation BulkRemoveTag($ids: [ObjectId!]!){
+          bulkRemoveTags(ids: $ids){
+            id
+            success
+            errorMessage
+          }
+        }
+      `,
+      variables: {
+        ids: [bulkCreateTags[0].result.id],
+      },
+    });
+    expect(handleRemoveError).toBeCalledTimes(1);
   });
 
   it('Bulk remove tags', async () => {

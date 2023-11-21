@@ -1,13 +1,14 @@
 import * as DataLoader from 'dataloader';
 import { Resolver, Parent, ResolveField } from '@nestjs/graphql';
 import { Provider } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 
 import { MetaKey, Metadata } from '../metadata';
 import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
-import { StringLikeId } from '../shared';
+import { ObjectId, StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForHasOne(
@@ -40,8 +41,11 @@ export function createResolverForHasOne(
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
         const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        const transformedItems = items.map((item) =>
+          plainToInstance(OutputType(relationDefinition), item.toObject()),
+        );
         return keys.map((id: StringLikeId) => {
-          return items.find((item) => item[field].toString() === id.toString());
+          return transformedItems.find((item) => item[field].toString() === id.toString());
         });
       });
       rawCtx.req[loaderKey] = loader;
@@ -54,7 +58,7 @@ export function createResolverForHasOne(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T> {
-      return await this.getLoader(ctx, rawCtx).load(parent._id);
+      return await this.getLoader(ctx, rawCtx).load(new ObjectId(parent.id));
     }
   }
 

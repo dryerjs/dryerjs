@@ -120,7 +120,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks('beforeRemove')) {
       await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition, options });
     }
-    const removed = await this.model.findByIdAndRemove(id);
+    const removed = await this.model.findByIdAndDelete(id);
     for (const hook of this.getHooks('afterRemove')) {
       await hook.afterRemove!({ ctx, removed, definition: this.definition, options });
     }
