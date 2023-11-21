@@ -7,7 +7,7 @@ const server = TestServer.init({
 
 const NOT_FOUND_ID = '000000000000000000000000';
 
-function isConstainJsonArray(arrayA, arrayB) {
+function isContainsJsonArray(arrayA, arrayB) {
   return arrayB.every((elementB) => {
     return arrayA.some((elementA) => {
       return JSON.stringify(elementA) === JSON.stringify(elementB);
@@ -294,7 +294,7 @@ describe('Embedded works', () => {
     });
     expect(updateAuthorBooks).toEqual(books);
 
-    expect(isConstainJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
+    expect(isContainsJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
   });
 
   it('Update books have whitespace name within author', async () => {
