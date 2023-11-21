@@ -42,7 +42,7 @@ export function createResolverForReferencesMany(
           plainToInstance(OutputType(relationDefinition), item.toObject()),
         );
         return keys.map((ids: StringLikeId[]) => {
-          return transformedItems.filter((item) => ids.some((id) => id.toString() === item.id.toString()));
+          return transformedItems.filter((item) => ids.some((id) => id.toString() === item._id.toString()));
         });
       });
       rawCtx.req[loaderKey] = loader;
