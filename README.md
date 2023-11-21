@@ -25,16 +25,15 @@ To get started with DryerJS, follow these steps:
 1. Prepare:
 
    ```bash
-   # install @nestjs/cli and create a new project
+   # init new nest project
    npm i -g @nestjs/cli && nest new my-project && cd my-project
    # install standard dependencies
-   npm i @nestjs/graphql @nestjs/apollo class-transformer class-validator @nestjs/mongoose
+   npm i @nestjs/graphql @nestjs/apollo @nestjs/mongoose
+   # install peer dependencies
+   npm i dataloader class-transformer class-validator
    # remove unrelated files
-   rm -rf src/app.controller.ts src/app.service.ts src/app.controller.spec.ts
-   # install dataloader
-   npm i dataloader
+   npm run env -- rimraf src/app.(service|controller)*
    ```
-
 2. Install DryerJS:
 
    ```bash
