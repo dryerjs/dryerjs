@@ -18,6 +18,12 @@ import {
   Color,
   Comment,
   Store,
+  Specification,
+  Feedback,
+  Shop,
+  Software,
+  Order,
+  Item,
 } from './models';
 import { Ctx } from './ctx';
 
@@ -33,6 +39,12 @@ const definitions: Definition[] = [
   Computer,
   Color,
   Comment,
+  Specification,
+  Feedback,
+  Shop,
+  Software,
+  Order,
+  Item,
 ];
 
 @Module({
