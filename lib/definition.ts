@@ -1,4 +1,5 @@
-import { Schema } from '@nestjs/mongoose';
+import { Schema, SchemaOptions } from '@nestjs/mongoose';
+import * as util from './util';
 import {
   CreateInputType,
   UpdateInputType,
@@ -27,7 +28,7 @@ export type HookMethod =
   | 'afterFindMany';
 
 export type DefinitionOptions = {
-  allowedApis: AllowedApiType | AllowedApiType[];
+  allowedApis?: AllowedApiType | AllowedApiType[];
   removalConfig?: {
     allowIgnoreRelationCheck?: boolean;
     allowCleanUpRelationsAfterRemoved?: boolean;
@@ -48,6 +49,7 @@ export type DefinitionOptions = {
     bulkUpdate?: MethodDecorator | MethodDecorator[];
     bulkRemove?: MethodDecorator | MethodDecorator[];
   };
+  schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
 };
 
@@ -65,6 +67,16 @@ export function Definition(options: DefinitionOptions = { allowedApis: 'essentia
     PaginatedOutputType(target);
     FilterType(target);
     SortType(target);
-    Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })(target as any);
+
+    const normalizedSchemaOptions = util.defaultTo(options.schemaOptions, {
+      toJSON: {},
+      toObject: {},
+    });
+
+    Schema({
+      ...normalizedSchemaOptions,
+      toJSON: { ...util.defaultTo(normalizedSchemaOptions.toJSON, {}), virtuals: true },
+      toObject: { ...util.defaultTo(normalizedSchemaOptions.toObject, {}), virtuals: true },
+    })(target as any);
   };
 }
