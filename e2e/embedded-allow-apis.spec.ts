@@ -26,7 +26,7 @@ export class Novelist {
   @Property()
   name: string;
 
-  @Embedded(() => Novel, { allowApis: ['create'], onSubSchema })
+  @Embedded(() => Novel, { allowedApis: ['create'], onSubSchema })
   novels: Novel[];
 }
 
