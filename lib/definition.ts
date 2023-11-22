@@ -51,6 +51,7 @@ export type DefinitionOptions = {
   };
   schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
+  timestamps?: boolean;
 };
 
 export type Definition = any;
@@ -74,6 +75,7 @@ export function Definition(options: DefinitionOptions = { allowedApis: 'essentia
     });
 
     Schema({
+      timestamps: options.timestamps,
       ...normalizedSchemaOptions,
       toJSON: { ...util.defaultTo(normalizedSchemaOptions.toJSON, {}), virtuals: true },
       toObject: { ...util.defaultTo(normalizedSchemaOptions.toObject, {}), virtuals: true },
