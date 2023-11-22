@@ -19,19 +19,15 @@ export abstract class BaseService<T = any, Context = any> {
 
   protected abstract getHooks: (method: keyof Hook) => Hook[];
 
-  private async shouldRun(hook: Hook, ctx: Context) {
-    return (
-      util.isNil(hook.shouldApplyForContext) ||
-      (util.isFunction(hook.shouldApplyForContext) &&
-        (await hook.shouldApplyForContext({ ctx, definition: this.definition })))
-    );
+  private getHooksWithContext(method: keyof Hook, ctx: Context, definition: Definition): Hook[] {
+    return this.getHooks(method).filter((hook) => {
+      return util.isNil(hook.shouldApplyForContext) || hook.shouldApplyForContext({ ctx, definition });
+    });
   }
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
-    for (const hook of this.getHooks('beforeCreate')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeCreate!({ ctx, input, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeCreate', ctx, this.definition)) {
+      await hook.beforeCreate!({ ctx, input, definition: this.definition });
     }
 
     const created = await this.model.create(input);
@@ -79,75 +75,55 @@ export abstract class BaseService<T = any, Context = any> {
       }
     }
     const result = await this.model.findById(created._id);
-    for (const hook of this.getHooks('afterCreate')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterCreate!({ ctx, input, created: result, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('afterCreate', ctx, this.definition)) {
+      await hook.afterCreate!({ ctx, input, created: result, definition: this.definition });
     }
     return result as any;
   }
 
   public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
     const filter = { _id: input.id };
-    for (const hook of this.getHooks('beforeWriteFilter')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeWriteFilter', ctx, this.definition)) {
+      await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
     }
     const beforeUpdated = await this.findOne(ctx, filter);
-    for (const hook of this.getHooks('beforeUpdate')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeUpdate!({ ctx, input, beforeUpdated, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeUpdate', ctx, this.definition)) {
+      await hook.beforeUpdate!({ ctx, input, beforeUpdated, definition: this.definition });
     }
     const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, { new: true });
-    for (const hook of this.getHooks('afterUpdate')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterUpdate!({ ctx, input, updated, beforeUpdated, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('afterUpdate', ctx, this.definition)) {
+      await hook.afterUpdate!({ ctx, input, updated, beforeUpdated, definition: this.definition });
     }
     return updated!;
   }
 
   public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
-    for (const hook of this.getHooks('beforeReadFilter')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
+      await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
     }
-    for (const hook of this.getHooks('beforeFindOne')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeFindOne', ctx, this.definition)) {
+      await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
     }
     const result = await this.model.findOne(filter);
     if (util.isNil(result)) {
       throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
     }
-    for (const hook of this.getHooks('afterFindOne')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('afterFindOne', ctx, this.definition)) {
+      await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
     }
     return result;
   }
 
   public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
-    for (const hook of this.getHooks('beforeReadFilter')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
+      await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
     }
-    for (const hook of this.getHooks('beforeFindMany')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeFindMany!({ ctx, filter, sort, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeFindMany', ctx, this.definition)) {
+      await hook.beforeFindMany!({ ctx, filter, sort, definition: this.definition });
     }
     const items = await this.model.find(filter).sort(sort as any);
-    for (const hook of this.getHooks('afterFindMany')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterFindMany!({ ctx, filter, sort, items, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('afterFindMany', ctx, this.definition)) {
+      await hook.afterFindMany!({ ctx, filter, sort, items, definition: this.definition });
     }
     return items;
   }
@@ -158,50 +134,38 @@ export abstract class BaseService<T = any, Context = any> {
     options: RemoveOptions = { mode: RemoveMode.RequiredCleanRelations },
   ): Promise<SuccessResponse> {
     const filter = { _id: id };
-    for (const hook of this.getHooks('beforeWriteFilter')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeWriteFilter', ctx, this.definition)) {
+      await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
     }
     const beforeRemoved = await this.findOne(ctx, filter);
-    for (const hook of this.getHooks('beforeRemove')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition, options });
-      }
+    for (const hook of this.getHooksWithContext('beforeRemove', ctx, this.definition)) {
+      await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition, options });
     }
     const removed = await this.model.findByIdAndDelete(id);
-    for (const hook of this.getHooks('afterRemove')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterRemove!({ ctx, removed, definition: this.definition, options });
-      }
+    for (const hook of this.getHooksWithContext('afterRemove', ctx, this.definition)) {
+      await hook.afterRemove!({ ctx, removed, definition: this.definition, options });
     }
     return { success: true };
   }
 
   public async paginate(ctx: Context, filter: FilterQuery<T>, sort: object, page: number, limit: number) {
-    for (const hook of this.getHooks('beforeReadFilter')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
+      await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
     }
-    for (const hook of this.getHooks('beforeFindMany')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.beforeFindMany!({ ctx, filter, sort, page, limit, definition: this.definition });
-      }
+    for (const hook of this.getHooksWithContext('beforeFindMany', ctx, this.definition)) {
+      await hook.beforeFindMany!({ ctx, filter, sort, page, limit, definition: this.definition });
     }
     const response = await this.model.paginate(filter, { page, limit, sort });
-    for (const hook of this.getHooks('afterFindMany')) {
-      if (await this.shouldRun(hook, ctx)) {
-        await hook.afterFindMany!({
-          ctx,
-          filter,
-          sort,
-          items: response.docs,
-          page,
-          limit,
-          definition: this.definition,
-        });
-      }
+    for (const hook of this.getHooksWithContext('afterFindMany', ctx, this.definition)) {
+      await hook.afterFindMany!({
+        ctx,
+        filter,
+        sort,
+        items: response.docs,
+        page,
+        limit,
+        definition: this.definition,
+      });
     }
 
     return response;

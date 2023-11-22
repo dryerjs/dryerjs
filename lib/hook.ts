@@ -29,7 +29,7 @@ export interface Hook<T = any, Context = any> {
     definition: Definition;
   }): Promise<void>;
 
-  shouldApplyForContext?(input: { ctx: Context; definition: Definition }): boolean | Promise<boolean>;
+  shouldApplyForContext?(input: { ctx: Context; definition: Definition }): boolean;
 
   beforeReadFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
   beforeWriteFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
