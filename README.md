@@ -42,12 +42,12 @@ To get started with DryerJS, follow these steps:
 3. Declare your first model on `src/user.ts`:
 
    ```typescript
-   import { Definition, Property, Id, Skip } from 'dryerjs';
+   import { Definition, Property, Id, Skip, ObjectId } from 'dryerjs';
 
    @Definition()
    export class User {
      @Id()
-     id: string;
+     id: ObjectId;
 
      @Property()
      email: string;

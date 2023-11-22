@@ -12,7 +12,7 @@ import { DryerPropertyInput, Property, Skip } from '../property';
 export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
-    allowApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
+    allowedApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     onSubSchema?: (subSchema: Schema) => void;
     resolverDecorators?: {
       default?: MethodDecorator | MethodDecorator[];
@@ -48,7 +48,7 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
         typeFunction,
         options: util.defaultTo(options, {
-          allowApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
+          allowedApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
         }),
       });
     Thunk(

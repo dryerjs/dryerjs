@@ -26,7 +26,7 @@ export class Book {
   @Property()
   title: string;
 
-  @Embedded(() => Review, { allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
+  @Embedded(() => Review, { allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
   reviews: Review[];
 }
 
@@ -50,13 +50,13 @@ export class Author {
   name: string;
 
   @Embedded(() => Book, {
-    allowApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
+    allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
     resolverDecorators: { remove: UseGuards(UserGuard) },
   })
   books: Book[];
 
   @Embedded(() => Log, {
-    allowApis: [],
+    allowedApis: [],
     overridePropertyOptions: { create: Skip, update: Skip },
   })
   logs: Log[];
