@@ -150,7 +150,7 @@ export abstract class BaseService<T = any, Context = any> {
 
   public async paginate(ctx: Context, filter: FilterQuery<T>, sort: object, page: number, limit: number) {
     for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
-      await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
+      await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
     }
     for (const hook of this.getHooksWithContext('beforeFindMany', ctx, this.definition)) {
       await hook.beforeFindMany!({ ctx, filter, sort, page, limit, definition: this.definition });
