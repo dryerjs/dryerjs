@@ -45,7 +45,9 @@ class InspectedDefinition {
 
   public isApiAllowed(api: ApiType): boolean {
     const { allowedApis } = Metadata.for(this.definition).get(MetaKey.Definition);
-    const normalizedAllowedApis = util.isArray(allowedApis) ? allowedApis : [allowedApis];
+    const normalizedAllowedApis = util.isArray(allowedApis)
+      ? allowedApis
+      : [util.defaultTo(allowedApis, 'essentials')];
     for (const allowedApi of normalizedAllowedApis) {
       if (allowedApi === '*') return true;
       if (allowedApi === 'essentials') {
