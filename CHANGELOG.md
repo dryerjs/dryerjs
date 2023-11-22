@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/dryerjs/dryerjs/compare/v1.1.0...v1.1.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* default value for allow apis ([#264](https://github.com/dryerjs/dryerjs/issues/264)) ([e1a8b80](https://github.com/dryerjs/dryerjs/commit/e1a8b80e504b8bbe77c93cfefa9e10a13a100b9c))
+
 # [1.1.0](https://github.com/dryerjs/dryerjs/compare/v1.0.2...v1.1.0) (2023-11-22)
 
 
