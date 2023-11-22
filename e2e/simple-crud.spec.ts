@@ -17,6 +17,8 @@ const beforeUpdate = jest.fn();
 const afterUpdate = jest.fn();
 const beforeRemove = jest.fn();
 const afterRemove = jest.fn();
+const beforeReadFilter = jest.fn();
+const beforeWriteFilter = jest.fn();
 
 @Hook(() => Tag)
 class TagHook implements Hook<Tag, Context> {
@@ -30,6 +32,8 @@ class TagHook implements Hook<Tag, Context> {
   afterUpdate = afterUpdate;
   beforeRemove = beforeRemove;
   afterRemove = afterRemove;
+  beforeReadFilter = beforeReadFilter;
+  beforeWriteFilter = beforeWriteFilter;
 }
 
 const onSchema = jest.fn();
@@ -50,6 +54,23 @@ const server = TestServer.init({
 describe('Simple CRUD works', () => {
   beforeAll(async () => {
     await server.start();
+  });
+
+  beforeEach(() => {
+    [
+      beforeCreate,
+      afterCreate,
+      beforeFindOne,
+      afterFindOne,
+      afterFindMany,
+      beforeFindMany,
+      beforeUpdate,
+      afterUpdate,
+      beforeRemove,
+      afterRemove,
+      beforeReadFilter,
+      beforeWriteFilter,
+    ].forEach((mock) => mock.mockClear());
   });
 
   it('onSchema is called', () => expect(onSchema).toBeCalled());
@@ -96,6 +117,11 @@ describe('Simple CRUD works', () => {
       `,
     });
     allTags = response.allTags;
+    expect(beforeReadFilter).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      definition: Tag,
+    });
     expect(beforeFindMany).toBeCalledWith({
       ctx: 'fakeContext',
       filter: {},
@@ -144,6 +170,11 @@ describe('Simple CRUD works', () => {
       totalDocs: 3,
       page: 1,
     });
+    expect(beforeReadFilter).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {},
+      definition: Tag,
+    });
   });
 
   it('Get one tag', async () => {
@@ -160,6 +191,11 @@ describe('Simple CRUD works', () => {
       variables: {
         id,
       },
+    });
+    expect(beforeReadFilter).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: { _id: new ObjectId(id) },
+      definition: Tag,
     });
     expect(beforeFindOne).toBeCalledWith({
       ctx: 'fakeContext',
@@ -191,6 +227,13 @@ describe('Simple CRUD works', () => {
     expect(response.updateTag.name).toEqual('60s');
 
     type PartialTag = Partial<Tag>;
+    expect(beforeWriteFilter).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {
+        _id: new ObjectId(allTags[0].id),
+      },
+      definition: Tag,
+    });
     expect(beforeUpdate).toBeCalledWith({
       ctx: 'fakeContext',
       input: { id: new ObjectId(allTags[0].id), name: '60s' },
@@ -240,6 +283,13 @@ describe('Simple CRUD works', () => {
       },
     });
     expect(response.removeTag.success).toEqual(true);
+    expect(beforeWriteFilter).toBeCalledWith({
+      ctx: 'fakeContext',
+      filter: {
+        _id: new ObjectId(allTags[0].id),
+      },
+      definition: Tag,
+    });
     expect(beforeRemove).toBeCalledWith({
       ctx: 'fakeContext',
       beforeRemoved: expect.objectContaining({ name: '60s' }),
