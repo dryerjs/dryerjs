@@ -86,7 +86,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooksWithContext('beforeWriteFilter', ctx, this.definition)) {
       await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
     }
-    const beforeUpdated = await this.findOne(ctx, filter);
+    const beforeUpdated = await this.findOneWithoutBeforeReadFilter(ctx, filter);
     for (const hook of this.getHooksWithContext('beforeUpdate', ctx, this.definition)) {
       await hook.beforeUpdate!({ ctx, input, beforeUpdated, definition: this.definition });
     }
@@ -97,10 +97,7 @@ export abstract class BaseService<T = any, Context = any> {
     return updated!;
   }
 
-  public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
-    for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
-      await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
-    }
+  public async findOneWithoutBeforeReadFilter(ctx: Context, filter: FilterQuery<T>): Promise<T> {
     for (const hook of this.getHooksWithContext('beforeFindOne', ctx, this.definition)) {
       await hook.beforeFindOne!({ ctx, filter, definition: this.definition });
     }
@@ -112,6 +109,13 @@ export abstract class BaseService<T = any, Context = any> {
       await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
     }
     return result;
+  }
+
+  public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
+    for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
+      await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
+    }
+    return await this.findOneWithoutBeforeReadFilter(ctx, filter);
   }
 
   public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
@@ -137,7 +141,7 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooksWithContext('beforeWriteFilter', ctx, this.definition)) {
       await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });
     }
-    const beforeRemoved = await this.findOne(ctx, filter);
+    const beforeRemoved = await this.findOneWithoutBeforeReadFilter(ctx, filter);
     for (const hook of this.getHooksWithContext('beforeRemove', ctx, this.definition)) {
       await hook.beforeRemove!({ ctx, beforeRemoved, definition: this.definition, options });
     }
