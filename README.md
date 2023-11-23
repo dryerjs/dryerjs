@@ -4,8 +4,7 @@
   <img alt="DryerJS Logo" src="https://dryerjs.github.io/logo-light.png" width="300px">
 </picture>
 
-DryerJS, built on NestJS with Mongoose, is a robust tool for creating CRUD GraphQL APIs. It allows for declarative model declaration,
-supports model relations, and is easily customizable, thus enhancing API development and minimizing repetitive coding.
+DryerJS, leveraging the power of NestJS and Mongoose, automates the creation of CRUD GraphQL APIs from model declarations. It supports complex model relationships and offers extensive customization options, greatly reducing repetitive coding and enhancing development efficiency.
 
 [![codecov](https://codecov.io/gh/dryerjs/dryerjs/graph/badge.svg?token=ZQOWFCGXUK)](https://codecov.io/gh/dryerjs/dryerjs)
 [![Build Status](https://github.com/dryerjs/dryerjs/workflows/CI/badge.svg)](https://github.com/dryerjs/dryerjs/actions)
@@ -25,16 +24,15 @@ To get started with DryerJS, follow these steps:
 1. Prepare:
 
    ```bash
-   # install @nestjs/cli and create a new project
+   # init new nest project
    npm i -g @nestjs/cli && nest new my-project && cd my-project
    # install standard dependencies
-   npm i @nestjs/graphql @nestjs/apollo class-transformer class-validator @nestjs/mongoose
+   npm i @nestjs/graphql @nestjs/apollo @nestjs/mongoose
+   # install peer dependencies
+   npm i dataloader class-transformer class-validator
    # remove unrelated files
-   rm -rf src/app.controller.ts src/app.service.ts src/app.controller.spec.ts
-   # install dataloader
-   npm i dataloader
+   npm run env -- rimraf src/app.(service|controller)*
    ```
-
 2. Install DryerJS:
 
    ```bash
@@ -44,12 +42,12 @@ To get started with DryerJS, follow these steps:
 3. Declare your first model on `src/user.ts`:
 
    ```typescript
-   import { Definition, Property, Id, Skip } from 'dryerjs';
+   import { Definition, Property, Id, Skip, ObjectId } from 'dryerjs';
 
    @Definition()
    export class User {
      @Id()
-     id: string;
+     id: ObjectId;
 
      @Property()
      email: string;

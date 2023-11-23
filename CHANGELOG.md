@@ -1,3 +1,31 @@
+## [1.1.2](https://github.com/dryerjs/dryerjs/compare/v1.1.1...v1.1.2) (2023-11-23)
+
+
+### Bug Fixes
+
+* change shouldApplyForContext signature ([#265](https://github.com/dryerjs/dryerjs/issues/265)) ([ce3e600](https://github.com/dryerjs/dryerjs/commit/ce3e6004222b03ff94fafb2bd4cb8bd0d41a82fc))
+
+## [1.1.1](https://github.com/dryerjs/dryerjs/compare/v1.1.0...v1.1.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* default value for allow apis ([#264](https://github.com/dryerjs/dryerjs/issues/264)) ([e1a8b80](https://github.com/dryerjs/dryerjs/commit/e1a8b80e504b8bbe77c93cfefa9e10a13a100b9c))
+
+# [1.1.0](https://github.com/dryerjs/dryerjs/compare/v1.0.2...v1.1.0) (2023-11-22)
+
+
+### Bug Fixes
+
+* Add timestamp to definition ([#261](https://github.com/dryerjs/dryerjs/issues/261)) ([2ebec9a](https://github.com/dryerjs/dryerjs/commit/2ebec9aa3f8b84606ff5e83c82c33d24122e9d4c))
+* exclude beforeReadFilter for write ([#263](https://github.com/dryerjs/dryerjs/issues/263)) ([5d0e6b2](https://github.com/dryerjs/dryerjs/commit/5d0e6b2c1e851ccd1f1dbd2198e5fe538b6e1c3b))
+* wrong function call and e2e for bulk error handler ([#237](https://github.com/dryerjs/dryerjs/issues/237)) ([8071756](https://github.com/dryerjs/dryerjs/commit/8071756c077f2a2dc4fcdfa713ebbee9044bc2a0))
+
+
+### Features
+
+* should apply for context and more hooks ([#262](https://github.com/dryerjs/dryerjs/issues/262)) ([862eae5](https://github.com/dryerjs/dryerjs/commit/862eae5debc4ae708fac0c2d65e1945b2799b21f))
+
 ## [1.0.2](https://github.com/dryerjs/dryerjs/compare/v1.0.1...v1.0.2) (2023-11-21)
 
 
