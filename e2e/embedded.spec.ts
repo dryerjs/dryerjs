@@ -486,7 +486,21 @@ describe('Embedded works', () => {
       },
       headers: { 'fake-role': 'user' },
     });
+
+    const updateBooks = await server.makeSuccessRequest({
+      query: `
+      query AuthorBooks($authorId: ObjectId!) {
+        authorBooks(authorId: $authorId) {
+          id
+        }
+      }
+      `,
+      variables: {
+        authorId: author.id,
+      },
+    });
     expect(response.removeAuthorBooks).toEqual({ success: true });
+    expect(isContainsJsonArray(updateBooks.authorBooks, [author.books[0]])).toBeFalsy();
   });
 
   it("Remove author's books: return error if parent not found", async () => {
