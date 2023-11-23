@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/dryerjs/dryerjs/compare/v1.1.1...v1.1.2) (2023-11-23)
+
+
+### Bug Fixes
+
+* change shouldApplyForContext signature ([#265](https://github.com/dryerjs/dryerjs/issues/265)) ([ce3e600](https://github.com/dryerjs/dryerjs/commit/ce3e6004222b03ff94fafb2bd4cb8bd0d41a82fc))
+
 ## [1.1.1](https://github.com/dryerjs/dryerjs/compare/v1.1.0...v1.1.1) (2023-11-22)
 
 
