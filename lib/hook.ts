@@ -29,7 +29,7 @@ export interface Hook<T = any, Context = any> {
     definition: Definition;
   }): Promise<void>;
 
-  shouldApplyForContext?(input: { ctx: Context; definition: Definition }): boolean;
+  shouldApplyForContext?(ctx: Context, definition?: Definition): boolean;
 
   beforeReadFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
   beforeWriteFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
@@ -112,6 +112,14 @@ export type BeforeFindManyHookInput<T = any, Context = any> = Parameters<
 
 export type AfterFindManyHookInput<T = any, Context = any> = Parameters<
   Required<Hook<T, Context>>['afterFindMany']
+>[0];
+
+export type BeforeReadFilterHookInput<T = any, Context = any> = Parameters<
+  Required<Hook<T, Context>>['beforeReadFilter']
+>[0];
+
+export type BeforeWriteFilterHookInput<T = any, Context = any> = Parameters<
+  Required<Hook<T, Context>>['beforeWriteFilter']
 >[0];
 
 export class AllDefinitions {}

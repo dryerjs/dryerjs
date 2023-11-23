@@ -21,7 +21,7 @@ export abstract class BaseService<T = any, Context = any> {
 
   private getHooksWithContext(method: keyof Hook, ctx: Context, definition: Definition): Hook[] {
     return this.getHooks(method).filter((hook) => {
-      return util.isNil(hook.shouldApplyForContext) || hook.shouldApplyForContext({ ctx, definition });
+      return util.isNil(hook.shouldApplyForContext) || hook.shouldApplyForContext(ctx, definition);
     });
   }
 
