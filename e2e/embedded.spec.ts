@@ -252,7 +252,7 @@ describe('Embedded works', () => {
     const books = author.books.map((book: any) => {
       return {
         ...book,
-        title: `${book.name}-edit`,
+        title: `${book.title}-edit`,
         reviews: book.reviews.map((review) => ({ ...review, content: `${review.content}-edit` })),
       };
     });
@@ -338,7 +338,7 @@ describe('Embedded works', () => {
 
   it('Update books within author: return error if book name exceed 100', async () => {
     const books = author.books.map((book: any) => {
-      return { ...book, title: `${book.name}${'a'.repeat(101)}` };
+      return { ...book, title: `${book.title}${'a'.repeat(101)}` };
     });
     const response = await server.makeFailRequest({
       query: `
