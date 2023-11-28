@@ -7,6 +7,14 @@ const server = TestServer.init({
 
 const NOT_FOUND_ID = '000000000000000000000000';
 
+function isContainsJsonArray(arrayA, arrayB) {
+  return arrayB.every((elementB) => {
+    return arrayA.some((elementA) => {
+      return JSON.stringify(elementA) === JSON.stringify(elementB);
+    });
+  });
+}
+
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
@@ -266,7 +274,27 @@ describe('Embedded works', () => {
         inputs: books,
       },
     });
+
+    const response = await server.makeSuccessRequest({
+      query: `
+      query AuthorBooks($authorId: ObjectId!) {
+        authorBooks(authorId: $authorId) {
+          id
+          title
+          reviews {
+            id
+            content
+          }
+        }
+      }
+      `,
+      variables: {
+        authorId: author.id,
+      },
+    });
     expect(updateAuthorBooks).toEqual(books);
+
+    expect(isContainsJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
   });
 
   it('Update books have whitespace name within author', async () => {
@@ -458,7 +486,21 @@ describe('Embedded works', () => {
       },
       headers: { 'fake-role': 'user' },
     });
+
+    const updateBooks = await server.makeSuccessRequest({
+      query: `
+      query AuthorBooks($authorId: ObjectId!) {
+        authorBooks(authorId: $authorId) {
+          id
+        }
+      }
+      `,
+      variables: {
+        authorId: author.id,
+      },
+    });
     expect(response.removeAuthorBooks).toEqual({ success: true });
+    expect(isContainsJsonArray(updateBooks.authorBooks, [author.books[0]])).toBeFalsy();
   });
 
   it("Remove author's books: return error if parent not found", async () => {

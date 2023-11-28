@@ -36,12 +36,12 @@ jobs:
           run: npm run lint:ci
         - name: Build
           run: npm run build
+        - name: cspell
+          run: npm run cspell
         - name: Start MongoDB
           uses: supercharge/mongodb-github-action@1.10.0
         - name: Test
           run: npm run test:cov
-        - name: cspell
-          run: npm run cspell
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3
           env:

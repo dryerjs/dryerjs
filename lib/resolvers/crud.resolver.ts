@@ -163,7 +163,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
             success: true,
           });
         } catch (error: any) {
-          await this.bulkErrorHandler?.handleCreateError?.({ input, ctx, definition }, error);
+          await this.bulkErrorHandler?.handleUpdateError?.({ input, ctx, definition }, error);
           response.push({
             input,
             success: false,
