@@ -70,7 +70,7 @@ export function Id() {
     const idType = Reflect.getMetadata('design:type', target, propertyKey);
 
     if (idType !== ObjectId) {
-      throw new Error(`Property ${String(propertyKey)} should be of type ObjectId`);
+      throw new Error(`Property ${String(propertyKey)} should have type ObjectId`);
     }
 
     Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
