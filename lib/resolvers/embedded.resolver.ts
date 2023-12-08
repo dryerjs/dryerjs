@@ -12,7 +12,7 @@ import { ArrayValidationPipe, applyDecorators } from './shared';
 import { EmbeddedConfig } from '../relations';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
-import { GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
+import { GraphQLObjectId, ObjectIdLike } from '../shared';
 
 export function createResolverForEmbedded(
   definition: Definition,
@@ -58,7 +58,7 @@ export function createResolverForEmbedded(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
       })
-      parentId: ObjectId,
+      parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ) {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
@@ -84,7 +84,7 @@ export function createResolverForEmbedded(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
       })
-      parentId: ObjectId,
+      parentId: ObjectIdLike,
       @Args('ids', { type: () => [GraphQLObjectId] })
       ids: string[],
       @contextDecorator() ctx: any,
@@ -168,7 +168,7 @@ export function createResolverForEmbedded(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
       })
-      parentId: ObjectId,
+      parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
