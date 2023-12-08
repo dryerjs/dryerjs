@@ -68,11 +68,11 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
 export function Id() {
   return (target: object, propertyKey: string | symbol) => {
     const idType = Reflect.getMetadata('design:type', target, propertyKey);
-    
+
     if (idType !== ObjectId) {
       throw new Error(`Property ${String(propertyKey)} should be of type ObjectId`);
     }
-    
+
     Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
   };
 }
