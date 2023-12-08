@@ -12,7 +12,7 @@ describe('Check id type is ObjectId or string', () => {
       }
       const user = new User();
       Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(user, 'id');
-    }).toThrowError('Property id should be of type ObjectId');
+    }).toThrowError('Property id should have type ObjectId');
   });
 
   it('Define id type ObjectId does not throw error', async () => {
