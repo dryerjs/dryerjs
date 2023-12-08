@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/dryerjs/dryerjs/compare/v1.1.2...v1.1.3) (2023-12-08)
+
+
+### Bug Fixes
+
+* id errors on embedded ([#270](https://github.com/dryerjs/dryerjs/issues/270)) ([758ec9a](https://github.com/dryerjs/dryerjs/commit/758ec9a2f5fee46c1847c2cfe96a2d06ec0acc16))
+* throw error when define id with string ([#269](https://github.com/dryerjs/dryerjs/issues/269)) ([d27cfa9](https://github.com/dryerjs/dryerjs/commit/d27cfa9a8ca953a772d39a01ded6f484f82335e6))
+
 ## [1.1.2](https://github.com/dryerjs/dryerjs/compare/v1.1.1...v1.1.2) (2023-11-23)
 
 
