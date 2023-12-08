@@ -82,9 +82,6 @@ export abstract class BaseService<T = any, Context = any> {
   }
 
   public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
-    if (!(input.id instanceof ObjectId)) {
-      throw new Error('Id must be ObjectId');
-    }
     const filter = { _id: input.id };
     for (const hook of this.getHooksWithContext('beforeWriteFilter', ctx, this.definition)) {
       await hook.beforeWriteFilter!({ ctx, filter, definition: this.definition });

@@ -1,7 +1,7 @@
 import { Field, FieldOptions, ReturnTypeFunc } from '@nestjs/graphql';
 import { Prop, PropOptions } from '@nestjs/mongoose';
 
-import { FilterOperator, GraphQLObjectId } from './shared';
+import { FilterOperator, GraphQLObjectId, ObjectId } from './shared';
 import * as util from './util';
 import { MetaKey, Metadata } from './metadata';
 import { Thunk } from './thunk';
@@ -67,6 +67,12 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
 
 export function Id() {
   return (target: object, propertyKey: string | symbol) => {
+    const idType = Reflect.getMetadata('design:type', target, propertyKey);
+    
+    if (idType !== ObjectId) {
+      throw new Error(`Property ${String(propertyKey)} should be of type ObjectId`);
+    }
+    
     Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
   };
 }
