@@ -8,7 +8,7 @@ import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
-import { ObjectId, StringLikeId } from '../shared';
+import { StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForHasOne(
@@ -58,7 +58,7 @@ export function createResolverForHasOne(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T> {
-      return await this.getLoader(ctx, rawCtx).load(new ObjectId(parent.id));
+      return await this.getLoader(ctx, rawCtx).load(parent._id);
     }
   }
 
