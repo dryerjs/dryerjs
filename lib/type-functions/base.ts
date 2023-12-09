@@ -58,5 +58,7 @@ export function getBaseType(input: {
       }
     }
   }
+  // prevent class-transformer from transforming _id
+  Transform(({ obj, key }) => obj[key])(Placeholder.prototype, '_id');
   return Placeholder as any;
 }
