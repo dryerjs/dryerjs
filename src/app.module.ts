@@ -4,7 +4,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { Definition, DryerModule } from '../lib';
+import { Definition, DryerModule } from 'dryerjs';
 import { AuthResolver } from './resolvers';
 import {
   Product,

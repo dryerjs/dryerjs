@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { ValidationPipe } from '@nestjs/common';
-import { OutputType, CreateInputType } from '../../lib';
+import { OutputType, CreateInputType } from 'dryerjs';
 import { User } from '../models';
 import { Ctx } from '../ctx';
 

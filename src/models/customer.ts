@@ -10,7 +10,7 @@ import {
   Id,
   GraphQLObjectId,
   Index,
-} from '../../lib';
+} from 'dryerjs';
 import { IsEmail } from 'class-validator';
 
 @Index({ name: 'text' })

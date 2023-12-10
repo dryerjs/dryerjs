@@ -11,7 +11,7 @@ import {
   BelongsTo,
   ReferencesMany,
   HasMany,
-} from '../../lib';
+} from 'dryerjs';
 
 @Definition()
 class Creator {
