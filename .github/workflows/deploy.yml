@@ -50,6 +50,7 @@ jobs:
       run: rm -rf debugger/src && cp -r src debugger/
     - name: Commit and push using GH_TOKEN
       run: |
+        cd debugger
         git add .
         git config --global user.name 'vanpho93'
         git config --global user.email 'vanpho01@gmail.com'
