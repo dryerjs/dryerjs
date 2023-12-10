@@ -40,3 +40,23 @@ jobs:
       with:
         name: dryerjs-${{ github.sha }}.tgz
         path: dryerjs-${{ github.sha }}.tgz
+    - name: Checkout debugger
+      uses: actions/checkout@v2
+      with:
+        repository: dryerjs/debugger
+    - name: Remove old tgz
+      run: rm debugger/dryerjs-*.tgz
+    - name: Download tgz
+      uses: actions/download-artifact@v2
+      with:
+        name: dryerjs-${{ github.sha }}.tgz
+    - name: Install new tgz
+      run: npm install dryerjs-${{ github.sha }}.tgz
+    - name: Commit and push using GH_TOKEN
+      run: |
+        git add .
+        git config --global user.name 'vanpho93'
+        git config --global user.email 'vanpho01@gmail.com'
+        git commit -m "feat: update to dryerjs-${{ github.sha }}"
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
+        git push
