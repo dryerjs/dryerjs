@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # for checkout
+  contents: write
 
 jobs:
   release:
@@ -56,5 +56,4 @@ jobs:
           git config --global user.email 'vanpho01@gmail.com'
           git commit -m "feat: update to dryerjs-${{ github.sha }}"
           git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/dryerjs/debugger
-          git remote set-url origin ssh://git@github.com/dryerjs/debugger.git
           git push
