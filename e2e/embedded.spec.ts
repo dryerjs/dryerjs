@@ -145,7 +145,7 @@ describe('Embedded works', () => {
     ]);
   });
 
-  it('Create book within author', async () => {
+  it('Create book and reviews within author', async () => {
     const response = await server.makeSuccessRequest({
       query: `
         mutation CreateAuthorBooks($inputs: [CreateBookInput!]!, $authorId: ObjectId!) {
@@ -167,6 +167,9 @@ describe('Embedded works', () => {
               {
                 content: 'Book 3 - 1st review',
               },
+              {
+                content: 'Book 3 - 2nd review',
+              },
             ],
           },
         ],
@@ -182,6 +185,10 @@ describe('Embedded works', () => {
           {
             id: expect.any(String),
             content: 'Book 3 - 1st review',
+          },
+          {
+            id: expect.any(String),
+            content: 'Book 3 - 2nd review',
           },
         ],
       },
@@ -214,7 +221,10 @@ describe('Embedded works', () => {
       {
         id: expect.any(String),
         title: 'Awesome book 3',
-        reviews: [{ id: expect.any(String), content: 'Book 3 - 1st review' }],
+        reviews: [
+          { id: expect.any(String), content: 'Book 3 - 1st review' },
+          { id: expect.any(String), content: 'Book 3 - 2nd review' },
+        ],
       },
     ]);
   });
@@ -248,7 +258,7 @@ describe('Embedded works', () => {
     });
   });
 
-  it('Update books within author', async () => {
+  it('Update books and reviews within author', async () => {
     const books = author.books.map((book: any) => {
       return {
         ...book,
@@ -297,7 +307,7 @@ describe('Embedded works', () => {
     expect(isContainsJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
   });
 
-  it('Update books have whitespace name within author', async () => {
+  it('Update books and reviews have whitespace name within author', async () => {
     const books = author.books.map((book: any) => {
       return {
         ...book,
