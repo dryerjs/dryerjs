@@ -19,9 +19,9 @@ import {
   Comment,
   Store,
   Specification,
-  Feedback,
+  Rating,
   Shop,
-  Software,
+  Promotion,
   Order,
   Item,
 } from './models';
@@ -40,9 +40,9 @@ const definitions: Definition[] = [
   Color,
   Comment,
   Specification,
-  Feedback,
+  Rating,
   Shop,
-  Software,
+  Promotion,
   Order,
   Item,
 ];

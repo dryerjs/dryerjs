@@ -31,7 +31,7 @@ export class Book {
 }
 
 @Definition()
-export class Log {
+export class Event {
   @Id()
   id: ObjectId;
 
@@ -55,9 +55,9 @@ export class Author {
   })
   books: Book[];
 
-  @Embedded(() => Log, {
+  @Embedded(() => Event, {
     allowedApis: [],
     overridePropertyOptions: { create: Skip, update: Skip },
   })
-  logs: Log[];
+  logs: Event[];
 }

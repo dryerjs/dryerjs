@@ -1,9 +1,9 @@
 import { TestServer } from './test-server';
-import { Computer, Feedback, Shop, Software, Specification } from '../src/models/computer';
+import { Computer, Rating, Shop, Promotion, Specification } from '../src/models/computer';
 import { Item, Order } from '../src/models';
 
 export const dryer = TestServer.init({
-  definitions: [Computer, Specification, Feedback, Shop, Software, Order, Item],
+  definitions: [Computer, Specification, Rating, Shop, Promotion, Order, Item],
 });
 
 describe('skip default hooks for relations works', () => {
@@ -20,12 +20,12 @@ describe('skip default hooks for relations works', () => {
             createComputer(input: $input) {
               name
               id
-              feedbackIds 
+              ratingIds 
               specification {
-                hardware
+                cpu
                 id
               }
-              softwares {
+              promotions {
                 name
                 id
               }
@@ -35,11 +35,11 @@ describe('skip default hooks for relations works', () => {
       variables: {
         input: {
           name: 'Xiaomi',
-          feedbackIds: ['000000000000000000000001'],
+          ratingIds: ['000000000000000000000001'],
           specification: {
-            hardware: 'A',
+            cpu: 'A',
           },
-          softwares: [
+          promotions: [
             {
               name: 'Adobe',
             },
@@ -54,9 +54,9 @@ describe('skip default hooks for relations works', () => {
     expect(createComputer).toEqual({
       id: expect.any(String),
       name: 'Xiaomi',
-      feedbackIds: ['000000000000000000000001'],
+      ratingIds: ['000000000000000000000001'],
       specification: expect.any(Object),
-      softwares: expect.any(Object),
+      promotions: expect.any(Object),
     });
   });
 
@@ -67,19 +67,19 @@ describe('skip default hooks for relations works', () => {
           updateComputer(input: $input) {
             name
             id
-            feedbackIds
+            ratingIds
           }
         }
         `,
       variables: {
         input: {
           id: computer.id,
-          feedbackIds: ['000000000000000000000002'],
+          ratingIds: ['000000000000000000000002'],
         },
       },
     });
     expect(updateComputer.id).toEqual(computer.id);
-    expect(updateComputer.feedbackIds[0]).toEqual('000000000000000000000002');
+    expect(updateComputer.ratingIds[0]).toEqual('000000000000000000000002');
   });
 
   it('should be able to skipExistenceCheck for hasMany in beforeRemove', async () => {
