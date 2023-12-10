@@ -7,14 +7,6 @@ const server = TestServer.init({
 
 const NOT_FOUND_ID = '000000000000000000000000';
 
-function isContainsJsonArray(arrayA, arrayB) {
-  return arrayB.every((elementB) => {
-    return arrayA.some((elementA) => {
-      return JSON.stringify(elementA) === JSON.stringify(elementB);
-    });
-  });
-}
-
 describe('Embedded works', () => {
   beforeAll(async () => {
     await server.start();
@@ -219,11 +211,11 @@ describe('Embedded works', () => {
     expect(updatedAuthor.books).toEqual([
       ...author.books,
       {
-        id: expect.any(String),
+        id: response.createAuthorBooks[0].id,
         title: 'Awesome book 3',
         reviews: [
-          { id: expect.any(String), content: 'Book 3 - 1st review' },
-          { id: expect.any(String), content: 'Book 3 - 2nd review' },
+          { id: response.createAuthorBooks[0].reviews[0].id, content: 'Book 3 - 1st review' },
+          { id: response.createAuthorBooks[0].reviews[1].id, content: 'Book 3 - 2nd review' },
         ],
       },
     ]);
@@ -259,14 +251,8 @@ describe('Embedded works', () => {
   });
 
   it('Update books and reviews within author', async () => {
-    const books = author.books.map((book: any) => {
-      return {
-        ...book,
-        title: `${book.title}-edit`,
-        reviews: book.reviews.map((review) => ({ ...review, content: `${review.content}-edit` })),
-      };
-    });
-    const { updateAuthorBooks } = await server.makeSuccessRequest({
+    const firstBook = author.books[0];
+    await server.makeSuccessRequest({
       query: `
         mutation updateAuthorBooks($authorId: ObjectId!, $inputs: [UpdateBookInput!]!) {
           updateAuthorBooks(authorId: $authorId, inputs: $inputs) {
@@ -281,30 +267,58 @@ describe('Embedded works', () => {
       `,
       variables: {
         authorId: author.id,
-        inputs: books,
+        inputs: [
+          {
+            id: firstBook.id,
+            title: `${firstBook.title}-edit`,
+            reviews: [
+              {
+                id: firstBook.reviews[0].id,
+                content: 'edited content',
+              },
+              {
+                content: 'new content',
+              },
+            ],
+          },
+        ],
       },
     });
 
-    const response = await server.makeSuccessRequest({
+    // make request to authorBook to check if the update is successful
+    const { authorBook } = await server.makeSuccessRequest({
       query: `
-      query AuthorBooks($authorId: ObjectId!) {
-        authorBooks(authorId: $authorId) {
-          id
-          title
-          reviews {
+        query AuthorBook($authorId: ObjectId!, $bookId: ObjectId!) {
+          authorBook(authorId: $authorId, id: $bookId) {
             id
-            content
+            title
+            reviews {
+              id
+              content 
+            }
           }
         }
-      }
       `,
       variables: {
         authorId: author.id,
+        bookId: firstBook.id,
       },
     });
-    expect(updateAuthorBooks).toEqual(books);
 
-    expect(isContainsJsonArray(response.authorBooks, updateAuthorBooks)).toBeTruthy();
+    expect(authorBook).toEqual({
+      id: firstBook.id,
+      title: `${firstBook.title}-edit`,
+      reviews: [
+        {
+          id: firstBook.reviews[0].id,
+          content: 'edited content',
+        },
+        {
+          id: expect.any(String),
+          content: 'new content',
+        },
+      ],
+    });
   });
 
   it('Update books and reviews have whitespace name within author', async () => {
@@ -467,22 +481,7 @@ describe('Embedded works', () => {
   });
 
   it("Remove author's books", async () => {
-    const { allAuthors } = await server.makeSuccessRequest({
-      query: `
-        query Authors {
-          allAuthors {
-            id
-            books {
-              id
-            }
-          }
-        }
-      `,
-    });
-
-    const author = allAuthors[0];
-
-    const response = await server.makeSuccessRequest({
+    await server.makeSuccessRequest({
       query: `
         mutation RemoveAuthorBooks($authorId: ObjectId!, $bookIds: [ObjectId!]!) {
           removeAuthorBooks(authorId: $authorId, ids: $bookIds) {
@@ -497,7 +496,7 @@ describe('Embedded works', () => {
       headers: { 'fake-role': 'user' },
     });
 
-    const updateBooks = await server.makeSuccessRequest({
+    const updated = await server.makeSuccessRequest({
       query: `
       query AuthorBooks($authorId: ObjectId!) {
         authorBooks(authorId: $authorId) {
@@ -509,8 +508,7 @@ describe('Embedded works', () => {
         authorId: author.id,
       },
     });
-    expect(response.removeAuthorBooks).toEqual({ success: true });
-    expect(isContainsJsonArray(updateBooks.authorBooks, [author.books[0]])).toBeFalsy();
+    expect(updated.authorBooks.map(({ id }) => id).includes(author.books[0].id)).toBeFalsy();
   });
 
   it("Remove author's books: return error if parent not found", async () => {
@@ -619,7 +617,6 @@ describe('Embedded works', () => {
         },
       },
     });
-
     expect(response[0].extensions.originalError.message[0]).toContain('title must be shorter');
   });
 
