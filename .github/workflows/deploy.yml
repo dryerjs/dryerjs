@@ -1,0 +1,25 @@
+name: Deploy
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read # for checkout
+
+jobs:
+  release:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "lts/*"
+    - name: Build
+      run: npm run build
+    - name: pack
+      run: npm pack
