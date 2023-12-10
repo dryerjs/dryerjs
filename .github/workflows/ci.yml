@@ -1,48 +1,48 @@
 name: CI
 
 on:
-    push:
-        branches:
-            - master
-    pull_request:
-        branches:
-            - '*'
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
 env:
-    CI: true
+  CI: true
 
 jobs:
-    ci:
-      name: CI
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - name: Setup Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: "lts/*"
-        - uses: actions/cache@v3
-          id: npm-cache
-          with:
-              path: 'node_modules'
-              key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-              restore-keys: |
-                  ${{ runner.os }}-npm-
-        - name: Install
-          if: steps.npm-cache.outputs.cache-hit != 'true'
-          run: npm clean-install
-        - name: Format
-          run: npm run format:ci
-        - name: Lint
-          run: npm run lint:ci
-        - name: Build
-          run: npm run build
-        - name: cspell
-          run: npm run cspell
-        - name: Start MongoDB
-          uses: supercharge/mongodb-github-action@1.10.0
-        - name: Test
-          run: npm run test:cov
-        - name: Upload coverage reports to Codecov
-          uses: codecov/codecov-action@v3
-          env:
-            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+      - name: Install
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm clean-install
+      - name: Format
+        run: npm run format:ci
+      - name: Lint
+        run: npm run lint:ci
+      - name: Build
+        run: npm run build
+      - name: cspell
+        run: npm run cspell
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.10.0
+      - name: Test
+        run: npm run test:cov
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

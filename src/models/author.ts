@@ -59,5 +59,5 @@ export class Author {
     allowedApis: [],
     overridePropertyOptions: { create: Skip, update: Skip },
   })
-  logs: Event[];
+  events: Event[];
 }
