@@ -1,8 +1,8 @@
 import { TestServer } from './test-server';
-import { Computer, Feedback, Shop, Software, Specification } from '../src/models/computer';
+import { Computer, Rating, Shop, Promotion, Specification } from '../src/models/computer';
 
 export const dryer = TestServer.init({
-  definitions: [Computer, Specification, Feedback, Shop, Software],
+  definitions: [Computer, Specification, Rating, Shop, Promotion],
 });
 
 describe('Object embedded feature works', () => {

@@ -29,14 +29,14 @@ class Brand {
 }
 
 @Definition({ allowedApis: '*', removalConfig: { allowCleanUpRelationsAfterRemoved: true } })
-export class Feedback {
+export class Rating {
   @Id()
   id: ObjectId;
 
-  @Property({ type: () => graphql.GraphQLString })
-  review: string;
+  @Property()
+  score: number;
 
-  @Property({ db: { unique: true } })
+  @Property()
   username: string;
 }
 
@@ -46,7 +46,7 @@ export class Specification {
   id: ObjectId;
 
   @Property({ type: () => graphql.GraphQLString })
-  hardware: string;
+  cpu: string;
 
   @BelongsTo(() => Computer, { from: 'computerId', skipExistenceCheck: true })
   computer: Ref<Computer>;
@@ -73,7 +73,7 @@ export class Shop {
 }
 
 @Definition({ allowedApis: '*' })
-export class Software {
+export class Promotion {
   @Id()
   id: ObjectId;
 
@@ -102,16 +102,16 @@ export class Computer {
   specification: Specification;
 
   @Property({ type: () => [GraphQLObjectId], nullable: true, db: { type: [ObjectId], default: [] } })
-  feedbackIds: ObjectId[];
+  ratingIds: ObjectId[];
 
-  @ReferencesMany(() => Feedback, {
-    from: 'feedbackIds',
+  @ReferencesMany(() => Rating, {
+    from: 'ratingIds',
     allowCreateWithin: true,
     noPopulation: false,
     skipExistenceCheck: true,
     skipRelationCheckOnRemove: true,
   })
-  feedbacks: Feedback[];
+  ratings: Rating[];
 
   @BelongsTo(() => Shop, { from: 'shopId', noPopulation: true, skipExistenceCheck: true })
   shop: Ref<Shop>;
@@ -119,12 +119,12 @@ export class Computer {
   @Property({ type: () => GraphQLObjectId, nullable: true })
   shopId: ObjectId;
 
-  @HasMany(() => Software, {
+  @HasMany(() => Promotion, {
     to: 'computerId',
     allowCreateWithin: true,
     allowFindAll: true,
     allowPaginate: true,
     skipRelationCheckOnRemove: true,
   })
-  softwares: Software[];
+  promotions: Promotion[];
 }
