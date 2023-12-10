@@ -35,23 +35,19 @@ jobs:
       run: npm pack
     - name: Rename to dryerjs-commithash-.tgz
       run: mv dryerjs-*.tgz dryerjs-${{ github.sha }}.tgz
-    - name: Store tgz file
-      uses: actions/upload-artifact@v2
-      with:
-        name: dryerjs-${{ github.sha }}.tgz
-        path: dryerjs-${{ github.sha }}.tgz
     - name: Checkout debugger
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: dryerjs/debugger
+        path: debugger
     - name: Remove old tgz
       run: rm debugger/dryerjs-*.tgz
-    - name: Download tgz
-      uses: actions/download-artifact@v2
-      with:
-        name: dryerjs-${{ github.sha }}.tgz
+    - name: Copy new tgz
+      run: cp dryerjs-${{ github.sha }}.tgz debugger/
     - name: Install new tgz
-      run: npm install dryerjs-${{ github.sha }}.tgz
+      run: npm install dryerjs@dryerjs-${{ github.sha }}.tgz
+    - name: Replace src folder
+      run: rm -rf debugger/src && cp -r src debugger/
     - name: Commit and push using GH_TOKEN
       run: |
         git add .
