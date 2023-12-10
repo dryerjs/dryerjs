@@ -38,6 +38,7 @@ jobs:
     - name: Checkout debugger
       uses: actions/checkout@v3
       with:
+        token: ${{ secrets.GH_TOKEN }}
         repository: dryerjs/debugger
         path: debugger
     - name: Remove old tgz
