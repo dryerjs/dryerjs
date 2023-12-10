@@ -167,6 +167,9 @@ describe('Embedded works', () => {
               {
                 content: 'Book 3 - 1st review',
               },
+              {
+                content: 'Book 3 - 2nd review',
+              },
             ],
           },
         ],
@@ -182,6 +185,10 @@ describe('Embedded works', () => {
           {
             id: expect.any(String),
             content: 'Book 3 - 1st review',
+          },
+          {
+            id: expect.any(String),
+            content: 'Book 3 - 2nd review',
           },
         ],
       },
@@ -214,7 +221,10 @@ describe('Embedded works', () => {
       {
         id: expect.any(String),
         title: 'Awesome book 3',
-        reviews: [{ id: expect.any(String), content: 'Book 3 - 1st review' }],
+        reviews: [
+          { id: expect.any(String), content: 'Book 3 - 1st review' },
+          { id: expect.any(String), content: 'Book 3 - 2nd review' },
+        ],
       },
     ]);
   });
