@@ -597,7 +597,7 @@ describe('Embedded works', () => {
   });
 
   it('test max length validation for book title', async () => {
-    await server.makeFailRequest({
+    const response = await server.makeFailRequest({
       query: `
         mutation CreateAuthor($input: CreateAuthorInput!) {
           createAuthor(input: $input) {
@@ -616,8 +616,8 @@ describe('Embedded works', () => {
           books: [{ title: 'a'.repeat(101) }],
         },
       },
-      errorMessageMustContains: 'title must be shorter',
     });
+    expect(response[0].extensions.originalError.message[0]).toContain('title must be shorter');
   });
 
   afterAll(async () => {
