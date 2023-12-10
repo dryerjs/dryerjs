@@ -48,7 +48,7 @@ jobs:
     - name: Copy new tgz
       run: cp dryerjs-${{ github.sha }}.tgz debugger/
     - name: Install new tgz
-      run: npm install dryerjs@dryerjs-${{ github.sha }}.tgz
+      run: cd debugger && npm install dryerjs@dryerjs-${{ github.sha }}.tgz
     - name: Replace src folder
       run: rm -rf debugger/src && cp -r src debugger/
     - name: Commit and push using GH_TOKEN
