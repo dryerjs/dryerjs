@@ -57,7 +57,7 @@ const definitions: Definition[] = [
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-debug'),
+    MongooseModule.forRoot(process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/dryer-debug'),
     DryerModule.register({
       definitions,
       contextDecorator: Ctx,

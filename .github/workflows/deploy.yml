@@ -19,7 +19,24 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: "lts/*"
+    - uses: actions/cache@v3
+      id: npm-cache
+      with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+              ${{ runner.os }}-npm-
+    - name: Install
+      if: steps.npm-cache.outputs.cache-hit != 'true'
+      run: npm clean-install
     - name: Build
       run: npm run build
     - name: pack
       run: npm pack
+    - name: Rename to dryerjs-commithash-.tgz
+      run: mv dryerjs-*.tgz dryerjs-${{ github.sha }}.tgz
+    - name: Store tgz file
+      uses: actions/upload-artifact@v2
+      with:
+        name: dryerjs-${{ github.sha }}.tgz
+        path: dryerjs-${{ github.sha }}.tgz
