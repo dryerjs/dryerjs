@@ -15,7 +15,7 @@ import {
   Id,
   Ref,
   BelongsTo,
-} from '../../lib';
+} from 'dryerjs';
 import { MaxLength } from 'class-validator';
 
 @Definition({ allowedApis: '*' })

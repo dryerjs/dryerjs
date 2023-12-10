@@ -2,7 +2,7 @@ import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
 import { UseGuards } from '@nestjs/common';
 
-import { Definition, Embedded, Thunk, ObjectId, Property, Id, Skip } from '../../lib';
+import { Definition, Embedded, Thunk, ObjectId, Property, Id, Skip } from 'dryerjs';
 import { UserGuard } from './fake-guards';
 
 @Definition()

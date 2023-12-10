@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { Property, Definition, ObjectId, Id, GraphQLObjectId, ReferencesMany } from '../../lib';
+import { Property, Definition, ObjectId, Id, GraphQLObjectId, ReferencesMany } from 'dryerjs';
 
 @Definition({ allowedApis: '*' })
 export class Item {
