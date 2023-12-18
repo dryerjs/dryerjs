@@ -42,8 +42,8 @@ export function createResolverForHasMany(
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       const isAllowed =
-        (propertyKey === 'findAll' && relation.options.allowFindAll === true) ||
-        (propertyKey === 'paginate' && relation.options.allowPaginate === true);
+        (propertyKey.startsWith('findAll') && relation.options.allowFindAll === true) ||
+        (propertyKey.startsWith('paginate') && relation.options.allowPaginate === true);
       if (isAllowed) {
         decorator(target, propertyKey, descriptor);
       }
@@ -72,7 +72,7 @@ export function createResolverForHasMany(
     }
 
     @IfApiAllowed(ResolveField(() => [OutputType(relationDefinition)], { name: field }))
-    async findAll(
+    async [`findAll_${field}`](
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
@@ -86,7 +86,7 @@ export function createResolverForHasMany(
         name: `paginate${util.toPascalCase(field)}`,
       }),
     )
-    async paginate(
+    async [`paginate_${field}`](
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @Args('page', { type: () => graphql.GraphQLInt, defaultValue: 1 }) page: number,
