@@ -50,7 +50,7 @@ export function createResolverForReferencesMany(
     }
 
     @IfApiAllowed(ResolveField(() => [OutputType(relationDefinition)], { name: field }))
-    async reference(
+    async [`reference_${field}`](
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,

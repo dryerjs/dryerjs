@@ -49,7 +49,7 @@ export function createResolverForBelongsTo(
     }
 
     @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field }))
-    async findOne(
+    async [`findOne_${field}`](
       @Parent() parent: any,
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
