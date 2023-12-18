@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/dryerjs/dryerjs/compare/v1.1.3...v1.1.4) (2023-12-18)
+
+
+### Bug Fixes
+
+* bug when has multiple belongs to ([#281](https://github.com/dryerjs/dryerjs/issues/281)) ([2de905f](https://github.com/dryerjs/dryerjs/commit/2de905f5dfc781de0c2ff1f3895395a15f2cb5f3))
+
 ## [1.1.3](https://github.com/dryerjs/dryerjs/compare/v1.1.2...v1.1.3) (2023-12-08)
 
 
