@@ -11,17 +11,17 @@ export class Store {
 
   @HasMany(() => Product, {
     to: 'storeId',
-    allowCreateWithin: false,
-    allowFindAll: false,
-    allowPaginate: false,
+    allowCreateWithin: true,
+    allowFindAll: true,
+    allowPaginate: true,
   })
   products: Product[];
 
   @HasMany(() => Order, {
     to: 'storeId',
-    allowCreateWithin: false,
-    allowFindAll: false,
-    allowPaginate: false,
+    allowCreateWithin: true,
+    allowFindAll: true,
+    allowPaginate: true,
   })
   orders: Order[];
 }
@@ -38,7 +38,7 @@ export class Product {
   storeId: ObjectId;
 }
 
-@Definition()
+@Definition({ allowedApis: '*' })
 export class Order {
   @Id()
   id: ObjectId;
@@ -49,13 +49,13 @@ export class Order {
   @Property({ type: () => GraphQLObjectId })
   storeId: ObjectId;
 
-  @BelongsTo(() => Store, { from: 'storeId', noPopulation: true })
+  @BelongsTo(() => Store, { from: 'storeId' })
   store: Ref<Store>;
 
   @Property({ type: () => GraphQLObjectId })
   userId: ObjectId;
 
-  @BelongsTo(() => User, { from: 'userId', noPopulation: true })
+  @BelongsTo(() => User, { from: 'userId' })
   user: Ref<User>;
 }
 
@@ -72,7 +72,23 @@ const server = TestServer.init({
   definitions: [Store, User, Order, Product],
 });
 
-it('BelongsTo works', async () => {
+it('Multiple relations work', async () => {
   await server.start();
+  await server.makeSuccessRequest({
+    query: `
+      {
+        allOrders {
+          id
+          store { id }
+          user { id }
+        }
+      }
+    `,
+    variables: {
+      input: {
+        name: 'Awesome store',
+      },
+    },
+  });
   await server.stop();
 });
