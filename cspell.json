@@ -7,8 +7,6 @@
     "nestjs",
     "srcset",
     "Typer",
-    "QLID",
-    "QLJSON",
     "metatype",
     "automerge",
     "precommit",
@@ -16,7 +14,9 @@
     "paramtypes",
     "returntype",
     "virtuals",
-    "Macbook"
+    "Macbook",
+    "GraphQLISODateTime",
+    "GraphQLJSONObject"
   ],
   "ignorePaths": ["node_modules", "dist", "coverage", "CHANGELOG.md"]
 }
