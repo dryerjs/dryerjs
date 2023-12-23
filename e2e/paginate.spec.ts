@@ -236,7 +236,7 @@ describe('Paginate works', () => {
     });
   });
 
-  it('filter by customer id', async () => {
+  it('Get all with filter by id', async () => {
     const customers = await server.makeSuccessRequest({
       query: `
         query getCustomers {
@@ -248,8 +248,7 @@ describe('Paginate works', () => {
         }
       `,
     });
-
-    const id = customers.allCustomers[0].id;
+    const expectedCustomer = customers.allCustomers[0];
 
     const { allCustomers } = await server.makeSuccessRequest({
       query: `
@@ -261,16 +260,10 @@ describe('Paginate works', () => {
           } 
         }
       `,
-      variables: {
-        filter: {
-          id: {
-            eq: id,
-          },
-        },
-      },
+      variables: { filter: { id: { eq: expectedCustomer.id } } },
     });
 
-    expect(allCustomers).toEqual([customers.allCustomers[0]]);
+    expect(allCustomers).toEqual([expectedCustomer]);
   });
 
   it('notEq', async () => {
@@ -526,19 +519,24 @@ describe('Paginate works', () => {
             id
             email
             numberOfOrders
-          } 
+          }
         }
       `,
     });
+    const expectedCustomer = allCustomers[0];
 
-    const id = allCustomers[0].id;
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
-      variables: { filter: { id: { eq: id } } },
+      variables: { filter: { id: { eq: expectedCustomer.id } } },
     });
 
     expect(paginateCustomers).toEqual({
-      docs: [{ email: allCustomers[0].email, numberOfOrders: allCustomers[0].numberOfOrders }],
+      docs: [
+        {
+          email: expectedCustomer.email,
+          numberOfOrders: expectedCustomer.numberOfOrders,
+        },
+      ],
       totalDocs: 1,
     });
   });
