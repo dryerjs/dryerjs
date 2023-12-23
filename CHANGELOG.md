@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/dryerjs/dryerjs/compare/v1.1.4...v1.2.0) (2023-12-23)
+
+
+### Bug Fixes
+
+* has one should be nullable ([#289](https://github.com/dryerjs/dryerjs/issues/289)) ([46f50b0](https://github.com/dryerjs/dryerjs/commit/46f50b05d5514c7c19d1008334c1adfe554372f5))
+
+
+### Features
+
+* add find one nullable ([#288](https://github.com/dryerjs/dryerjs/issues/288)) ([fb8a242](https://github.com/dryerjs/dryerjs/commit/fb8a2425cc3277fcf4c6f79c2133c5428febf752))
+
 ## [1.1.4](https://github.com/dryerjs/dryerjs/compare/v1.1.3...v1.1.4) (2023-12-18)
 
 
