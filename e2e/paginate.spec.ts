@@ -94,6 +94,35 @@ describe('Paginate works', () => {
     });
   });
 
+  it('sort the data returned by id in descending order', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort: CustomerSort) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { page: 1, limit: 10, sort: { id: 'DESC' } },
+    });
+    expect(paginateCustomers.docs).toHaveLength(5);
+    expect(paginateCustomers.totalDocs).toEqual(5);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'joe@example.com', numberOfOrders: null },
+        { email: 'jill@example.com', numberOfOrders: null },
+        { email: 'jack@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 5,
+    });
+  });
+
   it('sort the data returned in descending order and filter', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query: `
@@ -205,7 +234,7 @@ describe('Paginate works', () => {
             totalDocs
           }
         }
-  `,
+    `,
       variables: { page: 1, limit: 10, filter: {} },
     });
     expect(paginateCustomers.docs).toHaveLength(5);
@@ -234,6 +263,36 @@ describe('Paginate works', () => {
       docs: [{ email: 'john@example.com', numberOfOrders: 10 }],
       totalDocs: 1,
     });
+  });
+
+  it('Get all with filter by id', async () => {
+    const customers = await server.makeSuccessRequest({
+      query: `
+        query getCustomers {
+          allCustomers {
+            id
+            email
+            name
+          } 
+        }
+      `,
+    });
+    const expectedCustomer = customers.allCustomers[0];
+
+    const { allCustomers } = await server.makeSuccessRequest({
+      query: `
+        query FindAllCustomers($filter: CustomerFilter) {
+          allCustomers(filter: $filter) {
+            id
+            email 
+            name
+          } 
+        }
+      `,
+      variables: { filter: { id: { eq: expectedCustomer.id } } },
+    });
+
+    expect(allCustomers).toEqual([expectedCustomer]);
   });
 
   it('notEq', async () => {
@@ -481,7 +540,37 @@ describe('Paginate works', () => {
     ]);
   });
 
-  it('eq with ObjectId', async () => {
+  it('eq with ObjectId as Primary Key', async () => {
+    const { allCustomers } = await server.makeSuccessRequest({
+      query: `
+        query getCustomers {
+          allCustomers {
+            id
+            email
+            numberOfOrders
+          }
+        }
+      `,
+    });
+    const expectedCustomer = allCustomers[0];
+
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { id: { eq: expectedCustomer.id } } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [
+        {
+          email: expectedCustomer.email,
+          numberOfOrders: expectedCustomer.numberOfOrders,
+        },
+      ],
+      totalDocs: 1,
+    });
+  });
+
+  it('eq with ObjectId as Foreign Key', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
       variables: { filter: { countryId: { eq: '000000000000000000000001' } } },

@@ -2,6 +2,22 @@ import { MongoHelper } from './mongo-helper';
 
 describe('MongoHelper', () => {
   describe('toQuery', () => {
+    it('should convert GraphQL id to Mongo _id in filter query', () => {
+      const graphqlFilter = {
+        id: {
+          eq: 'Jerry',
+        },
+      };
+
+      const mongoQuery = MongoHelper.toQuery(graphqlFilter);
+
+      expect(mongoQuery).toEqual({
+        _id: {
+          $eq: 'Jerry',
+        },
+      });
+    });
+
     it('should convert GraphQL filter to Mongo query', () => {
       const graphqlFilter = {
         name: {
@@ -166,6 +182,20 @@ describe('MongoHelper', () => {
         age: {
           $eq: undefined,
         },
+      });
+    });
+  });
+
+  describe('getSortObject()', () => {
+    it('should convert GraphQL id to Mongo _id', () => {
+      const sortQuery = MongoHelper.getSortObject(undefined, {
+        id: 'DESC',
+        name: 'ASC',
+      });
+
+      expect(sortQuery).toEqual({
+        _id: 'DESC',
+        name: 'ASC',
       });
     });
   });
