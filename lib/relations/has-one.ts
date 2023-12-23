@@ -1,5 +1,5 @@
 import { Field } from '@nestjs/graphql';
-import { CreateInputTypeWithin, OutputType } from '../type-functions';
+import { CreateInputTypeWithin } from '../type-functions';
 
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
@@ -22,13 +22,6 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
           nullable: true,
         }),
         { scopes: 'create' },
-      )(target, propertyKey);
-    }
-
-    if (options.noPopulation !== true) {
-      Thunk(
-        Field(() => OutputType(typeFunction()), { nullable: true }),
-        { scopes: 'output' },
       )(target, propertyKey);
     }
   };
