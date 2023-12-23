@@ -78,7 +78,12 @@ export class DryerModule {
         ...hooks,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
       ],
-      exports: [...mongooseModuleExports, ...baseServicesProviders],
+
+      exports: [
+        ...mongooseModuleExports,
+        ...baseServicesProviders,
+        { useValue: input, provide: DRYER_MODULE_OPTIONS },
+      ],
     };
   }
 }
