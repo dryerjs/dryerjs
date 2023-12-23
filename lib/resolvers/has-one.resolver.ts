@@ -52,7 +52,7 @@ export function createResolverForHasOne(
       return rawCtx.req[loaderKey];
     }
 
-    @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field }))
+    @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field, nullable: true }))
     async [`findOne_${field}`](
       @Parent() parent: any,
       @contextDecorator() ctx: any,
