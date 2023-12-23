@@ -139,7 +139,7 @@ export function createResolverForEmbedded(
       @Args(`${util.toCamelCase(definition.name)}Id`, {
         type: () => GraphQLObjectId,
       })
-      parentId: string,
+      parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
       const parent = await this.baseService.findOne(ctx, { _id: parentId });
