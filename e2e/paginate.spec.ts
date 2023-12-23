@@ -205,7 +205,7 @@ describe('Paginate works', () => {
             totalDocs
           }
         }
-  `,
+    `,
       variables: { page: 1, limit: 10, filter: {} },
     });
     expect(paginateCustomers.docs).toHaveLength(5);
@@ -234,6 +234,43 @@ describe('Paginate works', () => {
       docs: [{ email: 'john@example.com', numberOfOrders: 10 }],
       totalDocs: 1,
     });
+  });
+
+  it('filter by customer id', async () => {
+    const customers = await server.makeSuccessRequest({
+      query: `
+        query getCustomers {
+          allCustomers {
+            id
+            email
+            name
+          } 
+        }
+      `,
+    });
+
+    const id = customers.allCustomers[0].id;
+
+    const { allCustomers } = await server.makeSuccessRequest({
+      query: `
+        query FindAllCustomers($filter: CustomerFilter) {
+          allCustomers(filter: $filter) {
+            id
+            email 
+            name
+          } 
+        }
+      `,
+      variables: {
+        filter: {
+          id: {
+            eq: id,
+          },
+        },
+      },
+    });
+
+    expect(allCustomers).toEqual([customers.allCustomers[0]]);
   });
 
   it('notEq', async () => {
@@ -481,7 +518,32 @@ describe('Paginate works', () => {
     ]);
   });
 
-  it('eq with ObjectId', async () => {
+  it('eq with ObjectId as Primary Key', async () => {
+    const { allCustomers } = await server.makeSuccessRequest({
+      query: `
+        query getCustomers {
+          allCustomers {
+            id
+            email
+            numberOfOrders
+          } 
+        }
+      `,
+    });
+
+    const id = allCustomers[0].id;
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query,
+      variables: { filter: { id: { eq: id } } },
+    });
+
+    expect(paginateCustomers).toEqual({
+      docs: [{ email: allCustomers[0].email, numberOfOrders: allCustomers[0].numberOfOrders }],
+      totalDocs: 1,
+    });
+  });
+
+  it('eq with ObjectId as Foreign Key', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query,
       variables: { filter: { countryId: { eq: '000000000000000000000001' } } },
