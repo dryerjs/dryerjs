@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/dryerjs/dryerjs/compare/v1.2.0...v1.2.1) (2023-12-23)
+
+
+### Bug Fixes
+
+* remove logs and new methods ([#293](https://github.com/dryerjs/dryerjs/issues/293)) ([d1dcd5d](https://github.com/dryerjs/dryerjs/commit/d1dcd5dbc396756de32a99b8e28d38fc7ef018aa))
+
 # [1.2.0](https://github.com/dryerjs/dryerjs/compare/v1.1.4...v1.2.0) (2023-12-23)
 
 
