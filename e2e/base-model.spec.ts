@@ -2,35 +2,38 @@ import { GraphQLISODateTime } from '@nestjs/graphql';
 import { Definition, Id, ObjectId, Property, Skip } from 'dryerjs';
 import { TestServer } from './test-server';
 
-export class BaseModel {
-  @Id()
-  id: ObjectId;
+const BaseModel = () => {
+  class Model {
+    @Id()
+    id: ObjectId;
 
-  @Property({
-    output: { type: () => GraphQLISODateTime },
-    create: Skip,
-    update: Skip,
-  })
-  createdAt: Date;
+    @Property({
+      output: { type: () => GraphQLISODateTime },
+      create: Skip,
+      update: Skip,
+    })
+    createdAt: Date;
 
-  @Property({
-    output: { type: () => GraphQLISODateTime },
-    create: Skip,
-    update: Skip,
-  })
-  updatedAt: Date;
-}
+    @Property({
+      output: { type: () => GraphQLISODateTime },
+      create: Skip,
+      update: Skip,
+    })
+    updatedAt: Date;
+  }
+  return Model;
+};
 
 @Definition({ timestamps: true })
-export class Tag extends BaseModel {
+export class Tag extends BaseModel() {
   @Property()
   name: string;
 }
 
 @Definition({ timestamps: true })
-export class Product extends BaseModel {
+export class Product extends BaseModel() {
   @Property()
-  name: string;
+  title: string;
 }
 
 const server = TestServer.init({
@@ -73,7 +76,7 @@ describe('BaseModel works', () => {
         mutation CreateProduct($input: CreateProductInput!) {
           createProduct(input: $input) {
             id
-            name
+            title
             createdAt
             updatedAt
           }
@@ -81,14 +84,14 @@ describe('BaseModel works', () => {
       `,
       variables: {
         input: {
-          name: 'test',
+          title: 'test',
         },
       },
     });
 
     expect(createProduct).toEqual({
       id: expect.any(String),
-      name: 'test',
+      title: 'test',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
