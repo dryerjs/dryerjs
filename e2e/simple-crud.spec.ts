@@ -4,6 +4,7 @@ import { AllDefinitions, Hook } from '../lib/hook';
 import { createParamDecorator } from '@nestjs/common';
 import { ObjectId } from '../lib/object-id';
 import { RemoveMode } from '../lib/remove-options';
+import { getBaseServiceToken } from '../lib/base.service';
 
 type Context = any;
 
@@ -333,6 +334,14 @@ describe('Simple CRUD works', () => {
       },
       errorMessageMustContains: 'No Tag found with ID: 000000000000000000000000',
     });
+  });
+
+  it('findOneNullable', async () => {
+    const tagService = server.app.get(getBaseServiceToken(Tag), { strict: false });
+    const nullValue = await tagService.findOneNullable('fakeContext', {
+      _id: new ObjectId('000000000000000000000000'),
+    });
+    expect(nullValue).toBeNull();
   });
 
   afterAll(async () => {
