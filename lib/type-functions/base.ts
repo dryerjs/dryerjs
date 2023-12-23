@@ -43,6 +43,14 @@ export function getBaseType(input: {
   @decoratorFn(input.name)
   class Placeholder {}
 
+  // console.log({
+  //   type: input.name,
+  //   name: input.definition.name,
+  //   fields: inspect(input.definition)
+  //     .getProperties()
+  //     .map((p) => p.name),
+  // });
+
   for (const property of inspect(input.definition).getProperties()) {
     if (input.skipFields?.includes(property.name)) {
       continue;
