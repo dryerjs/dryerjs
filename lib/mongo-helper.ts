@@ -48,7 +48,9 @@ export class MongoHelper {
         const operatorFunction = util.isFunction(config.to)
           ? (config.to as ConvertOperatorFunction)(value)
           : { [config.to as string]: value };
-        result[fieldName] = { ...util.defaultTo(result[fieldName], {}), ...operatorFunction };
+
+        const normalizedFieldName = fieldName === 'id' ? '_id' : fieldName;
+        result[normalizedFieldName] = { ...util.defaultTo(result[fieldName], {}), ...operatorFunction };
       }
     }
 
@@ -61,6 +63,12 @@ export class MongoHelper {
 
   public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
     const normalizedSort = util.defaultTo(sort, {});
+
+    if (normalizedSort.hasOwnProperty('id')) {
+      normalizedSort['_id'] = normalizedSort['id'];
+      delete normalizedSort['id'];
+    }
+
     if (util.isNotEmptyString(graphqlFilter?.search)) {
       return { searchScore: { $meta: 'textScore' }, ...normalizedSort };
     }

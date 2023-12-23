@@ -19,6 +19,8 @@ import { IsEmail } from 'class-validator';
   enableTextSearch: true,
 })
 export class Customer {
+  @Filterable(() => GraphQLObjectId, { operators: allOperators })
+  @Sortable()
   @Id()
   id: ObjectId;
 

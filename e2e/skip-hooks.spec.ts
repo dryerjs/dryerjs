@@ -16,22 +16,22 @@ describe('skip default hooks for relations works', () => {
   it('should be able to skipExistenceCheck for referencesMany in beforeCreate', async () => {
     const { createComputer } = await dryer.makeSuccessRequest({
       query: `
-          mutation Mutation($input: CreateComputerInput!) {
-            createComputer(input: $input) {
+        mutation Mutation($input: CreateComputerInput!) {
+          createComputer(input: $input) {
+            name
+            id
+            ratingIds 
+            specification {
+              cpu
+              id
+            }
+            promotions {
               name
               id
-              ratingIds 
-              specification {
-                cpu
-                id
-              }
-              promotions {
-                name
-                id
-              }
             }
           }
-        `,
+        }
+      `,
       variables: {
         input: {
           name: 'Xiaomi',
