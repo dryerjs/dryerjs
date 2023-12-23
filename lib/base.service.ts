@@ -130,6 +130,10 @@ export abstract class BaseService<T = any, Context = any> {
     return (await this.findOneWithoutBeforeReadFilter(ctx, filter))!;
   }
 
+  public async findByIdNullable(ctx: Context, filter: { _id: ObjectId }): Promise<T | null> {
+    return await this.findOneNullable(ctx, filter);
+  }
+
   public async findOneNullable(ctx: Context, filter: FilterQuery<T>): Promise<T | null> {
     for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
       await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
