@@ -63,6 +63,12 @@ export class MongoHelper {
 
   public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
     const normalizedSort = util.defaultTo(sort, {});
+
+    if (normalizedSort.hasOwnProperty('id')) {
+      normalizedSort['_id'] = normalizedSort['id'];
+      delete normalizedSort['id'];
+    }
+
     if (util.isNotEmptyString(graphqlFilter?.search)) {
       return { searchScore: { $meta: 'textScore' }, ...normalizedSort };
     }

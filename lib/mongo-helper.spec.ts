@@ -185,4 +185,18 @@ describe('MongoHelper', () => {
       });
     });
   });
+
+  describe('getSortObject()', () => {
+    it('should convert GraphQL id to Mongo _id', () => {
+      const sortQuery = MongoHelper.getSortObject(undefined, {
+        id: 'DESC',
+        name: 'ASC',
+      });
+
+      expect(sortQuery).toEqual({
+        _id: 'DESC',
+        name: 'ASC',
+      });
+    });
+  });
 });

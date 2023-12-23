@@ -94,6 +94,35 @@ describe('Paginate works', () => {
     });
   });
 
+  it('sort the data returned by id in descending order', async () => {
+    const { paginateCustomers } = await server.makeSuccessRequest({
+      query: `
+        query PaginateCustomers($page: Int!, $limit: Int!, $sort: CustomerSort) {
+          paginateCustomers(page: $page, limit: $limit, sort: $sort) {
+            docs {
+              email
+              numberOfOrders
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { page: 1, limit: 10, sort: { id: 'DESC' } },
+    });
+    expect(paginateCustomers.docs).toHaveLength(5);
+    expect(paginateCustomers.totalDocs).toEqual(5);
+    expect(paginateCustomers).toEqual({
+      docs: [
+        { email: 'joe@example.com', numberOfOrders: null },
+        { email: 'jill@example.com', numberOfOrders: null },
+        { email: 'jack@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
+        { email: 'john@example.com', numberOfOrders: expect.any(Number) },
+      ],
+      totalDocs: 5,
+    });
+  });
+
   it('sort the data returned in descending order and filter', async () => {
     const { paginateCustomers } = await server.makeSuccessRequest({
       query: `

@@ -20,6 +20,7 @@ import { IsEmail } from 'class-validator';
 })
 export class Customer {
   @Filterable(() => GraphQLObjectId, { operators: allOperators })
+  @Sortable()
   @Id()
   id: ObjectId;
 
