@@ -246,7 +246,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      const result = await this.baseService.findOne(ctx, { _id: id });
+      const result = await this.baseService.findById(ctx, { _id: id });
       return plainToInstance(OutputType(definition), result.toObject());
     }
 

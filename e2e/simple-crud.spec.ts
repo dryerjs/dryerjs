@@ -344,6 +344,17 @@ describe('Simple CRUD works', () => {
     expect(nullValue).toBeNull();
   });
 
+  it('findOne', async () => {
+    const tagService = server.app.get(getBaseServiceToken(Tag), { strict: false });
+    try {
+      await tagService.findOne('fakeContext', {
+        name: 'not found',
+      });
+    } catch (error: any) {
+      expect(error.message).toEqual('No Tag found');
+    }
+  });
+
   afterAll(async () => {
     await server.stop();
   });

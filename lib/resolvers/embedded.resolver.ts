@@ -61,7 +61,7 @@ export function createResolverForEmbedded(
       parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ) {
-      const parent = await this.baseService.findOne(ctx, { _id: parentId });
+      const parent = await this.baseService.findById(ctx, { _id: parentId });
       const beforeIds = parent[field].map((item: any) => item._id.toString());
       parent[field].push(...inputs);
       const updated = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
@@ -89,7 +89,7 @@ export function createResolverForEmbedded(
       ids: string[],
       @contextDecorator() ctx: any,
     ) {
-      const parent = await this.baseService.findOne(ctx, { _id: parentId });
+      const parent = await this.baseService.findById(ctx, { _id: parentId });
       if (ids.length === 0) {
         throw new graphql.GraphQLError(`No ${embeddedDefinition.name} IDs provided`);
       }
@@ -117,7 +117,7 @@ export function createResolverForEmbedded(
       parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T> {
-      const parent = await this.baseService.findOne(ctx, { _id: parentId });
+      const parent = await this.baseService.findById(ctx, { _id: parentId });
       const result = parent[field].find((item: any) => item._id.toString() === id.toString());
       if (util.isNil(result)) {
         throw new graphql.GraphQLError(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
@@ -142,7 +142,7 @@ export function createResolverForEmbedded(
       parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
-      const parent = await this.baseService.findOne(ctx, { _id: parentId });
+      const parent = await this.baseService.findById(ctx, { _id: parentId });
       return parent[field].map((item: any) =>
         plainToInstance(OutputType(embeddedDefinition), item.toObject()),
       );
@@ -171,7 +171,7 @@ export function createResolverForEmbedded(
       parentId: ObjectIdLike,
       @contextDecorator() ctx: any,
     ): Promise<T[]> {
-      const parent = await this.baseService.findOne(ctx, { _id: parentId });
+      const parent = await this.baseService.findById(ctx, { _id: parentId });
       for (const subDocumentInput of inputs) {
         const exists = parent[field].some(
           (item: any) => item._id.toString() === subDocumentInput.id.toString(),
