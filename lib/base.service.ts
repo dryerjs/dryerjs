@@ -108,7 +108,10 @@ export abstract class BaseService<T = any, Context = any> {
     const result = await this.model.findOne(filter);
     if (util.isNil(result)) {
       if (options?.nullable) return null;
-      throw new graphql.GraphQLError(`No ${this.definition.name} found with ID: ${filter._id}`);
+      const message = filter._id
+        ? `No ${this.definition.name} found with ID: ${filter._id}`
+        : `No ${this.definition.name} found`;
+      throw new graphql.GraphQLError(message);
     }
     for (const hook of this.getHooksWithContext('afterFindOne', ctx, this.definition)) {
       await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
@@ -116,11 +119,19 @@ export abstract class BaseService<T = any, Context = any> {
     return result;
   }
 
-  public async findOne(ctx: Context, filter: FilterQuery<T> & { _id: ObjectId }): Promise<T> {
+  public async findById(ctx: Context, filter: { _id: ObjectId }): Promise<T> {
+    return await this.findOne(ctx, filter);
+  }
+
+  public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
     for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
       await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
     }
     return (await this.findOneWithoutBeforeReadFilter(ctx, filter))!;
+  }
+
+  public async findByIdNullable(ctx: Context, filter: { _id: ObjectId }): Promise<T | null> {
+    return await this.findOneNullable(ctx, filter);
   }
 
   public async findOneNullable(ctx: Context, filter: FilterQuery<T>): Promise<T | null> {

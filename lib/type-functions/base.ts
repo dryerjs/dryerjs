@@ -39,13 +39,6 @@ export function getBaseType(input: {
   scope: 'create' | 'update' | 'output';
   skipFields?: string[];
 }) {
-  console.log({
-    definition: input.definition.name,
-    name: input.name,
-    fields: inspect(input.definition)
-      .getProperties()
-      .map((x) => x.name),
-  });
   const decoratorFn = input.scope === 'output' ? ObjectType : InputType;
   @decoratorFn(input.name)
   class Placeholder {}
