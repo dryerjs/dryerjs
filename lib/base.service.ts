@@ -116,7 +116,7 @@ export abstract class BaseService<T = any, Context = any> {
     return result;
   }
 
-  public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
+  public async findOne(ctx: Context, filter: FilterQuery<T> & { _id: ObjectId }): Promise<T> {
     for (const hook of this.getHooksWithContext('beforeReadFilter', ctx, this.definition)) {
       await hook.beforeReadFilter!({ ctx, filter, definition: this.definition });
     }
