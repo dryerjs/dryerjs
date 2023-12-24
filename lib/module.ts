@@ -51,7 +51,7 @@ export class DryerModule {
         const schema = SchemaFactory.createForClass(definition);
         schema.plugin(mongoosePaginateV2);
         schema.virtual('id').get(function () {
-          return (this['_id'] as any).toHexString();
+          return this._id;
         });
         const indexes = Metadata.for(definition).get(MetaKey.Index);
         for (const { fields, options } of util.defaultTo(indexes, [])) schema.index(fields, options);
