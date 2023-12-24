@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/dryerjs/dryerjs/compare/v1.2.2...v1.2.3) (2023-12-24)
+
+
+### Bug Fixes
+
+* convert id on sub schema ([#296](https://github.com/dryerjs/dryerjs/issues/296)) ([a6fbcc0](https://github.com/dryerjs/dryerjs/commit/a6fbcc0dade611070e82a46dfc9bcea20c18ba12))
+
 ## [1.2.2](https://github.com/dryerjs/dryerjs/compare/v1.2.1...v1.2.2) (2023-12-24)
 
 
