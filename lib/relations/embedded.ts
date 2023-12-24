@@ -32,7 +32,7 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
   return (target: object, propertyKey: string | symbol) => {
     const subSchema = SchemaFactory.createForClass(typeFunction());
     subSchema.virtual('id').get(function () {
-      return (this['_id'] as any).toHexString();
+      return this._id;
     });
     options?.onSubSchema?.(subSchema);
 

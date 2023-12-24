@@ -19,7 +19,7 @@ class Creator {
   name: string;
 }
 
-@Definition()
+@Definition({ schemaOptions: { _id: false } })
 class Brand {
   @Property()
   name: string;
