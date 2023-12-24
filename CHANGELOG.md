@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/dryerjs/dryerjs/compare/v1.2.1...v1.2.2) (2023-12-24)
+
+
+### Bug Fixes
+
+* id as object id ([#295](https://github.com/dryerjs/dryerjs/issues/295)) ([ff57f9c](https://github.com/dryerjs/dryerjs/commit/ff57f9caf01430f8758134801e572b5c0d0ee548))
+* missing export for DRYER_MODULE_OPTIONS ([#294](https://github.com/dryerjs/dryerjs/issues/294)) ([75b33b8](https://github.com/dryerjs/dryerjs/commit/75b33b8b092195088906797fbab9ee0f87c21109))
+
 ## [1.2.1](https://github.com/dryerjs/dryerjs/compare/v1.2.0...v1.2.1) (2023-12-23)
 
 
