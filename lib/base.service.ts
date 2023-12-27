@@ -13,7 +13,7 @@ import { ObjectId } from './shared';
 import { RemoveMode, RemoveOptions } from './remove-options';
 
 export abstract class BaseService<T = any, Context = any> {
-  protected model: PaginateModel<T>;
+  public model: PaginateModel<T>;
   protected moduleRef: ModuleRef;
   protected definition: Definition;
 
