@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/dryerjs/dryerjs/compare/v1.2.3...v1.3.0) (2023-12-27)
+
+
+### Features
+
+* expose model from base service ([#297](https://github.com/dryerjs/dryerjs/issues/297)) ([7fd577c](https://github.com/dryerjs/dryerjs/commit/7fd577c4e3deb7b63966144cf984085ece853a9d))
+
 ## [1.2.3](https://github.com/dryerjs/dryerjs/compare/v1.2.2...v1.2.3) (2023-12-24)
 
 
