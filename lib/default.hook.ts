@@ -1,8 +1,7 @@
 import { ModuleRef } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
-import * as graphql from 'graphql';
-import { Inject } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, NotFoundException } from '@nestjs/common';
 
 import { AfterRemoveHookInput, AllDefinitions, Hook } from './hook';
 import { HydratedProperty, inspect } from './inspect';
@@ -73,7 +72,7 @@ export class DefaultHook implements Hook<any, any> {
     const exists = await model.exists({ _id: id });
     if (exists) return;
     const message = `No ${definition.name} found with ID: ${id}`;
-    throw new graphql.GraphQLError(message);
+    throw new NotFoundException(message);
   }
 
   private async mustNotExist(input: {
@@ -88,7 +87,7 @@ export class DefaultHook implements Hook<any, any> {
     const exists = await model.exists({ [input.fieldName]: input.fromObject._id });
     if (!exists) return;
     const message = `${input.fromDefinition.name} ${input.fromObject._id} has link(s) to ${input.toDefinition.name}`;
-    throw new graphql.GraphQLError(message);
+    throw new ConflictException(message);
   }
 
   public async beforeUpdate({
@@ -137,7 +136,7 @@ export class DefaultHook implements Hook<any, any> {
       return;
     }
     const message = `Remove mode ${options.mode} is not allowed for ${definition.name}`;
-    throw new graphql.GraphQLError(message);
+    throw new BadRequestException(message);
   }
 
   public async beforeRemove({

@@ -1,6 +1,5 @@
-import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { Provider } from '@nestjs/common';
+import { BadRequestException, NotFoundException, Provider } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 import * as util from '../util';
@@ -91,7 +90,7 @@ export function createResolverForEmbedded(
     ) {
       const parent = await this.baseService.findById(ctx, { _id: parentId });
       if (ids.length === 0) {
-        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} IDs provided`);
+        throw new BadRequestException(`No ${embeddedDefinition.name} IDs provided`);
       }
       const stringifiedIds = ids.map((id) => id.toString());
       parent[field] = parent[field].filter((item) => !stringifiedIds.includes(item._id.toString()));
@@ -120,7 +119,7 @@ export function createResolverForEmbedded(
       const parent = await this.baseService.findById(ctx, { _id: parentId });
       const result = parent[field].find((item: any) => item._id.toString() === id.toString());
       if (util.isNil(result)) {
-        throw new graphql.GraphQLError(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
+        throw new NotFoundException(`No ${embeddedDefinition.name} found with ID ${id.toString()}`);
       }
       return plainToInstance(OutputType(embeddedDefinition), result.toObject());
     }
@@ -177,7 +176,7 @@ export function createResolverForEmbedded(
           (item: any) => item._id.toString() === subDocumentInput.id.toString(),
         );
         if (!exists) {
-          throw new graphql.GraphQLError(
+          throw new NotFoundException(
             `No ${embeddedDefinition.name} found with ID ${subDocumentInput.id.toString()}`,
           );
         }

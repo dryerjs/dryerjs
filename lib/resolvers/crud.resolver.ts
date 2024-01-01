@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { Provider, ValidationPipe } from '@nestjs/common';
+import { HttpException, Provider, ValidationPipe } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { plainToInstance } from 'class-transformer';
 
@@ -122,7 +122,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
             result: null,
             errorMessage: (() => {
               /* istanbul ignore if */
-              if (error instanceof graphql.GraphQLError) return error.message;
+              if (error instanceof HttpException) return error.message;
               return 'INTERNAL_SERVER_ERROR';
             })(),
           });
@@ -169,7 +169,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
             success: false,
             result: null,
             errorMessage: (() => {
-              if (error instanceof graphql.GraphQLError) return error.message;
+              if (error instanceof HttpException) return error.message;
               /* istanbul ignore next */
               return 'INTERNAL_SERVER_ERROR';
             })(),
@@ -208,7 +208,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
             id,
             success: false,
             errorMessage: (() => {
-              if (error instanceof graphql.GraphQLError) return error.message;
+              if (error instanceof HttpException) return error.message;
               /* istanbul ignore next */
               return 'INTERNAL_SERVER_ERROR';
             })(),

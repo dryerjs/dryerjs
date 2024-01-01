@@ -1,19 +1,26 @@
 import { APP_FILTER } from '@nestjs/core';
-import { Catch, DynamicModule, ExceptionFilter, INestApplication, Module, Provider } from '@nestjs/common';
+import {
+  Catch,
+  DynamicModule,
+  ExceptionFilter,
+  HttpException,
+  INestApplication,
+  Module,
+  Provider,
+} from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DryerModule, DryerModuleOptions } from 'dryerjs';
-import { GraphQLError } from 'graphql';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
 
 import * as util from '../lib/util';
 
-@Catch(GraphQLError)
+@Catch(HttpException)
 export class GraphQLExceptionFilter implements ExceptionFilter {
-  catch(err: GraphQLError) {
+  catch(err: HttpException) {
     throw err;
   }
 }

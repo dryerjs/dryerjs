@@ -1,5 +1,4 @@
-import * as graphql from 'graphql';
-import { Inject, Injectable, Provider } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Provider } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel } from 'mongoose';
@@ -111,7 +110,7 @@ export abstract class BaseService<T = any, Context = any> {
       const message = filter._id
         ? `No ${this.definition.name} found with ID: ${filter._id}`
         : `No ${this.definition.name} found`;
-      throw new graphql.GraphQLError(message);
+      throw new NotFoundException(message);
     }
     for (const hook of this.getHooksWithContext('afterFindOne', ctx, this.definition)) {
       await hook.afterFindOne!({ ctx, result, filter, definition: this.definition });
