@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/dryerjs/dryerjs/compare/v1.3.0...v1.3.1) (2024-01-01)
+
+
+### Bug Fixes
+
+* export hooks ([#299](https://github.com/dryerjs/dryerjs/issues/299)) ([3e523f3](https://github.com/dryerjs/dryerjs/commit/3e523f3f207774ad234121a84cca331760234472))
+* using nest common errors ([#298](https://github.com/dryerjs/dryerjs/issues/298)) ([bd161e1](https://github.com/dryerjs/dryerjs/commit/bd161e1e1734cd2e14801fb687f8b215111f3e8a))
+
 # [1.3.0](https://github.com/dryerjs/dryerjs/compare/v1.2.3...v1.3.0) (2023-12-27)
 
 
