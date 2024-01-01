@@ -81,6 +81,7 @@ export class DryerModule {
       exports: [
         ...mongooseModuleExports,
         ...baseServicesProviders,
+        ...hooks,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
       ],
     };
