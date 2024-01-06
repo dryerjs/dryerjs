@@ -61,6 +61,14 @@ const definitions: Definition[] = [
     DryerModule.register({
       definitions,
       contextDecorator: Ctx,
+      resolverConfigs: [
+        {
+          definition: User,
+          decorators: {
+            default: {} as any,
+          },
+        },
+      ],
     }),
   ],
   providers: [AuthResolver],

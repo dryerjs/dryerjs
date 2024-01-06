@@ -28,8 +28,13 @@ import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
+import { ResolverDecorator } from '../module-options';
 
-export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
+export function createResolver(
+  definition: Definition,
+  contextDecorator: ContextDecorator,
+  topLevelResolverDecorators: ResolverDecorator,
+): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
@@ -48,7 +53,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
   }
 
   const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
-  const resolverDecorators = util.defaultTo(definitionOptions.resolverDecorators, {});
+  const resolverDecorators = topLevelResolverDecorators ?? definitionOptions.resolverDecorators ?? {};
 
   @Resolver()
   class GeneratedResolver<T> {
