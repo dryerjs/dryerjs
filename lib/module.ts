@@ -84,12 +84,14 @@ export class DryerModule {
     }));
     return {
       module: DryerModule,
+      imports: util.defaultTo(input.imports, []),
       providers: [
         ...providers,
         ...mongooseModuleExports,
         ...baseServicesProviders,
         ...hooks,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
+        ...util.defaultTo(input.providers, []),
       ],
       exports: [
         ...mongooseModuleExports,

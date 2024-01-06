@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { ModuleMetadata, Provider } from '@nestjs/common';
 import { Schema } from 'mongoose';
 import { Definition } from './definition';
 import { ContextDecorator } from './context';
@@ -51,6 +51,8 @@ export type DryerModuleOptions = {
   onSchema?: (schema: Schema, definition: Definition) => void;
   resolverConfigs?: ResolverConfig[];
   embeddedResolverConfigs?: EmbeddedResolverConfig[];
+  imports?: ModuleMetadata['imports'];
+  providers?: ModuleMetadata['providers'];
 };
 
 export const DRYER_MODULE_OPTIONS = Symbol('DryerModuleOptions');
