@@ -16,10 +16,9 @@ import {
   SortType,
   UpdateInputType,
 } from '../type-functions';
-import { ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
+import { AllowedApiType, ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
 import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
-import { inspect } from '../inspect';
 import { Definition, DefinitionOptions } from '../definition';
 import { ArrayValidationPipe, applyDecorators } from './shared';
 import { InjectBaseService } from '../base.service';
@@ -28,11 +27,35 @@ import { MongoHelper } from '../mongo-helper';
 import { MetaKey, Metadata } from '../metadata';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
+import { ResolverConfig } from '../module-options';
 
-export function createResolver(definition: Definition, contextDecorator: ContextDecorator): Provider {
+export const isApiAllowed = (
+  api: ApiType,
+  allowedApis: undefined | AllowedApiType | AllowedApiType[],
+): boolean => {
+  const normalizedAllowedApis = util.isArray(allowedApis)
+    ? allowedApis
+    : [util.defaultTo(allowedApis, 'essentials')];
+  for (const allowedApi of normalizedAllowedApis!) {
+    if (allowedApi === '*') return true;
+    if (allowedApi === 'essentials') {
+      return ['create', 'update', 'findOne', 'remove', 'paginate'].includes(api);
+    }
+    if (allowedApi === api) return true;
+  }
+  return false;
+};
+
+export function createResolver(
+  definition: Definition,
+  contextDecorator: ContextDecorator,
+  resolverConfig?: ResolverConfig,
+): Provider {
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if (inspect(definition).isApiAllowed(propertyKey as ApiType)) {
+      const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
+      const allowedApis = resolverConfig?.allowedApis ?? definitionOptions.allowedApis;
+      if (isApiAllowed(propertyKey as ApiType, allowedApis ?? 'essentials')) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -48,7 +71,7 @@ export function createResolver(definition: Definition, contextDecorator: Context
   }
 
   const definitionOptions = Metadata.for(definition).get<DefinitionOptions>(MetaKey.Definition);
-  const resolverDecorators = util.defaultTo(definitionOptions.resolverDecorators, {});
+  const resolverDecorators = resolverConfig?.decorators ?? definitionOptions.resolverDecorators ?? {};
 
   @Resolver()
   class GeneratedResolver<T> {

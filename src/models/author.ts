@@ -1,9 +1,7 @@
 import { Transform } from 'class-transformer';
 import { MaxLength } from 'class-validator';
-import { UseGuards } from '@nestjs/common';
 
 import { Definition, Embedded, Thunk, ObjectId, Property, Id, Skip } from 'dryerjs';
-import { UserGuard } from './fake-guards';
 
 @Definition()
 export class Review {
@@ -49,10 +47,7 @@ export class Author {
   @Property()
   name: string;
 
-  @Embedded(() => Book, {
-    allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
-    resolverDecorators: { remove: UseGuards(UserGuard) },
-  })
+  @Embedded(() => Book)
   books: Book[];
 
   @Embedded(() => Event, {

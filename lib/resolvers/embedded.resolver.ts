@@ -12,11 +12,13 @@ import { EmbeddedConfig } from '../relations';
 import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { GraphQLObjectId, ObjectIdLike } from '../shared';
+import { EmbeddedResolverConfig } from '../module-options';
 
 export function createResolverForEmbedded(
   definition: Definition,
   field: string,
   contextDecorator: ContextDecorator,
+  embeddedResolverConfig: EmbeddedResolverConfig | undefined,
 ): Provider {
   const { typeFunction, options } = Metadata.for(definition)
     .with(field)
@@ -24,7 +26,7 @@ export function createResolverForEmbedded(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if (options.allowedApis!.includes(propertyKey as any)) {
+      if ((embeddedResolverConfig?.allowedApis ?? options.allowedApis)!.includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -32,7 +34,7 @@ export function createResolverForEmbedded(
   }
 
   const embeddedDefinition = typeFunction();
-  const resolverDecorators = util.defaultTo(options.resolverDecorators, {});
+  const resolverDecorators = embeddedResolverConfig?.decorators ?? options.resolverDecorators ?? {};
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectBaseService(definition) public baseService: BaseService) {}

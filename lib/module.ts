@@ -26,11 +26,24 @@ export class DryerModule {
   public static register(input: DryerModuleOptions): DynamicModule {
     const contextDecorator = util.defaultTo(input.contextDecorator, defaultContextDecorator);
     const providers: Provider[] = [];
-    input.definitions.forEach((definition) => providers.push(createResolver(definition, contextDecorator)));
+    input.definitions.forEach((definition) => {
+      const resolverConfig = input.resolverConfigs?.find((config) => config.definition === definition);
+      providers.push(createResolver(definition, contextDecorator, resolverConfig));
+    });
     input.definitions.forEach((definition) => {
       for (const property of inspect(definition).embeddedProperties) {
         if (Reflect.getMetadata('design:type', definition.prototype, property.name) === Array) {
-          providers.push(createResolverForEmbedded(definition, property.name, contextDecorator));
+          const embeddedResolverDecorators = input.embeddedResolverConfigs?.find(
+            (config) => config.definition === definition && config.property === property.name,
+          );
+          providers.push(
+            createResolverForEmbedded(
+              definition,
+              property.name,
+              contextDecorator,
+              embeddedResolverDecorators,
+            ),
+          );
         }
       }
       for (const property of inspect(definition).referencesManyProperties) {

@@ -8,22 +8,20 @@ import { CreateInputType, OutputType, UpdateInputType } from '../type-functions'
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
 import { DryerPropertyInput, Property, Skip } from '../property';
+import { EmbeddedResolverDecorator } from '../module-options';
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
-    allowedApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     onSubSchema?: (subSchema: Schema) => void;
-    resolverDecorators?: {
-      default?: MethodDecorator | MethodDecorator[];
-      write?: MethodDecorator | MethodDecorator[];
-      read?: MethodDecorator | MethodDecorator[];
-      findOne?: MethodDecorator | MethodDecorator[];
-      findAll?: MethodDecorator | MethodDecorator[];
-      remove?: MethodDecorator | MethodDecorator[];
-      update?: MethodDecorator | MethodDecorator[];
-      create?: MethodDecorator | MethodDecorator[];
-    };
+    /**
+     * @deprecated Config on DryerModule.register instead
+     */
+    resolverDecorators?: EmbeddedResolverDecorator;
+    /**
+     * @deprecated Config on DryerModule.register instead
+     */
+    allowedApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     overridePropertyOptions?: Pick<DryerPropertyInput, 'create' | 'update' | 'output' | 'db'>;
   };
 };

@@ -13,6 +13,7 @@ import {
 } from './type-functions';
 import { MetaKey, Metadata } from './metadata';
 import { AllowedApiType } from './shared';
+import { ResolverDecorator } from './module-options';
 
 export type HookMethod =
   | 'all'
@@ -28,27 +29,19 @@ export type HookMethod =
   | 'afterFindMany';
 
 export type DefinitionOptions = {
-  allowedApis?: AllowedApiType | AllowedApiType[];
   removalConfig?: {
     allowIgnoreRelationCheck?: boolean;
     allowCleanUpRelationsAfterRemoved?: boolean;
   };
   enableTextSearch?: boolean;
-  resolverDecorators?: {
-    default?: MethodDecorator | MethodDecorator[];
-    write?: MethodDecorator | MethodDecorator[];
-    read?: MethodDecorator | MethodDecorator[];
-    findOne?: MethodDecorator | MethodDecorator[];
-    list?: MethodDecorator | MethodDecorator[];
-    findAll?: MethodDecorator | MethodDecorator[];
-    paginate?: MethodDecorator | MethodDecorator[];
-    remove?: MethodDecorator | MethodDecorator[];
-    update?: MethodDecorator | MethodDecorator[];
-    create?: MethodDecorator | MethodDecorator[];
-    bulkCreate?: MethodDecorator | MethodDecorator[];
-    bulkUpdate?: MethodDecorator | MethodDecorator[];
-    bulkRemove?: MethodDecorator | MethodDecorator[];
-  };
+  /**
+   * @deprecated Config on DryerModule.register instead
+   */
+  resolverDecorators?: ResolverDecorator;
+  /**
+   * @deprecated Config on DryerModule.register instead
+   */
+  allowedApis?: AllowedApiType | AllowedApiType[];
   schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
   timestamps?: boolean;

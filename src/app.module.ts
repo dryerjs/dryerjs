@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, UseGuards } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
@@ -26,6 +26,7 @@ import {
   Item,
 } from './models';
 import { Ctx } from './ctx';
+import { AdminGuard, UserGuard } from './models/fake-guards';
 
 const definitions: Definition[] = [
   Store,
@@ -61,6 +62,18 @@ const definitions: Definition[] = [
     DryerModule.register({
       definitions,
       contextDecorator: Ctx,
+      resolverConfigs: [
+        {
+          definition: User,
+          allowedApis: '*',
+          decorators: {
+            default: [UseGuards(UserGuard)],
+            list: [UseGuards(AdminGuard)],
+            write: [UseGuards(AdminGuard)],
+            update: [UseGuards(UserGuard)],
+          },
+        },
+      ],
     }),
   ],
   providers: [AuthResolver],
