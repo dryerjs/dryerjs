@@ -1,7 +1,6 @@
 import * as util from './util';
 import { BelongsToConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './relations';
 import { MetaKey, Metadata } from './metadata';
-import { ApiType } from './shared';
 import { Definition } from './definition';
 
 class InspectedDefinition {
@@ -41,21 +40,6 @@ class InspectedDefinition {
   public for(propertyName: string | symbol): HydratedProperty {
     const designType = Reflect.getMetadata(MetaKey.DesignType, this.definition.prototype, propertyName);
     return new HydratedProperty(this.definition, propertyName as string, designType);
-  }
-
-  public isApiAllowed(api: ApiType): boolean {
-    const { allowedApis } = Metadata.for(this.definition).get(MetaKey.Definition);
-    const normalizedAllowedApis = util.isArray(allowedApis)
-      ? allowedApis
-      : [util.defaultTo(allowedApis, 'essentials')];
-    for (const allowedApi of normalizedAllowedApis) {
-      if (allowedApi === '*') return true;
-      if (allowedApi === 'essentials') {
-        return ['create', 'update', 'findOne', 'remove', 'paginate'].includes(api);
-      }
-      if (allowedApi === api) return true;
-    }
-    return false;
   }
 }
 

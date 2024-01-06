@@ -1,8 +1,18 @@
 import { TestServer } from './test-server';
 import { Author } from '../src/models';
+import { UseGuards } from '@nestjs/common';
+import { UserGuard } from '../src/models/fake-guards';
 
 const server = TestServer.init({
   definitions: [Author],
+  embeddedResolverConfigs: [
+    {
+      definition: Author,
+      property: 'books',
+      allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
+      decorators: { remove: UseGuards(UserGuard) },
+    },
+  ],
 });
 
 const NOT_FOUND_ID = '000000000000000000000000';

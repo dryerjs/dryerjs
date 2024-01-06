@@ -29,7 +29,6 @@ export type HookMethod =
   | 'afterFindMany';
 
 export type DefinitionOptions = {
-  allowedApis?: AllowedApiType | AllowedApiType[];
   removalConfig?: {
     allowIgnoreRelationCheck?: boolean;
     allowCleanUpRelationsAfterRemoved?: boolean;
@@ -39,6 +38,10 @@ export type DefinitionOptions = {
    * @deprecated Config on DryerModule.register instead
    */
   resolverDecorators?: ResolverDecorator;
+  /**
+   * @deprecated Config on DryerModule.register instead
+   */
+  allowedApis?: AllowedApiType | AllowedApiType[];
   schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
   timestamps?: boolean;

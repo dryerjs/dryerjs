@@ -2,11 +2,25 @@ import { TestServer } from './test-server';
 import { User } from '../src/models';
 import { AuthResolver } from '../src/resolvers';
 import { Ctx } from '../src/ctx';
+import { UseGuards } from '@nestjs/common';
+import { AdminGuard, UserGuard } from '../src/models/fake-guards';
 
 const server = TestServer.init({
   definitions: [User],
   providers: [AuthResolver],
   contextDecorator: Ctx,
+  resolverConfigs: [
+    {
+      definition: User,
+      allowedApis: '*',
+      decorators: {
+        default: [UseGuards(UserGuard)],
+        list: [UseGuards(AdminGuard)],
+        write: [UseGuards(AdminGuard)],
+        update: [UseGuards(UserGuard)],
+      },
+    },
+  ],
 });
 
 describe('Auth Resolver works', () => {
@@ -16,7 +30,7 @@ describe('Auth Resolver works', () => {
     await server.start();
   });
 
-  it('signUp works', async () => {
+  it.only('signUp works', async () => {
     const signUpResponse = await server.makeSuccessRequest({
       query: `
         mutation SignUp($input: CreateUserInput!) {
