@@ -1,6 +1,6 @@
 import { isApiAllowed } from './crud.resolver';
 
-describe('inspect', () => {
+describe('crud.resolver', () => {
   it('isApiAllowed works', () => {
     expect(isApiAllowed('paginate', '*')).toBe(true);
     expect(isApiAllowed('create', '*')).toBe(true);
