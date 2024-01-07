@@ -1,3 +1,16 @@
+# [1.4.0](https://github.com/dryerjs/dryerjs/compare/v1.3.1...v1.4.0) (2024-01-07)
+
+
+### Bug Fixes
+
+* build with comments to show deprecated ([#303](https://github.com/dryerjs/dryerjs/issues/303)) ([ddb53b6](https://github.com/dryerjs/dryerjs/commit/ddb53b66f4a30c15e39636568479d0cd8fbec254))
+
+
+### Features
+
+* ability to add providers and imports ([#302](https://github.com/dryerjs/dryerjs/issues/302)) ([5cd6486](https://github.com/dryerjs/dryerjs/commit/5cd6486fcca345ef6d2c792ac90497c252339296))
+* separate resolver decorators ([#301](https://github.com/dryerjs/dryerjs/issues/301)) ([869b3cb](https://github.com/dryerjs/dryerjs/commit/869b3cb236a615cd066c359c081b3af7b580a1d3))
+
 ## [1.3.1](https://github.com/dryerjs/dryerjs/compare/v1.3.0...v1.3.1) (2024-01-01)
 
 
