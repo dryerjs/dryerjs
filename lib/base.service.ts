@@ -9,6 +9,7 @@ import * as util from './util';
 import { AllDefinitions, Hook, hookMethods } from './hook';
 import { ObjectId } from './shared';
 import { RemoveMode, RemoveOptions } from './remove-options';
+import { DefaultHook } from './default.hook';
 
 export abstract class BaseService<T = any, Context = any> {
   public model: PaginateModel<T>;
@@ -136,10 +137,6 @@ export abstract class BaseService<T = any, Context = any> {
   public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
     for (const hook of this.getHooks('beforeReadFilter')) {
       await hook({ ctx, filter, definition: this.definition });
-    }
-    for (const { typeFunc, target, method } of hookMethods) {
-      const s = this.moduleRef.get(target.constructor);
-      console.log({ typeFunc, s, method });
     }
     for (const hook of this.getHooks('beforeFindMany')) {
       await hook({ ctx, filter, sort, definition: this.definition });

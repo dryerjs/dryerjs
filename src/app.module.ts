@@ -78,6 +78,6 @@ const definitions: Definition[] = [
       ],
     }),
   ],
-  providers: [AuthResolver],
+  providers: [AuthResolver, CustomerService],
 })
 export class AppModule {}

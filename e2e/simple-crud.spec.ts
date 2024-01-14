@@ -105,7 +105,7 @@ class GeneralHook {}
 
 const server = TestServer.init({
   definitions: [Tag, Color],
-  providers: [TagHook, FakeHook, GeneralHook],
+  dryerProviders: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
   onSchema,
 });

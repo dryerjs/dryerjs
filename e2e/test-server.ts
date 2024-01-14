@@ -45,7 +45,10 @@ class TestAppModule {
           playground: false,
         }),
         MongooseModule.forRoot('mongodb://127.0.0.1:27017/dryer-e2e'),
-        DryerModule.register(util.omit(config, ['providers']) as any),
+        DryerModule.register({
+          ...(util.omit(config, ['providers']) as any),
+          providers: config.dryerProviders || [],
+        }),
       ],
       providers: config.providers || [],
     };
@@ -53,6 +56,7 @@ class TestAppModule {
 }
 
 export type TestServerConfig = DryerModuleOptions & {
+  dryerProviders?: Provider[];
   providers?: Provider[];
 };
 
