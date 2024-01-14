@@ -28,8 +28,8 @@ class FailHandler implements FailCleanUpAfterRemoveHandler {
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
+  dryerProviders: [VariantHook],
   providers: [
-    VariantHook,
     {
       provide: FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER,
       useClass: FailHandler,

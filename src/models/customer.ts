@@ -10,12 +10,11 @@ import {
   Id,
   GraphQLObjectId,
   Index,
-  BeforeReadFilterHookInput,
-  BeforeReadFilter,
+  AfterCreate,
+  AfterCreateHookInput,
 } from 'dryerjs';
 import { IsEmail } from 'class-validator';
 import { Injectable } from '@nestjs/common';
-import { User } from './user';
 
 @Index({ name: 'text' })
 @Definition({
@@ -50,8 +49,8 @@ export class Customer {
 
 @Injectable()
 export class CustomerService {
-  @BeforeReadFilter(() => User)
-  welcome(input: BeforeReadFilterHookInput<User>) {
-    console.log('welcome', input);
+  @AfterCreate(() => Customer)
+  welcome(input: AfterCreateHookInput<Customer>) {
+    console.log('welcome', input.created.id);
   }
 }

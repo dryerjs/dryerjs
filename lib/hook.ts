@@ -2,114 +2,91 @@ import { FilterQuery } from 'mongoose';
 import { Definition } from './definition';
 import { RemoveOptions } from './remove-options';
 
-export interface Hook<T = any, Context = any> {
-  beforeCreate?(input: { ctx: Context; input: Partial<T>; definition: Definition }): Promise<void>;
-  afterCreate?(input: { ctx: Context; input: Partial<T>; created: T; definition: Definition }): Promise<void>;
+export type AfterRemoveHookInput<T = any, Context = any> = {
+  ctx: Context;
+  removed: T;
+  definition: Definition;
+  options: RemoveOptions;
+};
 
-  beforeUpdate?(input: {
-    ctx: Context;
-    input: Partial<T>;
-    beforeUpdated: T;
-    definition: Definition;
-  }): Promise<void>;
-  afterUpdate?(input: {
-    ctx: Context;
-    input: Partial<T>;
-    updated: T;
-    beforeUpdated: T;
-    definition: Definition;
-  }): Promise<void>;
+export type BeforeRemoveHookInput<T = any, Context = any> = {
+  ctx: Context;
+  beforeRemoved: T;
+  definition: Definition;
+  options: RemoveOptions;
+};
 
-  beforeReadFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
-  beforeWriteFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
+export type AfterFindOneHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  result: T;
+  definition: Definition;
+};
 
-  beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
-  afterFindOne?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    result: T;
-    definition: Definition;
-  }): Promise<void>;
+export type BeforeFindOneHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
 
-  beforeRemove?(input: {
-    ctx: Context;
-    beforeRemoved: T;
-    definition: Definition;
-    options: RemoveOptions;
-  }): Promise<void>;
-  afterRemove?(input: {
-    ctx: Context;
-    removed: T;
-    definition: Definition;
-    options: RemoveOptions;
-  }): Promise<void>;
+export type AfterUpdateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  updated: T;
+  beforeUpdated: T;
+  definition: Definition;
+};
 
-  beforeFindMany?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    sort: object;
-    limit?: number;
-    page?: number;
-    definition: Definition;
-  }): Promise<void>;
-  afterFindMany?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    sort: object;
-    items: T[];
-    limit?: number;
-    page?: number;
-    definition: Definition;
-  }): Promise<void>;
-}
+export type BeforeUpdateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  beforeUpdated: T;
+  definition: Definition;
+};
 
-export type AfterRemoveHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterRemove']
->[0];
+export type AfterCreateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  created: T;
+  definition: Definition;
+};
 
-export type BeforeRemoveHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeRemove']
->[0];
+export type BeforeCreateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  definition: Definition;
+};
 
-export type AfterFindOneHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterFindOne']
->[0];
+export type BeforeFindManyHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  sort: object;
+  limit?: number;
+  page?: number;
+  definition: Definition;
+};
 
-export type BeforeFindOneHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeFindOne']
->[0];
+export type AfterFindManyHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  sort: object;
+  items: T[];
+  limit?: number;
+  page?: number;
+  definition: Definition;
+};
 
-export type AfterUpdateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterUpdate']
->[0];
+export type BeforeReadFilterHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
 
-export type BeforeUpdateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeUpdate']
->[0];
-
-export type AfterCreateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterCreate']
->[0];
-
-export type BeforeCreateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeCreate']
->[0];
-
-export type BeforeFindManyHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeFindMany']
->[0];
-
-export type AfterFindManyHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterFindMany']
->[0];
-
-export type BeforeReadFilterHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeReadFilter']
->[0];
-
-export type BeforeWriteFilterHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeWriteFilter']
->[0];
+export type BeforeWriteFilterHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
 
 export class AllDefinitions {}
 
@@ -122,53 +99,64 @@ function HookMethod(typeFunc: () => any, hookName: string, options?: { priority:
 }
 
 export function BeforeReadFilter(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeReadFilter', options);
+  return HookMethod(typeFunc, BeforeReadFilter.name, options);
 }
 
 export function BeforeWriteFilter(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeWriteFilter', options);
+  return HookMethod(typeFunc, BeforeWriteFilter.name, options);
 }
 
 export function BeforeCreate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeCreate', options);
+  return HookMethod(typeFunc, BeforeCreate.name, options);
 }
 
 export function AfterCreate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'afterCreate', options);
+  return HookMethod(typeFunc, AfterCreate.name, options);
 }
 
 export function BeforeUpdate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeUpdate', options);
+  return HookMethod(typeFunc, BeforeUpdate.name, options);
 }
 
 export function AfterUpdate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'afterUpdate', options);
+  return HookMethod(typeFunc, AfterUpdate.name, options);
 }
 
 export function BeforeRemove(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeRemove', options);
+  return HookMethod(typeFunc, BeforeRemove.name, options);
 }
 
 export function AfterRemove(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'afterRemove', options);
+  return HookMethod(typeFunc, AfterRemove.name, options);
 }
 
 export function BeforeFindOne(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeFindOne', options);
+  return HookMethod(typeFunc, BeforeFindOne.name, options);
 }
 
 export function AfterFindOne(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'afterFindOne', options);
+  return HookMethod(typeFunc, AfterFindOne.name, options);
 }
 
 export function BeforeFindMany(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'beforeFindMany', options);
+  return HookMethod(typeFunc, BeforeFindMany.name, options);
 }
 
 export function AfterFindMany(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'afterFindMany', options);
+  return HookMethod(typeFunc, AfterFindMany.name, options);
 }
 
-export function HookFilter(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, 'hookFilter', options);
-}
+export const Hooks = {
+  BeforeReadFilter: BeforeReadFilter.name,
+  BeforeWriteFilter: BeforeWriteFilter.name,
+  BeforeCreate: BeforeCreate.name,
+  AfterCreate: AfterCreate.name,
+  BeforeUpdate: BeforeUpdate.name,
+  AfterUpdate: AfterUpdate.name,
+  BeforeRemove: BeforeRemove.name,
+  AfterRemove: AfterRemove.name,
+  BeforeFindOne: BeforeFindOne.name,
+  AfterFindOne: AfterFindOne.name,
+  BeforeFindMany: BeforeFindMany.name,
+  AfterFindMany: AfterFindMany.name,
+};

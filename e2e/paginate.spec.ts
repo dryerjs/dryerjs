@@ -1,8 +1,9 @@
-import { Customer } from '../src/models';
+import { Customer, CustomerService } from '../src/models';
 import { TestServer } from './test-server';
 
 const server = TestServer.init({
   definitions: [Customer],
+  dryerProviders: [CustomerService],
 });
 
 describe('Paginate works', () => {

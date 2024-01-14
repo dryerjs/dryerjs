@@ -6,20 +6,19 @@ import { Definition } from './definition';
 import { inspect } from './inspect';
 import { SuccessResponse } from './types';
 import * as util from './util';
-import { AllDefinitions, Hook, hookMethods } from './hook';
+import { AllDefinitions, Hooks, hookMethods } from './hook';
 import { ObjectId } from './shared';
 import { RemoveMode, RemoveOptions } from './remove-options';
-import { DefaultHook } from './default.hook';
 
 export abstract class BaseService<T = any, Context = any> {
   public model: PaginateModel<T>;
   protected moduleRef: ModuleRef;
   protected definition: Definition;
 
-  protected abstract getHooks: (method: keyof Hook) => Function[];
+  protected abstract getHooks: (method: string) => Function[];
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
-    for (const hook of this.getHooks('beforeCreate')) {
+    for (const hook of this.getHooks(Hooks.BeforeCreate)) {
       await hook!({ ctx, input, definition: this.definition });
     }
 
@@ -68,7 +67,7 @@ export abstract class BaseService<T = any, Context = any> {
       }
     }
     const result = await this.model.findById(created._id);
-    for (const hook of this.getHooks('afterCreate')) {
+    for (const hook of this.getHooks(Hooks.AfterCreate)) {
       await hook({ ctx, input, created: result, definition: this.definition });
     }
     return result as any;
@@ -76,15 +75,15 @@ export abstract class BaseService<T = any, Context = any> {
 
   public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
     const filter = { _id: input.id };
-    for (const hook of this.getHooks('beforeWriteFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeWriteFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
     const beforeUpdated = await this.findOneWithoutBeforeReadFilter(ctx, filter);
-    for (const hook of this.getHooks('beforeUpdate')) {
+    for (const hook of this.getHooks(Hooks.BeforeUpdate)) {
       await hook({ ctx, input, beforeUpdated, definition: this.definition });
     }
     const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, { new: true });
-    for (const hook of this.getHooks('afterUpdate')) {
+    for (const hook of this.getHooks(Hooks.AfterUpdate)) {
       await hook({ ctx, input, updated, beforeUpdated, definition: this.definition });
     }
     return updated!;
@@ -95,7 +94,7 @@ export abstract class BaseService<T = any, Context = any> {
     filter: FilterQuery<T>,
     options?: { nullable?: boolean },
   ): Promise<T | null> {
-    for (const hook of this.getHooks('beforeFindOne')) {
+    for (const hook of this.getHooks(Hooks.BeforeFindOne)) {
       await hook({ ctx, filter, definition: this.definition });
     }
     const result = await this.model.findOne(filter);
@@ -106,7 +105,7 @@ export abstract class BaseService<T = any, Context = any> {
         : `No ${this.definition.name} found`;
       throw new NotFoundException(message);
     }
-    for (const hook of this.getHooks('afterFindOne')) {
+    for (const hook of this.getHooks(Hooks.AfterFindOne)) {
       await hook({ ctx, result, filter, definition: this.definition });
     }
     return result;
@@ -117,7 +116,7 @@ export abstract class BaseService<T = any, Context = any> {
   }
 
   public async findOne(ctx: Context, filter: FilterQuery<T>): Promise<T> {
-    for (const hook of this.getHooks('beforeReadFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeReadFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
     return (await this.findOneWithoutBeforeReadFilter(ctx, filter))!;
@@ -128,21 +127,21 @@ export abstract class BaseService<T = any, Context = any> {
   }
 
   public async findOneNullable(ctx: Context, filter: FilterQuery<T>): Promise<T | null> {
-    for (const hook of this.getHooks('beforeReadFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeReadFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
     return await this.findOneWithoutBeforeReadFilter(ctx, filter, { nullable: true });
   }
 
   public async findAll(ctx: Context, filter: FilterQuery<T>, sort: object): Promise<T[]> {
-    for (const hook of this.getHooks('beforeReadFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeReadFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
-    for (const hook of this.getHooks('beforeFindMany')) {
+    for (const hook of this.getHooks(Hooks.BeforeFindMany)) {
       await hook({ ctx, filter, sort, definition: this.definition });
     }
     const items = await this.model.find(filter).sort(sort as any);
-    for (const hook of this.getHooks('afterFindMany')) {
+    for (const hook of this.getHooks(Hooks.AfterFindMany)) {
       await hook({ ctx, filter, sort, items, definition: this.definition });
     }
     return items;
@@ -154,29 +153,29 @@ export abstract class BaseService<T = any, Context = any> {
     options: RemoveOptions = { mode: RemoveMode.RequiredCleanRelations },
   ): Promise<SuccessResponse> {
     const filter = { _id: id };
-    for (const hook of this.getHooks('beforeWriteFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeWriteFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
     const beforeRemoved = await this.findOneWithoutBeforeReadFilter(ctx, filter);
-    for (const hook of this.getHooks('beforeRemove')) {
+    for (const hook of this.getHooks(Hooks.BeforeRemove)) {
       await hook({ ctx, beforeRemoved, definition: this.definition, options });
     }
     const removed = await this.model.findByIdAndDelete(id);
-    for (const hook of this.getHooks('afterRemove')) {
+    for (const hook of this.getHooks(Hooks.AfterRemove)) {
       await hook({ ctx, removed, definition: this.definition, options });
     }
     return { success: true };
   }
 
   public async paginate(ctx: Context, filter: FilterQuery<T>, sort: object, page: number, limit: number) {
-    for (const hook of this.getHooks('beforeReadFilter')) {
+    for (const hook of this.getHooks(Hooks.BeforeReadFilter)) {
       await hook({ ctx, filter, definition: this.definition });
     }
-    for (const hook of this.getHooks('beforeFindMany')) {
+    for (const hook of this.getHooks(Hooks.BeforeFindMany)) {
       await hook({ ctx, filter, sort, page, limit, definition: this.definition });
     }
     const response = await this.model.paginate(filter, { page, limit, sort });
-    for (const hook of this.getHooks('afterFindMany')) {
+    for (const hook of this.getHooks(Hooks.AfterFindMany)) {
       await hook({
         ctx,
         filter,
@@ -196,7 +195,7 @@ export abstract class BaseService<T = any, Context = any> {
 export function createBaseService(definition: Definition): typeof BaseService {
   @Injectable()
   class GeneratedBaseService extends BaseService<any, any> {
-    protected getHooks: (method: keyof Hook) => Function[];
+    protected getHooks: (method: string) => Function[];
 
     constructor(
       @InjectModel(definition.name) public model: PaginateModel<any>,
@@ -207,7 +206,7 @@ export function createBaseService(definition: Definition): typeof BaseService {
       this.getHooks = util.memoize(this.getHooksUncached.bind(this));
     }
 
-    private getHooksUncached(method: keyof Hook): Function[] {
+    private getHooksUncached(method: string): Function[] {
       return hookMethods
         .filter(({ typeFunc, hookName }) => {
           if (hookName !== method) return false;
