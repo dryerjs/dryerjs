@@ -77,26 +77,25 @@ export class DryerModule {
     );
 
     const mongooseModuleExports = mongooseForFeatureModule.exports as any;
-    const hooks = [DefaultHook as Provider].concat(util.defaultTo(input.hooks, []));
     const baseServicesProviders = input.definitions.map((definition) => ({
       provide: getBaseServiceToken(definition),
-      useClass: createBaseService(definition, hooks),
+      useClass: createBaseService(definition),
     }));
     return {
       module: DryerModule,
       imports: util.defaultTo(input.imports, []),
       providers: [
+        DefaultHook,
         ...providers,
         ...mongooseModuleExports,
         ...baseServicesProviders,
-        ...hooks,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
         ...util.defaultTo(input.providers, []),
       ],
       exports: [
         ...mongooseModuleExports,
         ...baseServicesProviders,
-        ...hooks,
+        ...providers,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
       ],
     };

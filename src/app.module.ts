@@ -24,6 +24,7 @@ import {
   Promotion,
   Order,
   Item,
+  CustomerService,
 } from './models';
 import { Ctx } from './ctx';
 import { AdminGuard, UserGuard } from './models/fake-guards';
@@ -62,6 +63,7 @@ const definitions: Definition[] = [
     DryerModule.register({
       definitions,
       contextDecorator: Ctx,
+      providers: [CustomerService],
       resolverConfigs: [
         {
           definition: User,

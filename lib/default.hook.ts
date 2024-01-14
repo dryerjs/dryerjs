@@ -1,9 +1,23 @@
 import { ModuleRef } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
-import { BadRequestException, ConflictException, Inject, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
-import { AfterRemoveHookInput, AllDefinitions, Hook } from './hook';
+import {
+  AfterRemoveHookInput,
+  BeforeCreate,
+  AllDefinitions,
+  Hook,
+  BeforeUpdate,
+  BeforeRemove,
+  AfterRemove,
+} from './hook';
 import { HydratedProperty, inspect } from './inspect';
 import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
 import { Definition, DefinitionOptions, HookMethod } from './definition';
@@ -21,7 +35,7 @@ export interface FailCleanUpAfterRemoveHandler<Context = any> {
   handleAll(input: AfterRemoveHookInput<any, Context>, error: Error): Promise<void>;
 }
 
-@Hook(() => AllDefinitions)
+@Injectable()
 export class DefaultHook implements Hook<any, any> {
   private getCachedReferencingProperties: (definition: Definition) => HydratedProperty[];
   private isHookMethodSkip: (definition: Definition, method: HookMethod) => boolean;
@@ -43,6 +57,7 @@ export class DefaultHook implements Hook<any, any> {
     return skippedMethods.includes(method) || skippedMethods.includes('all');
   }
 
+  @BeforeCreate(() => AllDefinitions)
   public async beforeCreate({
     input,
     definition,
@@ -90,6 +105,7 @@ export class DefaultHook implements Hook<any, any> {
     throw new ConflictException(message);
   }
 
+  @BeforeUpdate(() => AllDefinitions)
   public async beforeUpdate({
     input,
     beforeUpdated,
@@ -139,6 +155,7 @@ export class DefaultHook implements Hook<any, any> {
     throw new BadRequestException(message);
   }
 
+  @BeforeRemove(() => AllDefinitions)
   public async beforeRemove({
     beforeRemoved,
     definition,
@@ -182,6 +199,7 @@ export class DefaultHook implements Hook<any, any> {
     }
   }
 
+  @AfterRemove(() => AllDefinitions)
   public async afterRemove(input: Parameters<Required<Hook>['afterRemove']>[0]): Promise<void> {
     if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
