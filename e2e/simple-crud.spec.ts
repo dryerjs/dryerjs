@@ -1,12 +1,23 @@
 import { TestServer } from './test-server';
 import { Tag, Color } from '../src/models/product';
-import { AllDefinitions, Hook } from '../lib/hook';
-import { createParamDecorator } from '@nestjs/common';
+import {
+  AfterCreateHook,
+  AfterFindManyHook,
+  AfterFindOneHook,
+  AfterRemoveHook,
+  AfterUpdateHook,
+  BeforeCreateHook,
+  BeforeFindManyHook,
+  BeforeFindOneHook,
+  BeforeReadFilterHook,
+  BeforeRemoveHook,
+  BeforeUpdateHook,
+  BeforeWriteFilterHook,
+} from '../lib/hook';
+import { Injectable, createParamDecorator } from '@nestjs/common';
 import { ObjectId } from '../lib/object-id';
 import { RemoveMode } from '../lib/remove-options';
 import { getBaseServiceToken } from '../lib/base.service';
-
-type Context = any;
 
 const beforeCreate = jest.fn();
 const afterCreate = jest.fn();
@@ -21,33 +32,80 @@ const afterRemove = jest.fn();
 const beforeReadFilter = jest.fn();
 const beforeWriteFilter = jest.fn();
 
-@Hook(() => Tag)
-class TagHook implements Hook<Tag, Context> {
-  beforeCreate = beforeCreate;
-  afterCreate = afterCreate;
-  beforeFindOne = beforeFindOne;
-  afterFindOne = afterFindOne;
-  beforeFindMany = beforeFindMany;
-  afterFindMany = afterFindMany;
-  beforeUpdate = beforeUpdate;
-  afterUpdate = afterUpdate;
-  beforeRemove = beforeRemove;
-  afterRemove = afterRemove;
-  beforeReadFilter = beforeReadFilter;
-  beforeWriteFilter = beforeWriteFilter;
+@Injectable()
+class TagHook {
+  @BeforeCreateHook(() => Tag)
+  beforeCreate(input: any) {
+    beforeCreate(input);
+  }
+
+  @AfterCreateHook(() => Tag)
+  afterCreate(input: any) {
+    afterCreate(input);
+  }
+
+  @BeforeFindOneHook(() => Tag)
+  beforeFindOne(input: any) {
+    beforeFindOne(input);
+  }
+
+  @AfterFindOneHook(() => Tag)
+  afterFindOne(input: any) {
+    afterFindOne(input);
+  }
+
+  @BeforeFindManyHook(() => Tag)
+  beforeFindMany(input: any) {
+    beforeFindMany(input);
+  }
+
+  @AfterFindManyHook(() => Tag)
+  afterFindMany(input: any) {
+    afterFindMany(input);
+  }
+
+  @BeforeUpdateHook(() => Tag)
+  beforeUpdate(input: any) {
+    beforeUpdate(input);
+  }
+
+  @AfterUpdateHook(() => Tag)
+  afterUpdate(input: any) {
+    afterUpdate(input);
+  }
+
+  @BeforeRemoveHook(() => Tag)
+  beforeRemove(input: any) {
+    beforeRemove(input);
+  }
+
+  @AfterRemoveHook(() => Tag)
+  afterRemove(input: any) {
+    afterRemove(input);
+  }
+
+  @BeforeReadFilterHook(() => Tag)
+  beforeReadFilter(input: any) {
+    beforeReadFilter(input);
+  }
+
+  @BeforeWriteFilterHook(() => Tag)
+  beforeWriteFilter(input: any) {
+    beforeWriteFilter(input);
+  }
 }
 
 const onSchema = jest.fn();
 
-@Hook(() => 'fake')
+@Injectable()
 class FakeHook {}
 
-@Hook(() => AllDefinitions)
+@Injectable()
 class GeneralHook {}
 
 const server = TestServer.init({
   definitions: [Tag, Color],
-  hooks: [TagHook, FakeHook, GeneralHook],
+  dryerProviders: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
   onSchema,
 });

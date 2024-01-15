@@ -1,15 +1,16 @@
 import { promisify } from 'util';
 import { TestServer } from './test-server';
 import { Color, Image, Product, Tag, Variant, Comment, Store } from '../src/models';
-import { Hook } from '../lib/hook';
+import { BeforeRemoveHook, BeforeRemoveHookInput } from '../lib/hook';
 import { Injectable } from '@nestjs/common';
 import { FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER, FailCleanUpAfterRemoveHandler } from '../lib/default.hook';
 
 const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
 
-@Hook(() => Variant)
-class VariantHook implements Hook<Variant, any> {
-  async beforeRemove({ beforeRemoved }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
+@Injectable()
+class VariantHook {
+  @BeforeRemoveHook(() => Variant)
+  async beforeRemove({ beforeRemoved }: BeforeRemoveHookInput<Variant>): Promise<void> {
     if (beforeRemoved.name === NEVER_REMOVE_ME) {
       throw new Error('Cannot remove Awesome variant');
     }
@@ -27,8 +28,8 @@ class FailHandler implements FailCleanUpAfterRemoveHandler {
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
-  hooks: [VariantHook],
-  providers: [
+  dryerProviders: [VariantHook],
+  appProviders: [
     {
       provide: FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER,
       useClass: FailHandler,

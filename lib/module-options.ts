@@ -1,4 +1,4 @@
-import { ModuleMetadata, Provider } from '@nestjs/common';
+import { ModuleMetadata } from '@nestjs/common';
 import { Schema } from 'mongoose';
 import { Definition } from './definition';
 import { ContextDecorator } from './context';
@@ -47,7 +47,6 @@ export type EmbeddedResolverConfig = {
 export type DryerModuleOptions = {
   definitions: Definition[];
   contextDecorator?: ContextDecorator;
-  hooks?: Provider[];
   onSchema?: (schema: Schema, definition: Definition) => void;
   resolverConfigs?: ResolverConfig[];
   embeddedResolverConfigs?: EmbeddedResolverConfig[];

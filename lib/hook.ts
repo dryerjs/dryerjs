@@ -1,125 +1,169 @@
-import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
-import { MetaKey, Metadata } from './metadata';
+
 import { Definition } from './definition';
 import { RemoveOptions } from './remove-options';
 
-export function Hook(typeFunc: () => any) {
-  return (target: any) => {
-    Injectable()(target);
-    Metadata.for(target).set(MetaKey.Hook, typeFunc);
+export type AfterRemoveHookInput<T = any, Context = any> = {
+  ctx: Context;
+  removed: T;
+  definition: Definition;
+  options: RemoveOptions;
+};
+
+export type BeforeRemoveHookInput<T = any, Context = any> = {
+  ctx: Context;
+  beforeRemoved: T;
+  definition: Definition;
+  options: RemoveOptions;
+};
+
+export type AfterFindOneHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  result: T;
+  definition: Definition;
+};
+
+export type BeforeFindOneHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
+
+export type AfterUpdateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  updated: T;
+  beforeUpdated: T;
+  definition: Definition;
+};
+
+export type BeforeUpdateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  beforeUpdated: T;
+  definition: Definition;
+};
+
+export type AfterCreateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  created: T;
+  definition: Definition;
+};
+
+export type BeforeCreateHookInput<T = any, Context = any> = {
+  ctx: Context;
+  input: Partial<T>;
+  definition: Definition;
+};
+
+export type BeforeFindManyHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  sort: object;
+  limit?: number;
+  page?: number;
+  definition: Definition;
+};
+
+export type AfterFindManyHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  sort: object;
+  items: T[];
+  limit?: number;
+  page?: number;
+  definition: Definition;
+};
+
+export type BeforeReadFilterHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
+
+export type BeforeWriteFilterHookInput<T = any, Context = any> = {
+  ctx: Context;
+  filter: FilterQuery<T>;
+  definition: Definition;
+};
+
+export class AllDefinitions {}
+
+export enum Hook {
+  BeforeReadFilter = 'BeforeReadFilter',
+  BeforeWriteFilter = 'BeforeWriteFilter',
+  BeforeCreate = 'BeforeCreate',
+  AfterCreate = 'AfterCreate',
+  BeforeUpdate = 'BeforeUpdate',
+  AfterUpdate = 'AfterUpdate',
+  BeforeRemove = 'BeforeRemove',
+  AfterRemove = 'AfterRemove',
+  BeforeFindOne = 'BeforeFindOne',
+  AfterFindOne = 'AfterFindOne',
+  BeforeFindMany = 'BeforeFindMany',
+  AfterFindMany = 'AfterFindMany',
+}
+
+export const hookMethods: {
+  typeFunc: () => any;
+  target: any;
+  method: string;
+  hook: Hook;
+  options?: { priority: number };
+}[] = [];
+
+function HookMethod(typeFunc: () => any, hook: Hook, options?: { priority: number }) {
+  return (target: any, method: any) => {
+    hookMethods.push({ typeFunc, target, method, hook, options });
   };
 }
 
-export interface Hook<T = any, Context = any> {
-  beforeCreate?(input: { ctx: Context; input: Partial<T>; definition: Definition }): Promise<void>;
-  afterCreate?(input: { ctx: Context; input: Partial<T>; created: T; definition: Definition }): Promise<void>;
-
-  beforeUpdate?(input: {
-    ctx: Context;
-    input: Partial<T>;
-    beforeUpdated: T;
-    definition: Definition;
-  }): Promise<void>;
-  afterUpdate?(input: {
-    ctx: Context;
-    input: Partial<T>;
-    updated: T;
-    beforeUpdated: T;
-    definition: Definition;
-  }): Promise<void>;
-
-  shouldApplyForContext?(ctx: Context, definition?: Definition): boolean;
-
-  beforeReadFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
-  beforeWriteFilter?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
-
-  beforeFindOne?(input: { ctx: Context; filter: FilterQuery<T>; definition: Definition }): Promise<void>;
-  afterFindOne?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    result: T;
-    definition: Definition;
-  }): Promise<void>;
-
-  beforeRemove?(input: {
-    ctx: Context;
-    beforeRemoved: T;
-    definition: Definition;
-    options: RemoveOptions;
-  }): Promise<void>;
-  afterRemove?(input: {
-    ctx: Context;
-    removed: T;
-    definition: Definition;
-    options: RemoveOptions;
-  }): Promise<void>;
-
-  beforeFindMany?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    sort: object;
-    limit?: number;
-    page?: number;
-    definition: Definition;
-  }): Promise<void>;
-  afterFindMany?(input: {
-    ctx: Context;
-    filter: FilterQuery<T>;
-    sort: object;
-    items: T[];
-    limit?: number;
-    page?: number;
-    definition: Definition;
-  }): Promise<void>;
+export function BeforeReadFilterHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeReadFilter, options);
 }
 
-export type AfterRemoveHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterRemove']
->[0];
+export function BeforeWriteFilterHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeWriteFilter, options);
+}
 
-export type BeforeRemoveHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeRemove']
->[0];
+export function BeforeCreateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeCreate, options);
+}
 
-export type AfterFindOneHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterFindOne']
->[0];
+export function AfterCreateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterCreate, options);
+}
 
-export type BeforeFindOneHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeFindOne']
->[0];
+export function BeforeUpdateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeUpdate, options);
+}
 
-export type AfterUpdateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterUpdate']
->[0];
+export function AfterUpdateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterUpdate, options);
+}
 
-export type BeforeUpdateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeUpdate']
->[0];
+export function BeforeRemoveHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeRemove, options);
+}
 
-export type AfterCreateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterCreate']
->[0];
+export function AfterRemoveHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterRemove, options);
+}
 
-export type BeforeCreateHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeCreate']
->[0];
+export function BeforeFindOneHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeFindOne, options);
+}
 
-export type BeforeFindManyHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeFindMany']
->[0];
+export function AfterFindOneHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterFindOne, options);
+}
 
-export type AfterFindManyHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['afterFindMany']
->[0];
+export function BeforeFindManyHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeFindMany, options);
+}
 
-export type BeforeReadFilterHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeReadFilter']
->[0];
-
-export type BeforeWriteFilterHookInput<T = any, Context = any> = Parameters<
-  Required<Hook<T, Context>>['beforeWriteFilter']
->[0];
-
-export class AllDefinitions {}
+export function AfterFindManyHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterFindMany, options);
+}

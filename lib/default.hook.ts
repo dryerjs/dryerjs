@@ -1,9 +1,25 @@
 import { ModuleRef } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { PaginateModel } from 'mongoose';
-import { BadRequestException, ConflictException, Inject, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
-import { AfterRemoveHookInput, AllDefinitions, Hook } from './hook';
+import {
+  AfterRemoveHookInput,
+  BeforeCreateHook,
+  AllDefinitions,
+  BeforeUpdateHook,
+  BeforeRemoveHook,
+  AfterRemoveHook,
+  BeforeCreateHookInput,
+  BeforeUpdateHookInput,
+  BeforeRemoveHookInput,
+} from './hook';
 import { HydratedProperty, inspect } from './inspect';
 import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
 import { Definition, DefinitionOptions, HookMethod } from './definition';
@@ -21,8 +37,8 @@ export interface FailCleanUpAfterRemoveHandler<Context = any> {
   handleAll(input: AfterRemoveHookInput<any, Context>, error: Error): Promise<void>;
 }
 
-@Hook(() => AllDefinitions)
-export class DefaultHook implements Hook<any, any> {
+@Injectable()
+export class DefaultHook {
   private getCachedReferencingProperties: (definition: Definition) => HydratedProperty[];
   private isHookMethodSkip: (definition: Definition, method: HookMethod) => boolean;
 
@@ -43,10 +59,8 @@ export class DefaultHook implements Hook<any, any> {
     return skippedMethods.includes(method) || skippedMethods.includes('all');
   }
 
-  public async beforeCreate({
-    input,
-    definition,
-  }: Parameters<Required<Hook>['beforeCreate']>[0]): Promise<void> {
+  @BeforeCreateHook(() => AllDefinitions)
+  public async beforeCreate({ input, definition }: BeforeCreateHookInput<any>): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeCreate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options, typeFunction } = referencingManyProperty.getReferencesMany();
@@ -90,11 +104,8 @@ export class DefaultHook implements Hook<any, any> {
     throw new ConflictException(message);
   }
 
-  public async beforeUpdate({
-    input,
-    beforeUpdated,
-    definition,
-  }: Parameters<Required<Hook>['beforeUpdate']>[0]): Promise<void> {
+  @BeforeUpdateHook(() => AllDefinitions)
+  public async beforeUpdate({ input, beforeUpdated, definition }: BeforeUpdateHookInput): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeUpdate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
       const { options } = referencingManyProperty.getReferencesMany();
@@ -139,11 +150,8 @@ export class DefaultHook implements Hook<any, any> {
     throw new BadRequestException(message);
   }
 
-  public async beforeRemove({
-    beforeRemoved,
-    definition,
-    options,
-  }: Parameters<Required<Hook>['beforeRemove']>[0]): Promise<void> {
+  @BeforeRemoveHook(() => AllDefinitions)
+  public async beforeRemove({ beforeRemoved, definition, options }: BeforeRemoveHookInput): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeRemove')) return;
     this.ensureRemoveModeValid(definition, options);
     if ([RemoveMode.IgnoreRelations, RemoveMode.CleanUpRelationsAfterRemoved].includes(options.mode)) return;
@@ -182,7 +190,8 @@ export class DefaultHook implements Hook<any, any> {
     }
   }
 
-  public async afterRemove(input: Parameters<Required<Hook>['afterRemove']>[0]): Promise<void> {
+  @AfterRemoveHook(() => AllDefinitions)
+  public async afterRemove(input: AfterRemoveHookInput): Promise<void> {
     if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
     this.cleanUpRelationsAfterRemoved(input);
@@ -193,10 +202,10 @@ export class DefaultHook implements Hook<any, any> {
       return this.moduleRef.get(FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER, { strict: false });
     } catch (error) {
       const defaultFailHandler: FailCleanUpAfterRemoveHandler = {
-        handleItem(_input: Parameters<Required<Hook>['afterRemove']>[0], error: Error) {
+        handleItem(_input: AfterRemoveHookInput, error: Error) {
           throw error;
         },
-        handleAll(_input: Parameters<Required<Hook>['afterRemove']>[0], error: Error) {
+        handleAll(_input: AfterRemoveHookInput, error: Error) {
           throw error;
         },
       };
@@ -204,7 +213,7 @@ export class DefaultHook implements Hook<any, any> {
     }
   }
 
-  private async cleanUpRelationsAfterRemoved(input: Parameters<Required<Hook>['afterRemove']>[0]) {
+  private async cleanUpRelationsAfterRemoved(input: AfterRemoveHookInput) {
     const failHandler = this.getFailHandler();
     try {
       const referencingProperties = this.getCachedReferencingProperties(input.definition);

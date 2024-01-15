@@ -18,7 +18,6 @@ export enum MetaKey {
   Thunk = 'Thunk',
   Definition = 'Definition',
   Index = 'Index',
-  Hook = 'Hook',
   Filterable = 'Filterable',
   Sortable = 'Sortable',
   Property = 'Property',
