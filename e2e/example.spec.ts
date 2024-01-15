@@ -7,6 +7,17 @@ import { AuthResolver } from '../src/resolvers';
 const server = TestServer.init({
   definitions: [User, Store, Product, Tag, Author, Variant, Image, Color, Comment],
   providers: [AuthResolver],
+  resolverConfigs: [
+    { definition: User, allowedApis: '*' },
+    { definition: Store, allowedApis: '*' },
+    { definition: Product, allowedApis: '*' },
+    { definition: Tag, allowedApis: '*' },
+    { definition: Author, allowedApis: '*' },
+    { definition: Variant, allowedApis: '*' },
+    { definition: Image, allowedApis: '*' },
+    { definition: Color, allowedApis: '*' },
+    { definition: Comment, allowedApis: '*' },
+  ],
 });
 
 describe('Example app works', () => {

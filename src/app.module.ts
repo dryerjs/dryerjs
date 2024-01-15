@@ -73,6 +73,68 @@ const definitions: Definition[] = [
             update: [UseGuards(UserGuard)],
           },
         },
+        {
+          definition: Color,
+          allowedApis: '*',
+        },
+
+        {
+          definition: Tag,
+          allowedApis: '*',
+        },
+        {
+          definition: Image,
+          allowedApis: '*',
+        },
+        {
+          definition: Comment,
+          allowedApis: '*',
+        },
+        {
+          definition: Store,
+          allowedApis: '*',
+        },
+        {
+          definition: Variant,
+          allowedApis: '*',
+        },
+        {
+          definition: Product,
+          allowedApis: '*',
+        },
+        {
+          definition: Author,
+          allowedApis: '*',
+        },
+        {
+          definition: Rating,
+          allowedApis: '*',
+        },
+        {
+          definition: Order,
+          allowedApis: '*',
+        },
+        {
+          definition: Item,
+          allowedApis: '*',
+        },
+        {
+          definition: Computer,
+          allowedApis: '*',
+        },
+      ],
+      embeddedResolverConfigs: [
+        {
+          definition: Author,
+          allowedApis: [],
+          property: 'events',
+        },
+
+        {
+          definition: Author,
+          allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
+          property: 'books',
+        },
       ],
     }),
   ],

@@ -3,6 +3,7 @@ import { TestServer } from './test-server';
 
 const server = TestServer.init({
   definitions: [Customer],
+  resolverConfigs: [{ definition: Customer, allowedApis: '*' }],
 });
 
 describe('Paginate works', () => {

@@ -18,7 +18,7 @@ import {
 } from 'dryerjs';
 import { MaxLength } from 'class-validator';
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Color {
   @Id()
   id: ObjectId;
@@ -29,7 +29,6 @@ export class Color {
 }
 
 @Definition({
-  allowedApis: '*',
   removalConfig: {
     allowCleanUpRelationsAfterRemoved: true,
   },
@@ -55,7 +54,7 @@ export class Tag {
   colors: Color[];
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Image {
   @Id()
   id: ObjectId;
@@ -70,7 +69,7 @@ export class Image {
   productId: ObjectId;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Comment {
   @Id()
   id: ObjectId;
@@ -85,7 +84,7 @@ export class Comment {
   variant: Ref<Variant>;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Store {
   @Id()
   id: ObjectId;
@@ -108,7 +107,7 @@ export class Store {
   tagIds: ObjectId[];
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Variant {
   @Id()
   id: ObjectId;
@@ -129,7 +128,6 @@ export class Variant {
 }
 
 @Definition({
-  allowedApis: '*',
   removalConfig: {
     allowIgnoreRelationCheck: true,
     allowCleanUpRelationsAfterRemoved: true,

@@ -38,7 +38,7 @@ export class Product {
   storeId: ObjectId;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Order {
   @Id()
   id: ObjectId;
@@ -70,6 +70,12 @@ export class User {
 
 const server = TestServer.init({
   definitions: [Store, User, Order, Product],
+  resolverConfigs: [
+    { definition: Store, allowedApis: '*' },
+    { definition: User, allowedApis: '*' },
+    { definition: Order, allowedApis: '*' },
+    { definition: Product, allowedApis: '*' },
+  ],
 });
 
 it('Multiple relations work', async () => {

@@ -1,7 +1,7 @@
 import * as graphql from 'graphql';
 import { Property, Definition, ObjectId, Id, GraphQLObjectId, ReferencesMany } from 'dryerjs';
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Item {
   @Id()
   id: ObjectId;
@@ -10,7 +10,7 @@ export class Item {
   name: string;
 }
 
-@Definition({ allowedApis: '*', skipDefaultHookMethods: ['all'] })
+@Definition({ skipDefaultHookMethods: ['all'] })
 export class Order {
   @Id()
   id: ObjectId;

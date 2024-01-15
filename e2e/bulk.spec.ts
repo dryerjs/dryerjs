@@ -59,6 +59,10 @@ const server = TestServer.init({
       useClass: BulkErrorHandlerImpl,
     },
   ],
+  resolverConfigs: [
+    { definition: Tag, allowedApis: '*' },
+    { definition: Color, allowedApis: '*' },
+  ],
 });
 
 describe('bulk apis work', () => {

@@ -33,7 +33,7 @@ export type EmbeddedResolverDecorator = {
 
 export type ResolverConfig = {
   definition: Definition;
-  decorators: ResolverDecorator;
+  decorators?: ResolverDecorator;
   allowedApis?: AllowedApiType | AllowedApiType[];
 };
 

@@ -35,6 +35,15 @@ const server = TestServer.init({
       useClass: FailHandler,
     },
   ],
+  resolverConfigs: [
+    { definition: Store, allowedApis: '*' },
+    { definition: Product, allowedApis: '*' },
+    { definition: Tag, allowedApis: '*' },
+    { definition: Variant, allowedApis: '*' },
+    { definition: Image, allowedApis: '*' },
+    { definition: Color, allowedApis: '*' },
+    { definition: Comment, allowedApis: '*' },
+  ],
 });
 
 describe('Remove options work', () => {

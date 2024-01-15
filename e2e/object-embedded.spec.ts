@@ -3,6 +3,13 @@ import { Computer, Rating, Shop, Promotion, Specification } from '../src/models/
 
 export const dryer = TestServer.init({
   definitions: [Computer, Specification, Rating, Shop, Promotion],
+  resolverConfigs: [
+    { definition: Computer, allowedApis: '*' },
+    { definition: Specification, allowedApis: '*' },
+    { definition: Rating, allowedApis: '*' },
+    { definition: Shop, allowedApis: '*' },
+    { definition: Promotion, allowedApis: '*' },
+  ],
 });
 
 describe('Object embedded feature works', () => {

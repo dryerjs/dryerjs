@@ -12,8 +12,6 @@ import {
   SortType,
 } from './type-functions';
 import { MetaKey, Metadata } from './metadata';
-import { AllowedApiType } from './shared';
-import { ResolverDecorator } from './module-options';
 
 export type HookMethod =
   | 'all'
@@ -34,14 +32,6 @@ export type DefinitionOptions = {
     allowCleanUpRelationsAfterRemoved?: boolean;
   };
   enableTextSearch?: boolean;
-  /**
-   * @deprecated Config on DryerModule.register instead
-   */
-  resolverDecorators?: ResolverDecorator;
-  /**
-   * @deprecated Config on DryerModule.register instead
-   */
-  allowedApis?: AllowedApiType | AllowedApiType[];
   schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
   timestamps?: boolean;
@@ -49,7 +39,7 @@ export type DefinitionOptions = {
 
 export type Definition = any;
 
-export function Definition(options: DefinitionOptions = { allowedApis: 'essentials' }): ClassDecorator {
+export function Definition(options: DefinitionOptions = {}): ClassDecorator {
   return (target: object) => {
     Metadata.for(target).set(MetaKey.Definition, options);
     CreateInputType(target as any);

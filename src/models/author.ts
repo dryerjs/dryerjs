@@ -24,7 +24,7 @@ export class Book {
   @Property()
   title: string;
 
-  @Embedded(() => Review, { allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'] })
+  @Embedded(() => Review)
   reviews: Review[];
 }
 
@@ -39,7 +39,7 @@ export class Event {
   name: string;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Author {
   @Id()
   id: ObjectId;
@@ -51,7 +51,6 @@ export class Author {
   books: Book[];
 
   @Embedded(() => Event, {
-    allowedApis: [],
     overridePropertyOptions: { create: Skip, update: Skip },
   })
   events: Event[];
