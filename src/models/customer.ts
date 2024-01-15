@@ -15,7 +15,6 @@ import { IsEmail } from 'class-validator';
 
 @Index({ name: 'text' })
 @Definition({
-  allowedApis: '*',
   enableTextSearch: true,
 })
 export class Customer {

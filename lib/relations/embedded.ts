@@ -8,20 +8,11 @@ import { CreateInputType, OutputType, UpdateInputType } from '../type-functions'
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
 import { DryerPropertyInput, Property, Skip } from '../property';
-import { EmbeddedResolverDecorator } from '../module-options';
 
 export type EmbeddedConfig = {
   typeFunction: () => any;
   options: {
     onSubSchema?: (subSchema: Schema) => void;
-    /**
-     * @deprecated Config on DryerModule.register instead
-     */
-    resolverDecorators?: EmbeddedResolverDecorator;
-    /**
-     * @deprecated Config on DryerModule.register instead
-     */
-    allowedApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
     overridePropertyOptions?: Pick<DryerPropertyInput, 'create' | 'update' | 'output' | 'db'>;
   };
 };
@@ -45,9 +36,7 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       .with(propertyKey)
       .set<EmbeddedConfig>(MetaKey.EmbeddedType, {
         typeFunction,
-        options: util.defaultTo(options, {
-          allowedApis: ['findAll', 'findOne', 'create', 'update', 'remove'],
-        }),
+        options: util.defaultTo(options, {}),
       });
     Thunk(
       Type(() => UpdateInputType(typeFunction())),

@@ -18,7 +18,7 @@ export class Novel {
 
 const onSubSchema = jest.fn();
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Novelist {
   @Id()
   id: ObjectId;
@@ -26,12 +26,14 @@ export class Novelist {
   @Property()
   name: string;
 
-  @Embedded(() => Novel, { allowedApis: ['create'], onSubSchema })
+  @Embedded(() => Novel, { onSubSchema })
   novels: Novel[];
 }
 
 const server = TestServer.init({
   definitions: [Novelist],
+  resolverConfigs: [{ definition: Novelist, allowedApis: '*' }],
+  embeddedResolverConfigs: [{ definition: Novelist, allowedApis: ['create'], property: 'novels' }],
 });
 
 describe('Embedded works', () => {

@@ -28,7 +28,7 @@ class Brand {
   creator: Creator;
 }
 
-@Definition({ allowedApis: '*', removalConfig: { allowCleanUpRelationsAfterRemoved: true } })
+@Definition({ removalConfig: { allowCleanUpRelationsAfterRemoved: true } })
 export class Rating {
   @Id()
   id: ObjectId;
@@ -40,7 +40,7 @@ export class Rating {
   username: string;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Specification {
   @Id()
   id: ObjectId;
@@ -55,7 +55,7 @@ export class Specification {
   computerId: ObjectId;
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Shop {
   @Id()
   id: ObjectId;
@@ -72,7 +72,7 @@ export class Shop {
   computers: Computer[];
 }
 
-@Definition({ allowedApis: '*' })
+@Definition()
 export class Promotion {
   @Id()
   id: ObjectId;
@@ -87,7 +87,7 @@ export class Promotion {
   computer: Ref<Computer>;
 }
 
-@Definition({ allowedApis: '*', removalConfig: { allowCleanUpRelationsAfterRemoved: true } })
+@Definition({ removalConfig: { allowCleanUpRelationsAfterRemoved: true } })
 export class Computer {
   @Id()
   id: ObjectId;

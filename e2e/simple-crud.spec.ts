@@ -108,6 +108,10 @@ const server = TestServer.init({
   dryerProviders: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
   onSchema,
+  resolverConfigs: [
+    { definition: Tag, allowedApis: '*' },
+    { definition: Color, allowedApis: '*' },
+  ],
 });
 
 describe('Simple CRUD works', () => {

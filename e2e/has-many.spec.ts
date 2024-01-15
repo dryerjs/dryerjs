@@ -4,6 +4,15 @@ import { DefaultHook } from '../lib/default.hook';
 
 const server = TestServer.init({
   definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
+  resolverConfigs: [
+    { definition: Store, allowedApis: '*' },
+    { definition: Product, allowedApis: '*' },
+    { definition: Tag, allowedApis: '*' },
+    { definition: Variant, allowedApis: '*' },
+    { definition: Image, allowedApis: '*' },
+    { definition: Color, allowedApis: '*' },
+    { definition: Comment, allowedApis: '*' },
+  ],
 });
 
 describe('Has many works', () => {

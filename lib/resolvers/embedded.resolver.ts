@@ -20,13 +20,11 @@ export function createResolverForEmbedded(
   contextDecorator: ContextDecorator,
   embeddedResolverConfig: EmbeddedResolverConfig | undefined,
 ): Provider {
-  const { typeFunction, options } = Metadata.for(definition)
-    .with(field)
-    .get<EmbeddedConfig>(MetaKey.EmbeddedType);
+  const { typeFunction } = Metadata.for(definition).with(field).get<EmbeddedConfig>(MetaKey.EmbeddedType);
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if ((embeddedResolverConfig?.allowedApis ?? options.allowedApis)!.includes(propertyKey as any)) {
+      if ((embeddedResolverConfig?.allowedApis ?? [])!.includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;
@@ -34,7 +32,7 @@ export function createResolverForEmbedded(
   }
 
   const embeddedDefinition = typeFunction();
-  const resolverDecorators = embeddedResolverConfig?.decorators ?? options.resolverDecorators ?? {};
+  const resolverDecorators = embeddedResolverConfig?.decorators ?? {};
   @Resolver()
   class GeneratedResolverForEmbedded<T> {
     constructor(@InjectBaseService(definition) public baseService: BaseService) {}
