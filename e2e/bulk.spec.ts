@@ -3,11 +3,11 @@ import { Color, Tag } from '../src/models/product';
 import { Injectable } from '@nestjs/common';
 import { BulkErrorHandler, BULK_ERROR_HANDLER } from '../lib/bulk-error-handler';
 import {
-  BeforeCreate,
+  BeforeCreateHook,
   BeforeCreateHookInput,
   BeforeUpdateHookInput,
-  BeforeUpdate,
-  BeforeRemove,
+  BeforeUpdateHook,
+  BeforeRemoveHook,
   BeforeRemoveHookInput,
 } from '../lib/hook';
 
@@ -17,21 +17,21 @@ const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
 
 @Injectable()
 class TagHook {
-  @BeforeCreate(() => Tag)
+  @BeforeCreateHook(() => Tag)
   async beforeCreate({ input }: BeforeCreateHookInput<Tag>): Promise<void> {
     if (input.name === NEVER_CREATE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
   }
 
-  @BeforeUpdate(() => Tag)
+  @BeforeUpdateHook(() => Tag)
   async beforeUpdate({ input }: BeforeUpdateHookInput): Promise<void> {
     if (input.name === NEVER_UPDATE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
   }
 
-  @BeforeRemove(() => Tag)
+  @BeforeRemoveHook(() => Tag)
   async beforeRemove({ beforeRemoved }: BeforeRemoveHookInput): Promise<void> {
     if (beforeRemoved.name === NEVER_REMOVE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');

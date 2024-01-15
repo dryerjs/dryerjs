@@ -11,11 +11,11 @@ import {
 
 import {
   AfterRemoveHookInput,
-  BeforeCreate,
+  BeforeCreateHook,
   AllDefinitions,
-  BeforeUpdate,
-  BeforeRemove,
-  AfterRemove,
+  BeforeUpdateHook,
+  BeforeRemoveHook,
+  AfterRemoveHook,
   BeforeCreateHookInput,
   BeforeUpdateHookInput,
   BeforeRemoveHookInput,
@@ -59,7 +59,7 @@ export class DefaultHook {
     return skippedMethods.includes(method) || skippedMethods.includes('all');
   }
 
-  @BeforeCreate(() => AllDefinitions)
+  @BeforeCreateHook(() => AllDefinitions)
   public async beforeCreate({ input, definition }: BeforeCreateHookInput<any>): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeCreate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
@@ -104,7 +104,7 @@ export class DefaultHook {
     throw new ConflictException(message);
   }
 
-  @BeforeUpdate(() => AllDefinitions)
+  @BeforeUpdateHook(() => AllDefinitions)
   public async beforeUpdate({ input, beforeUpdated, definition }: BeforeUpdateHookInput): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeUpdate')) return;
     for (const referencingManyProperty of inspect(definition).referencesManyProperties) {
@@ -150,7 +150,7 @@ export class DefaultHook {
     throw new BadRequestException(message);
   }
 
-  @BeforeRemove(() => AllDefinitions)
+  @BeforeRemoveHook(() => AllDefinitions)
   public async beforeRemove({ beforeRemoved, definition, options }: BeforeRemoveHookInput): Promise<void> {
     if (this.isHookMethodSkip(definition, 'beforeRemove')) return;
     this.ensureRemoveModeValid(definition, options);
@@ -190,7 +190,7 @@ export class DefaultHook {
     }
   }
 
-  @AfterRemove(() => AllDefinitions)
+  @AfterRemoveHook(() => AllDefinitions)
   public async afterRemove(input: AfterRemoveHookInput): Promise<void> {
     if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;

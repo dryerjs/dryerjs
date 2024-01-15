@@ -1,18 +1,18 @@
 import { TestServer } from './test-server';
 import { Tag, Color } from '../src/models/product';
 import {
-  AfterCreate,
-  AfterFindMany,
-  AfterFindOne,
-  AfterRemove,
-  AfterUpdate,
-  BeforeCreate,
-  BeforeFindMany,
-  BeforeFindOne,
-  BeforeReadFilter,
-  BeforeRemove,
-  BeforeUpdate,
-  BeforeWriteFilter,
+  AfterCreateHook,
+  AfterFindManyHook,
+  AfterFindOneHook,
+  AfterRemoveHook,
+  AfterUpdateHook,
+  BeforeCreateHook,
+  BeforeFindManyHook,
+  BeforeFindOneHook,
+  BeforeReadFilterHook,
+  BeforeRemoveHook,
+  BeforeUpdateHook,
+  BeforeWriteFilterHook,
 } from '../lib/hook';
 import { Injectable, createParamDecorator } from '@nestjs/common';
 import { ObjectId } from '../lib/object-id';
@@ -34,62 +34,62 @@ const beforeWriteFilter = jest.fn();
 
 @Injectable()
 class TagHook {
-  @BeforeCreate(() => Tag)
+  @BeforeCreateHook(() => Tag)
   beforeCreate(input: any) {
     beforeCreate(input);
   }
 
-  @AfterCreate(() => Tag)
+  @AfterCreateHook(() => Tag)
   afterCreate(input: any) {
     afterCreate(input);
   }
 
-  @BeforeFindOne(() => Tag)
+  @BeforeFindOneHook(() => Tag)
   beforeFindOne(input: any) {
     beforeFindOne(input);
   }
 
-  @AfterFindOne(() => Tag)
+  @AfterFindOneHook(() => Tag)
   afterFindOne(input: any) {
     afterFindOne(input);
   }
 
-  @BeforeFindMany(() => Tag)
+  @BeforeFindManyHook(() => Tag)
   beforeFindMany(input: any) {
     beforeFindMany(input);
   }
 
-  @AfterFindMany(() => Tag)
+  @AfterFindManyHook(() => Tag)
   afterFindMany(input: any) {
     afterFindMany(input);
   }
 
-  @BeforeUpdate(() => Tag)
+  @BeforeUpdateHook(() => Tag)
   beforeUpdate(input: any) {
     beforeUpdate(input);
   }
 
-  @AfterUpdate(() => Tag)
+  @AfterUpdateHook(() => Tag)
   afterUpdate(input: any) {
     afterUpdate(input);
   }
 
-  @BeforeRemove(() => Tag)
+  @BeforeRemoveHook(() => Tag)
   beforeRemove(input: any) {
     beforeRemove(input);
   }
 
-  @AfterRemove(() => Tag)
+  @AfterRemoveHook(() => Tag)
   afterRemove(input: any) {
     afterRemove(input);
   }
 
-  @BeforeReadFilter(() => Tag)
+  @BeforeReadFilterHook(() => Tag)
   beforeReadFilter(input: any) {
     beforeReadFilter(input);
   }
 
-  @BeforeWriteFilter(() => Tag)
+  @BeforeWriteFilterHook(() => Tag)
   beforeWriteFilter(input: any) {
     beforeWriteFilter(input);
   }

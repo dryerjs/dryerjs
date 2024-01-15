@@ -1,4 +1,5 @@
 import { FilterQuery } from 'mongoose';
+
 import { Definition } from './definition';
 import { RemoveOptions } from './remove-options';
 
@@ -90,73 +91,79 @@ export type BeforeWriteFilterHookInput<T = any, Context = any> = {
 
 export class AllDefinitions {}
 
-export const hookMethods = [] as any[];
+export enum Hook {
+  BeforeReadFilter = 'BeforeReadFilter',
+  BeforeWriteFilter = 'BeforeWriteFilter',
+  BeforeCreate = 'BeforeCreate',
+  AfterCreate = 'AfterCreate',
+  BeforeUpdate = 'BeforeUpdate',
+  AfterUpdate = 'AfterUpdate',
+  BeforeRemove = 'BeforeRemove',
+  AfterRemove = 'AfterRemove',
+  BeforeFindOne = 'BeforeFindOne',
+  AfterFindOne = 'AfterFindOne',
+  BeforeFindMany = 'BeforeFindMany',
+  AfterFindMany = 'AfterFindMany',
+}
 
-function HookMethod(typeFunc: () => any, hookName: string, options?: { priority: number }) {
+export const hookMethods: {
+  typeFunc: () => any;
+  target: any;
+  method: string;
+  hook: Hook;
+  options?: { priority: number };
+}[] = [];
+
+function HookMethod(typeFunc: () => any, hook: Hook, options?: { priority: number }) {
   return (target: any, method: any) => {
-    hookMethods.push({ typeFunc, target, method, hookName, options });
+    hookMethods.push({ typeFunc, target, method, hook, options });
   };
 }
 
-export function BeforeReadFilter(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeReadFilter.name, options);
+export function BeforeReadFilterHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeReadFilter, options);
 }
 
-export function BeforeWriteFilter(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeWriteFilter.name, options);
+export function BeforeWriteFilterHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeWriteFilter, options);
 }
 
-export function BeforeCreate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeCreate.name, options);
+export function BeforeCreateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeCreate, options);
 }
 
-export function AfterCreate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, AfterCreate.name, options);
+export function AfterCreateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterCreate, options);
 }
 
-export function BeforeUpdate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeUpdate.name, options);
+export function BeforeUpdateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeUpdate, options);
 }
 
-export function AfterUpdate(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, AfterUpdate.name, options);
+export function AfterUpdateHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterUpdate, options);
 }
 
-export function BeforeRemove(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeRemove.name, options);
+export function BeforeRemoveHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeRemove, options);
 }
 
-export function AfterRemove(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, AfterRemove.name, options);
+export function AfterRemoveHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterRemove, options);
 }
 
-export function BeforeFindOne(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeFindOne.name, options);
+export function BeforeFindOneHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeFindOne, options);
 }
 
-export function AfterFindOne(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, AfterFindOne.name, options);
+export function AfterFindOneHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterFindOne, options);
 }
 
-export function BeforeFindMany(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, BeforeFindMany.name, options);
+export function BeforeFindManyHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.BeforeFindMany, options);
 }
 
-export function AfterFindMany(typeFunc: () => any, options?: { priority: number }) {
-  return HookMethod(typeFunc, AfterFindMany.name, options);
+export function AfterFindManyHook(typeFunc: () => any, options?: { priority: number }) {
+  return HookMethod(typeFunc, Hook.AfterFindMany, options);
 }
-
-export const Hooks = {
-  BeforeReadFilter: BeforeReadFilter.name,
-  BeforeWriteFilter: BeforeWriteFilter.name,
-  BeforeCreate: BeforeCreate.name,
-  AfterCreate: AfterCreate.name,
-  BeforeUpdate: BeforeUpdate.name,
-  AfterUpdate: AfterUpdate.name,
-  BeforeRemove: BeforeRemove.name,
-  AfterRemove: AfterRemove.name,
-  BeforeFindOne: BeforeFindOne.name,
-  AfterFindOne: AfterFindOne.name,
-  BeforeFindMany: BeforeFindMany.name,
-  AfterFindMany: AfterFindMany.name,
-};
