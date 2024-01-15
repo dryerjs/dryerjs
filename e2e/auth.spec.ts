@@ -7,7 +7,7 @@ import { AdminGuard, UserGuard } from '../src/models/fake-guards';
 
 const server = TestServer.init({
   definitions: [User],
-  providers: [AuthResolver],
+  appProviders: [AuthResolver],
   contextDecorator: Ctx,
   resolverConfigs: [
     {

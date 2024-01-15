@@ -50,14 +50,14 @@ class TestAppModule {
           providers: config.dryerProviders || [],
         }),
       ],
-      providers: config.providers || [],
+      providers: config.appProviders || [],
     };
   }
 }
 
 export type TestServerConfig = DryerModuleOptions & {
   dryerProviders?: Provider[];
-  providers?: Provider[];
+  appProviders?: Provider[];
 };
 
 export class TestServer {
