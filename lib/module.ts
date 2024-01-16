@@ -117,6 +117,7 @@ export class DryerModule {
         ...baseServicesProviders,
         ...providers,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
+        { useValue: pureDefinitions, provide: DRYER_DEFINITIONS },
       ],
     };
   }
