@@ -81,6 +81,7 @@ export class DryerModule {
     const mongooseForFeatureModule = MongooseModule.forFeature(
       pureDefinitions.map((definition) => {
         const schema = SchemaFactory.createForClass(definition);
+        schema.set('id', false);
         schema.plugin(mongoosePaginateV2);
         schema.virtual('id').get(function () {
           return this._id;
