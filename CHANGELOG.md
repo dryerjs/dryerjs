@@ -1,3 +1,18 @@
+# [1.5.0](https://github.com/dryerjs/dryerjs/compare/v1.4.0...v1.5.0) (2024-01-16)
+
+
+### Bug Fixes
+
+* id should be object id ([#310](https://github.com/dryerjs/dryerjs/issues/310)) ([1f05343](https://github.com/dryerjs/dryerjs/commit/1f05343baaae255057857a73756bd19e672119f0))
+
+
+### Features
+
+* accept def as name string ([#309](https://github.com/dryerjs/dryerjs/issues/309)) ([48da71a](https://github.com/dryerjs/dryerjs/commit/48da71ae3dfea002b8b38bf64666ea3168553b58))
+* move all resolver configs into definitions ([#308](https://github.com/dryerjs/dryerjs/issues/308)) ([d7bcf89](https://github.com/dryerjs/dryerjs/commit/d7bcf892d8ec42c49d31f4c29a61a268fc965530))
+* new hooks ([#306](https://github.com/dryerjs/dryerjs/issues/306)) ([80778a0](https://github.com/dryerjs/dryerjs/commit/80778a0a3b688aa1d0ca6a5494826b5ca1427409))
+* remove deprecated features ([#307](https://github.com/dryerjs/dryerjs/issues/307)) ([46c8583](https://github.com/dryerjs/dryerjs/commit/46c8583bd2b87f2d4ddf8fe2f198d78ada14397a))
+
 # [1.4.0](https://github.com/dryerjs/dryerjs/compare/v1.3.1...v1.4.0) (2024-01-07)
 
 
