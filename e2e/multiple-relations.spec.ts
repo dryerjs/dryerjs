@@ -69,8 +69,7 @@ export class User {
 }
 
 const server = TestServer.init({
-  definitions: [Store, User, Order, Product],
-  resolverConfigs: [
+  definitions: [
     { definition: Store, allowedApis: '*' },
     { definition: User, allowedApis: '*' },
     { definition: Order, allowedApis: '*' },

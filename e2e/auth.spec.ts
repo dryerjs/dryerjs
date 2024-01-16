@@ -6,10 +6,9 @@ import { UseGuards } from '@nestjs/common';
 import { AdminGuard, UserGuard } from '../src/models/fake-guards';
 
 const server = TestServer.init({
-  definitions: [User],
   appProviders: [AuthResolver],
   contextDecorator: Ctx,
-  resolverConfigs: [
+  definitions: [
     {
       definition: User,
       allowedApis: '*',

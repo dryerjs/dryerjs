@@ -19,14 +19,13 @@ import {
 import { AllowedApiType, ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
 import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
-import { Definition } from '../definition';
 import { ArrayValidationPipe, applyDecorators } from './shared';
 import { InjectBaseService } from '../base.service';
 import { ContextDecorator } from '../context';
 import { MongoHelper } from '../mongo-helper';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
-import { ResolverConfig } from '../module-options';
+import { DefinitionWithConfig } from '../module-options';
 
 export const isApiAllowed = (
   api: ApiType,
@@ -46,13 +45,13 @@ export const isApiAllowed = (
 };
 
 export function createResolver(
-  definition: Definition,
+  definitionWithConfig: DefinitionWithConfig,
   contextDecorator: ContextDecorator,
-  resolverConfig?: ResolverConfig,
 ): Provider {
+  const definition = definitionWithConfig.definition;
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      const allowedApis = resolverConfig?.allowedApis;
+      const allowedApis = definitionWithConfig?.allowedApis;
       if (isApiAllowed(propertyKey as ApiType, allowedApis ?? 'essentials')) {
         decorator(target, propertyKey, descriptor);
       }
@@ -68,7 +67,7 @@ export function createResolver(
     };
   }
 
-  const resolverDecorators = resolverConfig?.decorators ?? {};
+  const resolverDecorators = definitionWithConfig?.decorators ?? {};
 
   @Resolver()
   class GeneratedResolver<T> {

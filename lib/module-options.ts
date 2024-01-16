@@ -31,27 +31,26 @@ export type EmbeddedResolverDecorator = {
   create?: MethodDecorator | MethodDecorator[];
 };
 
-export type ResolverConfig = {
-  definition: Definition;
-  decorators?: ResolverDecorator;
-  allowedApis?: AllowedApiType | AllowedApiType[];
-};
-
 export type EmbeddedResolverConfig = {
-  definition: Definition;
   decorators?: ResolverDecorator;
   property: string;
   allowedApis?: Array<'findAll' | 'findOne' | 'create' | 'update' | 'remove'>;
 };
 
+export type DefinitionWithConfig = {
+  definition: Definition;
+  decorators?: ResolverDecorator;
+  allowedApis?: AllowedApiType | AllowedApiType[];
+  embeddedConfigs?: EmbeddedResolverConfig[];
+};
+
 export type DryerModuleOptions = {
-  definitions: Definition[];
+  definitions: Array<Definition | DefinitionWithConfig>;
   contextDecorator?: ContextDecorator;
   onSchema?: (schema: Schema, definition: Definition) => void;
-  resolverConfigs?: ResolverConfig[];
-  embeddedResolverConfigs?: EmbeddedResolverConfig[];
   imports?: ModuleMetadata['imports'];
   providers?: ModuleMetadata['providers'];
 };
 
 export const DRYER_MODULE_OPTIONS = Symbol('DryerModuleOptions');
+export const DRYER_DEFINITIONS = Symbol('DryerDefinitions');

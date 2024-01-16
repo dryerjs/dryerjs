@@ -12,7 +12,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DryerModule, DryerModuleOptions } from 'dryerjs';
+import { DRYER_DEFINITIONS, DryerModule, DryerModuleOptions } from 'dryerjs';
 import * as request from 'supertest';
 import * as mongoose from 'mongoose';
 
@@ -81,7 +81,7 @@ export class TestServer {
 
   public async cleanDatabase() {
     await Promise.all(
-      this.config.definitions.map(async (definition) => {
+      this.app.get(DRYER_DEFINITIONS).map(async (definition) => {
         const model = this.app.get(getModelToken(definition.name), {
           strict: false,
         }) as mongoose.Model<any>;

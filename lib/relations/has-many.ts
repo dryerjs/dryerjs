@@ -16,7 +16,7 @@ export type HasManyConfig = {
 };
 
 export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: HasManyConfig['options']) {
-  return (target: object, propertyKey: string | symbol) => {
+  return (target: any, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
     if (options.allowCreateWithin) {
       Thunk(

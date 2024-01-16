@@ -4,13 +4,16 @@ import { UseGuards } from '@nestjs/common';
 import { UserGuard } from '../src/models/fake-guards';
 
 const server = TestServer.init({
-  definitions: [Author],
-  embeddedResolverConfigs: [
+  definitions: [
     {
       definition: Author,
-      property: 'books',
-      allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
-      decorators: { remove: UseGuards(UserGuard) },
+      embeddedConfigs: [
+        {
+          property: 'books',
+          allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
+          decorators: { remove: UseGuards(UserGuard) },
+        },
+      ],
     },
   ],
 });

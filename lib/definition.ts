@@ -37,14 +37,14 @@ export type DefinitionOptions = {
   timestamps?: boolean;
 };
 
-export type Definition = any;
+export type Definition = new (...args: any[]) => any;
 
 export function Definition(options: DefinitionOptions = {}): ClassDecorator {
-  return (target: object) => {
+  return (target: any) => {
     Metadata.for(target).set(MetaKey.Definition, options);
-    CreateInputType(target as any);
-    UpdateInputType(target as any);
-    OutputType(target as any);
+    CreateInputType(target);
+    UpdateInputType(target);
+    OutputType(target);
     BulkCreateOutputType(target);
     BulkUpdateOutputType(target);
     BulkRemoveOutputType(target);

@@ -14,7 +14,7 @@ export type HasOneConfig = {
   };
 };
 export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasOneConfig['options']) {
-  return (target: object, propertyKey: string | symbol) => {
+  return (target: any, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
     if (options.allowCreateWithin) {
       Thunk(

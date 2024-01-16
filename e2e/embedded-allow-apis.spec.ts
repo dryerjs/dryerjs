@@ -31,9 +31,13 @@ export class Novelist {
 }
 
 const server = TestServer.init({
-  definitions: [Novelist],
-  resolverConfigs: [{ definition: Novelist, allowedApis: '*' }],
-  embeddedResolverConfigs: [{ definition: Novelist, allowedApis: ['create'], property: 'novels' }],
+  definitions: [
+    {
+      definition: Novelist,
+      allowedApis: '*',
+      embeddedConfigs: [{ allowedApis: ['create'], property: 'novels' }],
+    },
+  ],
 });
 
 describe('Embedded works', () => {

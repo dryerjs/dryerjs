@@ -17,7 +17,13 @@ import { inspect } from './inspect';
 import { createBaseService, getBaseServiceToken } from './base.service';
 import { DefaultHook } from './default.hook';
 import { MetaKey, Metadata } from './metadata';
-import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
+import {
+  DryerModuleOptions,
+  DRYER_MODULE_OPTIONS,
+  DefinitionWithConfig,
+  DRYER_DEFINITIONS,
+} from './module-options';
+import { Definition } from './definition';
 
 @Module({})
 export class DryerModule {
@@ -26,15 +32,21 @@ export class DryerModule {
   public static register(input: DryerModuleOptions): DynamicModule {
     const contextDecorator = util.defaultTo(input.contextDecorator, defaultContextDecorator);
     const providers: Provider[] = [];
-    input.definitions.forEach((definition) => {
-      const resolverConfig = input.resolverConfigs?.find((config) => config.definition === definition);
-      providers.push(createResolver(definition, contextDecorator, resolverConfig));
-    });
-    input.definitions.forEach((definition) => {
+    input.definitions.forEach((definitionOrDefinitionConfig) => {
+      const definitionWithConfig: DefinitionWithConfig = util.isFunction(definitionOrDefinitionConfig)
+        ? {
+            definition: definitionOrDefinitionConfig as Definition,
+          }
+        : (definitionOrDefinitionConfig as DefinitionWithConfig);
+
+      const definition = definitionWithConfig.definition;
+
+      providers.push(createResolver(definitionWithConfig, contextDecorator));
+
       for (const property of inspect(definition).embeddedProperties) {
         if (Reflect.getMetadata('design:type', definition.prototype, property.name) === Array) {
-          const embeddedResolverDecorators = input.embeddedResolverConfigs?.find(
-            (config) => config.definition === definition && config.property === property.name,
+          const embeddedResolverDecorators = definitionWithConfig.embeddedConfigs?.find(
+            (config) => config.property === property.name,
           );
           providers.push(
             createResolverForEmbedded(
@@ -59,8 +71,15 @@ export class DryerModule {
         providers.push(createResolverForHasOne(definition, property.name, contextDecorator));
       }
     });
+
+    const pureDefinitions = input.definitions.map((definitionOrDefinitionConfig) =>
+      util.isFunction(definitionOrDefinitionConfig)
+        ? definitionOrDefinitionConfig
+        : (definitionOrDefinitionConfig as DefinitionWithConfig).definition,
+    ) as Definition[];
+
     const mongooseForFeatureModule = MongooseModule.forFeature(
-      input.definitions.map((definition) => {
+      pureDefinitions.map((definition) => {
         const schema = SchemaFactory.createForClass(definition);
         schema.plugin(mongoosePaginateV2);
         schema.virtual('id').get(function () {
@@ -77,7 +96,7 @@ export class DryerModule {
     );
 
     const mongooseModuleExports = mongooseForFeatureModule.exports as any;
-    const baseServicesProviders = input.definitions.map((definition) => ({
+    const baseServicesProviders = pureDefinitions.map((definition) => ({
       provide: getBaseServiceToken(definition),
       useClass: createBaseService(definition),
     }));
@@ -90,6 +109,7 @@ export class DryerModule {
         ...mongooseModuleExports,
         ...baseServicesProviders,
         { useValue: input, provide: DRYER_MODULE_OPTIONS },
+        { useValue: pureDefinitions, provide: DRYER_DEFINITIONS },
         ...util.defaultTo(input.providers, []),
       ],
       exports: [
