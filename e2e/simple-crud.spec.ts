@@ -104,11 +104,10 @@ class FakeHook {}
 class GeneralHook {}
 
 const server = TestServer.init({
-  definitions: [Tag, Color],
   dryerProviders: [TagHook, FakeHook, GeneralHook],
   contextDecorator: createParamDecorator(() => 'fakeContext'),
   onSchema,
-  resolverConfigs: [
+  definitions: [
     { definition: Tag, allowedApis: '*' },
     { definition: Color, allowedApis: '*' },
   ],

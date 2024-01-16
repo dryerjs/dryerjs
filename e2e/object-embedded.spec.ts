@@ -2,8 +2,7 @@ import { TestServer } from './test-server';
 import { Computer, Rating, Shop, Promotion, Specification } from '../src/models/computer';
 
 export const dryer = TestServer.init({
-  definitions: [Computer, Specification, Rating, Shop, Promotion],
-  resolverConfigs: [
+  definitions: [
     { definition: Computer, allowedApis: '*' },
     { definition: Specification, allowedApis: '*' },
     { definition: Rating, allowedApis: '*' },

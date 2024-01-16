@@ -27,7 +27,6 @@ class FailHandler implements FailCleanUpAfterRemoveHandler {
 }
 
 const server = TestServer.init({
-  definitions: [Store, Product, Tag, Variant, Image, Color, Comment],
   dryerProviders: [VariantHook],
   appProviders: [
     {
@@ -35,7 +34,7 @@ const server = TestServer.init({
       useClass: FailHandler,
     },
   ],
-  resolverConfigs: [
+  definitions: [
     { definition: Store, allowedApis: '*' },
     { definition: Product, allowedApis: '*' },
     { definition: Tag, allowedApis: '*' },

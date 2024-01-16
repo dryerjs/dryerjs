@@ -4,7 +4,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { Definition, DryerModule } from 'dryerjs';
+import { DryerModule } from 'dryerjs';
 import { AuthResolver } from './resolvers';
 import {
   Product,
@@ -12,41 +12,21 @@ import {
   User,
   Author,
   Image,
-  Customer,
   Variant,
   Computer,
   Color,
   Comment,
   Store,
+  Customer,
   Specification,
-  Rating,
   Shop,
   Promotion,
+  Rating,
   Order,
   Item,
 } from './models';
 import { Ctx } from './ctx';
 import { AdminGuard, UserGuard } from './models/fake-guards';
-
-const definitions: Definition[] = [
-  Store,
-  Product,
-  Tag,
-  User,
-  Author,
-  Image,
-  Variant,
-  Customer,
-  Computer,
-  Color,
-  Comment,
-  Specification,
-  Rating,
-  Shop,
-  Promotion,
-  Order,
-  Item,
-];
 
 @Module({
   imports: [
@@ -60,9 +40,7 @@ const definitions: Definition[] = [
     }),
     MongooseModule.forRoot(process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/dryer-debug'),
     DryerModule.register({
-      definitions,
-      contextDecorator: Ctx,
-      resolverConfigs: [
+      definitions: [
         {
           definition: User,
           allowedApis: '*',
@@ -105,6 +83,16 @@ const definitions: Definition[] = [
         {
           definition: Author,
           allowedApis: '*',
+          embeddedConfigs: [
+            {
+              allowedApis: [],
+              property: 'events',
+            },
+            {
+              allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
+              property: 'books',
+            },
+          ],
         },
         {
           definition: Rating,
@@ -122,20 +110,12 @@ const definitions: Definition[] = [
           definition: Computer,
           allowedApis: '*',
         },
+        Customer,
+        Specification,
+        Shop,
+        Promotion,
       ],
-      embeddedResolverConfigs: [
-        {
-          definition: Author,
-          allowedApis: [],
-          property: 'events',
-        },
-
-        {
-          definition: Author,
-          allowedApis: ['create', 'update', 'remove', 'findOne', 'findAll'],
-          property: 'books',
-        },
-      ],
+      contextDecorator: Ctx,
     }),
   ],
   providers: [AuthResolver],

@@ -5,9 +5,8 @@ import { Author, Color, Image, Product, Tag, User, Variant, Comment, Store } fro
 import { AuthResolver } from '../src/resolvers';
 
 const server = TestServer.init({
-  definitions: [User, Store, Product, Tag, Author, Variant, Image, Color, Comment],
   providers: [AuthResolver],
-  resolverConfigs: [
+  definitions: [
     { definition: User, allowedApis: '*' },
     { definition: Store, allowedApis: '*' },
     { definition: Product, allowedApis: '*' },

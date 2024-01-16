@@ -21,7 +21,7 @@ import {
   BeforeRemoveHookInput,
 } from './hook';
 import { HydratedProperty, inspect } from './inspect';
-import { DryerModuleOptions, DRYER_MODULE_OPTIONS } from './module-options';
+import { DRYER_DEFINITIONS } from './module-options';
 import { Definition, DefinitionOptions, HookMethod } from './definition';
 import * as util from './util';
 import { ObjectId } from './object-id';
@@ -43,7 +43,7 @@ export class DefaultHook {
   private isHookMethodSkip: (definition: Definition, method: HookMethod) => boolean;
 
   constructor(
-    @Inject(DRYER_MODULE_OPTIONS) private moduleOptions: DryerModuleOptions,
+    @Inject(DRYER_DEFINITIONS) private definitions: Definition[],
     private readonly moduleRef: ModuleRef,
   ) {
     this.getCachedReferencingProperties = util.memoize(this.getUncachedReferencingProperties.bind(this));
@@ -279,7 +279,7 @@ export class DefaultHook {
 
   private getUncachedReferencingProperties(definition: Definition) {
     const result: HydratedProperty[] = [];
-    for (const possibleDefinition of this.moduleOptions.definitions) {
+    for (const possibleDefinition of this.definitions) {
       for (const property of inspect(possibleDefinition).referencesManyProperties) {
         if (property.getReferencesMany().typeFunction() === definition) {
           result.push(property);

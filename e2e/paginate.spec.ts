@@ -2,8 +2,7 @@ import { Customer } from '../src/models';
 import { TestServer } from './test-server';
 
 const server = TestServer.init({
-  definitions: [Customer],
-  resolverConfigs: [{ definition: Customer, allowedApis: '*' }],
+  definitions: [{ definition: Customer, allowedApis: '*' }],
 });
 
 describe('Paginate works', () => {

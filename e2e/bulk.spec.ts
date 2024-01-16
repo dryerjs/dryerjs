@@ -51,7 +51,6 @@ class BulkErrorHandlerImpl<Context> implements BulkErrorHandler<Context> {
 }
 
 const server = TestServer.init({
-  definitions: [Tag, Color],
   dryerProviders: [TagHook],
   appProviders: [
     {
@@ -59,7 +58,7 @@ const server = TestServer.init({
       useClass: BulkErrorHandlerImpl,
     },
   ],
-  resolverConfigs: [
+  definitions: [
     { definition: Tag, allowedApis: '*' },
     { definition: Color, allowedApis: '*' },
   ],
