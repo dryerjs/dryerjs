@@ -20,6 +20,7 @@ export type EmbeddedConfig = {
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     const subSchema = SchemaFactory.createForClass(typeFunction());
+    subSchema.set('id', false);
     subSchema.virtual('id').get(function () {
       return this._id;
     });
