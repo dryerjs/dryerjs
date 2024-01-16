@@ -223,10 +223,10 @@ export function createBaseService(definition: Definition): typeof BaseService {
   return GeneratedBaseService as any;
 }
 
-export function InjectBaseService(definition: Definition) {
+export function InjectBaseService(definition: Definition | { name: string }) {
   return Inject(getBaseServiceToken(definition));
 }
 
-export function getBaseServiceToken(definition: Definition) {
+export function getBaseServiceToken(definition: Definition | { name: string }) {
   return `Base${definition.name}Service`;
 }
