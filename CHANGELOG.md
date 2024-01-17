@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/dryerjs/dryerjs/compare/v1.5.1...v1.5.2) (2024-01-17)
+
+
+### Bug Fixes
+
+* incorrect hook order ([#312](https://github.com/dryerjs/dryerjs/issues/312)) ([1eda7e6](https://github.com/dryerjs/dryerjs/commit/1eda7e66c8c3a5e764433ecd30399f29bb301d6c))
+
 ## [1.5.1](https://github.com/dryerjs/dryerjs/compare/v1.5.0...v1.5.1) (2024-01-17)
 
 
