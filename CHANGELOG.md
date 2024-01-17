@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/dryerjs/dryerjs/compare/v1.5.0...v1.5.1) (2024-01-17)
+
+
+### Bug Fixes
+
+* id should be ObjectId for embedded ([#311](https://github.com/dryerjs/dryerjs/issues/311)) ([86ce7d9](https://github.com/dryerjs/dryerjs/commit/86ce7d9b05ddc060874dee84abe0f67d04fcaf0f))
+
 # [1.5.0](https://github.com/dryerjs/dryerjs/compare/v1.4.0...v1.5.0) (2024-01-16)
 
 
