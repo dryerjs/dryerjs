@@ -47,6 +47,10 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       Type(() => CreateInputType(typeFunction())),
       { scopes: 'create' },
     )(target, propertyKey);
+    Thunk(
+      Type(() => OutputType(typeFunction())),
+      { scopes: 'output' },
+    )(target, propertyKey);
 
     const mergeOption = (option: any, override: any) => {
       if (override === Skip) return Skip;
