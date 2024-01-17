@@ -73,7 +73,29 @@ export abstract class BaseService<T = any, Context = any> {
     return result as any;
   }
 
+  private assignUnderscoreIdRecursively(input: any, definition: Definition) {
+    for (const property of inspect(definition).embeddedProperties) {
+      if (util.isNil(input[property.name])) continue;
+      if (util.isArray(input[property.name])) {
+        for (const subObject of input[property.name]) {
+          if (util.isNotNil(subObject.id) && util.isNil(subObject._id)) {
+            subObject._id = subObject.id;
+          }
+          this.assignUnderscoreIdRecursively(subObject, property.getEmbedded().typeFunction());
+        }
+      }
+      if (util.isNotNullObject(input[property.name])) {
+        if (util.isNotNil(input[property.name].id) && util.isNil(input[property.name]._id)) {
+          input[property.name]._id = input[property.name].id;
+        }
+
+        this.assignUnderscoreIdRecursively(input[property.name], property.definition);
+      }
+    }
+  }
+
   public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
+    this.assignUnderscoreIdRecursively(input, this.definition);
     const filter = { _id: input.id };
     for (const hook of this.getHooks(Hook.BeforeWriteFilter)) {
       await hook({ ctx, filter, definition: this.definition });
