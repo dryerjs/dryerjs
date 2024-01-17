@@ -1,5 +1,11 @@
 import * as util from './util';
-import { BelongsToConfig, HasManyConfig, HasOneConfig, ReferencesManyConfig } from './relations';
+import {
+  BelongsToConfig,
+  EmbeddedConfig,
+  HasManyConfig,
+  HasOneConfig,
+  ReferencesManyConfig,
+} from './relations';
 import { MetaKey, Metadata } from './metadata';
 import { Definition } from './definition';
 
@@ -75,6 +81,17 @@ export class HydratedProperty {
     /* istanbul ignore if */
     if (util.isNil(result)) {
       throw new Error(`Property ${this.name} is not an has one property`);
+    }
+
+    return result;
+  }
+
+  public getEmbedded() {
+    const result = this.get<EmbeddedConfig>(MetaKey.EmbeddedType);
+
+    /* istanbul ignore if */
+    if (util.isNil(result)) {
+      throw new Error(`Property ${this.name} is not an embedded property`);
     }
 
     return result;

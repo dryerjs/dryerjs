@@ -20,6 +20,7 @@ export type EmbeddedConfig = {
 export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?: EmbeddedConfig['options']) {
   return (target: object, propertyKey: string | symbol) => {
     const subSchema = SchemaFactory.createForClass(typeFunction());
+    subSchema.set('id', false);
     subSchema.virtual('id').get(function () {
       return this._id;
     });
@@ -45,6 +46,10 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
     Thunk(
       Type(() => CreateInputType(typeFunction())),
       { scopes: 'create' },
+    )(target, propertyKey);
+    Thunk(
+      Type(() => OutputType(typeFunction())),
+      { scopes: 'output' },
     )(target, propertyKey);
 
     const mergeOption = (option: any, override: any) => {

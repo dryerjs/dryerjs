@@ -181,12 +181,18 @@ export function createResolverForEmbedded(
           );
         }
       }
-      parent[field] = parent[field].map((item) => {
+
+      const parentFieldAfter = parent[field].map((item) => {
         const input = inputs.find((input) => input.id.toString() === item._id.toString());
         if (!input) return item;
-        return Object.assign(Object.assign({}, item), input);
+
+        return {
+          ...item.toObject(),
+          ...input,
+        };
       });
-      const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parent[field] });
+
+      const updatedParent = await this.baseService.update(ctx, { id: parentId, [field]: parentFieldAfter });
       return updatedParent[field]
         .filter((item: any) => inputs.some((input) => input.id.toString() === item.id.toString()))
         .map((item: any) => plainToInstance(OutputType(embeddedDefinition), item.toObject()));
