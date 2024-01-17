@@ -2,6 +2,8 @@ import { TestServer } from './test-server';
 import { Author } from '../src/models';
 import { UseGuards } from '@nestjs/common';
 import { UserGuard } from '../src/models/fake-guards';
+import { BaseService, getBaseServiceToken } from '../lib/base.service';
+import { ObjectId } from '../lib/object-id';
 
 const server = TestServer.init({
   definitions: [
@@ -69,6 +71,13 @@ describe('Embedded works', () => {
     });
 
     author = response.createAuthor;
+  });
+
+  it('id should be object ids', async () => {
+    const authorService = server.app.get<BaseService>(getBaseServiceToken(Author), { strict: false });
+    const fetchedAuthor = await authorService.findOne('fakeContext', { _id: author.id });
+    expect(fetchedAuthor.books[0].id instanceof ObjectId).toBeTruthy();
+    expect(fetchedAuthor.books[0].reviews[0].id instanceof ObjectId).toBeTruthy();
   });
 
   it('Get one book within author', async () => {
