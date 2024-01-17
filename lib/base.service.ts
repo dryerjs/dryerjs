@@ -233,7 +233,7 @@ export function createBaseService(definition: Definition): typeof BaseService {
           if (hookMethod.hook !== hook) return false;
           return hookMethod.typeFunc() === AllDefinitions || hookMethod.typeFunc() === definition;
         })
-        .sort((hook1, hook2) => (hook2?.options?.priority || 100) - (hook1?.options?.priority || 100))
+        .sort((hook1, hook2) => (hook1?.options?.priority || 100) - (hook2?.options?.priority || 100))
         .map(({ target, method: methodName }) => {
           const service = this.moduleRef.get(target.constructor, { strict: false });
           return service[methodName].bind(service);
