@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/dryerjs/dryerjs/compare/v1.5.2...v1.5.3) (2024-02-03)
+
+
+### Bug Fixes
+
+* update input id should be required ([#314](https://github.com/dryerjs/dryerjs/issues/314)) ([f0f99a9](https://github.com/dryerjs/dryerjs/commit/f0f99a954c5d3e601a1c1cf9fd1fd78bdbc5613e))
+
 ## [1.5.2](https://github.com/dryerjs/dryerjs/compare/v1.5.1...v1.5.2) (2024-01-17)
 
 
