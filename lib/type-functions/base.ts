@@ -1,11 +1,11 @@
-import { ObjectType, InputType } from '@nestjs/graphql';
+import { ObjectType, InputType, Field } from '@nestjs/graphql';
 import { Transform } from 'class-transformer';
 
 import * as util from '../util';
 import { MetaKey } from '../metadata';
 import { inspect } from '../inspect';
 import { Definition } from '../definition';
-import { ObjectId } from '../shared';
+import { GraphQLObjectId, ObjectId } from '../shared';
 import { ThunkOptions, ThunkScope } from '../thunk';
 
 type Constructor<T extends object, Arguments extends unknown[] = any[]> = new (...arguments_: Arguments) => T;
@@ -38,6 +38,7 @@ export function getBaseType(input: {
   name: string;
   scope: 'create' | 'update' | 'output';
   skipFields?: string[];
+  isEmbeddedUpdateInput?: boolean;
 }) {
   const decoratorFn = input.scope === 'output' ? ObjectType : InputType;
   @decoratorFn(input.name)
@@ -54,6 +55,17 @@ export function getBaseType(input: {
     Reflect.defineMetadata('design:type', designType, Placeholder.prototype, property.name);
     for (const { fn, options } of inspect(input.definition).for(property.name).get(MetaKey.Thunk)) {
       if (hasScope(options, input.scope)) {
+        const shouldMakeIdNullable =
+          property.name === 'id' &&
+          input.isEmbeddedUpdateInput &&
+          input.scope === 'update' &&
+          options.fn === Field &&
+          designType === ObjectId;
+
+        if (shouldMakeIdNullable) {
+          Field(() => GraphQLObjectId, { nullable: true })(Placeholder.prototype, property.name);
+          continue;
+        }
         fn(Placeholder.prototype, property.name);
       }
     }
