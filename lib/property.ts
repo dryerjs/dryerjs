@@ -28,9 +28,9 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
         ...util.defaultTo(input.create, {}),
       };
       if (createOptions.type) {
-        Thunk(Field(createOptions.type, createOptions), { scopes: 'create' })(target, propertyKey);
+        Thunk(Field(createOptions.type, createOptions), { scopes: 'create', fn: Field })(target, propertyKey);
       } else {
-        Thunk(Field(createOptions), { scopes: 'create' })(target, propertyKey);
+        Thunk(Field(createOptions), { scopes: 'create', fn: Field })(target, propertyKey);
       }
     }
 
@@ -41,9 +41,9 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
         ...util.defaultTo(input.update, {}),
       };
       if (updateOptions.type) {
-        Thunk(Field(updateOptions.type, updateOptions), { scopes: 'update' })(target, propertyKey);
+        Thunk(Field(updateOptions.type, updateOptions), { scopes: 'update', fn: Field })(target, propertyKey);
       } else {
-        Thunk(Field(updateOptions), { scopes: 'update' })(target, propertyKey);
+        Thunk(Field(updateOptions), { scopes: 'update', fn: Field })(target, propertyKey);
       }
     }
 
@@ -53,9 +53,9 @@ export function Property(input: DryerPropertyInput = {}): PropertyDecorator & Me
         ...util.defaultTo(input.output, {}),
       };
       if (outputOptions.type) {
-        Thunk(Field(outputOptions.type, outputOptions), { scopes: 'output' })(target, propertyKey);
+        Thunk(Field(outputOptions.type, outputOptions), { scopes: 'output', fn: Field })(target, propertyKey);
       } else {
-        Thunk(Field(outputOptions), { scopes: 'output' })(target, propertyKey);
+        Thunk(Field(outputOptions), { scopes: 'output', fn: Field })(target, propertyKey);
       }
     }
 

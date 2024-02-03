@@ -5,6 +5,7 @@ export type ThunkScope = 'all' | 'create' | 'update' | 'input' | 'output';
 
 export type ThunkOptions = {
   scopes: Array<ThunkScope> | ThunkScope;
+  fn?: Function;
 };
 
 export function Thunk(
