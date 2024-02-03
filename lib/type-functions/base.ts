@@ -55,14 +55,14 @@ export function getBaseType(input: {
     Reflect.defineMetadata('design:type', designType, Placeholder.prototype, property.name);
     for (const { fn, options } of inspect(input.definition).for(property.name).get(MetaKey.Thunk)) {
       if (hasScope(options, input.scope)) {
-        const shouldOverrideNullable =
+        const shouldMakeIdNullable =
           property.name === 'id' &&
           input.isEmbeddedUpdateInput &&
           input.scope === 'update' &&
           options.fn === Field &&
           designType === ObjectId;
 
-        if (shouldOverrideNullable) {
+        if (shouldMakeIdNullable) {
           Field(() => GraphQLObjectId, { nullable: true })(Placeholder.prototype, property.name);
           continue;
         }
