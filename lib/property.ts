@@ -73,7 +73,12 @@ export function Id() {
       throw new Error(`Property ${String(propertyKey)} should have type ObjectId`);
     }
 
-    Property({ type: () => GraphQLObjectId, create: Skip, db: Skip })(target, propertyKey);
+    Property({
+      type: () => GraphQLObjectId,
+      create: Skip,
+      db: Skip,
+      update: { type: () => GraphQLObjectId, nullable: false },
+    })(target, propertyKey);
   };
 }
 
