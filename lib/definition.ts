@@ -10,6 +10,7 @@ import {
   BulkUpdateOutputType,
   FilterType,
   SortType,
+  UpdateEmbeddedInputType,
 } from './type-functions';
 import { MetaKey, Metadata } from './metadata';
 
@@ -44,6 +45,7 @@ export function Definition(options: DefinitionOptions = {}): ClassDecorator {
     Metadata.for(target).set(MetaKey.Definition, options);
     CreateInputType(target);
     UpdateInputType(target);
+    UpdateEmbeddedInputType(target);
     OutputType(target);
     BulkCreateOutputType(target);
     BulkUpdateOutputType(target);

@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 import { ValidateNested, ValidateIf } from 'class-validator';
 
 import * as util from '../util';
-import { CreateInputType, OutputType, UpdateInputType } from '../type-functions';
+import { CreateInputType, OutputType, UpdateEmbeddedInputType } from '../type-functions';
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
 import { DryerPropertyInput, Property, Skip } from '../property';
@@ -40,7 +40,7 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
         options: util.defaultTo(options, {}),
       });
     Thunk(
-      Type(() => UpdateInputType(typeFunction())),
+      Type(() => UpdateEmbeddedInputType(typeFunction())),
       { scopes: 'update' },
     )(target, propertyKey);
     Thunk(
@@ -70,7 +70,8 @@ export function Embedded(typeFunction: EmbeddedConfig['typeFunction'], options?:
       ),
       update: mergeOption(
         {
-          type: () => (isArray ? [UpdateInputType(typeFunction())] : UpdateInputType(typeFunction())),
+          type: () =>
+            isArray ? [UpdateEmbeddedInputType(typeFunction())] : UpdateEmbeddedInputType(typeFunction()),
           nullable: true,
         },
         options?.overridePropertyOptions?.update,
