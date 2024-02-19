@@ -260,7 +260,7 @@ export function createResolver(
     @applyDecorators(
       util.defaultToChain(resolverDecorators.findOne, resolverDecorators.read, resolverDecorators.default),
     )
-    @IfApiAllowed(Query(() => OutputType(definition), { name: definition.name.toLowerCase() }))
+    @IfApiAllowed(Query(() => OutputType(definition), { name: util.toCamelCase(definition.name) }))
     async findOne(
       @Args('id', { type: () => GraphQLObjectId }) id: ObjectIdLike,
       @contextDecorator() ctx: any,
