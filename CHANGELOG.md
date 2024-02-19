@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/dryerjs/dryerjs/compare/v1.5.3...v1.5.4) (2024-02-19)
+
+
+### Bug Fixes
+
+* findOne query name ([#315](https://github.com/dryerjs/dryerjs/issues/315)) ([851731f](https://github.com/dryerjs/dryerjs/commit/851731f60e4c993600f9fd62f8ee1f3c1d79223a))
+
 ## [1.5.3](https://github.com/dryerjs/dryerjs/compare/v1.5.2...v1.5.3) (2024-02-03)
 
 
