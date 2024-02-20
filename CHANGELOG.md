@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/dryerjs/dryerjs/compare/v1.5.4...v1.5.5) (2024-02-20)
+
+
+### Bug Fixes
+
+* issue with has own property ([#316](https://github.com/dryerjs/dryerjs/issues/316)) ([414b0b9](https://github.com/dryerjs/dryerjs/commit/414b0b9f65d93cc86acbb660109b938766765bce))
+
 ## [1.5.4](https://github.com/dryerjs/dryerjs/compare/v1.5.3...v1.5.4) (2024-02-19)
 
 
