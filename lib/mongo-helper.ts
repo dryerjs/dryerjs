@@ -64,7 +64,7 @@ export class MongoHelper {
   public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
     const normalizedSort = util.defaultTo(sort, {});
 
-    if (normalizedSort.hasOwnProperty('id')) {
+    if (!util.isNil(normalizedSort['id'])) {
       normalizedSort['_id'] = normalizedSort['id'];
       delete normalizedSort['id'];
     }
