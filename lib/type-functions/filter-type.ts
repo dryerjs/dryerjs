@@ -7,7 +7,7 @@ import { HydratedProperty, inspect } from '../inspect';
 import { Definition, DefinitionOptions } from '../definition';
 
 function getFilterForOneField(definition: Definition, property: HydratedProperty) {
-  @InputType(`${definition.name}${util.toPascalCase(property.name)}Filter`)
+  @InputType(`${definition.name}${util.toPascalCase(property.name)}FilterField`)
   class FilterForOneField {}
 
   const { typeFn, input } = inspect(definition).for(property.name).get(MetaKey.Filterable);
