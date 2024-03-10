@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/dryerjs/dryerjs/compare/v1.5.5...v1.5.6) (2024-03-10)
+
+
+### Bug Fixes
+
+* prevent duplicatee input filter type name ([#317](https://github.com/dryerjs/dryerjs/issues/317)) ([87ad2be](https://github.com/dryerjs/dryerjs/commit/87ad2befbe966afbd8261620b34b30f1d055e573))
+
 ## [1.5.5](https://github.com/dryerjs/dryerjs/compare/v1.5.4...v1.5.5) (2024-02-20)
 
 
