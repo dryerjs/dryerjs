@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/dryerjs/dryerjs/compare/v1.5.6...v1.6.0) (2024-03-18)
+
+
+### Features
+
+* add QueryContext ([#318](https://github.com/dryerjs/dryerjs/issues/318)) ([5df7262](https://github.com/dryerjs/dryerjs/commit/5df7262856c55b2018cf93ae4b16c1fd9234bc38))
+
 ## [1.5.6](https://github.com/dryerjs/dryerjs/compare/v1.5.5...v1.5.6) (2024-03-10)
 
 
