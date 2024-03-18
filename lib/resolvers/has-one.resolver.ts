@@ -8,7 +8,7 @@ import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
-import { StringLikeId } from '../shared';
+import { QueryContext, QueryContextSource, QueryContextSymbol, StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForHasOne(
@@ -36,11 +36,19 @@ export function createResolverForHasOne(
   class GeneratedResolverForHasOne<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
-    private getLoader(ctx: any, rawCtx: any) {
+    private getLoader(ctx: any, rawCtx: any, parent: any) {
       if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
         const field = relation.options.to;
-        const items = await this.baseService.findAll(ctx, { [field]: { $in: keys } }, {});
+        const filter = {
+          [field]: { $in: keys },
+          [QueryContextSymbol]: {
+            parent,
+            parentDefinition: definition,
+            source: QueryContextSource.HasOne,
+          } as QueryContext,
+        };
+        const items = await this.baseService.findAll(ctx, filter, {});
         const transformedItems = items.map((item) =>
           plainToInstance(OutputType(relationDefinition), item.toObject()),
         );
@@ -58,7 +66,7 @@ export function createResolverForHasOne(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T> {
-      return await this.getLoader(ctx, rawCtx).load(parent._id);
+      return await this.getLoader(ctx, rawCtx, parent).load(parent._id);
     }
   }
 

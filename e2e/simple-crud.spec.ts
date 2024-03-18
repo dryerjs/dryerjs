@@ -18,6 +18,7 @@ import { Injectable, createParamDecorator } from '@nestjs/common';
 import { ObjectId } from '../lib/object-id';
 import { RemoveMode } from '../lib/remove-options';
 import { getBaseServiceToken } from '../lib/base.service';
+import { QueryContextSymbol } from '../lib/shared';
 
 const beforeCreate = jest.fn();
 const afterCreate = jest.fn();
@@ -181,18 +182,18 @@ describe('Simple CRUD works', () => {
     allTags = response.allTags;
     expect(beforeReadFilter).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: {},
+      filter: { [QueryContextSymbol]: expect.any(Object) },
       definition: Tag,
     });
     expect(beforeFindMany).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: {},
+      filter: { [QueryContextSymbol]: expect.any(Object) },
       sort: {},
       definition: Tag,
     });
     expect(afterFindMany).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: {},
+      filter: { [QueryContextSymbol]: expect.any(Object) },
       sort: {},
       items: [
         expect.objectContaining({ name: '70s' }),
@@ -234,7 +235,7 @@ describe('Simple CRUD works', () => {
     });
     expect(beforeReadFilter).toBeCalledWith({
       ctx: 'fakeContext',
-      filter: {},
+      filter: { [QueryContextSymbol]: expect.any(Object) },
       definition: Tag,
     });
   });

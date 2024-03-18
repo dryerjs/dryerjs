@@ -1,4 +1,5 @@
 export * from './object-id';
+import { Definition } from './definition';
 import { ObjectId } from './object-id';
 
 export type StringLikeId = ObjectId | string | number;
@@ -50,3 +51,28 @@ export const allOperators: FilterOperator[] = [
   'all',
   'exists',
 ];
+
+export enum QueryContextSource {
+  BelongsTo = 'BelongsTo',
+  HasMany = 'HasMany',
+  HasOne = 'HasOne',
+  ReferencesMany = 'ReferencesMany',
+  RootFindAll = 'RootFindAll',
+  RootPaginate = 'RootPaginate',
+}
+
+export type QueryContext = {
+  source: QueryContextSource | string;
+  parent?: any;
+  parentDefinition: Definition;
+};
+
+export const QueryContextSymbol = Symbol('QueryContext');
+
+export const getQueryContextFromFilter = (filter: any): QueryContext | undefined => {
+  return filter[QueryContextSymbol];
+};
+
+export const setQueryContextForFilter = (filter: any, queryContext): void => {
+  filter[QueryContextSymbol] = queryContext;
+};

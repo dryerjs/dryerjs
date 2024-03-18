@@ -7,7 +7,7 @@ import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { BelongsToConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
-import { StringLikeId } from '../shared';
+import { QueryContext, QueryContextSource, QueryContextSymbol, StringLikeId } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 import { plainToInstance } from 'class-transformer';
 
@@ -33,10 +33,18 @@ export function createResolverForBelongsTo(
   class GeneratedResolverForBelongsTo<T> {
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
-    private getLoader(ctx: any, rawCtx: any) {
+    private getLoader(ctx: any, rawCtx: any, parent: any) {
       if (rawCtx.req[loaderKey]) return rawCtx.req[loaderKey];
       const loader = new DataLoader<StringLikeId, any>(async (keys) => {
-        const items = await this.baseService.findAll(ctx, { _id: { $in: keys } }, {});
+        const filter = {
+          _id: { $in: keys },
+          [QueryContextSymbol]: {
+            parent,
+            parentDefinition: definition,
+            source: QueryContextSource.BelongsTo,
+          } as QueryContext,
+        };
+        const items = await this.baseService.findAll(ctx, filter, {});
         const transformedItems = items.map((item) =>
           plainToInstance(OutputType(relationDefinition), item.toObject()),
         );
@@ -54,7 +62,7 @@ export function createResolverForBelongsTo(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T> {
-      return await this.getLoader(ctx, rawCtx).load(parent[relation.options.from]);
+      return await this.getLoader(ctx, rawCtx, parent).load(parent[relation.options.from]);
     }
   }
 
