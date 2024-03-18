@@ -16,7 +16,16 @@ import {
   SortType,
   UpdateInputType,
 } from '../type-functions';
-import { AllowedApiType, ApiType, GraphQLObjectId, ObjectId, ObjectIdLike } from '../shared';
+import {
+  AllowedApiType,
+  ApiType,
+  GraphQLObjectId,
+  ObjectId,
+  ObjectIdLike,
+  QueryContext,
+  QueryContextSource,
+  QueryContextSymbol,
+} from '../shared';
 import { BaseService } from '../base.service';
 import { SuccessResponse } from '../types';
 import { ArrayValidationPipe, applyDecorators } from './shared';
@@ -293,7 +302,10 @@ export function createResolver(
     ): Promise<T[]> {
       const items = await this.baseService.findAll(
         ctx,
-        MongoHelper.toQuery(util.defaultTo(filter, {})),
+        {
+          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          [QueryContextSymbol]: { source: QueryContextSource.RootFindAll } as QueryContext,
+        },
         MongoHelper.getSortObject(filter as any, sort),
       );
       return items.map((item) => plainToInstance(OutputType(definition), item.toObject()));
@@ -339,7 +351,10 @@ export function createResolver(
     ) {
       const result = await this.baseService.paginate(
         ctx,
-        MongoHelper.toQuery(util.defaultTo(filter, {})),
+        {
+          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          [QueryContextSymbol]: { source: QueryContextSource.RootPaginate } as QueryContext,
+        },
         MongoHelper.getSortObject(filter as any, sort),
         page,
         limit,

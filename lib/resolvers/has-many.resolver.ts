@@ -16,7 +16,7 @@ import { Definition } from '../definition';
 import { HasManyConfig } from '../relations';
 import { ContextDecorator, defaultContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
-import { StringLikeId } from '../shared';
+import { QueryContext, QueryContextSource, QueryContextSymbol, StringLikeId } from '../shared';
 import { MongoHelper } from '../mongo-helper';
 import { plainToInstance } from 'class-transformer';
 
@@ -107,6 +107,11 @@ export function createResolverForHasMany(
         {
           ...MongoHelper.toQuery(util.defaultTo(filter, {})),
           [relation.options.to]: parent._id,
+          [QueryContextSymbol]: {
+            source: QueryContextSource.HasMany,
+            parent,
+            parentDefinition: definition,
+          } as QueryContext,
         },
         util.defaultTo(sort, {}),
         page,
