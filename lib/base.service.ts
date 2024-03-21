@@ -231,7 +231,11 @@ export function createBaseService(definition: Definition): typeof BaseService {
       return hookMethods
         .filter((hookMethod) => {
           if (hookMethod.hook !== hook) return false;
-          return hookMethod.typeFunc() === AllDefinitions || hookMethod.typeFunc() === definition;
+          return (
+            hookMethod.typeFunc() === AllDefinitions ||
+            hookMethod.typeFunc() === definition ||
+            hookMethod.typeFunc().includes?.(definition)
+          );
         })
         .sort((hook1, hook2) => (hook1?.options?.priority || 100) - (hook2?.options?.priority || 100))
         .map(({ target, method: methodName }) => {

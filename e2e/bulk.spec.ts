@@ -17,7 +17,7 @@ const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
 
 @Injectable()
 class TagHook {
-  @BeforeCreateHook(() => Tag)
+  @BeforeCreateHook(() => [Tag])
   async beforeCreate({ input }: BeforeCreateHookInput<Tag>): Promise<void> {
     if (input.name === NEVER_CREATE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
