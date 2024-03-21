@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/dryerjs/dryerjs/compare/v1.6.0...v1.6.1) (2024-03-21)
+
+
+### Bug Fixes
+
+* typeFunc should work as an array as well ([#319](https://github.com/dryerjs/dryerjs/issues/319)) ([b66a03d](https://github.com/dryerjs/dryerjs/commit/b66a03d09d66fe857e5dc5a97755d7a01277d25a))
+
 # [1.6.0](https://github.com/dryerjs/dryerjs/compare/v1.5.6...v1.6.0) (2024-03-18)
 
 
