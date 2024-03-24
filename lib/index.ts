@@ -1,4 +1,5 @@
 import './js/mongoose-paginate-v2';
+export * from './js/graphql-type-json';
 export * from './shared';
 export * from './thunk';
 export * from './property';
