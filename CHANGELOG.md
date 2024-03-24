@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/dryerjs/dryerjs/compare/v1.6.1...v1.7.0) (2024-03-24)
+
+
+### Features
+
+* export graphql-type-json ([#322](https://github.com/dryerjs/dryerjs/issues/322)) ([ccfa927](https://github.com/dryerjs/dryerjs/commit/ccfa9273b74716dd8dac8d1743fcb233d578da46))
+
 ## [1.6.1](https://github.com/dryerjs/dryerjs/compare/v1.6.0...v1.6.1) (2024-03-21)
 
 
