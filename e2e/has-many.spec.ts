@@ -38,6 +38,7 @@ describe('Has many works', () => {
               product {
                 name
               }
+              inventoryId
             }
             paginateVariants {
               docs {
@@ -53,6 +54,7 @@ describe('Has many works', () => {
           variants: [
             {
               name: 'Awesome variant',
+              inventoryId: '000000000000000000000000',
               comments: [{ content: 'A' }, { content: 'B' }],
             },
             {
@@ -70,6 +72,7 @@ describe('Has many works', () => {
       {
         id: expect.any(String),
         name: 'Awesome variant',
+        inventoryId: '000000000000000000000000',
         comments: [
           {
             id: expect.any(String),
@@ -84,6 +87,7 @@ describe('Has many works', () => {
       },
       {
         id: expect.any(String),
+        inventoryId: null,
         name: 'Awesome variant 2',
         comments: [],
         product: { name: 'Awesome product' },

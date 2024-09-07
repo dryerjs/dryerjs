@@ -22,6 +22,7 @@ describe('Has one works', () => {
             image {
               id
               name
+              storageId
               product {
                 id
                 name
@@ -38,6 +39,7 @@ describe('Has one works', () => {
         input: {
           name: 'Awesome product',
           image: {
+            storageId: '000000000000000000000000',
             name: 'logo.png',
           },
         },
@@ -46,6 +48,7 @@ describe('Has one works', () => {
     productId = createProduct.id;
     expect(createProduct.image.name).toEqual('logo.png');
     expect(createProduct.image.product.image.name).toEqual('logo.png');
+    expect(createProduct.image.storageId).toEqual('000000000000000000000000');
   });
 
   it('Remove product has image', async () => {

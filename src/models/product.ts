@@ -67,6 +67,9 @@ export class Image {
 
   @Property({ type: () => GraphQLObjectId, update: Skip })
   productId: ObjectId;
+
+  @Property({ type: () => GraphQLObjectId, nullable: true })
+  storageId: ObjectId;
 }
 
 @Definition()
@@ -119,6 +122,9 @@ export class Variant {
 
   @Property({ type: () => GraphQLObjectId })
   productId: ObjectId;
+
+  @Property({ type: () => GraphQLObjectId, nullable: true })
+  inventoryId: ObjectId;
 
   @BelongsTo(() => Product, { from: 'productId' })
   product: Ref<Product>;
