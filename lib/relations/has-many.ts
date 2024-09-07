@@ -20,17 +20,14 @@ export function HasMany(typeFunction: HasManyConfig['typeFunction'], options: Ha
   return (target: any, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasManyConfig>(MetaKey.HasManyType, { typeFunction, options });
     if (options.allowCreateWithin) {
-      const type = CreateInputTypeWithin(typeFunction(), target.constructor, options.to);
+      const typeFn = () => CreateInputTypeWithin(typeFunction(), target.constructor, options.to);
       Thunk(
-        Field(() => [type], {
+        Field(() => [typeFn()], {
           nullable: true,
         }),
         { scopes: 'create' },
       )(target, propertyKey);
-      Thunk(
-        Type(() => type),
-        { scopes: 'create' },
-      )(target, propertyKey);
+      Thunk(Type(typeFn), { scopes: 'create' })(target, propertyKey);
     }
   };
 }

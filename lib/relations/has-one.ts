@@ -18,15 +18,15 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
   return (target: any, propertyKey: string | symbol) => {
     Metadata.for(target).with(propertyKey).set<HasOneConfig>(MetaKey.HasOneType, { typeFunction, options });
     if (options.allowCreateWithin) {
-      const type = CreateInputTypeWithin(typeFunction(), target.constructor, options.to);
+      const typeFn = () => CreateInputTypeWithin(typeFunction(), target.constructor, options.to);
       Thunk(
-        Field(() => type, {
+        Field(() => typeFn, {
           nullable: true,
         }),
         { scopes: 'create' },
       )(target, propertyKey);
       Thunk(
-        Type(() => type),
+        Type(() => typeFn),
         { scopes: 'create' },
       )(target, propertyKey);
     }
