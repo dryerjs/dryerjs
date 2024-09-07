@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/dryerjs/dryerjs/compare/v1.7.0...v1.7.1) (2024-09-07)
+
+
+### Bug Fixes
+
+* missing transform inside create within ([#325](https://github.com/dryerjs/dryerjs/issues/325)) ([00a7f72](https://github.com/dryerjs/dryerjs/commit/00a7f72a7177c48555ebb3d1e1e9d6894c8354e7))
+
 # [1.7.0](https://github.com/dryerjs/dryerjs/compare/v1.6.1...v1.7.0) (2024-03-24)
 
 
