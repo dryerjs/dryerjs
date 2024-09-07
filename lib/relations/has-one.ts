@@ -1,9 +1,9 @@
 import { Field } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 import { CreateInputTypeWithin } from '../type-functions';
 
 import { MetaKey, Metadata } from '../metadata';
 import { Thunk } from '../thunk';
-import { Type } from 'class-transformer';
 
 export type HasOneConfig = {
   typeFunction: () => any;
