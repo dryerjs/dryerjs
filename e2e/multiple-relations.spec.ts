@@ -2,6 +2,39 @@ import { BelongsTo, Definition, GraphQLObjectId, HasMany, Id, ObjectId, Property
 import { TestServer } from './test-server';
 
 @Definition()
+export class Order {
+  @Id()
+  id: ObjectId;
+
+  @Property()
+  name: string;
+
+  @Property({ type: () => GraphQLObjectId })
+  storeId: ObjectId;
+
+  @BelongsTo(() => Store, { from: 'storeId' })
+  store: Ref<Store>;
+
+  @Property({ type: () => GraphQLObjectId })
+  userId: ObjectId;
+
+  @BelongsTo(() => User, { from: 'userId' })
+  user: Ref<User>;
+}
+
+@Definition()
+export class Product {
+  @Id()
+  id: ObjectId;
+
+  @Property()
+  name: string;
+
+  @Property({ type: () => GraphQLObjectId })
+  storeId: ObjectId;
+}
+
+@Definition()
 export class Store {
   @Id()
   id: ObjectId;
@@ -24,39 +57,6 @@ export class Store {
     allowPaginate: true,
   })
   orders: Order[];
-}
-
-@Definition()
-export class Product {
-  @Id()
-  id: ObjectId;
-
-  @Property()
-  name: string;
-
-  @Property({ type: () => GraphQLObjectId })
-  storeId: ObjectId;
-}
-
-@Definition()
-export class Order {
-  @Id()
-  id: ObjectId;
-
-  @Property()
-  name: string;
-
-  @Property({ type: () => GraphQLObjectId })
-  storeId: ObjectId;
-
-  @BelongsTo(() => Store, { from: 'storeId' })
-  store: Ref<Store>;
-
-  @Property({ type: () => GraphQLObjectId })
-  userId: ObjectId;
-
-  @BelongsTo(() => User, { from: 'userId' })
-  user: Ref<User>;
 }
 
 @Definition()
