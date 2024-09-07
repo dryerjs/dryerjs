@@ -20,15 +20,12 @@ export function HasOne(typeFunction: HasOneConfig['typeFunction'], options: HasO
     if (options.allowCreateWithin) {
       const typeFn = () => CreateInputTypeWithin(typeFunction(), target.constructor, options.to);
       Thunk(
-        Field(() => typeFn, {
+        Field(typeFn, {
           nullable: true,
         }),
         { scopes: 'create' },
       )(target, propertyKey);
-      Thunk(
-        Type(() => typeFn),
-        { scopes: 'create' },
-      )(target, propertyKey);
+      Thunk(Type(typeFn), { scopes: 'create' })(target, propertyKey);
     }
   };
 }
