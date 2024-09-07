@@ -1,3 +1,11 @@
+## [1.7.2](https://github.com/dryerjs/dryerjs/compare/v1.7.1...v1.7.2) (2024-09-07)
+
+
+### Bug Fixes
+
+* circular issue ([#326](https://github.com/dryerjs/dryerjs/issues/326)) ([18f71e2](https://github.com/dryerjs/dryerjs/commit/18f71e249924e6ac06d53f011eea163950fcde2e))
+* typo issue ([#327](https://github.com/dryerjs/dryerjs/issues/327)) ([78b1d13](https://github.com/dryerjs/dryerjs/commit/78b1d133467c8456cb50b029bd130efd6df007ac))
+
 ## [1.7.1](https://github.com/dryerjs/dryerjs/compare/v1.7.0...v1.7.1) (2024-09-07)
 
 
