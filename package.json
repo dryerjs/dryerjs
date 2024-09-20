@@ -1,6 +1,6 @@
 {
   "name": "dryerjs",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "The fastest way to build a GraphQL API with NestJS and Mongoose",
   "license": "MIT",
   "type": "commonjs",

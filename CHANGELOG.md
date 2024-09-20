@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/dryerjs/dryerjs/compare/v1.7.2...v1.7.3) (2024-09-20)
+
+
+### Bug Fixes
+
+* add options for update ([#328](https://github.com/dryerjs/dryerjs/issues/328)) ([a551585](https://github.com/dryerjs/dryerjs/commit/a551585d55d973dafc32432f10ea91d927492f29))
+
 ## [1.7.2](https://github.com/dryerjs/dryerjs/compare/v1.7.1...v1.7.2) (2024-09-07)
 
 
