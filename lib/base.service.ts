@@ -94,7 +94,7 @@ export abstract class BaseService<T = any, Context = any> {
     }
   }
 
-  public async update(ctx: Context, input: Partial<T> & { id: ObjectId }): Promise<T> {
+  public async update(ctx: Context, input: Partial<T> & { id: ObjectId }, options?: any): Promise<T> {
     this.assignUnderscoreIdRecursively(input, this.definition);
     const filter = { _id: input.id };
     for (const hook of this.getHooks(Hook.BeforeWriteFilter)) {
@@ -104,7 +104,9 @@ export abstract class BaseService<T = any, Context = any> {
     for (const hook of this.getHooks(Hook.BeforeUpdate)) {
       await hook({ ctx, input, beforeUpdated, definition: this.definition });
     }
-    const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, { new: true });
+
+    const normalizedOptions = { new: true, ...util.defaultTo(options, {}) } as { new: true };
+    const updated = await this.model.findOneAndUpdate({ _id: input.id }, input, normalizedOptions);
     for (const hook of this.getHooks(Hook.AfterUpdate)) {
       await hook({ ctx, input, updated, beforeUpdated, definition: this.definition });
     }
