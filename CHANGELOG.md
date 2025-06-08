@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/dryerjs/dryerjs/compare/v1.7.4...v2.0.0) (2025-06-08)
+
+
+### Features
+
+* release v2 ([#331](https://github.com/dryerjs/dryerjs/issues/331)) ([50a2d7d](https://github.com/dryerjs/dryerjs/commit/50a2d7d0da4d94ca19b5c66014e7e465f67eac58))
+
+
+### BREAKING CHANGES
+
+* Drop support for old NestJS versions
+
 ## [1.7.4](https://github.com/dryerjs/dryerjs/compare/v1.7.3...v1.7.4) (2025-06-08)
 
 
