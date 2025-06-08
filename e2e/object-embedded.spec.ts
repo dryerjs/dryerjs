@@ -75,7 +75,7 @@ describe('Object embedded feature works', () => {
       allComputers = allComputersResponse.allComputers;
     });
 
-    it('should show computers with brand and creator', async () => {
+    it('should show computers with brand and creator', () => {
       expect(allComputers).toEqual([
         {
           id: expect.any(String),

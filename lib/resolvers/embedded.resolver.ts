@@ -24,7 +24,7 @@ export function createResolverForEmbedded(
 
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-      if ((embeddedResolverConfig?.allowedApis ?? [])!.includes(propertyKey as any)) {
+      if ((embeddedResolverConfig?.allowedApis ?? []).includes(propertyKey as any)) {
         decorator(target, propertyKey, descriptor);
       }
       return descriptor;

@@ -378,7 +378,7 @@ describe('Simple CRUD works', () => {
       variables: {
         id: allTags[0].id,
       },
-      errorMessageMustContains: `No Tag found with ID: ${allTags[0].id}`,
+      errorMessageMustContains: `No Tag found with ID: ${allTags[0].id.toString()}`,
     });
   });
 

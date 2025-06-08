@@ -5,7 +5,7 @@ export const Ctx = createParamDecorator((_data: unknown, ctx: ExecutionContext) 
   const rawContext = GqlExecutionContext.create(ctx).getContext();
   try {
     return JSON.parse(rawContext.req.header('fake-context'));
-  } catch (error) {
+  } catch {
     return null;
   }
 });

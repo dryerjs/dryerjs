@@ -43,7 +43,7 @@ export const isApiAllowed = (
   const normalizedAllowedApis = util.isArray(allowedApis)
     ? allowedApis
     : [util.defaultTo(allowedApis, 'essentials')];
-  for (const allowedApi of normalizedAllowedApis!) {
+  for (const allowedApi of normalizedAllowedApis) {
     if (allowedApi === '*') return true;
     if (allowedApi === 'essentials') {
       return ['create', 'update', 'findOne', 'remove', 'paginate'].includes(api);
@@ -88,7 +88,9 @@ export function createResolver(
     ) {
       try {
         this.bulkErrorHandler = this.moduleRef.get(BULK_ERROR_HANDLER, { strict: false });
-      } catch (error) {}
+      } catch {
+        // do nothing
+      }
     }
 
     @applyDecorators(
@@ -221,7 +223,7 @@ export function createResolver(
       }),
     )
     async bulkRemove(
-      @Args('ids', { type: () => [GraphQLObjectId!]! }) ids: ObjectId[],
+      @Args('ids', { type: () => [GraphQLObjectId] }) ids: ObjectId[],
       @Args('options', { nullable: true, defaultValue: undefined }) options: RemoveOptions,
       @contextDecorator() ctx: any,
     ) {

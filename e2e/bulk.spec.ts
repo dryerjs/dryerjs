@@ -19,6 +19,7 @@ const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
 class TagHook {
   @BeforeCreateHook(() => [Tag])
   async beforeCreate({ input }: BeforeCreateHookInput<Tag>): Promise<void> {
+    await Promise.resolve();
     if (input.name === NEVER_CREATE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
@@ -26,6 +27,7 @@ class TagHook {
 
   @BeforeUpdateHook(() => Tag)
   async beforeUpdate({ input }: BeforeUpdateHookInput): Promise<void> {
+    await Promise.resolve();
     if (input.name === NEVER_UPDATE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
@@ -33,6 +35,7 @@ class TagHook {
 
   @BeforeRemoveHook(() => Tag)
   async beforeRemove({ beforeRemoved }: BeforeRemoveHookInput): Promise<void> {
+    await Promise.resolve();
     if (beforeRemoved.name === NEVER_REMOVE_ME) {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
@@ -458,7 +461,7 @@ describe('bulk apis work', () => {
       {
         id: allTags[1].id,
         success: false,
-        errorMessage: 'No Tag found with ID: ' + allTags[1].id,
+        errorMessage: `No Tag found with ID: ${allTags[1].id.toString()}`,
       },
     ]);
   });

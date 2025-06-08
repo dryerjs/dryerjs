@@ -24,7 +24,7 @@ export class Color {
   id: ObjectId;
 
   @Property()
-  @Thunk(Transform(({ value }) => value.toLowerCase()), { scopes: 'output' })
+  @Thunk(Transform(({ value }: { value: string }) => value.toLowerCase()), { scopes: 'output' })
   name: string;
 }
 
@@ -38,7 +38,7 @@ export class Tag {
   id: ObjectId;
 
   @Thunk(MaxLength(100), { scopes: 'input' })
-  @Thunk(Transform(({ value }) => value.trim()), { scopes: 'input' })
+  @Thunk(Transform(({ value }: { value: string }) => value.trim()), { scopes: 'input' })
   @Property({ db: { unique: true } })
   name: string;
 

@@ -208,7 +208,7 @@ describe('References many works', () => {
   });
 
   it('Cannot remove tag if no product links to it', async () => {
-    server.makeSuccessRequest({
+    await server.makeSuccessRequest({
       query: `
         mutation UpdateProduct($input: UpdateProductInput!) {
           updateProduct(input: $input) {

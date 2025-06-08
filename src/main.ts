@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 
 @Injectable()
 export class HeaderGuard implements CanActivate {
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const SECRET_API_KEY = process.env.SECRET_API_KEY;
     if (!SECRET_API_KEY) return true;
     const req = GqlExecutionContext.create(context).getContext().req;
@@ -18,4 +18,5 @@ async function bootstrap() {
   app.useGlobalGuards(new HeaderGuard());
   await app.listen(process.env.PORT || 3000);
 }
-bootstrap();
+
+void bootstrap();
