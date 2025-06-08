@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/dryerjs/dryerjs/compare/v1.7.3...v1.7.4) (2025-06-08)
+
+
+### Bug Fixes
+
+* deps update ([#329](https://github.com/dryerjs/dryerjs/issues/329)) ([1d345f3](https://github.com/dryerjs/dryerjs/commit/1d345f3c148093dcaf057a6dc15c0bff326b6fdd))
+
 ## [1.7.3](https://github.com/dryerjs/dryerjs/compare/v1.7.2...v1.7.3) (2024-09-20)
 
 
