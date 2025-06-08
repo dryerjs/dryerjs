@@ -15,7 +15,7 @@ export abstract class BaseService<T = any, Context = any> {
   protected moduleRef: ModuleRef;
   protected definition: Definition;
 
-  protected abstract getHooks: (method: Hook) => Function[];
+  protected abstract getHooks: (method: Hook) => util.FunctionLike[];
 
   public async create(ctx: Context, input: Partial<T>): Promise<T> {
     for (const hook of this.getHooks(Hook.BeforeCreate)) {
@@ -31,7 +31,7 @@ export abstract class BaseService<T = any, Context = any> {
       for (const subObject of input[property.name]) {
         const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
           strict: false,
-        }) as BaseService;
+        });
         const createdRelation = await baseServiceForRelation.create(ctx, subObject);
         newIds.push(createdRelation._id);
       }
@@ -45,7 +45,7 @@ export abstract class BaseService<T = any, Context = any> {
       const relationDefinition = relation.typeFunction();
       const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
         strict: false,
-      }) as BaseService;
+      });
       await baseServiceForRelation.create(ctx, {
         ...input[property.name],
         [relation.options.to]: created._id,
@@ -59,7 +59,7 @@ export abstract class BaseService<T = any, Context = any> {
       for (const subObject of input[property.name]) {
         const baseServiceForRelation = this.moduleRef.get(getBaseServiceToken(relationDefinition), {
           strict: false,
-        }) as BaseService;
+        });
         await baseServiceForRelation.create(ctx, {
           ...subObject,
           [relation.options.to]: created._id,
@@ -218,7 +218,7 @@ export abstract class BaseService<T = any, Context = any> {
 export function createBaseService(definition: Definition): typeof BaseService {
   @Injectable()
   class GeneratedBaseService extends BaseService<any, any> {
-    protected getHooks: (method: Hook) => Function[];
+    protected getHooks: (method: Hook) => util.FunctionLike[];
 
     constructor(
       @InjectModel(definition.name) public model: PaginateModel<any>,
@@ -229,7 +229,7 @@ export function createBaseService(definition: Definition): typeof BaseService {
       this.getHooks = util.memoize(this.getHooksUncached.bind(this));
     }
 
-    private getHooksUncached(hook: Hook): Function[] {
+    private getHooksUncached(hook: Hook): util.FunctionLike[] {
       return hookMethods
         .filter((hookMethod) => {
           if (hookMethod.hook !== hook) return false;

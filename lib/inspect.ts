@@ -22,7 +22,7 @@ class InspectedDefinition {
     return result;
   }
 
-  public getProperties = util.memoize(this.getPropertiesUncached);
+  public getProperties = util.memoize(this.getPropertiesUncached.bind(this));
 
   public get embeddedProperties(): HydratedProperty[] {
     return this.getProperties(MetaKey.EmbeddedType);

@@ -11,6 +11,7 @@ const NEVER_REMOVE_ME = 'NEVER_REMOVE_ME';
 class VariantHook {
   @BeforeRemoveHook(() => Variant)
   async beforeRemove({ beforeRemoved }: BeforeRemoveHookInput<Variant>): Promise<void> {
+    await Promise.resolve();
     if (beforeRemoved.name === NEVER_REMOVE_ME) {
       throw new Error('Cannot remove Awesome variant');
     }
@@ -233,7 +234,7 @@ describe('Remove options work', () => {
     const response = await server.makeSuccessRequest({
       query: `
           {
-            product(id: "${product.id}") {
+            product(id: "${product.id.toString()}") {
               tagIds
             }
           }

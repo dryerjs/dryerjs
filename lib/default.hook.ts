@@ -1,6 +1,5 @@
 import { ModuleRef } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
-import { PaginateModel } from 'mongoose';
 import {
   BadRequestException,
   ConflictException,
@@ -26,7 +25,7 @@ import { Definition, DefinitionOptions, HookMethod } from './definition';
 import * as util from './util';
 import { ObjectId } from './object-id';
 import { RemoveMode, RemoveOptions } from './remove-options';
-import { BaseService, getBaseServiceToken } from './base.service';
+import { getBaseServiceToken } from './base.service';
 import { HasManyConfig, HasOneConfig } from './relations';
 import { MetaKey, Metadata } from './metadata';
 import { StringLikeId } from './shared';
@@ -82,10 +81,10 @@ export class DefaultHook {
   private async mustExist(definition: Definition, id: ObjectId) {
     const model = this.moduleRef.get(getModelToken(definition.name), {
       strict: false,
-    }) as PaginateModel<any>;
+    });
     const exists = await model.exists({ _id: id });
     if (exists) return;
-    const message = `No ${definition.name} found with ID: ${id}`;
+    const message = `No ${definition.name} found with ID: ${id.toString()}`;
     throw new NotFoundException(message);
   }
 
@@ -97,7 +96,7 @@ export class DefaultHook {
   }) {
     const model = this.moduleRef.get(getModelToken(input.toDefinition.name), {
       strict: false,
-    }) as PaginateModel<any>;
+    });
     const exists = await model.exists({ [input.fieldName]: input.fromObject._id });
     if (!exists) return;
     const message = `${input.fromDefinition.name} ${input.fromObject._id} has link(s) to ${input.toDefinition.name}`;
@@ -194,13 +193,15 @@ export class DefaultHook {
   public async afterRemove(input: AfterRemoveHookInput): Promise<void> {
     if (this.isHookMethodSkip(input.definition, 'afterRemove')) return;
     if (input.options.mode !== RemoveMode.CleanUpRelationsAfterRemoved) return;
+    await Promise.resolve();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.cleanUpRelationsAfterRemoved(input);
   }
 
   private getFailHandler() {
     try {
       return this.moduleRef.get(FAIL_CLEAN_UP_AFTER_REMOVE_HANDLER, { strict: false });
-    } catch (error) {
+    } catch {
       const defaultFailHandler: FailCleanUpAfterRemoveHandler = {
         handleItem(_input: AfterRemoveHookInput, error: Error) {
           throw error;
@@ -227,7 +228,7 @@ export class DefaultHook {
 
         const baseService = this.moduleRef.get(getBaseServiceToken(referencingProperty.definition), {
           strict: false,
-        }) as BaseService<any>;
+        });
 
         for (const item of items) {
           try {
@@ -255,7 +256,7 @@ export class DefaultHook {
       for (const config of configs) {
         const baseService = this.moduleRef.get(getBaseServiceToken(config.typeFunction()), {
           strict: false,
-        }) as BaseService<any>;
+        });
 
         const items = await this.moduleRef
           .get(getModelToken(config.typeFunction().name), { strict: false })

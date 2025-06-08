@@ -3,7 +3,7 @@ import { Definition } from '../lib/definition';
 import { GraphQLObjectId, ObjectId } from '../lib/object-id';
 
 describe('Check id type is ObjectId or string', () => {
-  it('Define id type string should throw error', async () => {
+  it('Define id type string should throw error', () => {
     expect(() => {
       @Definition()
       class User {
@@ -15,7 +15,7 @@ describe('Check id type is ObjectId or string', () => {
     }).toThrowError('Property id should have type ObjectId');
   });
 
-  it('Define id type ObjectId does not throw error', async () => {
+  it('Define id type ObjectId does not throw error', () => {
     expect(() => {
       @Definition()
       class User {

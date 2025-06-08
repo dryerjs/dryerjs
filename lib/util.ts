@@ -1,6 +1,9 @@
+/* eslint-disable no-prototype-builtins */
 import { plural, singular } from './js/pluralize';
 
 export { plural, singular };
+
+export type FunctionLike = (...args: any[]) => any;
 
 export const isNil = (value: any): value is null | undefined => value === null || value === undefined;
 
@@ -37,7 +40,7 @@ export const isNotEmptyString = (value: any): value is string => isString(value)
 
 export const defaultTo = <T>(value: T | null | undefined, defaultValue: T): T => {
   const shouldUseDefaultValue = isNil(value) || (typeof value === 'number' && isNaN(value));
-  return shouldUseDefaultValue ? defaultValue : (value as T);
+  return shouldUseDefaultValue ? defaultValue : value;
 };
 
 export const defaultToChain = <T>(...args: Array<T | null | undefined>) => {
@@ -74,7 +77,7 @@ export const toPascalCase = (str: string) => str.replace(str[0], str[0].toUpperC
 
 export const toCamelCase = (str: string) => str.replace(str[0], str[0].toLowerCase());
 
-export function memoize<T extends Function>(func: T, resolver?: (...args: any[]) => any): T {
+export function memoize<T extends FunctionLike>(func: T, resolver?: (...args: any[]) => any): T {
   /* istanbul ignore if */
   if (typeof func !== 'function' || (resolver && typeof resolver !== 'function')) {
     throw new TypeError('FUNC_ERROR_TEXT');

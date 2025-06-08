@@ -64,6 +64,6 @@ export function Definition(options: DefinitionOptions = {}): ClassDecorator {
       ...normalizedSchemaOptions,
       toJSON: { ...util.defaultTo(normalizedSchemaOptions.toJSON, {}), virtuals: true },
       toObject: { ...util.defaultTo(normalizedSchemaOptions.toObject, {}), virtuals: true },
-    })(target as any);
+    })(target);
   };
 }

@@ -84,7 +84,7 @@ export class TestServer {
       this.app.get(DRYER_DEFINITIONS).map(async (definition) => {
         const model = this.app.get(getModelToken(definition.name), {
           strict: false,
-        }) as mongoose.Model<any>;
+        });
         await model.deleteMany({});
         await model.ensureIndexes({});
       }),
@@ -106,7 +106,7 @@ export class TestServer {
   }) {
     const requestObject = request(this.app.getHttpServer()).post('/graphql');
     for (const key in util.defaultTo(input.headers, {})) {
-      requestObject.set(key, input.headers![key] as string);
+      requestObject.set(key, input.headers![key]);
     }
     const { body } = await requestObject.send(input);
     expect(body.errors).toBeUndefined();
@@ -122,7 +122,7 @@ export class TestServer {
     const requestObject = request(this.app.getHttpServer()).post('/graphql');
 
     for (const key in util.defaultTo(input.headers, {})) {
-      requestObject.set(key, input.headers![key] as string);
+      requestObject.set(key, input.headers![key]);
     }
     const {
       body: { errors },

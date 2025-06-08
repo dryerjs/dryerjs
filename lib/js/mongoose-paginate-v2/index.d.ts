@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* cspell:disable */
 
 declare module 'mongoose' {
@@ -24,7 +25,7 @@ declare module 'mongoose' {
     select?: object | string | undefined;
     collation?: import('mongodb').CollationOptions | undefined;
     sort?: object | string | undefined;
-    populate?: PopulateOptions[] | string[] | PopulateOptions | string | PopulateOptions | undefined;
+    populate?: PopulateOptions[] | string[] | PopulateOptions | string | undefined;
     projection?: any;
     lean?: boolean | undefined;
     leanWithId?: boolean | undefined;
@@ -44,14 +45,14 @@ declare module 'mongoose' {
 
   interface SubPaginateOptions {
     select?: object | string | undefined;
-    populate?: PopulateOptions[] | string[] | PopulateOptions | string | PopulateOptions | undefined;
+    populate?: PopulateOptions[] | string[] | PopulateOptions | string | undefined;
     pagination?: boolean | undefined;
     read?: ReadOptions | undefined;
     pagingOptions: SubDocumentPagingOptions | undefined;
   }
 
   interface SubDocumentPagingOptions {
-    populate?: PopulateOptions[] | string[] | PopulateOptions | string | PopulateOptions | undefined;
+    populate?: PopulateOptions[] | string[] | PopulateOptions | string | undefined;
     page?: number | undefined;
     limit?: number | undefined;
   }

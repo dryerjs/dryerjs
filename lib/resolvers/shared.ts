@@ -33,9 +33,7 @@ const Noop: MethodDecorator = function (
 
 export const applyDecorators = (decorators: MethodDecorator | MethodDecorator[] | undefined | null) => {
   return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-    const normalizedDecorators = (
-      util.isArray(decorators) ? decorators : [util.defaultTo(decorators, Noop)]
-    ) as MethodDecorator[];
+    const normalizedDecorators = util.isArray(decorators) ? decorators : [util.defaultTo(decorators, Noop)];
     for (const normalizedDecorator of normalizedDecorators) {
       normalizedDecorator(target, propertyKey, descriptor);
     }
