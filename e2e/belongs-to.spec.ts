@@ -29,6 +29,59 @@ describe('BelongsTo works', () => {
     });
   });
 
+  it('loader works', async () => {
+    const store = await server.makeSuccessRequest({
+      query: `
+        mutation CreateStore($input: CreateStoreInput!) {
+          createStore(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome store',
+        },
+      },
+    });
+
+    const product = await server.makeSuccessRequest({
+      query: `
+        mutation CreateProduct($input: CreateProductInput!) {
+          createProduct(input: $input) {
+            id
+          }
+        }
+      `,
+      variables: {
+        input: {
+          name: 'Awesome product',
+          storeId: store.createStore.id,
+        },
+      },
+    });
+
+    const image = await server.makeSuccessRequest({
+      query: `
+        mutation CreateImage($input: CreateImageInput!) {
+          createImage(input: $input) {
+            id
+            productId
+            product { id }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          productId: product.createProduct.id,
+          name: 'Awesome image',
+        },
+      },
+    });
+
+    expect(image.createImage.product.id).toBe(product.createProduct.id);
+  });
+
   afterAll(async () => {
     await server.stop();
   });
