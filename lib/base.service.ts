@@ -240,12 +240,51 @@ export abstract class BaseService<T = any, Context = any> {
         } as QueryContext,
       };
       const items = await this.findAll(ctx, filter, {});
-      const transformedItems = options.transform
-        ? items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()))
-        : items;
+      const transformedItems = (() => {
+        /* istanbul ignore if */
+        if (!options.transform) return items;
+        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+      })();
 
       return keys.map((id: StringLikeId) => {
         return transformedItems.find((item) => item['_id'].toString() === id.toString());
+      });
+    });
+    req[loaderKey] = loader;
+    return req[loaderKey];
+  }
+
+  public getFieldLoader(
+    ctx: Context,
+    field: string,
+    req: any,
+    options: {
+      parent?: any;
+      parentDefinition?: any;
+      source?: QueryContextSource;
+      transform?: boolean;
+    },
+  ): DataLoader<StringLikeId, [T]> {
+    const loaderKey = `loader_for_definition_${this.definition.name}_on_${field}`;
+    if (req[loaderKey]) return req[loaderKey];
+    const loader = new DataLoader<StringLikeId, T[]>(async (keys) => {
+      const filter = {
+        [field]: { $in: keys },
+        [QueryContextSymbol]: {
+          parent: options.parent,
+          parentDefinition: options.parentDefinition,
+          source: options.source,
+        } as QueryContext,
+      };
+      const items = await this.findAll(ctx, filter, {});
+      const transformedItems = (() => {
+        /* istanbul ignore if */
+        if (!options.transform) return items;
+        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+      })();
+
+      return keys.map((id) => {
+        return transformedItems.filter((item) => String(item[field]) === String(id));
       });
     });
     req[loaderKey] = loader;
