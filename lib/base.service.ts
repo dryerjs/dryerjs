@@ -2,13 +2,17 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel } from 'mongoose';
+import * as DataLoader from 'dataloader';
+import { plainToInstance } from 'class-transformer';
+
 import { Definition } from './definition';
 import { inspect } from './inspect';
 import { SuccessResponse } from './types';
 import * as util from './util';
 import { AllDefinitions, Hook, hookMethods } from './hook';
-import { ObjectId } from './shared';
+import { ObjectId, QueryContext, QueryContextSource, QueryContextSymbol, StringLikeId } from './shared';
 import { RemoveMode, RemoveOptions } from './remove-options';
+import { OutputType } from './type-functions';
 
 export abstract class BaseService<T = any, Context = any> {
   public model: PaginateModel<T>;
@@ -212,6 +216,40 @@ export abstract class BaseService<T = any, Context = any> {
     }
 
     return response;
+  }
+
+  public getIdLoader(
+    ctx: Context,
+    req: any,
+    options: {
+      parent?: any;
+      parentDefinition?: any;
+      source?: QueryContextSource;
+      transform?: boolean;
+    },
+  ): DataLoader<StringLikeId, T | undefined> {
+    const loaderKey = `loader_for_definition_${this.definition.name}`;
+    if (req[loaderKey]) return req[loaderKey];
+    const loader = new DataLoader<StringLikeId, T | undefined>(async (keys) => {
+      const filter = {
+        _id: { $in: keys },
+        [QueryContextSymbol]: {
+          parent: options.parent,
+          parentDefinition: options.parentDefinition,
+          source: options.source,
+        } as QueryContext,
+      };
+      const items = await this.findAll(ctx, filter, {});
+      const transformedItems = options.transform
+        ? items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()))
+        : items;
+
+      return keys.map((id: StringLikeId) => {
+        return transformedItems.find((item) => item['_id'].toString() === id.toString());
+      });
+    });
+    req[loaderKey] = loader;
+    return req[loaderKey];
   }
 }
 
