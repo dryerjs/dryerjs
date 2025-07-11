@@ -14,6 +14,40 @@ import { ObjectId, QueryContext, QueryContextSource, QueryContextSymbol, StringL
 import { RemoveMode, RemoveOptions } from './remove-options';
 import { OutputType } from './type-functions';
 
+export class SafeDataLoader<K, V, C = K> extends DataLoader<K, V, C> {
+  /* istanbul ignore next */
+  public safeLoad(key: K | null | undefined): Promise<V | null> {
+    if (key === null || key === undefined) {
+      return Promise.resolve(null);
+    }
+    return this.load(key);
+  }
+
+  /* istanbul ignore next */
+  public safeLoadMany(keys: ArrayLike<K | null | undefined>): Promise<Array<V | null>> {
+    const filteredKeys = Array.from(keys).filter((key) => key !== null && key !== undefined);
+    return this.loadMany(filteredKeys).then((results) => {
+      const resultMap = new Map();
+      results.forEach((result, index) => {
+        resultMap.set(filteredKeys[index], result);
+      });
+      return Array.from(keys).map((key) => resultMap.get(key) || null);
+    });
+  }
+
+  /* istanbul ignore next */
+  public safeUniqNonNullLoadMany(keys: ArrayLike<K | null | undefined>): Promise<Array<V>> {
+    if (!keys || keys.length === 0) {
+      return Promise.resolve([]);
+    }
+    const filteredKeys = Array.from(keys).filter((key) => key !== null && key !== undefined);
+    const uniqueKeys = Array.from(new Set(filteredKeys));
+    return this.loadMany(uniqueKeys).then((results) => {
+      return results.filter((result) => !(result === null || result instanceof Error));
+    }) as Promise<Array<V>>;
+  }
+}
+
 export abstract class BaseService<T = any, Context = any> {
   public model: PaginateModel<T>;
   protected moduleRef: ModuleRef;
@@ -227,10 +261,10 @@ export abstract class BaseService<T = any, Context = any> {
       source?: QueryContextSource;
       transform?: boolean;
     },
-  ): DataLoader<StringLikeId, T | undefined> {
+  ): SafeDataLoader<StringLikeId, T | undefined> {
     const loaderKey = `loader_for_definition_${this.definition.name}`;
     if (req[loaderKey]) return req[loaderKey];
-    const loader = new DataLoader<StringLikeId, T | undefined>(async (keys) => {
+    const loader = new SafeDataLoader<StringLikeId, T | undefined>(async (keys) => {
       const filter = {
         _id: { $in: keys },
         [QueryContextSymbol]: {
@@ -264,10 +298,10 @@ export abstract class BaseService<T = any, Context = any> {
       source?: QueryContextSource;
       transform?: boolean;
     },
-  ): DataLoader<StringLikeId, [T]> {
+  ): SafeDataLoader<StringLikeId, T[]> {
     const loaderKey = `loader_for_definition_${this.definition.name}_on_${field}`;
     if (req[loaderKey]) return req[loaderKey];
-    const loader = new DataLoader<StringLikeId, T[]>(async (keys) => {
+    const loader = new SafeDataLoader<StringLikeId, T[]>(async (keys) => {
       const filter = {
         [field]: { $in: keys },
         [QueryContextSymbol]: {

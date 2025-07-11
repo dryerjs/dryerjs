@@ -43,7 +43,7 @@ export function createResolverForBelongsTo(
           source: QueryContextSource.BelongsTo,
           transform: true,
         })
-        .load(parent[relation.options.from]);
+        .safeLoad(parent[relation.options.from]);
     }
   }
 

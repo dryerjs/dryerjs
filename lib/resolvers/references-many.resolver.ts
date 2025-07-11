@@ -37,7 +37,7 @@ export function createResolverForReferencesMany(
     ): Promise<T[]> {
       const result = await this.baseService
         .getIdLoader(ctx, rawCtx, { parent, transform: true })
-        .loadMany(parent[relation.options.from]);
+        .safeUniqNonNullLoadMany(parent[relation.options.from]);
       return result;
     }
   }

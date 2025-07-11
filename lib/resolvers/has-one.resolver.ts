@@ -46,7 +46,7 @@ export function createResolverForHasOne(
           source: QueryContextSource.HasOne,
           transform: true,
         })
-        .load(parent._id);
+        .safeLoad(parent._id);
       return result?.[0];
     }
   }

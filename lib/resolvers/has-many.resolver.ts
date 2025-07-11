@@ -59,14 +59,15 @@ export function createResolverForHasMany(
       @contextDecorator() ctx: any,
       @defaultContextDecorator() rawCtx: any,
     ): Promise<T[]> {
-      return await this.baseService
+      const result = await this.baseService
         .getFieldLoader(ctx, relation.options.to, rawCtx, {
           parent,
           parentDefinition: definition,
           source: QueryContextSource.HasMany,
           transform: true,
         })
-        .load(parent._id);
+        .safeLoad(parent._id);
+      return util.defaultTo(result, []);
     }
 
     @IfApiAllowed(
