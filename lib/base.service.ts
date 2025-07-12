@@ -2,13 +2,53 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, PaginateModel } from 'mongoose';
+import * as DataLoader from 'dataloader';
+import { plainToInstance } from 'class-transformer';
+
 import { Definition } from './definition';
 import { inspect } from './inspect';
 import { SuccessResponse } from './types';
 import * as util from './util';
 import { AllDefinitions, Hook, hookMethods } from './hook';
-import { ObjectId } from './shared';
+import { ObjectId, QueryContext, QueryContextSource, QueryContextSymbol, StringLikeId } from './shared';
 import { RemoveMode, RemoveOptions } from './remove-options';
+import { OutputType } from './type-functions';
+
+const LOADER_HOLDER = Symbol('LOADER_HOLDER');
+
+export class SafeDataLoader<K, V, C = K> extends DataLoader<K, V, C> {
+  /* istanbul ignore next */
+  public safeLoad(key: K | null | undefined): Promise<V | null> {
+    if (key === null || key === undefined) {
+      return Promise.resolve(null);
+    }
+    return this.load(key);
+  }
+
+  /* istanbul ignore next */
+  public safeLoadMany(keys: ArrayLike<K | null | undefined>): Promise<Array<V | null>> {
+    const filteredKeys = Array.from(keys).filter((key) => key !== null && key !== undefined);
+    return this.loadMany(filteredKeys).then((results) => {
+      const resultMap = new Map();
+      results.forEach((result, index) => {
+        resultMap.set(filteredKeys[index], result);
+      });
+      return Array.from(keys).map((key) => resultMap.get(key) || null);
+    });
+  }
+
+  /* istanbul ignore next */
+  public safeUniqNonNullLoadMany(keys: ArrayLike<K | null | undefined>): Promise<Array<V>> {
+    if (!keys || keys.length === 0) {
+      return Promise.resolve([]);
+    }
+    const filteredKeys = Array.from(keys).filter((key) => key !== null && key !== undefined);
+    const uniqueKeys = Array.from(new Set(filteredKeys));
+    return this.loadMany(uniqueKeys).then((results) => {
+      return results.filter((result) => !(result === null || result instanceof Error));
+    }) as Promise<Array<V>>;
+  }
+}
 
 export abstract class BaseService<T = any, Context = any> {
   public model: PaginateModel<T>;
@@ -212,6 +252,77 @@ export abstract class BaseService<T = any, Context = any> {
     }
 
     return response;
+  }
+
+  public getIdLoader(input: {
+    ctx: Context;
+    parent?: any;
+    parentDefinition?: Definition;
+    source?: QueryContextSource;
+    transform?: boolean;
+  }): SafeDataLoader<StringLikeId, T | undefined> {
+    const { ctx, parent, parentDefinition, source, transform } = input;
+    const loaderKey = `loader_for_definition_${this.definition.name}`;
+    if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
+    if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
+    const loader = new SafeDataLoader<StringLikeId, T | undefined>(async (keys) => {
+      const filter = {
+        _id: { $in: keys },
+        [QueryContextSymbol]: {
+          parent,
+          parentDefinition,
+          source,
+        } as QueryContext,
+      };
+      const items = await this.findAll(ctx, filter, {});
+      const transformedItems = (() => {
+        /* istanbul ignore if */
+        if (!transform) return items;
+        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+      })();
+
+      return keys.map((id: StringLikeId) => {
+        return transformedItems.find((item) => item['_id'].toString() === id.toString());
+      });
+    });
+    ctx[LOADER_HOLDER][loaderKey] = loader;
+    return ctx[LOADER_HOLDER][loaderKey];
+  }
+
+  public getFieldLoader(input: {
+    ctx: Context;
+    field: string;
+    parent?: any;
+    parentDefinition?: any;
+    source?: QueryContextSource;
+    transform?: boolean;
+  }): SafeDataLoader<StringLikeId, T[]> {
+    const { ctx, field, parent, parentDefinition, source, transform } = input;
+    if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
+    const loaderKey = `loader_for_definition_${this.definition.name}_on_${field}`;
+    if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
+    const loader = new SafeDataLoader<StringLikeId, T[]>(async (keys) => {
+      const filter = {
+        [field]: { $in: keys },
+        [QueryContextSymbol]: {
+          parent,
+          parentDefinition,
+          source,
+        } as QueryContext,
+      };
+      const items = await this.findAll(ctx, filter, {});
+      const transformedItems = (() => {
+        /* istanbul ignore if */
+        if (!transform) return items;
+        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+      })();
+
+      return keys.map((id) => {
+        return transformedItems.filter((item) => String(item[field]) === String(id));
+      });
+    });
+    ctx[LOADER_HOLDER][loaderKey] = loader;
+    return ctx[LOADER_HOLDER][loaderKey];
   }
 }
 
