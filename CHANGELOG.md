@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/dryerjs/dryerjs/compare/v2.0.0...v2.1.0) (2025-07-12)
+
+
+### Features
+
+* shared loader ([#332](https://github.com/dryerjs/dryerjs/issues/332)) ([acd3281](https://github.com/dryerjs/dryerjs/commit/acd328140657403419e462357777af06fc0472a8))
+
 # [2.0.0](https://github.com/dryerjs/dryerjs/compare/v1.7.4...v2.0.0) (2025-06-08)
 
 
