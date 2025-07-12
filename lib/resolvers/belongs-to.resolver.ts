@@ -5,7 +5,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { BelongsToConfig } from '../relations';
-import { ContextDecorator, defaultContextDecorator } from '../context';
+import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { QueryContextSource } from '../shared';
 
@@ -31,13 +31,10 @@ export function createResolverForBelongsTo(
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field }))
-    async [`findOne_${field}`](
-      @Parent() parent: any,
-      @contextDecorator() ctx: any,
-      @defaultContextDecorator() rawCtx: any,
-    ): Promise<T> {
+    async [`findOne_${field}`](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T> {
       return await this.baseService
-        .getIdLoader(ctx, rawCtx, {
+        .getIdLoader({
+          ctx,
           parent,
           parentDefinition: definition,
           source: QueryContextSource.BelongsTo,

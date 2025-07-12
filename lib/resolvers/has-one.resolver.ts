@@ -5,7 +5,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { CreateInputTypeWithin, OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { HasOneConfig } from '../relations';
-import { ContextDecorator, defaultContextDecorator } from '../context';
+import { ContextDecorator } from '../context';
 import { QueryContextSource } from '../shared';
 import { BaseService, InjectBaseService } from '../base.service';
 
@@ -34,20 +34,18 @@ export function createResolverForHasOne(
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     @IfApiAllowed(ResolveField(() => OutputType(relationDefinition), { name: field, nullable: true }))
-    async [`findOne_${field}`](
-      @Parent() parent: any,
-      @contextDecorator() ctx: any,
-      @defaultContextDecorator() rawCtx: any,
-    ): Promise<T> {
-      const result = await this.baseService
-        .getFieldLoader(ctx, relation.options.to, rawCtx, {
-          parent: parent,
+    [`findOne_${field}`](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T> {
+      return this.baseService
+        .getFieldLoader({
+          ctx,
+          field: relation.options.to,
+          parent,
           parentDefinition: definition,
           source: QueryContextSource.HasOne,
           transform: true,
         })
-        .safeLoad(parent._id);
-      return result?.[0];
+        .safeLoad(parent._id)
+        .then((result) => result?.[0]);
     }
   }
 

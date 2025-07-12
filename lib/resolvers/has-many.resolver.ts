@@ -13,7 +13,7 @@ import {
 } from '../type-functions';
 import { Definition } from '../definition';
 import { HasManyConfig } from '../relations';
-import { ContextDecorator, defaultContextDecorator } from '../context';
+import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 import { QueryContext, QueryContextSource, QueryContextSymbol } from '../shared';
 import { MongoHelper } from '../mongo-helper';
@@ -54,20 +54,18 @@ export function createResolverForHasMany(
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     @IfApiAllowed(ResolveField(() => [OutputType(relationDefinition)], { name: field }))
-    async [`findAll_${field}`](
-      @Parent() parent: any,
-      @contextDecorator() ctx: any,
-      @defaultContextDecorator() rawCtx: any,
-    ): Promise<T[]> {
-      const result = await this.baseService
-        .getFieldLoader(ctx, relation.options.to, rawCtx, {
+    [`findAll_${field}`](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T[]> {
+      return this.baseService
+        .getFieldLoader({
+          ctx,
+          field: relation.options.to,
           parent,
           parentDefinition: definition,
           source: QueryContextSource.HasMany,
           transform: true,
         })
-        .safeLoad(parent._id);
-      return util.defaultTo(result, []);
+        .safeLoad(parent._id)
+        .then((result) => util.defaultTo(result, []));
     }
 
     @IfApiAllowed(

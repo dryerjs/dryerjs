@@ -14,6 +14,8 @@ import { ObjectId, QueryContext, QueryContextSource, QueryContextSymbol, StringL
 import { RemoveMode, RemoveOptions } from './remove-options';
 import { OutputType } from './type-functions';
 
+const LOADER_HOLDER = Symbol('LOADER_HOLDER');
+
 export class SafeDataLoader<K, V, C = K> extends DataLoader<K, V, C> {
   /* istanbul ignore next */
   public safeLoad(key: K | null | undefined): Promise<V | null> {
@@ -252,31 +254,30 @@ export abstract class BaseService<T = any, Context = any> {
     return response;
   }
 
-  public getIdLoader(
-    ctx: Context,
-    req: any,
-    options: {
-      parent?: any;
-      parentDefinition?: any;
-      source?: QueryContextSource;
-      transform?: boolean;
-    },
-  ): SafeDataLoader<StringLikeId, T | undefined> {
+  public getIdLoader(input: {
+    ctx: Context;
+    parent?: any;
+    parentDefinition?: Definition;
+    source?: QueryContextSource;
+    transform?: boolean;
+  }): SafeDataLoader<StringLikeId, T | undefined> {
+    const { ctx, parent, parentDefinition, source, transform } = input;
     const loaderKey = `loader_for_definition_${this.definition.name}`;
-    if (req[loaderKey]) return req[loaderKey];
+    if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
+    if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
     const loader = new SafeDataLoader<StringLikeId, T | undefined>(async (keys) => {
       const filter = {
         _id: { $in: keys },
         [QueryContextSymbol]: {
-          parent: options.parent,
-          parentDefinition: options.parentDefinition,
-          source: options.source,
+          parent,
+          parentDefinition,
+          source,
         } as QueryContext,
       };
       const items = await this.findAll(ctx, filter, {});
       const transformedItems = (() => {
         /* istanbul ignore if */
-        if (!options.transform) return items;
+        if (!transform) return items;
         return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
       })();
 
@@ -284,36 +285,35 @@ export abstract class BaseService<T = any, Context = any> {
         return transformedItems.find((item) => item['_id'].toString() === id.toString());
       });
     });
-    req[loaderKey] = loader;
-    return req[loaderKey];
+    ctx[LOADER_HOLDER][loaderKey] = loader;
+    return ctx[LOADER_HOLDER][loaderKey];
   }
 
-  public getFieldLoader(
-    ctx: Context,
-    field: string,
-    req: any,
-    options: {
-      parent?: any;
-      parentDefinition?: any;
-      source?: QueryContextSource;
-      transform?: boolean;
-    },
-  ): SafeDataLoader<StringLikeId, T[]> {
+  public getFieldLoader(input: {
+    ctx: Context;
+    field: string;
+    parent?: any;
+    parentDefinition?: any;
+    source?: QueryContextSource;
+    transform?: boolean;
+  }): SafeDataLoader<StringLikeId, T[]> {
+    const { ctx, field, parent, parentDefinition, source, transform } = input;
+    if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
     const loaderKey = `loader_for_definition_${this.definition.name}_on_${field}`;
-    if (req[loaderKey]) return req[loaderKey];
+    if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
     const loader = new SafeDataLoader<StringLikeId, T[]>(async (keys) => {
       const filter = {
         [field]: { $in: keys },
         [QueryContextSymbol]: {
-          parent: options.parent,
-          parentDefinition: options.parentDefinition,
-          source: options.source,
+          parent,
+          parentDefinition,
+          source,
         } as QueryContext,
       };
       const items = await this.findAll(ctx, filter, {});
       const transformedItems = (() => {
         /* istanbul ignore if */
-        if (!options.transform) return items;
+        if (!transform) return items;
         return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
       })();
 
@@ -321,8 +321,8 @@ export abstract class BaseService<T = any, Context = any> {
         return transformedItems.filter((item) => String(item[field]) === String(id));
       });
     });
-    req[loaderKey] = loader;
-    return req[loaderKey];
+    ctx[LOADER_HOLDER][loaderKey] = loader;
+    return ctx[LOADER_HOLDER][loaderKey];
   }
 }
 

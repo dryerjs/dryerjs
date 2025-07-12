@@ -5,7 +5,7 @@ import { MetaKey, Metadata } from '../metadata';
 import { OutputType } from '../type-functions';
 import { Definition } from '../definition';
 import { ReferencesManyConfig } from '../relations';
-import { ContextDecorator, defaultContextDecorator } from '../context';
+import { ContextDecorator } from '../context';
 import { BaseService, InjectBaseService } from '../base.service';
 
 export function createResolverForReferencesMany(
@@ -30,15 +30,10 @@ export function createResolverForReferencesMany(
     constructor(@InjectBaseService(relationDefinition) public baseService: BaseService) {}
 
     @IfApiAllowed(ResolveField(() => [OutputType(relationDefinition)], { name: field }))
-    async [`reference_${field}`](
-      @Parent() parent: any,
-      @contextDecorator() ctx: any,
-      @defaultContextDecorator() rawCtx: any,
-    ): Promise<T[]> {
-      const result = await this.baseService
-        .getIdLoader(ctx, rawCtx, { parent, transform: true })
+    [`reference_${field}`](@Parent() parent: any, @contextDecorator() ctx: any): Promise<T[]> {
+      return this.baseService
+        .getIdLoader({ ctx, parent, transform: true })
         .safeUniqNonNullLoadMany(parent[relation.options.from]);
-      return result;
     }
   }
 
