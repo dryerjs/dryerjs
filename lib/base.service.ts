@@ -260,31 +260,36 @@ export abstract class BaseService<T = any, Context = any> {
     parentDefinition?: Definition;
     source?: QueryContextSource;
     transform?: boolean;
-  }): SafeDataLoader<StringLikeId, T | undefined> {
+  }): SafeDataLoader<StringLikeId, T> {
     const { ctx, parent, parentDefinition, source, transform } = input;
     const loaderKey = `loader_for_definition_${this.definition.name}`;
     if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
     if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
-    const loader = new SafeDataLoader<StringLikeId, T | undefined>(async (keys) => {
-      const filter = {
-        _id: { $in: keys },
-        [QueryContextSymbol]: {
-          parent,
-          parentDefinition,
-          source,
-        } as QueryContext,
-      };
-      const items = await this.findAll(ctx, filter, {});
-      const transformedItems = (() => {
-        /* istanbul ignore if */
-        if (!transform) return items;
-        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
-      })();
+    const loader = new SafeDataLoader<StringLikeId, T>(
+      async (keys) => {
+        const filter = {
+          _id: { $in: keys },
+          [QueryContextSymbol]: {
+            parent,
+            parentDefinition,
+            source,
+          } as QueryContext,
+        };
+        const items = await this.findAll(ctx, filter, {});
+        const transformedItems = (() => {
+          /* istanbul ignore if */
+          if (!transform) return items;
+          return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+        })();
 
-      return keys.map((id: StringLikeId) => {
-        return transformedItems.find((item) => item['_id'].toString() === id.toString());
-      });
-    });
+        return keys.map((id: StringLikeId) => {
+          return transformedItems.find((item) => item['_id'].toString() === id.toString());
+        });
+      },
+      {
+        cacheKeyFn: (key) => String(key),
+      },
+    );
     ctx[LOADER_HOLDER][loaderKey] = loader;
     return ctx[LOADER_HOLDER][loaderKey];
   }
@@ -301,26 +306,31 @@ export abstract class BaseService<T = any, Context = any> {
     if (!ctx[LOADER_HOLDER]) ctx[LOADER_HOLDER] = {};
     const loaderKey = `loader_for_definition_${this.definition.name}_on_${field}`;
     if (ctx[LOADER_HOLDER][loaderKey]) return ctx[LOADER_HOLDER][loaderKey];
-    const loader = new SafeDataLoader<StringLikeId, T[]>(async (keys) => {
-      const filter = {
-        [field]: { $in: keys },
-        [QueryContextSymbol]: {
-          parent,
-          parentDefinition,
-          source,
-        } as QueryContext,
-      };
-      const items = await this.findAll(ctx, filter, {});
-      const transformedItems = (() => {
-        /* istanbul ignore if */
-        if (!transform) return items;
-        return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
-      })();
+    const loader = new SafeDataLoader<StringLikeId, T[]>(
+      async (keys) => {
+        const filter = {
+          [field]: { $in: keys },
+          [QueryContextSymbol]: {
+            parent,
+            parentDefinition,
+            source,
+          } as QueryContext,
+        };
+        const items = await this.findAll(ctx, filter, {});
+        const transformedItems = (() => {
+          /* istanbul ignore if */
+          if (!transform) return items;
+          return items.map((item) => plainToInstance(OutputType(this.definition), item['toObject']()));
+        })();
 
-      return keys.map((id) => {
-        return transformedItems.filter((item) => String(item[field]) === String(id));
-      });
-    });
+        return keys.map((id) => {
+          return transformedItems.filter((item) => String(item[field]) === String(id));
+        });
+      },
+      {
+        cacheKeyFn: (key) => String(key),
+      },
+    );
     ctx[LOADER_HOLDER][loaderKey] = loader;
     return ctx[LOADER_HOLDER][loaderKey];
   }
