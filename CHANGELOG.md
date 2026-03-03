@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/dryerjs/dryerjs/compare/v2.1.1...v2.2.0) (2026-03-03)
+
+
+### Features
+
+* add searchByRegexFields ([#334](https://github.com/dryerjs/dryerjs/issues/334)) ([572594b](https://github.com/dryerjs/dryerjs/commit/572594b2f71e73d0a159fad9409ff104da400886))
+
 ## [2.1.1](https://github.com/dryerjs/dryerjs/compare/v2.1.0...v2.1.1) (2025-07-14)
 
 
