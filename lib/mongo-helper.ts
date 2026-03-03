@@ -35,7 +35,7 @@ const filterConfigs: {
 type GraphQLFilter = { [key: string]: { [operator: string]: any } };
 
 export class MongoHelper {
-  public static toQuery = (graphqlFilter: GraphQLFilter) => {
+  public static toQuery = (graphqlFilter: GraphQLFilter, searchByRegexFields?: string[]) => {
     const result: any = {};
 
     for (const [fieldName, field] of Object.entries(graphqlFilter)) {
@@ -55,13 +55,25 @@ export class MongoHelper {
     }
 
     if (util.isString(graphqlFilter.search) && graphqlFilter.search.length > 0) {
-      result.$text = { $search: graphqlFilter.search };
+      if (searchByRegexFields && searchByRegexFields.length > 0) {
+        // Use regex search for partial matching on specified fields
+        result.$or = searchByRegexFields.map((field) => ({
+          [field]: { $regex: graphqlFilter.search, $options: 'i' },
+        }));
+      } else {
+        // Fallback to text search if no regex fields specified
+        result.$text = { $search: graphqlFilter.search };
+      }
     }
 
     return result;
   };
 
-  public static getSortObject(graphqlFilter: GraphQLFilter | undefined, sort?: object) {
+  public static getSortObject(
+    graphqlFilter: GraphQLFilter | undefined,
+    sort?: object,
+    searchByRegexFields?: string[],
+  ) {
     const normalizedSort = util.defaultTo(sort, {});
 
     if (!util.isNil(normalizedSort['id'])) {
@@ -69,7 +81,10 @@ export class MongoHelper {
       delete normalizedSort['id'];
     }
 
-    if (util.isNotEmptyString(graphqlFilter?.search)) {
+    if (
+      util.isNotEmptyString(graphqlFilter?.search) &&
+      util.defaultTo(searchByRegexFields, []).length === 0
+    ) {
       return { searchScore: { $meta: 'textScore' }, ...normalizedSort };
     }
 
