@@ -33,6 +33,7 @@ export type DefinitionOptions = {
     allowCleanUpRelationsAfterRemoved?: boolean;
   };
   enableTextSearch?: boolean;
+  searchByRegexFields?: string[];
   schemaOptions?: SchemaOptions;
   skipDefaultHookMethods?: HookMethod[];
   timestamps?: boolean;

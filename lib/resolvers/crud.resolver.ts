@@ -35,6 +35,8 @@ import { MongoHelper } from '../mongo-helper';
 import { RemoveOptions } from '../remove-options';
 import { BULK_ERROR_HANDLER, BulkErrorHandler } from '../bulk-error-handler';
 import { DefinitionWithConfig } from '../module-options';
+import { Metadata, MetaKey } from '../metadata';
+import { DefinitionOptions } from '../definition';
 
 export const isApiAllowed = (
   api: ApiType,
@@ -58,6 +60,8 @@ export function createResolver(
   contextDecorator: ContextDecorator,
 ): Provider {
   const definition = definitionWithConfig.definition;
+  const definitionOptions: DefinitionOptions = Metadata.for(definition).get(MetaKey.Definition) || {};
+  const searchByRegexFields = definitionOptions.searchByRegexFields;
   function IfApiAllowed(decorator: MethodDecorator) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
       const allowedApis = definitionWithConfig?.allowedApis;
@@ -305,10 +309,10 @@ export function createResolver(
       const items = await this.baseService.findAll(
         ctx,
         {
-          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          ...MongoHelper.toQuery(util.defaultTo(filter, {}), searchByRegexFields),
           [QueryContextSymbol]: { source: QueryContextSource.RootFindAll } as QueryContext,
         },
-        MongoHelper.getSortObject(filter as any, sort),
+        MongoHelper.getSortObject(filter as any, sort, searchByRegexFields),
       );
       return items.map((item) => plainToInstance(OutputType(definition), item.toObject()));
     }
@@ -354,10 +358,10 @@ export function createResolver(
       const result = await this.baseService.paginate(
         ctx,
         {
-          ...MongoHelper.toQuery(util.defaultTo(filter, {})),
+          ...MongoHelper.toQuery(util.defaultTo(filter, {}), searchByRegexFields),
           [QueryContextSymbol]: { source: QueryContextSource.RootPaginate } as QueryContext,
         },
-        MongoHelper.getSortObject(filter as any, sort),
+        MongoHelper.getSortObject(filter as any, sort, searchByRegexFields),
         page,
         limit,
       );

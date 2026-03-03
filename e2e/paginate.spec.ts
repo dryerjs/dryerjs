@@ -1,8 +1,11 @@
-import { Customer } from '../src/models';
+import { Client, Customer } from '../src/models';
 import { TestServer } from './test-server';
 
 const server = TestServer.init({
-  definitions: [{ definition: Customer, allowedApis: '*' }],
+  definitions: [
+    { definition: Customer, allowedApis: '*' },
+    { definition: Client, allowedApis: '*' },
+  ],
 });
 
 describe('Paginate works', () => {
@@ -27,6 +30,16 @@ describe('Paginate works', () => {
         query: `
           mutation CreateCustomer($input: CreateCustomerInput!) {
             createCustomer(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: { input: customer },
+      });
+      await server.makeSuccessRequest({
+        query: `
+          mutation CreateClient($input: CreateClientInput!) {
+            createClient(input: $input) {
               id
             }
           }
@@ -608,6 +621,29 @@ describe('Paginate works', () => {
         { email: 'jane@example.com', numberOfOrders: expect.any(Number) },
         { email: 'joe@example.com', numberOfOrders: null },
       ],
+      totalDocs: 2,
+    });
+  });
+
+  it('searchByRegexFields works', async () => {
+    const { paginateClients } = await server.makeSuccessRequest({
+      query: `
+        query PaginateClients($filter: ClientFilter){
+          paginateClients(filter: $filter) {
+            docs {
+              email
+            }
+            totalDocs
+          }
+        }
+      `,
+      variables: { filter: { search: 'ja' }, sort: { email: 'ASC' } },
+    });
+
+    console.log('paginateClients', JSON.stringify(paginateClients, null, 2));
+
+    expect(paginateClients).toEqual({
+      docs: [{ email: 'jane@example.com' }, { email: 'jack@example.com' }],
       totalDocs: 2,
     });
   });
