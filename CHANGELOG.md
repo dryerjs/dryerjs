@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/dryerjs/dryerjs/compare/v2.1.0...v2.1.1) (2025-07-14)
+
+
+### Bug Fixes
+
+* add cacheKeyFn to dataloader instances ([#333](https://github.com/dryerjs/dryerjs/issues/333)) ([5a7d7ac](https://github.com/dryerjs/dryerjs/commit/5a7d7ac1b2e40ec30f7da89f1c9baed63de00e5f))
+
 # [2.1.0](https://github.com/dryerjs/dryerjs/compare/v2.0.0...v2.1.0) (2025-07-12)
 
 
